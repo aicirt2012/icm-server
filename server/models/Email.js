@@ -1,10 +1,10 @@
 var mongoose = require('mongoose');
 
 var emailSchema = new mongoose.Schema ({
-    from: {
+    from: [{
         address: String,
         name: String
-    },
+    }],
     html: String,
     text: String,
     date: Date

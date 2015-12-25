@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var SimpleImap = require('../util/SimpleImap');
 var config = require('../../config');
+var Email = require('../models/Email');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -22,7 +23,19 @@ router.get('/', function(req, res, next) {
   });
 
   simpleImap.on('mail', function(mail) {
-    console.log(mail);
+        console.log(mail);
+      var e = {
+          from: mail.from,
+          html: mail.html,
+          text: mail.text
+      };
+      Email.create(e, function (err, email) {
+          if (err)
+            console.log(err);
+          else
+            console.log('created email');
+      });
+
   });
 
   simpleImap.start();
