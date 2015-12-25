@@ -1,8 +1,8 @@
-var Imap = require('imap'),
-    MailParser = require('mailparser').MailParser,
-    moment = require('moment')
-util = require('util'),
-    events = require('events');
+var Imap = require('imap');
+var MailParser = require('mailparser').MailParser;
+var moment = require('moment');
+var util = require('util');
+var events = require('events');
 
 var SimpleImap = function(options) {
     this.options = options;
