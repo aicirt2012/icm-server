@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var SimpleImap = require('simple-imap');
+var SimpleImap = require('./SimpleImapFelix');//require('simple-imap');
 var config = require('../../config');
 
 /* GET users listing. */
