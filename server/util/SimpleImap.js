@@ -46,6 +46,7 @@ var SimpleImap = function(options) {
                                     mailParser.on('end', function(mailObject) {
                                         self.emit('mail', {
                                             from: mailObject.from,
+                                            to: mailObject.to,
                                             subject: mailObject.subject,
                                             text: mailObject.text,
                                             html: mailObject.html,

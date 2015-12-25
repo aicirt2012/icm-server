@@ -5,6 +5,10 @@ var emailSchema = new mongoose.Schema ({
         address: String,
         name: String
     }],
+    to: [{
+        address: String,
+        name: String
+    }],
     html: String,
     text: String,
     date: Date
