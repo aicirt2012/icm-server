@@ -17,6 +17,8 @@
     "async": "1.4.2",
     "bcrypt-nodejs": "^0.0.3",
     "mongoose": "^4.1.9",
-    "mongo-sanitize": "^1.0.0"
+    "mongo-sanitize": "^1.0.0",
+    "imap": "^0.8.16",
+    "simple-imap": "^0.1.6"
   }
 }
