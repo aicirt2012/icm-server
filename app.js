@@ -7,7 +7,9 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var config = require('./config');
 var routes = require('./server/routes/index');
-var users = require('./server/routes/users');
+var fetchmails = require('./server/routes/fetchmails');
+var login = require('./server/routes/login');
+var email = require('./server/routes/email');
 
 var app = express();
 
@@ -22,7 +24,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'client')));
 
 app.use('/', routes);
-app.use('/users', users);
+app.use('/login', login);
+app.use('/fetchmails', fetchmails);
+app.use('/email', email);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
