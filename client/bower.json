@@ -1,0 +1,20 @@
+{
+  "name": "emailapp",
+  "main": "index.html",
+  "description": "analyzing emails",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-route": "~1.4.8",
+    "angular": "angularjs#~1.4.8"
+  }
+}

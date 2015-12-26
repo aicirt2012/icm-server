@@ -5,7 +5,7 @@ module.exports = {
         expiresInSeconds: 86400
     },
     email:{
-        user: 'muc.refugees@gmail.com',
+        user: 'felixm87@gmail.com',
         pass: '***REMOVED***',
         host: 'imap.gmail.com',
         port: 993

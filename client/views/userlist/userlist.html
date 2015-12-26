@@ -1,0 +1,44 @@
+<md-button class="md-fab md-fab-bottom-right" aria-label="Add" ng-click="addUser()">
+    <ng-md-icon icon="add"></ng-md-icon>
+</md-button>
+<toolbar title="{{breadcrumb}}"></toolbar>
+
+<md-content flex md-scroll-y>
+    <ui-view layout="column" layout-fill layout-padding>
+        <div class="inset" hide-sm></div>
+
+        <md-card flex-gt-sm="90" flex-gt-md="80">
+            <md-tabs md-stretch-tabs class="md-primary" md-selected="selectedTabNr">
+                <md-tab id="tab1" aria-controls="tab1-content">
+                    Helfer
+                </md-tab>
+                <md-tab id="tab2" aria-controls="tab2-content">
+                    Team
+                </md-tab>
+                <md-tab id="tab3" aria-controls="tab3-content">
+                    Organisatoren
+                </md-tab>
+            </md-tabs>
+            <md-card-content>
+                <md-list>
+                    <md-list-item ng-repeat="user in userlist | filter: isSelectedRole" ng-click="selectUser(user.id)">
+                        <md-item-content>
+                            <div class="md-tile-left inset" hide-sm>
+                                <user-avatar></user-avatar>
+                            </div>
+                            <div class="md-tile-content">
+                                <h3>{{user.name}}</h3>
+                                <h4>{{user.email}}</h4>
+                                <p>
+                                    {{user.tel}}
+                                </p>
+                            </div>
+                        </md-item-content>
+                    </md-list-item>
+                </md-list>
+            </md-card-content>
+        </md-card>
+
+
+    </ui-view>
+</md-content>

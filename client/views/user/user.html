@@ -1,0 +1,168 @@
+<toolbar title="{{breadcrumb()}}"></toolbar>
+
+<md-content flex md-scroll-y>
+    <ui-view layout="column" layout-fill layout-padding>
+        <div class="inset" hide-sm></div>
+
+        <md-card flex-gt-sm="90" flex-gt-md="80">
+            <ng-switch on="selectedTabNr" class="tabpanel-container">
+                <md-tabs md-stretch-tabs class="md-primary" md-selected="selectedTabNr">
+                    <md-tab id="tab1" aria-controls="tab1-content">
+                        Persönliche Daten
+                    </md-tab>
+                    <md-tab id="tab2" aria-controls="tab2-content">
+                        Verfügbarkeit
+                    </md-tab>
+                    <md-tab id="tab3" aria-controls="tab3-content">
+                        Events
+                    </md-tab>
+                </md-tabs>
+                <md-card-content>
+                    <div role="tabpanel"
+                         id="tab1-content"
+                         aria-labelledby="tab1"
+                         ng-switch-when="0"
+                         md-swipe-left="next()"
+                         md-swipe-right="previous()"
+                         layout="row" layout-align="center center">
+                        <form name="userForm">
+                            <div layout layout-sm="column">
+                                <md-select-container flex>
+                                    <label>Anrede</label>
+                                    <md-select ng-model="user.gender">
+                                        <md-option ng-repeat="gender in genders" value="{{gender.id}}">
+                                            {{gender.label}}
+                                        </md-option>
+                                    </md-select>
+                                </md-select-container>
+                                <md-input-container flex>
+                                    <label>Name</label>
+                                    <input ng-model="user.name">
+                                </md-input-container>
+
+                                <md-input-container>
+                                    <label>&nbsp;</label>
+                                    <md-select ng-model="unknown"/>
+                                </md-input-container>
+                            </div>
+                            <div layout layout-sm="column">
+                                <md-input-container flex>
+                                    <label>Email</label>
+                                    <input ng-model="user.email">
+                                </md-input-container>
+                                <md-input-container>
+                                    <label>&nbsp;</label>
+                                    <md-select ng-model="unknown"/>
+                                </md-input-container>
+                            </div>
+                            <div layout="row" layout-sm="column">
+                                <md-input-container flex>
+                                    <label>Tel</label>
+                                    <input ng-model="user.tel">
+                                </md-input-container>
+                                <md-input-container flex>
+                                    <label>Mobil</label>
+                                    <input ng-model="user.mobil">
+                                </md-input-container>
+                                <md-input-container>
+                                    <label>&nbsp;</label>
+                                    <md-select ng-model="unknown"/>
+                                </md-input-container>
+                            </div>
+                            <div layout="row" layout-sm="column">
+                                <md-select-container flex>
+                                    <label>Rolle</label>
+                                    <md-select ng-model="user.role">
+                                        <md-option ng-repeat="role in roles" value="{{role.id}}">
+                                            {{role.label}}
+                                        </md-option>
+                                    </md-select>
+                                </md-select-container>
+                                <md-input-container>
+                                    <label>&nbsp;</label>
+                                    <md-select ng-model="unknown"/>
+                                </md-input-container>
+                            </div>
+                            <div layout layout-sm="column">
+                                <md-input-container flex>
+                                    <label>Notizen</label>
+                                    <textarea ng-model="user.notes" columns="3" md-maxlength="150" rows="5"></textarea>
+                                </md-input-container>
+                                <md-input-container>
+                                    <label>&nbsp;</label>
+                                    <md-select ng-model="unknown"/>
+                                </md-input-container>
+                            </div>
+                            <br/><br/>
+                            <section layout="row" layout-sm="column" layout-align="end center" layout-wrap>
+                                <md-button class="md-raised">Abbrechen</md-button>&nbsp;
+                                <md-button class="md-raised md-primary">Speichern</md-button>
+                            </section>
+                        </form>
+                    </div>
+                    <div role="tabpanel"
+                         id="tab2-content"
+                         aria-labelledby="tab1"
+                         ng-switch-when="1"
+                         md-swipe-left="next()"
+                         md-swipe-right="previous()"
+                         layout="row" layout-align="center center">
+                        <form name="userForm">
+
+                            <table>
+                                <tr>
+                                    <td></td>
+                                    <td width="80">Montag</td>
+                                    <td width="80">Dienstag</td>
+                                    <td width="80">Mittwoch</td>
+                                    <td width="80">Donnerstag</td>
+                                    <td width="80">Freitag</td>
+                                    <td width="80">Samsatg</td>
+                                    <td width="80">Sonntag</td>
+                                </tr>
+                                <tr>
+                                    <td>Vormittag</td>
+                                    <td><md-checkbox ng-model="user.availability.mo.morning" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.tu.morning" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.we.morning" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.th.morning" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.fr.morning" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.sa.morning" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.su.morning" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Nachmittag</td>
+                                    <td><md-checkbox ng-model="user.availability.mo.afternoon" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.tu.afternoon" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.we.afternoon" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.th.afternoon" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.fr.afternoon" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.sa.afternoon" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.su.afternoon" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Abend</td>
+                                    <td><md-checkbox ng-model="user.availability.mo.evening" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.tu.evening" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.we.evening" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.th.evening" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.fr.evening" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.sa.evening" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                    <td><md-checkbox ng-model="user.availability.su.evening" aria-label="ava" class="md-warn md-align-top-left"/></td>
+                                </tr>
+
+                            </table>
+                            <br/><br/>
+                            <section layout="row" layout-sm="column" layout-align="end center" layout-wrap>
+                                <md-button class="md-raised">Abbrechen</md-button>&nbsp;
+                                <md-button class="md-raised md-primary">Speichern</md-button>
+                            </section>
+                        </form>
+                    </div>
+                </md-card-content>
+            </ng-switch>
+        </md-card>
+
+
+    </ui-view>
+</md-content>
