@@ -1,4 +1,4 @@
-var app = angular.module('RefugeeApp', ['ngMaterial', 'ngMdIcons', 'ngRoute', 'ngSanitize', 'ngResource', 'angular-jwt']);
+var app = angular.module('EmailApp', ['ngMaterial', 'ngMdIcons', 'ngRoute', 'ngSanitize', 'ngResource', 'angular-jwt']);
 
 app.config(['$routeProvider', function($routeProvider) {
 
@@ -6,10 +6,6 @@ app.config(['$routeProvider', function($routeProvider) {
         .when('/login', {
             templateUrl: 'views/login/login.html',
             controller: 'LoginCtrl'
-        })
-        .when('/event', {
-            templateUrl: 'views/event/event.html',
-            controller: 'EventCtrl'
         })
         .when('/mydata', {
             templateUrl: 'views/mydata/mydata.html',
@@ -19,10 +15,6 @@ app.config(['$routeProvider', function($routeProvider) {
                     return User.me();
                 }
             }
-        })
-        .when('/adduser', {
-            templateUrl: 'views/adduser/adduser.html',
-            controller: 'AddUserCtrl'
         })
         .when('/user/', {
             redirectTo: '/user/helper'
@@ -38,25 +30,6 @@ app.config(['$routeProvider', function($routeProvider) {
             resolve: {
                 user: function($route, User) {
                     return User.get({id: $route.current.params.id});
-                }
-            }
-        })
-        .when('/organization', {
-            templateUrl: 'views/organizationlist/organizationlist.html',
-            controller: 'OrganizationlistCtrl'
-            /*
-            resolve: {
-                user: function($route, User) {
-                    return User.get({id: $route.current.params.id});
-                }
-            }*/
-        })
-        .when('/organization/:id', {
-            templateUrl: 'views/organization/organization.html',
-            controller: 'OrganizationCtrl',
-            resolve: {
-                organization: function($route, Organization) {
-                    return Organization.get({id: $route.current.params.id});
                 }
             }
         })
