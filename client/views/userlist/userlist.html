@@ -21,17 +21,12 @@
             </md-tabs>
             <md-card-content>
                 <md-list>
-                    <md-list-item ng-repeat="user in userlist | filter: isSelectedRole" ng-click="selectUser(user.id)">
+                    <md-list-item ng-repeat="email in emaillist | filter: isSelectedRole" ng-click="selectUser(user.id)">
                         <md-item-content>
-                            <div class="md-tile-left inset" hide-sm>
-                                <user-avatar></user-avatar>
-                            </div>
                             <div class="md-tile-content">
-                                <h3>{{user.name}}</h3>
-                                <h4>{{user.email}}</h4>
-                                <p>
-                                    {{user.tel}}
-                                </p>
+                                {{email}}
+                                <h3>{{email.from.name}}</h3>
+                                <h4>{{email.subject}}</h4>
                             </div>
                         </md-item-content>
                     </md-list-item>

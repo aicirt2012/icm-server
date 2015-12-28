@@ -76,7 +76,7 @@ router.get('/', function(req, res, next) {
 
 
 
-  res.render('index', { title: 'Express' });
+    res.json('Fetched new emails' );
 });
 
 module.exports = router;

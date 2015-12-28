@@ -24,9 +24,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'client')));
 
 app.use('/', routes);
-app.use('/login', login);
-app.use('/fetchmails', fetchmails);
-app.use('/email', email);
+app.use('/api/login', login);
+app.use('/api/fetchmails', fetchmails);
+app.use('/api/email', email);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
