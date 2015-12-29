@@ -1,32 +1,22 @@
 <md-button class="md-fab md-fab-bottom-right" aria-label="Add" ng-click="addUser()">
     <ng-md-icon icon="add"></ng-md-icon>
 </md-button>
-<toolbar title="{{breadcrumb}}"></toolbar>
+<toolbar title="Emails"></toolbar>
 
 <md-content flex md-scroll-y>
     <ui-view layout="column" layout-fill layout-padding>
         <div class="inset" hide-sm></div>
 
         <md-card flex-gt-sm="90" flex-gt-md="80">
-            <md-tabs md-stretch-tabs class="md-primary" md-selected="selectedTabNr">
-                <md-tab id="tab1" aria-controls="tab1-content">
-                    Helfer
-                </md-tab>
-                <md-tab id="tab2" aria-controls="tab2-content">
-                    Team
-                </md-tab>
-                <md-tab id="tab3" aria-controls="tab3-content">
-                    Organisatoren
-                </md-tab>
-            </md-tabs>
             <md-card-content>
                 <md-list>
                     <md-list-item ng-repeat="email in emaillist | filter: isSelectedRole" ng-click="selectEmail(email.id)">
                         <md-item-content>
+                            {{email}}
                             <div class="md-tile-content">
-                                {{email}}
-                                <h3>{{email.from.name}}</h3>
-                                <h4>{{email.subject}}</h4>
+                                <span ng-repeat="sender in email.from">{{sender.name}}{{email.subject}}</span>
+                               <!-- <h3>{{email.from.name}}</h3>
+                                <h4>{{email.subject}}</h4>-->
                             </div>
                         </md-item-content>
                     </md-list-item>

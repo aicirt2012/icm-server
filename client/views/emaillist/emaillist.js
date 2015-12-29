@@ -7,7 +7,7 @@ app.controller('EmaillistCtrl', ['$scope', '$mdSidenav', 'EmailList', function($
 
 
     me.selectEmail = function(id){
-        window.location.href = '#/user/'+id;
+        window.location.href = '#/email/'+id;
     }
 
     me.addUser = function(){

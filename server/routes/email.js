@@ -6,11 +6,16 @@ var Email = require('../models/Email');
 
 router.get('/list', function(req, res, next) {
 
-    Email.find({}).select({html: 0, text: 0}).exec(function(err, emails){
+    //.select({html: 0, text: 0}) with select the toclient doesnt work anymore
+    Email.find({}).exec(function(err, emails){
         if(err)
             res.json('error');
-        else
+        else{
+            emails.forEach(function(email, key, emails) {
+                emails[key] =  email.toClient();
+            });
             res.json(emails);
+        }
     });
 
 });

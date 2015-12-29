@@ -16,13 +16,13 @@ app.config(['$routeProvider', function($routeProvider) {
                 }
             }
         })
-        .when('/user/', {
-            redirectTo: '/user/helper'
-
-        })
-        .when('/email/', {
+        .when('/email', {
             templateUrl: 'views/emaillist/emaillist.html',
             controller: 'EmaillistCtrl'
+        })
+        .when('/email/:id', {
+            templateUrl: 'views/email/email.html',
+            controller: 'EmailCtrl'
         })
         .when('/user/:role/:id', {
             templateUrl: 'views/user/user.html',

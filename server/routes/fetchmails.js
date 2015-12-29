@@ -31,6 +31,7 @@ router.get('/', function(req, res, next) {
         var e = {
             from: mail.from,
             to: mail.to,
+            subject: mail.subject,
             html: mail.html,
             text: mail.text,
             date: mail.date
