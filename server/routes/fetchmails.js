@@ -32,7 +32,8 @@ router.get('/', function(req, res, next) {
             from: mail.from,
             to: mail.to,
             html: mail.html,
-            text: mail.text
+            text: mail.text,
+            date: mail.date
         };
         console.log(JSON.stringify(e));
         Email.create(e, function (err, email) {

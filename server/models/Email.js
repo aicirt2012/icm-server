@@ -9,6 +9,7 @@ var emailSchema = new mongoose.Schema ({
         address: String,
         name: String
     }],
+    subject: String,
     html: String,
     text: String,
     date: Date
