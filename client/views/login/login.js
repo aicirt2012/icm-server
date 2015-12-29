@@ -9,7 +9,7 @@ app.controller('LoginCtrl', ['$scope', 'Authenticate', '$mdSidenav', function($s
     me.login = function(){
         Authenticate.login(me.email,me.pw).then(function(data){
             console.log('logged in',data);
-            window.location.href = '#/user';
+            window.location.href = '#/email';
         }, function(){
             console.log('login failed');
         });
