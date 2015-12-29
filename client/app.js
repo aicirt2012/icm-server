@@ -29,6 +29,10 @@ app.config(['$routeProvider', function($routeProvider) {
                 }
             }
         })
+        .when('/statistic', {
+            templateUrl: 'views/statistics/statistics.html',
+            controller: 'StatisticsCtrl'
+        })
         .when('/user/:role/:id', {
             templateUrl: 'views/user/user.html',
             controller: 'UserCtrl',

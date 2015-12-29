@@ -27,6 +27,12 @@ router.get('/:id', function(req, res) {
             res.json('error');
         else{
             var j = email.toClient();
+            var natural = require('natural'),
+                tokenizer = new natural.WordTokenizer();
+            if(!j.html)
+                j.html = j.text;
+            console.log(tokenizer.tokenize(j.html));
+
             res.json(j);
         }
     });

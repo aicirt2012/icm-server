@@ -9,11 +9,11 @@
 
         <md-card flex-gt-sm="90" flex-gt-md="80">
             <md-card-content>
-                <md-list>
+                <md-list ng-cloak>
                     <md-list-item ng-repeat="email in emaillist | filter: isSelectedRole" ng-click="selectEmail(email.id)">
                         <md-item-content>
                             <div class="md-tile-content">
-                                <span ng-repeat="sender in email.from">{{sender.name}}{{email.subject}}</span>
+                                <span ng-repeat="sender in email.from">{{sender.name}} {{email.subject}}</span>
                             </div>
                         </md-item-content>
                     </md-list-item>

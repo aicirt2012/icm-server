@@ -1,0 +1,1 @@
+npm config set python C:\Python27\python.exe

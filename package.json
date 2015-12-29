@@ -19,6 +19,7 @@
     "mongoose": "^4.1.9",
     "mongo-sanitize": "^1.0.0",
     "imap": "^0.8.16",
-    "simple-imap": "^0.1.6"
+    "simple-imap": "^0.1.6",
+    "natural": "^0.2.1"
   }
 }
