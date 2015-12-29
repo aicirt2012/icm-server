@@ -1,5 +1,5 @@
 
-app.controller('IndexCtrl', ['$scope', '$mdBottomSheet','$mdSidenav', '$mdUtil', '$mdDialog', 'User', 'Authenticate', function($scope, $mdBottomSheet, $mdSidenav, $mdUtil, $mdDialog, User, Authenticate){
+app.controller('IndexCtrl', ['$scope', '$mdBottomSheet','$mdSidenav', '$mdUtil', '$mdDialog', 'User', 'Authenticate', '$resource', function($scope, $mdBottomSheet, $mdSidenav, $mdUtil, $mdDialog, User, Authenticate, $resource){
     var me = $scope;
 
 
@@ -44,6 +44,12 @@ app.controller('IndexCtrl', ['$scope', '$mdBottomSheet','$mdSidenav', '$mdUtil',
         }else
             window.location.href = '#/'+url;
             $scope.leftOpen = true;
+    };
+
+    me.fetchMails = function(){
+        console.log('start fetching emails form gmail');
+        var Fetchmails = $resource('/api/fetchmails');
+        Fetchmails.get();
     };
     /*
      $scope.showListBottomSheet = function($event) {
