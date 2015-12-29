@@ -1,8 +1,8 @@
-app.controller('EmailCtrl', ['$scope', 'Email', function($scope, Email) {
+app.controller('EmailCtrl', ['$scope', 'email','$routeParams', function($scope, email, $routeParams) {
 
 
     var me = $scope;
-    me.email = Email.get();
+    me.email = email;
 
 
 

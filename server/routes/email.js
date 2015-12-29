@@ -20,4 +20,16 @@ router.get('/list', function(req, res, next) {
 
 });
 
+router.get('/:id', function(req, res) {
+    var id = req.params.id;
+    Email.findById(id, function(err, email){
+        if(err)
+            res.json('error');
+        else{
+            var j = email.toClient();
+            res.json(j);
+        }
+    });
+
+});
 module.exports = router;

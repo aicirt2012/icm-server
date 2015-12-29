@@ -22,7 +22,12 @@ app.config(['$routeProvider', function($routeProvider) {
         })
         .when('/email/:id', {
             templateUrl: 'views/email/email.html',
-            controller: 'EmailCtrl'
+            controller: 'EmailCtrl',
+            resolve: {
+                email: function ($route, Email) {
+                    return Email.get({id: $route.current.params.id});
+                }
+            }
         })
         .when('/user/:role/:id', {
             templateUrl: 'views/user/user.html',
