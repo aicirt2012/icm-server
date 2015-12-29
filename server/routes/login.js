@@ -12,8 +12,11 @@ router.post('/', function(req, res, next) {
     var email = req.body.email;
     var pw = req.body.pw;
     return res.json({
-        token: jwt.sign(user.id, config.jwt.secret, {expiresIn: config.jwt.expiresInSeconds}),
-        user: User.toMe(user)
+        token: jwt.sign(email, config.jwt.secret, {expiresIn: config.jwt.expiresInSeconds}),
+        user: {
+            id: 'xx',
+            email: email
+        }
     });
 
 });

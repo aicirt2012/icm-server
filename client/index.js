@@ -9,19 +9,19 @@ app.controller('IndexCtrl', ['$scope', '$mdBottomSheet','$mdSidenav', '$mdUtil',
 
     me.menu = [
         {
-            link : 'event',
-            title: 'Eventverwaltung',
-            icon: 'event'
+            link : 'email',
+            title: 'Emails',
+            icon: 'email'
         },
         {
-            link : 'user',
-            title: 'Personalverwaltung',
+            link : 'statistic',
+            title: 'Statistics',
             icon: 'group'
         },
         {
-            link : 'organization',
-            title: 'Einrichtungsverwaltung',
-            icon: 'home'
+            link : 'task',
+            title: 'Tasks',
+            icon: 'task'
         }
     ];
     me.admin = [

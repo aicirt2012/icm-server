@@ -20,9 +20,9 @@ app.config(['$routeProvider', function($routeProvider) {
             redirectTo: '/user/helper'
 
         })
-        .when('/user/:role', {
-            templateUrl: 'views/userlist/userlist.html',
-            controller: 'UserlistCtrl'
+        .when('/email/', {
+            templateUrl: 'views/emaillist/emaillist.html',
+            controller: 'EmaillistCtrl'
         })
         .when('/user/:role/:id', {
             templateUrl: 'views/user/user.html',

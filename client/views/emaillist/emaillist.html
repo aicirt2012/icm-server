@@ -21,7 +21,7 @@
             </md-tabs>
             <md-card-content>
                 <md-list>
-                    <md-list-item ng-repeat="email in emaillist | filter: isSelectedRole" ng-click="selectUser(user.id)">
+                    <md-list-item ng-repeat="email in emaillist | filter: isSelectedRole" ng-click="selectEmail(email.id)">
                         <md-item-content>
                             <div class="md-tile-content">
                                 {{email}}

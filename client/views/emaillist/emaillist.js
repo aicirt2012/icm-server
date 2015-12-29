@@ -1,4 +1,4 @@
-app.controller('UserlistCtrl', ['$scope', '$mdSidenav', 'EmailList', function($scope, $mdSidenav, EmailList) {
+app.controller('EmaillistCtrl', ['$scope', '$mdSidenav', 'EmailList', function($scope, $mdSidenav, EmailList) {
 
 
     var me = $scope;
@@ -6,8 +6,8 @@ app.controller('UserlistCtrl', ['$scope', '$mdSidenav', 'EmailList', function($s
 
 
 
-    me.selectUser = function(id){
-        window.location.href = '#/user/'+me.selectedRole.id+'/'+id;
+    me.selectEmail = function(id){
+        window.location.href = '#/user/'+id;
     }
 
     me.addUser = function(){
