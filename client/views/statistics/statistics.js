@@ -1,8 +1,8 @@
-app.controller('StatisticsCtrl', ['$scope', 'Statistics', function($scope, Statistics) {
+app.controller('StatisticsCtrl', ['$scope', 'Statistics', 'statistics', function($scope, Statistics, statistics) {
 
 
     var me = $scope;
-    me.email = email;
+    me.statistics = statistics;
 
 
 }]);

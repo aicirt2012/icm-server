@@ -9,6 +9,3 @@ app.controller('EmailCtrl', ['$scope', 'email','$routeParams', function($scope, 
 
 }]);
 
-app.service('Email', function($resource) {
-    return $resource('/api/email/:id');
-});
