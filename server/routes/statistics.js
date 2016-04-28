@@ -8,9 +8,14 @@ router.get('/', function(req, res) {
     console.log('hello');
 
    // Email.find().distinct('to.')
-    Email.find({}, function(data){
-        console.log(data);
-        return res.json(data);
+
+
+    Email.find({}).limit(20).exec(function(err, emails){
+        console.log(emails.length);
+        if(err)
+            res.json('error');
+        else
+            res.json(emails);
     });
 
 
