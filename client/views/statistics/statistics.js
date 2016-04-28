@@ -1,14 +1,9 @@
-app.controller('StatisticsCtrl', ['$scope', 'Statistics', function($scope) {
+app.controller('StatisticsCtrl', ['$scope', 'Statistics', function($scope, Statistics) {
 
 
     var me = $scope;
     me.email = email;
 
 
-
-
 }]);
 
-app.service('Statistics', function($resource) {
-    return $resource('/api/statistics');
-});

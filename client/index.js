@@ -25,11 +25,11 @@ app.controller('IndexCtrl', ['$scope', '$mdBottomSheet','$mdSidenav', '$mdUtil',
         }
     ];
     me.admin = [
-        {
+      /*  {
             link : 'mydata',
             title: 'Meine Daten',
             icon: 'settings'
-        },
+        },*/
         {
             link: 'logout',
             title: 'Logout',
