@@ -29,6 +29,7 @@ router.get('/', function(req, res, next) {
     simpleImap.on('mail', function(mail) {
         // console.log(mail);
         var e = {
+            messageId: mail.messageId,
             from: mail.from,
             to: mail.to,
             subject: mail.subject,
@@ -36,7 +37,8 @@ router.get('/', function(req, res, next) {
             text: mail.text,
             date: mail.date
         };
-        console.log(JSON.stringify(e));
+        //console.log(JSON.stringify(mail));
+        //mailconsole.log(JSON.stringify(e));
         Email.create(e, function (err, email) {
             if (err)
                 console.log(err);

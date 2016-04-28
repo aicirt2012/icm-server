@@ -44,8 +44,9 @@ var SimpleImap = function(options) {
                                     var mailParser = new MailParser();
 
                                     mailParser.on('end', function(mailObject) {
-                                        //console.log('Parsed mail obj', JSON.stringify(mailObject));
+                                        console.log('Parsed mail obj', JSON.stringify(mailObject));
                                         self.emit('mail', {
+                                            messageId: mailObject.messageId,
                                             from: mailObject.from,
                                             to: mailObject.to,
                                             subject: mailObject.subject,

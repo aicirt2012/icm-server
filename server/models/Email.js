@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 
 var emailSchema = new mongoose.Schema ({
+    messageId: String,
     from: [{
         address: String,
         name: String
