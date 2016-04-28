@@ -18,25 +18,28 @@ router.get('/', function (req, res) {
 
             emails.forEach(function (email) {
                 email.from.forEach(function (f) {
-                    var set = map.get(f.address);
-                    if (!set) {
-                        set = new Set();
-                        map.set(f.address, set);
+                    var vmap = map.get(f.address);
+                    if (!vmap) {
+                        vmap = new Map();
+                        map.set(f.address, vmap);
                     }
                     email.to.forEach(function (t) {
-                        set.add(t.address)
+                        if(!vmap.get(t.address))
+                            vmap.set(t.address, 1);
+                        else
+                            vmap.set(t.address, vmap.get(t.address)+1);
                     });
                 });
             });
 
-            var json = {};
+            var json = [];
             map.forEach(function(values, k){
-                json[k] = [];
-                values.forEach(function(v){
-                    json[k].push(v);
+                values.forEach(function(count, to){
+                    json.push({from: k, to: to, count: count});
                 });
             });
 
+            console.log(json)
             res.json(json);
         }
 
