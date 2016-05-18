@@ -6,7 +6,7 @@ module.exports = {
     },
     email:{
         user: 'felixm87@gmail.com',
-        pass: '***REMOVED***',
+        pass: 'rm',
         host: 'imap.gmail.com',
         port: 993
     }
