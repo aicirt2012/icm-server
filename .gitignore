@@ -1,5 +1,8 @@
 node_modules/
 client/bower_components/
+client_ng2/node_modules/
+client_ng2/app/*.js
+client_ng2/app/*.map
 logs/*
 !.gitkeep
 bower_components/
@@ -9,3 +12,4 @@ bower_components/
 build
 */**/Thumbs.db
 *.iml
+/.idea

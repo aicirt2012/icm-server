@@ -16,6 +16,7 @@ import {Email} from './emails/email';
 @Component({
   selector: 'my-app',
   templateUrl: 'app/app.component.html',
+  styleUrls: ['app/app.component.css'],
   directives: [MdCheckbox,
     MD_SIDENAV_DIRECTIVES,
     MdToolbar,
@@ -33,16 +34,20 @@ export class AppComponent {
 
   emails = EMAILS;
 
+  menu = [{title: 'Menu1'}, {title: 'Menu2'}];
+
 }
 
-var EMAILS: Email[] = [
-  {"messageId": "JyiL3xzcVjPLkQ6Gwua8zQ@notifications.google.com",
+var EMAILS:Email[] = [
+  {
+    "messageId": "JyiL3xzcVjPLkQ6Gwua8zQ@notifications.google.com",
     "subject": "Anmeldeversuch verhindert",
     "html": "<html><head></head><body>ayylmao</body></html>",
     "text": "Hi this is a test.",
     "date": "2016-05-23"
   },
-  {"messageId": "zcVjPLkQ6Gwua8zQ@notifications.google.com",
+  {
+    "messageId": "zcVjPLkQ6Gwua8zQ@notifications.google.com",
     "subject": "rsuch verhindert",
     "html": "<html><head></head><body>bits&pieces</body></html>",
     "text": "Hi this is a test#2.",
