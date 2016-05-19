@@ -1,27 +1,24 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Email} from './emails/email';
+import {Address} from './emails/address';
+import {EmailService} from './email.service';
 
 @Component({
     selector: 'my-app',
-    template: '<h1>My First Angular 2 App</h1><ul class="emaillist"><li *ngFor="let email of emails"><span class="email">{{email.subject}}</span></li></ul>'
+    template: '<h1>My First Angular 2 App</h1><ul class="emaillist"><li *ngFor="let email of emails"><span class="email">{{email.subject}}</span></li></ul>',
+    providers: [EmailService]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
 
-	emails = EMAILS;
+	emails: any;
 
-}
+	constructor(private emailService: EmailService) { }
 
-var EMAILS: Email[] = [
-	{"messageId": "JyiL3xzcVjPLkQ6Gwua8zQ@notifications.google.com",
-	 "subject": "Anmeldeversuch verhindert",
-	 "html": "<html><head></head><body>ayylmao</body></html>",
-	 "text": "Hi this is a test.",
-	 "date": "2016-05-23"
-	},
-	{"messageId": "zcVjPLkQ6Gwua8zQ@notifications.google.com",
-	 "subject": "rsuch verhindert",
-	 "html": "<html><head></head><body>bits&pieces</body></html>",
-	 "text": "Hi this is a test#2.",
-	 "date": "2016-05-24"
+	getEmails() {
+		this.emails = this.emailService.getEmails();
 	}
-]
+
+	ngOnInit() {
+		this.getEmails();
+	}
+}
