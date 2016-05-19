@@ -15,7 +15,7 @@ var statistics = require('./server/routes/statistics');
 var app = express();
 
 mongoose.connect(config.database);
-
+mongoose.set('debug', true);
 
 app.use(favicon(path.join(__dirname, 'client', 'favicon.ico')));
 app.use(logger('dev'));

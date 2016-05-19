@@ -31,7 +31,7 @@ router.get('/:id', function(req, res) {
                 tokenizer = new natural.WordTokenizer();
             if(!j.html)
                 j.html = j.text;
-            console.log(tokenizer.tokenize(j.html));
+           // console.log(tokenizer.tokenize(j.html));
 
             res.json(j);
         }
