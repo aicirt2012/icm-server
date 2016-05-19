@@ -1,2 +1,11 @@
 node_modules/
 client/bower_components/
+logs/*
+!.gitkeep
+bower_components/
+.DS_Store
+.idea
+.project
+build
+*/**/Thumbs.db
+*.iml
