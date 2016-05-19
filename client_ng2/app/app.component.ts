@@ -14,6 +14,9 @@ import {MdRadioDispatcher} from '@angular2-material/radio/radio_dispatcher';
 import {Email} from './emails/email';
 import {Address} from './emails/address';
 import {EmailService} from './email.service';
+import {Http, HTTP_PROVIDERS, Response, Headers} from '@angular/http';
+import { Injectable } from '@angular/core';
+
 
 @Component({
   selector: 'my-app',
@@ -30,22 +33,20 @@ import {EmailService} from './email.service';
     MD_LIST_DIRECTIVES,
     MdIcon,
     MdRadioButton],
-  providers: [MdIconRegistry, MdRadioDispatcher],
+  providers: [MdIconRegistry, MdRadioDispatcher, EmailService],
 })
-export class AppComponent implements OnInit {
+
+@Injectable()
+export class AppComponent {
 
 	emails: any;
 
-	constructor(private emailService: EmailService) { }
+	constructor(private emailService: EmailService) { this.getEmails(); }
+
+		getEmails() {
+			this.emailService.getEmails();
+		}
+
   menu = [{title: 'Menu1'}, {title: 'Menu2'}];
 
-}
-
-	getEmails() {
-		this.emails = this.emailService.getEmails();
-	}
-
-	ngOnInit() {
-		this.getEmails();
-	}
 }
