@@ -7,6 +7,7 @@ import {EmailService} from "../email.service";
   templateUrl: './send.component.html',
   styleUrls: ['./send.component.css']
 })
+
 export class SendComponent {
 
   public email:Email;

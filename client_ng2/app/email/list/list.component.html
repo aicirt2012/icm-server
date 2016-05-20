@@ -1,7 +1,8 @@
 <md-list class="app-list">
-  <md-list-item *ngFor="let email of emails">
+  <md-list-item *ngFor="let email of emails" (click)="gotoDetail(email)">
     <h3 md-line>{{email.subject}}</h3>
     <p md-line class="demo-secondary-text">{{email.date}}</p>
-    <!--<a [routerLink]="['Detail']">details</a>-->
   </md-list-item>
 </md-list>
+
+
