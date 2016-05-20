@@ -16,6 +16,7 @@ import {Email} from './email/email.model';
 import {EmailService} from "./email/email.service";
 import {ListComponent} from "./email/list/list.component";
 import {DetailComponent} from "./email/detail/detail.component";
+import {SendComponent} from "./email/send/send.component";
 
 @Component({
   selector: 'my-app',
@@ -41,7 +42,8 @@ import {DetailComponent} from "./email/detail/detail.component";
 
 @RouteConfig([
   {path: '/list',         name: 'List',     component: ListComponent},
-  {path: '/email/:id',    name: 'Detail',   component: DetailComponent}
+  {path: '/email/:id',    name: 'Detail',   component: DetailComponent},
+  {path: '/send',         name: 'Send',     component: SendComponent}
 ])
 
 //https://angular.io/docs/ts/latest/guide/router-deprecated.html#!#base-href
