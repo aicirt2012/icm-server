@@ -10,7 +10,7 @@
     <p *ngIf="email?.html" [innerHTML]="email?.html">{{email?.html}}</p>
 </md-card-content>
 <md-card-actions>
-    <button md-icon-button>
+    <button md-icon-button (click)="reply()">
         <md-icon class="md-24">reply</md-icon>
     </button>
     <button md-icon-button>

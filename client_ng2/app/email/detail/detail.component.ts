@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {RouteParams} from '@angular/router-deprecated';
+import {Router, RouteParams} from '@angular/router-deprecated';
 import {MdIcon} from '@angular2-material/icon';
 import {Email} from '../email.model';
 import {EmailService} from "../email.service";
@@ -15,7 +15,7 @@ export class DetailComponent implements OnInit {
 
     public email:Email;
 
-    constructor(private emailService:EmailService, private routeParams:RouteParams) {
+    constructor(private emailService:EmailService, private routeParams:RouteParams, private router:Router) {
     }
 
     ngOnInit() {
@@ -33,6 +33,11 @@ export class DetailComponent implements OnInit {
 
     goBack() {
         window.history.back();
+    }
+
+    reply() {
+        let replyText = this.email.text;
+        this.router.navigate(['Send', {param: replyText}]);
     }
 
 }
