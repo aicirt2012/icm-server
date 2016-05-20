@@ -23,7 +23,7 @@ router.get('/list', function(req, res, next) {
 router.get('/:id', function(req, res) {
     var id = req.params.id;
     Email.findById(id, function(err, email){
-        if(err)
+        if(err || email == null)
             res.json('error');
         else{
             var j = email.toClient();

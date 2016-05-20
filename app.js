@@ -11,6 +11,7 @@ var fetchmails = require('./server/routes/fetchmails');
 var login = require('./server/routes/login');
 var email = require('./server/routes/email');
 var statistics = require('./server/routes/statistics');
+var provider = require('./server/routes/provider');
 
 var app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/login', login);
 app.use('/api/fetchmails', fetchmails);
 app.use('/api/email', email);
 app.use('/api/statistics', statistics);
+app.use('/api/provider', provider);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
