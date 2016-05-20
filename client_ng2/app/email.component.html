@@ -1,0 +1,53 @@
+<md-sidenav-layout>
+  <md-sidenav #sidenav mode="side" class="app-sidenav" opened="true">
+    <md-toolbar>
+      <h3>Email</h3>
+    </md-toolbar>
+
+    <md-list>
+      <md-list-item *ngFor="let item of menu">
+        <i class="material-icons">menu</i>
+        <h3>{{item.title}}</h3>
+      </md-list-item>
+      <md-subheader>Management</md-subheader>
+      <md-list-item *ngFor="let item of menu">
+        <i class="material-icons">menu</i>
+        <h3>{{item.title}}</h3>
+      </md-list-item>
+    </md-list>
+  </md-sidenav>
+
+  <md-toolbar color="primary">
+    <button class="app-icon-button" (click)="sidenav.toggle()">
+      <i class="material-icons app-toolbar-menu">menu</i>
+    </button>
+
+    Email App Angular2
+
+    <span class="app-toolbar-filler"></span>
+  </md-toolbar>
+
+  <div class="app-content">
+    <md-card>
+      <md-card-subtitle>{{email?.date}}</md-card-subtitle>
+      <md-card-title>{{email?.subject}}</md-card-title>
+      <md-card-subtitle>From: {{email?.from}}</md-card-subtitle>
+      <md-card-subtitle>To: {{email?.to}}</md-card-subtitle>
+      <md-card-content>
+        <p *ngIf="!email?.html">{{email?.text}}</p>
+        <p *ngIf="email?.html" [innerHTML]="email?.html">{{email?.html}}</p>
+      </md-card-content>
+      <md-card-actions>
+        <button md-icon-button>
+          <md-icon class="md-24">reply</md-icon>
+        </button>
+        <button md-icon-button>
+          <md-icon class="md-24">reply_all</md-icon>
+        </button>
+        <button md-icon-button>
+          <md-icon class="md-24">forward</md-icon>
+        </button>
+      </md-card-actions>
+    </md-card>
+  </div>
+</md-sidenav-layout>

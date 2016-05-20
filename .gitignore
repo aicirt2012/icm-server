@@ -13,10 +13,3 @@ build
 */**/Thumbs.db
 *.iml
 /.idea
-*.log
-client_ng2/app/emails/email.js
-client_ng2/app/emails/email.js.map
-client_ng2/app/emails/address.js
-client_ng2/app/emails/address.js.map
-client_ng2/app/emails/email.service.js
-client_ng2/app/emails/email.service.js.map
