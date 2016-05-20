@@ -19,6 +19,7 @@ var emailSchema = new mongoose.Schema ({
 emailSchema.methods.toClient = function(){
     var obj = this.toObject();
     obj.id = obj._id;
+    obj.date = obj.date.toISOString();
     delete obj._id;
     return obj;
 };
