@@ -13,6 +13,7 @@ import {MdIcon, MdIconRegistry} from '@angular2-material/icon';
 import {MdRadioButton} from '@angular2-material/radio';
 import {MdRadioDispatcher} from '@angular2-material/radio/radio_dispatcher';
 import {Email} from './emails/email';
+import {EmailService} from "./emails/email.service";
 
 @Component({
   selector: 'my-app',
@@ -29,7 +30,7 @@ import {Email} from './emails/email';
     MD_LIST_DIRECTIVES,
     MdIcon,
     MdRadioButton],
-  providers: [MdIconRegistry, MdRadioDispatcher],
+  providers: [MdIconRegistry, MdRadioDispatcher, EmailService],
 })
 
 
@@ -40,25 +41,29 @@ import {Email} from './emails/email';
 
 export class AppComponent {
 
-  emails = EMAILS;
+  public emails:Email [];
+
+  constructor(private _emailService:EmailService) {
+
+    this.getAllItems();
+    this.getSingleItem();
+  }
 
   menu = [{title: 'Menu1'}, {title: 'Menu2'}];
 
-}
-
-var EMAILS:Email[] = [
-  {
-    "messageId": "JyiL3xzcVjPLkQ6Gwua8zQ@notifications.google.com",
-    "subject": "Anmeldeversuch verhindert",
-    "html": "<html><head></head><body>ayylmao</body></html>",
-    "text": "Hi this is a test.",
-    "date": "2016-05-23"
-  },
-  {
-    "messageId": "zcVjPLkQ6Gwua8zQ@notifications.google.com",
-    "subject": "rsuch verhindert",
-    "html": "<html><head></head><body>bits&pieces</body></html>",
-    "text": "Hi this is a test#2.",
-    "date": "2016-05-24"
+  private getAllItems():void {
+    this._emailService
+      .GetAll()
+      .subscribe((data:any) => this.emails = data,
+        error => console.log(error),
+        () => console.log('Get all Items complete'));
   }
-]
+
+  private getSingleItem():void {
+    this._emailService
+      .GetSingle('573de64b091dfd1e87c37d05')
+      .subscribe((data:any) => console.log(data),
+        error => console.log(error),
+        () => console.log('Get single Item complete'));
+  }
+}
