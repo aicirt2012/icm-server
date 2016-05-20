@@ -29,7 +29,6 @@ import {EmailService} from "../email.service";
     MD_LIST_DIRECTIVES,
     MdIcon,
     MdRadioButton],
-  providers: [MdIconRegistry, MdRadioDispatcher, EmailService],
 })
 export class ListComponent {
 

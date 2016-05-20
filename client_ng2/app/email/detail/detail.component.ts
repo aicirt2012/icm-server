@@ -28,8 +28,7 @@ import {EmailService} from "../email.service";
     MD_INPUT_DIRECTIVES,
     MD_LIST_DIRECTIVES,
     MdIcon,
-    MdRadioButton],
-  providers: [MdIconRegistry, MdRadioDispatcher, EmailService],
+    MdRadioButton]
 })
 export class DetailComponent {
 
