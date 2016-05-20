@@ -13,23 +13,15 @@ import {EmailService} from "../email.service";
 export class ListComponent implements OnInit{
 
   public emails:Email[];
-  public selectedEmail: Email;
 
-  constructor(private _emailService:EmailService, private router: Router) {
-    this.getAllItems();
-  }
+  constructor(private emailService:EmailService, private router: Router) { }
 
-  private getAllItems():void {
-    this._emailService
+  ngOnInit() {
+    this.emailService
       .GetAll()
       .subscribe((data:any) => this.emails = data,
         error => console.log(error),
         () => console.log('Get all Items complete'));
-  }
-
-
-  ngOnInit() {
-    this.getAllItems();
   }
 ​
 ​
