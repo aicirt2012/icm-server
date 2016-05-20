@@ -19,7 +19,7 @@ export class DetailComponent implements OnInit {
     }
 
     ngOnInit() {
-        var id = this.routeParams.params.id;
+        var id = this.routeParams.params['id'];
 
         this.emailService
             .GetSingle(id)
