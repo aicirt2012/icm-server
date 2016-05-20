@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
+import {RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
 import {MdCheckbox} from '@angular2-material/checkbox';
 import {MD_SIDENAV_DIRECTIVES} from '@angular2-material/sidenav';
 import {MdToolbar} from '@angular2-material/toolbar';
@@ -12,8 +12,8 @@ import {MD_LIST_DIRECTIVES} from '@angular2-material/list';
 import {MdIcon, MdIconRegistry} from '@angular2-material/icon';
 import {MdRadioButton} from '@angular2-material/radio';
 import {MdRadioDispatcher} from '@angular2-material/radio/radio_dispatcher';
-import {Email} from './emails/email';
-import {EmailService} from "./emails/email.service";
+import {Email} from './email/email.model';
+import {EmailService} from "./email/email.service";
 
 @Component({
   selector: 'my-app',
