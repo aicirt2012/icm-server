@@ -4,8 +4,8 @@ import {EmailService} from "../email.service";
 
 @Component({
   selector: 'email-detail',
-  templateUrl: './detail/detail.component.html',
-  styleUrls: ['./detail/detail.component.css']
+  templateUrl: '/app/email/detail/detail.component.html',
+  styleUrls: ['/app/email/detail/detail.component.css']
 })
 
 export class DetailComponent implements OnInit{

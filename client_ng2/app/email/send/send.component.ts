@@ -15,8 +15,7 @@ export class SendComponent {
   emailText:string;
   toEmail:string;
 
-  constructor(private _emailService:EmailService) {
-  }
+  constructor(private emailService:EmailService) {}
 
 
   private sendEmail():void {
