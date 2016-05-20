@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
 import {Router, RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from '@angular/router-deprecated';
+import {FORM_DIRECTIVES} from '@angular/common';
 import {MdCheckbox} from '@angular2-material/checkbox';
 import {MD_SIDENAV_DIRECTIVES} from '@angular2-material/sidenav';
 import {MdToolbar} from '@angular2-material/toolbar';
@@ -17,6 +18,8 @@ import {EmailService} from "./email/email.service";
 import {ListComponent} from "./email/list/list.component";
 import {DetailComponent} from "./email/detail/detail.component";
 import {SendComponent} from "./email/send/send.component";
+import {MeService} from "./me/me.service";
+
 
 @Component({
     selector: 'my-app',
@@ -34,9 +37,10 @@ import {SendComponent} from "./email/send/send.component";
         MdIcon,
         MdRadioButton,
         ROUTER_DIRECTIVES,
-        ListComponent
+        ListComponent,
+      FORM_DIRECTIVES
     ],
-    providers: [MdIconRegistry, MdRadioDispatcher, EmailService, ROUTER_PROVIDERS],
+    providers: [MdIconRegistry, MdRadioDispatcher, EmailService, ROUTER_PROVIDERS, MeService],
 })
 
 
@@ -65,7 +69,8 @@ export class AppComponent {
 
     public emails:Email [];
 
-    constructor(private router:Router) {
+    constructor(private router:Router, private meService: MeService) {
+      console.log(meService.GetMe());
     }
 
     menu = [{title: 'Menu1'}, {title: 'Menu2'}];
