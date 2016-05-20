@@ -8,6 +8,7 @@ import {EmailService} from "../email.service";
     templateUrl: '/app/email/list/list.component.html',
     styleUrls: ['/app/email/list/list.component.css']
 })
+
 export class ListComponent implements OnInit {
 
     public emails:Email[];
@@ -22,8 +23,8 @@ export class ListComponent implements OnInit {
                 () => console.log('Get all Items complete'));
     }​
 ​
-  gotoDetail(email:Email) {
-      this.router.navigate(['Detail', {id: email.id}]);
-  }
+    gotoDetail(email:Email) {
+        this.router.navigate(['Detail', {id: email.id}]);
+    }
 
 }
