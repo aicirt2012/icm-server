@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
 import {MdCheckbox} from '@angular2-material/checkbox';
 import {MD_SIDENAV_DIRECTIVES} from '@angular2-material/sidenav';
 import {MdToolbar} from '@angular2-material/toolbar';
@@ -30,6 +31,13 @@ import {Email} from './emails/email';
     MdRadioButton],
   providers: [MdIconRegistry, MdRadioDispatcher],
 })
+
+
+@RouteConfig([
+  {path: '/emails',         name: 'Emails',     component: Email}
+])
+//https://angular.io/docs/ts/latest/guide/router-deprecated.html#!#base-href
+
 export class AppComponent {
 
   emails = EMAILS;
