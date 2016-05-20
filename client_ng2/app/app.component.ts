@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
+import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from '@angular/router-deprecated';
 import {MdCheckbox} from '@angular2-material/checkbox';
 import {MD_SIDENAV_DIRECTIVES} from '@angular2-material/sidenav';
 import {MdToolbar} from '@angular2-material/toolbar';
@@ -19,41 +19,55 @@ import {DetailComponent} from "./email/detail/detail.component";
 import {SendComponent} from "./email/send/send.component";
 
 @Component({
-  selector: 'my-app',
-  templateUrl: 'app/app.component.html',
-  styleUrls: ['app/app.component.css'],
-  directives: [MdCheckbox,
-    MD_SIDENAV_DIRECTIVES,
-    MdToolbar,
-    MdButton,
-    MdSpinner,
-    MdProgressBar,
-    MD_CARD_DIRECTIVES,
-    MD_INPUT_DIRECTIVES,
-    MD_LIST_DIRECTIVES,
-    MdIcon,
-    MdRadioButton,
-    ROUTER_DIRECTIVES,
-    ListComponent
-  ],
-  providers: [MdIconRegistry, MdRadioDispatcher, EmailService, ROUTER_PROVIDERS],
+    selector: 'my-app',
+    templateUrl: 'app/app.component.html',
+    styleUrls: ['app/app.component.css'],
+    directives: [MdCheckbox,
+        MD_SIDENAV_DIRECTIVES,
+        MdToolbar,
+        MdButton,
+        MdSpinner,
+        MdProgressBar,
+        MD_CARD_DIRECTIVES,
+        MD_INPUT_DIRECTIVES,
+        MD_LIST_DIRECTIVES,
+        MdIcon,
+        MdRadioButton,
+        ROUTER_DIRECTIVES,
+        ListComponent
+    ],
+    providers: [MdIconRegistry, MdRadioDispatcher, EmailService, ROUTER_PROVIDERS],
 })
 
 
 @RouteConfig([
-  {path: '/list',         name: 'List',     component: ListComponent},
-  {path: '/email/:id',    name: 'Detail',   component: DetailComponent},
-  {path: '/send',         name: 'Send',     component: SendComponent}
+    {
+        path: '/list',
+        name: 'List',
+        component: ListComponent,
+        useAsDefault: true
+    },
+    {
+        path: '/email/:id',
+        name: 'Detail',
+        component: DetailComponent
+    },
+    {
+        path: '/send',
+        name: 'Send',
+        component: SendComponent
+    }
 ])
 
 //https://angular.io/docs/ts/latest/guide/router-deprecated.html#!#base-href
 
 export class AppComponent {
 
-  public emails:Email [];
+    public emails:Email [];
 
-  constructor() { }
+    constructor() {
+    }
 
-  menu = [{title: 'Menu1'}, {title: 'Menu2'}];
+    menu = [{title: 'Menu1'}, {title: 'Menu2'}];
 
 }
