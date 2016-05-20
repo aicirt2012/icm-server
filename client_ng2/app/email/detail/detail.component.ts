@@ -16,8 +16,8 @@ import {EmailService} from "../email.service";
 
 @Component({
   selector: 'my-app',
-  templateUrl: 'app/email.component.html',
-  styleUrls: ['app/email.component.css'],
+  templateUrl: './detail/detail.component.html',
+  styleUrls: ['./detail/detail.component.css'],
   directives: [MdCheckbox,
     MD_SIDENAV_DIRECTIVES,
     MdToolbar,

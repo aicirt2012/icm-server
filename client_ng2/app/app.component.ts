@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
+import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import {MdCheckbox} from '@angular2-material/checkbox';
 import {MD_SIDENAV_DIRECTIVES} from '@angular2-material/sidenav';
 import {MdToolbar} from '@angular2-material/toolbar';
@@ -14,6 +14,8 @@ import {MdRadioButton} from '@angular2-material/radio';
 import {MdRadioDispatcher} from '@angular2-material/radio/radio_dispatcher';
 import {Email} from './email/email.model';
 import {EmailService} from "./email/email.service";
+import {ListComponent} from "./email/list/list.component";
+import {DetailComponent} from "./email/detail/detail.component";
 
 @Component({
   selector: 'my-app',
@@ -29,13 +31,17 @@ import {EmailService} from "./email/email.service";
     MD_INPUT_DIRECTIVES,
     MD_LIST_DIRECTIVES,
     MdIcon,
-    MdRadioButton],
-  providers: [MdIconRegistry, MdRadioDispatcher, EmailService],
+    MdRadioButton,
+    ROUTER_DIRECTIVES,
+    ListComponent
+  ],
+  providers: [MdIconRegistry, MdRadioDispatcher, EmailService, ROUTER_PROVIDERS],
 })
 
 
 @RouteConfig([
-  {path: '/emails',         name: 'Emails',     component: Email}
+  {path: '/list',         name: 'List',     component: ListComponent},
+  {path: '/email/:id',    name: 'Detail',   component: DetailComponent}
 ])
 
 //https://angular.io/docs/ts/latest/guide/router-deprecated.html#!#base-href
