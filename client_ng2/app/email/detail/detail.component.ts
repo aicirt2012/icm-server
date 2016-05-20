@@ -6,8 +6,8 @@ import {EmailService} from "../email.service";
 
 @Component({
     selector: 'email-detail',
-    templateUrl: '/app/email/detail/detail.component.html',
-    styleUrls: ['/app/email/detail/detail.component.css'],
+    templateUrl: 'app/email/detail/detail.component.html',
+    styleUrls: ['app/email/detail/detail.component.css'],
     directives: [MdIcon]
 })
 
@@ -25,7 +25,7 @@ export class DetailComponent implements OnInit {
             .GetSingle(id)
             .subscribe((data:any) => {
                     this.email = data;
-                    console.log(this.email);
+                    console.log(data);
                 },
                 error => console.log(error),
                 () => console.log('Get single Item complete'));

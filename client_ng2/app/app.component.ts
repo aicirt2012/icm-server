@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from '@angular/router-deprecated';
+import {Router, RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from '@angular/router-deprecated';
 import {MdCheckbox} from '@angular2-material/checkbox';
 import {MD_SIDENAV_DIRECTIVES} from '@angular2-material/sidenav';
 import {MdToolbar} from '@angular2-material/toolbar';
@@ -65,9 +65,13 @@ export class AppComponent {
 
     public emails:Email [];
 
-    constructor() {
+    constructor(private router:Router) {
     }
 
     menu = [{title: 'Menu1'}, {title: 'Menu2'}];
 
+    goToRoute(route:string) {
+        let link = [route];
+        this.router.navigate(link);
+    }
 }

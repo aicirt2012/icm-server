@@ -4,7 +4,7 @@ export class Email {
 	subject: string;
 	html: string;
 	text: string;
-	date: string;
+	date: Date;
 	from: [{
     address: string;
     name: string;

@@ -5,8 +5,8 @@ import {EmailService} from "../email.service";
 
 @Component({
     selector: 'email-list',
-    templateUrl: '/app/email/list/list.component.html',
-    styleUrls: ['/app/email/list/list.component.css']
+    templateUrl: 'app/email/list/list.component.html',
+    styleUrls: ['app/email/list/list.component.css']
 })
 
 export class ListComponent implements OnInit {

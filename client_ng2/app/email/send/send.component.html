@@ -1,52 +1,17 @@
-<md-sidenav-layout>
-  <md-sidenav #sidenav mode="side" class="app-sidenav" opened="true">
-    <md-toolbar>
-      <h3>Email</h3>
-    </md-toolbar>
+<md-toolbar color="primary">New Email</md-toolbar>
+<md-card-content>
+    <form class="email-input">
+        <md-input class="demo-full-width" disabled value="From: My Name <my-email>"></md-input>
+        <md-input class="demo-full-width" type="email" placeholder="To:..." value="" [(ngModel)]="toEmail"></md-input>
 
-    <md-list>
-      <md-list-item *ngFor="let item of menu">
-        <i class="material-icons">menu</i>
-        <h3>{{item.title}}</h3>
-      </md-list-item>
-      <md-subheader>Management</md-subheader>
-      <md-list-item *ngFor="let item of menu">
-        <i class="material-icons">menu</i>
-        <h3>{{item.title}}</h3>
-      </md-list-item>
-    </md-list>
-  </md-sidenav>
-
-  <md-toolbar color="primary">
-    <button class="app-icon-button" (click)="sidenav.toggle()">
-      <i class="material-icons app-toolbar-menu">menu</i>
-    </button>
-
-    Email App Angular2
-
-    <span class="app-toolbar-filler"></span>
-  </md-toolbar>
-
-  <div class="app-content">
-    <md-card class="demo-card demo-basic">
-      <md-toolbar color="primary">New Email</md-toolbar>
-      <md-card-content>
-        <form class="email-input">
-          <md-input class="demo-full-width" disabled value="From: My Name <my-email>">
-          </md-input>
-          <md-input class="demo-full-width" type="email" placeholder="To:..." value="" [(ngModel)]="toEmail">
-          </md-input>
-
-          <md-input-container>
+        <md-input-container>
             <textarea class="full-width-textarea" required md-maxlength="1000" [(ngModel)]="emailText"></textarea>
-          </md-input-container>
-        </form>
-      </md-card-content>
-      <md-card-actions>
-        <button md-icon-button (click)="sendEmail()">
-          <md-icon class="md-24">send</md-icon>
-        </button>
-      </md-card-actions>
-    </md-card>
-  </div>
-</md-sidenav-layout>
+        </md-input-container>
+    </form>
+</md-card-content>
+<md-card-actions>
+    <button md-icon-button (click)="sendEmail()">
+        <md-icon class="md-24">send</md-icon>
+    </button>
+</md-card-actions>
+
