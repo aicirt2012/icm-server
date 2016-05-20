@@ -37,6 +37,7 @@ import {EmailService} from "./emails/email.service";
 @RouteConfig([
   {path: '/emails',         name: 'Emails',     component: Email}
 ])
+
 //https://angular.io/docs/ts/latest/guide/router-deprecated.html#!#base-href
 
 export class AppComponent {
