@@ -52,27 +52,8 @@ export class AppComponent {
 
   public emails:Email [];
 
-  constructor(private _emailService:EmailService) {
-
-    this.getAllItems();
-    this.getSingleItem();
-  }
+  constructor() { }
 
   menu = [{title: 'Menu1'}, {title: 'Menu2'}];
 
-  private getAllItems():void {
-    this._emailService
-      .GetAll()
-      .subscribe((data:any) => this.emails = data,
-        error => console.log(error),
-        () => console.log('Get all Items complete'));
-  }
-
-  private getSingleItem():void {
-    this._emailService
-      .GetSingle('573de64b091dfd1e87c37d05')
-      .subscribe((data:any) => console.log(data),
-        error => console.log(error),
-        () => console.log('Get single Item complete'));
-  }
 }
