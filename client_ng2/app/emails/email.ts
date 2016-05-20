@@ -1,5 +1,3 @@
-import {Address} from './address'
-
 export class Email {
 	id: string;
 	messageId: string;
@@ -7,6 +5,12 @@ export class Email {
 	html: string;
 	text: string;
 	date: string;
-	from: Address[];
-	to: Address[];
+	from: [{
+    address: string;
+    name: string;
+  }];
+	to: [{
+    address: string;
+    name: string;
+  }];
 }
