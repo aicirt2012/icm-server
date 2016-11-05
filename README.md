@@ -13,8 +13,8 @@ The underlying boilerplate follows [Airbnb's Javascript style guide](https://git
 
 Clone the repo:
 ```sh
-git clone git@github.com:KunalKapadia/express-mongoose-es6-rest-api.git
-cd express-mongoose-es6-rest-api
+git clone git@bitbucket.org:aicirt2012/emailappserver.git
+cd emailappserver
 ```
 
 Install dependencies:
