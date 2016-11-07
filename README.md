@@ -1,6 +1,6 @@
 # EmailAppServer Web Application Lab
 
-Based on Express & mongoose REST API Boilerplate in ES6 with Code Coverage.
+Based on [Express & mongoose REST API Boilerplate in ES6 with Code Coverage](https://github.com/KunalKapadia/express-mongoose-es6-rest-api).
 
 ## Overview
 
@@ -19,7 +19,6 @@ server - Server source files
 index.js - Starting point for node server
 gulpfile.babel.js - Gulp tasks
 ```
-
 
 ## Getting Started
 
