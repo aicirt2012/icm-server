@@ -6,6 +6,20 @@ Based on Express & mongoose REST API Boilerplate in ES6 with Code Coverage.
 
 The underlying boilerplate follows [Airbnb's Javascript style guide](https://github.com/airbnb/javascript).
 
+#### File/Folder Structure
+```
+config - Config for ENV, express, param-validation, logging
+coverage - Code coverage summary
+server - Server source files
+|- controllers: Controller functions for routes
+|- helpers: Util/Helper classes
+|- models: Mongoose schemas
+|- routes: Routes/API endpoints
+|- tests: Test cases
+index.js - Starting point for node server
+gulpfile.babel.js - Gulp tasks
+```
+
 
 ## Getting Started
 
@@ -13,8 +27,8 @@ The underlying boilerplate follows [Airbnb's Javascript style guide](https://git
 
 Clone the repo:
 ```sh
-git clone git@github.com:KunalKapadia/express-mongoose-es6-rest-api.git
-cd express-mongoose-es6-rest-api
+git clone git@bitbucket.org:aicirt2012/emailappserver.git
+cd emailappserver
 ```
 
 Install dependencies:
@@ -35,7 +49,7 @@ Start server:
 npm start
 
 # Selectively set DEBUG env var to get logs
-DEBUG=express-mongoose-es6-rest-api:* npm start
+DEBUG=emailappserver:* npm start
 ```
 Refer [debug](https://www.npmjs.com/package/debug) to know how to selectively turn on logs.
 
@@ -87,20 +101,6 @@ gulp
 
 # Use any process manager to start your services
 4. pm2 start dist/index.js
-```
-
-#### File/Folder Structure
-```
-config - Config for ENV, express, param-validation, logging
-coverage - Code coverage summary
-server - Server source files
-|- controllers: Controller functions for routes
-|- helpers: Util/Helper classes
-|- models: Mongoose schemas
-|- routes: Routes/API endpoints
-|- tests: Test cases
-index.js - Starting point for node server
-gulpfile.babel.js - Gulp tasks
 ```
 
 ## Features
