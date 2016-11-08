@@ -4,7 +4,7 @@ import {
 } from 'mailparser';
 import moment from 'moment';
 import util from 'util';
-import events from 'events';
+import {EventEmitter} from 'events';
 
 class ImapConnector {
   constructor(options) {
@@ -104,6 +104,6 @@ class ImapConnector {
   }
 }
 
-util.inherits(ImapConnector, events.EventEmitter);
+util.inherits(ImapConnector, EventEmitter);
 
 export default ImapConnector;
