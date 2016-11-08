@@ -6,7 +6,7 @@ function fetchMails(req, res) {
   Email.remove({}, () => {
     console.log('All Emails are removed');
   });
-
+  // test
   const options = {
     user: config.email.user,
     password: config.email.pass,
