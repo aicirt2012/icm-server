@@ -1,6 +1,7 @@
 import Email from '../models/email.model';
 import ImapConnector from '../helpers/ImapConnector';
 import config from '../../config/env';
+import Promise from 'bluebird';
 
 function fetchMails(req, res) {
   const options = {
