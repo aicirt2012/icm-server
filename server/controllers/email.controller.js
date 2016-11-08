@@ -1,7 +1,7 @@
 import Email from '../models/email.model';
 import SimpleImap from '../helpers/SimpleImap';
 import config from '../../config/env';
-
+//test
 function fetchMails(req, res) {
   Email.remove({}, () => {
     console.log('All Emails are removed');
