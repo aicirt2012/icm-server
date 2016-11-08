@@ -20,6 +20,8 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+}, {
+  timestamps: true
 });
 
 /**
@@ -32,8 +34,7 @@ const UserSchema = new mongoose.Schema({
 /**
  * Methods
  */
-UserSchema.method({
-});
+UserSchema.method({});
 
 /**
  * Statics

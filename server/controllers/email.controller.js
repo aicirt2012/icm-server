@@ -1,7 +1,6 @@
 import Email from '../models/email.model';
 import ImapConnector from '../helpers/ImapConnector';
 import config from '../../config/env';
-import promise from 'bluebird';
 
 function fetchMails(req, res) {
   Email.remove({}, () => {
