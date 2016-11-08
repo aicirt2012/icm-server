@@ -10,6 +10,11 @@ export default {
     host: 'imap.gmail.com',
     port: 993
   },
+  trello: {
+    appName: 'Email Client with Contextual Task Support',
+    key: '734feed8b99a158d3a9cd9af87e096f3',
+    secret: '498ac521e9ecb0f32467f7dffae04054efc6f13318ad20538cd75195e8d4eb54'
+  },
   db: 'mongodb://localhost:27017/emailapp',
   port: 4000
 };
