@@ -66,7 +66,7 @@ class ImapConnector {
           labels: labels['x-gm-labels']
         };
         storeEmail(email).then((msg) => {
-          resolve(email);
+          resolve(msg);
         });
       });
       mail.on('body', (stream, info) => {
