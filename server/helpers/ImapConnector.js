@@ -1,120 +1,103 @@
-import Imap from 'imap';
+import IPromise from 'imap-promise';
+import Promise from 'bluebird';
+import moment from 'moment';
 import {
   MailParser
 } from 'mailparser';
-import moment from 'moment';
-import util from 'util';
-import {
-  EventEmitter
-} from 'events';
 
 class ImapConnector {
   constructor(options) {
     this.options = options;
-    this.imap = null;
+    this.imap = new IPromise(options);
   }
 
-  start() {
-    if (this.imap === null) {
-      this.imap = new Imap(this.options);
+  connect() {
+    return this.imap.connectAsync();
+  }
 
-      const selfImap = this.imap;
-      const self = this;
+  openBoxAsync() {
+    return this.connect().then(() => this.imap.openBoxAsync('[Gmail]/Alle Nachrichten', false));
+  }
 
-      selfImap.on('ready', () => {
-        self.emit('ready');
+  getBoxes() {
+    return this.connect().then(() => new Promise((resolve, reject) => {
+      this.imap.getBoxes((err, boxes) => {
+        err ? reject() : resolve(boxes);
+      });
+    }));
+  }
 
-        selfImap.openBox(self.options.mailbox, false, () => {
-          self.emit('open');
+  fetchEmails(storeEmail) {
+    return this.openBoxAsync().then((box) => {
+        return this.imap.getMailAsync(this.imap.seq.fetch([1, box.messages.total].map(String).join(':'), {
+          bodies: '',
+          struct: true,
+          markSeen: false,
+          extensions: ['X-GM-LABELS']
+        }), (mail) => {
+          return this.parseDataFromEmail(mail, storeEmail);
+        });
+      })
+      .then((messages) => {
+        return messages;
+      })
+      .catch((error) => {
+        console.error('Error: ', error.message);
+      });
+  }
+
+  parseDataFromEmail(mail, storeEmail) {
+    return new Promise((resolve, reject) => {
+      const mailParser = new MailParser();
+      let labels = {
+        'x-gm-labels': [],
+        flags: []
+      };
+      mailParser.on('end', (mailObject) => {
+        const email = {
+          messageId: mailObject.messageId,
+          from: mailObject.from,
+          to: mailObject.to,
+          subject: mailObject.subject,
+          text: mailObject.text,
+          html: mailObject.html,
+          date: moment(mailObject.date).format('YYYY-MM-DD HH:mm:ss'),
+          flags: labels.flags,
+          labels: labels['x-gm-labels']
+        };
+        storeEmail(email).then((msg) => {
+          resolve(email);
         });
       });
-
-      selfImap.on('mail', (num) => {
-        selfImap.search(['ALL'], (err, result) => {
-          if (result.length) {
-            const f = selfImap.fetch(result, {
-              markSeen: false,
-              struct: true,
-              bodies: ''
-            });
-
-            f.on('message', (msg, seqNo) => {
-              msg.on('body', (stream, info) => {
-                let buffer = '';
-
-                stream.on('data', (chunk) => {
-                  buffer += chunk.toString('utf8');
-                });
-
-                stream.on('end', () => {
-                  const mailParser = new MailParser();
-
-                  mailParser.on('end', (mailObject) => {
-                    // console.log('Parsed mail obj', JSON.stringify(mailObject));
-                    self.emit('mail', {
-                      messageId: mailObject.messageId,
-                      from: mailObject.from,
-                      to: mailObject.to,
-                      subject: mailObject.subject,
-                      text: mailObject.text,
-                      html: mailObject.html,
-                      date: moment(mailObject.date).format('YYYY-MM-DD HH:mm:ss')
-                    });
-                  });
-
-                  mailParser.write(buffer);
-                  mailParser.end();
-                });
-              });
-            });
-
-            f.once('error', (err) => {
-              console.log('Fetch error: ', err);
-            });
-
-            f.once('end', () => {
-              console.log('Done fetching');
-              selfImap.end();
-            })
-          }
+      mail.on('body', (stream, info) => {
+        let buffer = '';
+        stream.on('data', (chunk) => {
+          buffer += chunk.toString('utf8');
         });
-      });
-
-      selfImap.on('end', () => {
-        self.emit('end');
-      });
-
-      selfImap.on('error', (err) => {
-        self.emit('error', err);
-      });
-
-      selfImap.on('close', (hadError) => {
-        self.emit('close', hadError);
-      });
-    }
-
-    this.imap.connect();
+        stream.on('end', () => {
+          mailParser.write(buffer);
+        });
+      }).once('attributes', (attrs) => {
+        labels = attrs;
+      }).once('end', () => {
+        mailParser.end();
+      }).on('error', () => reject());
+    });
   }
 
-  stop() {
-    this.imap.destroy();
+  fetchAttachment(mail) {
+    return this.imap.collectEmailAsync(mail)
+      .then((msg) => {
+        msg.attachments = this.imap.findAttachments(msg);
+        msg.downloads = Promise.all(msg.attachments.map((attachment) => {
+          const emailId = msg.attributes.uid;
+          const saveAsFilename = attachment.params.name;
+          return this.imap.downloadAttachmentAsync(emailId, attachment, saveAsFilename);
+        }));
+        return Promise.props(msg);
+      });
   }
 
-  restart() {
-    this.stop();
-
-    if (arguments.length >= 1) {
-      this.options = arguments[0];
-    }
-
-    this.start();
-  }
-
-  getImap() {
-    return this.imap;
-  }
 }
-
-util.inherits(ImapConnector, EventEmitter);
 
 export default ImapConnector;

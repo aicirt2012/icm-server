@@ -3,9 +3,6 @@ import ImapConnector from '../helpers/ImapConnector';
 import config from '../../config/env';
 
 function fetchMails(req, res) {
-  Email.remove({}, () => {
-    console.log('All Emails are removed');
-  });
   const options = {
     user: config.email.user,
     password: config.email.pass,
@@ -16,44 +13,38 @@ function fetchMails(req, res) {
   };
 
   const imapConnector = new ImapConnector(options);
-
-  imapConnector.on('error', (err) => {
-    console.log(err);
+  imapConnector.fetchEmails(storeEmail).then((messages) => {
+    res.status(200).send(messages);
   });
+}
 
-  imapConnector.on('mail', (mail) => {
-    const e = {
-      messageId: mail.messageId,
-      from: mail.from,
-      to: mail.to,
-      subject: mail.subject,
-      html: mail.html,
-      text: mail.text,
-      date: mail.date
-    };
-
-    Email.create(e, (err, email) => {
+function storeEmail(mail) {
+  return new Promise((resolve, reject) => {
+    Email.find({
+      messageId: mail.messageId
+    }, (err, mails) => {
       if (err) {
-        console.log(err);
+        reject();
+      }
+      if (mails.length && mails[0].flags.length === mail.flags.length &&
+        mails[0].flags.reduce((a, b) => a && mail.flags.includes(b), true) &&
+        mails[0].labels.length === mail.labels.length &&
+        mails[0].labels.reduce((a, b) => a && mail.labels.includes(b), true)) {
+        resolve(mails[0]);
+      } else if (mails.length) {
+        Email.findByIdAndUpdate(mails[0]._id, mail, {
+          new: true,
+          runValidators: true
+        }, (error, msg) => {
+          error ? reject() : resolve(msg);
+        });
       } else {
-        console.log('created email');
+        Email.create(mail, (error, msg) => {
+          error ? reject() : resolve(msg);
+        });
       }
     });
   });
-
-  imapConnector.on('end', (err) => {
-    console.log('finished fetching and storing');
-    Email.find({}).exec((err, emails) => {
-      if (err) {
-        res.send(err);
-      } else {
-        res.send(emails);
-      }
-    });
-  });
-
-  imapConnector.start();
-
 }
 
 export default {

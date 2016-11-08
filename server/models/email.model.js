@@ -14,6 +14,8 @@ const EmailSchema = new mongoose.Schema({
   html: String,
   text: String,
   date: Date,
+  flags: [String],
+  labels: [String],
   tasks: [{
     id: {
       type: String

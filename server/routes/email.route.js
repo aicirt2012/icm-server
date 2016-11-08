@@ -8,6 +8,8 @@ const router = express.Router();
 /** GET /api/email - Protected route,
  * needs token returned by the above as header. Authorization: Bearer {token} */
 router.route('/')
-  .get(expressJwt({ secret: config.jwt.secret }), emailCtrl.fetchMails);
+  .get(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.fetchMails);
 
 export default router;
