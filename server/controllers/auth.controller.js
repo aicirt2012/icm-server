@@ -1,9 +1,6 @@
 import jwt from 'jsonwebtoken';
-import httpStatus from 'http-status';
-import APIError from '../helpers/APIError';
 import User from '../models/user.model';
-
-const config = require('../../config/env');
+import config from '../../config/env';
 
 /**
  * Returns jwt token if valid username and password is provided
@@ -12,9 +9,7 @@ const config = require('../../config/env');
  * @param next
  * @returns {*}
  */
-function login(req, res, next) {
-  const error = new APIError('Authentication error', httpStatus.UNAUTHORIZED);
-
+function login(req, res) {
   User.findOne({
     username: req.body.username
   }, (err, user) => {
@@ -22,9 +17,7 @@ function login(req, res, next) {
       res.status(500).send(err);
       return;
     }
-    if (!user) {
-      return next(error);
-    }
+
     if (user.password === req.body.password) {
       const token = jwt.sign({
         username: user.username
@@ -39,8 +32,6 @@ function login(req, res, next) {
       });
       return;
     }
-
-    return next(error);
   });
 }
 

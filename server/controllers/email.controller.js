@@ -1,7 +1,6 @@
 import Email from '../models/email.model';
 import SimpleImap from '../helpers/SimpleImap';
-
-const config = require('../../config/env');
+import config from '../../config/env';
 
 function fetchMails(req, res) {
   Email.remove({}, () => {
