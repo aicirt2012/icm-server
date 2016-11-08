@@ -1,16 +1,18 @@
 import Imap from 'imap';
-import mailParser from 'mailparser';
+import {
+  MailParser
+} from 'mailparser';
 import moment from 'moment';
 import util from 'util';
 import events from 'events';
 
-const MailParser = mailParser.MailParser;
+class SimpleImap {
+  constructor(options) {
+    this.options = options;
+    this.imap = null;
+  }
 
-const SimpleImap = function imapCall(options) {
-  this.options = options;
-  this.imap = null;
-
-  this.start = () => {
+  start() {
     if (this.imap === null) {
       this.imap = new Imap(this.options);
 
@@ -81,13 +83,13 @@ const SimpleImap = function imapCall(options) {
     }
 
     this.imap.connect();
-  };
+  }
 
-  this.stop = () => {
+  stop() {
     this.imap.destroy();
-  };
+  }
 
-  this.restart = () => {
+  restart() {
     this.stop();
 
     if (arguments.length >= 1) {
@@ -95,12 +97,12 @@ const SimpleImap = function imapCall(options) {
     }
 
     this.start();
-  };
+  }
 
-  this.getImap = () => {
+  getImap() {
     return this.imap;
-  };
-};
+  }
+}
 
 util.inherits(SimpleImap, events.EventEmitter);
 

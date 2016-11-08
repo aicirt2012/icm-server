@@ -7,8 +7,6 @@ function fetchMails(req, res) {
   Email.remove({}, () => {
     console.log('All Emails are removed');
   });
-  // test
-  // test consti
   const options = {
     user: config.email.user,
     password: config.email.pass,
@@ -25,7 +23,6 @@ function fetchMails(req, res) {
   });
 
   simpleImap.on('mail', (mail) => {
-    // console.log(mail);
     const e = {
       messageId: mail.messageId,
       from: mail.from,
