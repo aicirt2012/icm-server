@@ -5,7 +5,7 @@ const config = require('../../config/env');
 
 function fetchMails(req, res) {
   Email.remove({}, () => {
-    console.log('All Emails are removed')
+    console.log('All Emails are removed');
   });
 
   const options = {
@@ -34,21 +34,17 @@ function fetchMails(req, res) {
       text: mail.text,
       date: mail.date
     };
-    //console.log(JSON.stringify(mail));
-    //mailconsole.log(JSON.stringify(e));
+
     Email.create(e, (err, email) => {
       if (err) {
         console.log(err);
       } else {
-        console.log('created email');
+        console.log('created email ', email);
       }
     });
-
   });
-
   simpleImap.start();
-
-  //TODO: make this work with promises
+  // TODO: make this work with promises
   setTimeout(() => {
     Email.find({}).exec((err, emails) => {
       if (err) {

@@ -2,7 +2,7 @@ import Promise from 'bluebird';
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 import APIError from '../helpers/APIError';
-//import bcrypt from 'bcrypt-nodejs';
+// import bcrypt from 'bcrypt-nodejs';
 
 /**
  * User Schema
