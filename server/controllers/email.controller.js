@@ -1,5 +1,5 @@
 import Email from '../models/email.model';
-import SimpleImap from '../helpers/SimpleImap';
+import ImapConnector from '../helpers/ImapConnector';
 import config from '../../config/env';
 import promise from 'bluebird';
 
@@ -16,13 +16,13 @@ function fetchMails(req, res) {
     mailbox: 'INBOX'
   };
 
-  const simpleImap = new SimpleImap(options);
+  const imapConnector = new ImapConnector(options);
 
-  simpleImap.on('error', (err) => {
+  imapConnector.on('error', (err) => {
     console.log(err);
   });
 
-  simpleImap.on('mail', (mail) => {
+  imapConnector.on('mail', (mail) => {
     const e = {
       messageId: mail.messageId,
       from: mail.from,
@@ -41,7 +41,7 @@ function fetchMails(req, res) {
       }
     });
   });
-  simpleImap.start();
+  imapConnector.start();
   // TODO: make this work with promises
   setTimeout(() => {
     Email.find({}).exec((err, emails) => {

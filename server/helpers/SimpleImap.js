@@ -6,7 +6,7 @@ import moment from 'moment';
 import util from 'util';
 import events from 'events';
 
-class SimpleImap {
+class ImapConnector {
   constructor(options) {
     this.options = options;
     this.imap = null;
@@ -104,6 +104,6 @@ class SimpleImap {
   }
 }
 
-util.inherits(SimpleImap, events.EventEmitter);
+util.inherits(ImapConnector, events.EventEmitter);
 
-export default SimpleImap;
+export default ImapConnector;
