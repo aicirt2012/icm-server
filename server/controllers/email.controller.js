@@ -36,13 +36,13 @@ function fetchMails(req, res) {
       if (err) {
         console.log(err);
       } else {
-        console.log('created email ', email);
+        console.log('created email');
       }
     });
   });
-  imapConnector.start();
-  // TODO: make this work with promises
-  setTimeout(() => {
+
+  imapConnector.on('end', (err) => {
+    console.log('finished fetching and storing');
     Email.find({}).exec((err, emails) => {
       if (err) {
         res.send(err);
@@ -50,7 +50,10 @@ function fetchMails(req, res) {
         res.send(emails);
       }
     });
-  }, 2000);
+  });
+
+  imapConnector.start();
+
 }
 
 export default {

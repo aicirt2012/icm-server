@@ -4,7 +4,9 @@ import {
 } from 'mailparser';
 import moment from 'moment';
 import util from 'util';
-import {EventEmitter} from 'events';
+import {
+  EventEmitter
+} from 'events';
 
 class ImapConnector {
   constructor(options) {
@@ -48,7 +50,7 @@ class ImapConnector {
                   const mailParser = new MailParser();
 
                   mailParser.on('end', (mailObject) => {
-                    console.log('Parsed mail obj', JSON.stringify(mailObject));
+                    // console.log('Parsed mail obj', JSON.stringify(mailObject));
                     self.emit('mail', {
                       messageId: mailObject.messageId,
                       from: mailObject.from,
@@ -65,6 +67,15 @@ class ImapConnector {
                 });
               });
             });
+
+            f.once('error', (err) => {
+              console.log('Fetch error: ', err);
+            });
+
+            f.once('end', () => {
+              console.log('Done fetching');
+              selfImap.end();
+            })
           }
         });
       });
