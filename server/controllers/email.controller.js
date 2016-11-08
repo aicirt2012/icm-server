@@ -1,7 +1,8 @@
 import Email from '../models/email.model';
 import SimpleImap from '../helpers/SimpleImap';
 import config from '../../config/env';
-//test
+import promise from 'bluebird';
+
 function fetchMails(req, res) {
   Email.remove({}, () => {
     console.log('All Emails are removed');
