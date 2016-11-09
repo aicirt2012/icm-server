@@ -10,6 +10,11 @@ const router = express.Router();
 router.route('/')
   .get(expressJwt({
     secret: config.jwt.secret
-  }), emailCtrl.fetchMails);
+  }), emailCtrl.fetchAllMails);
+
+router.route('/boxes')
+.get(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.getBoxes);
 
 export default router;

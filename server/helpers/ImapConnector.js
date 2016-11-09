@@ -15,8 +15,8 @@ class ImapConnector {
     return this.imap.connectAsync();
   }
 
-  openBoxAsync() {
-    return this.connect().then(() => this.imap.openBoxAsync('[Gmail]/Alle Nachrichten', false));
+  openBoxAsync(box) {
+    return this.connect().then(() => this.imap.openBoxAsync(box, false));
   }
 
   getBoxes() {
@@ -27,8 +27,8 @@ class ImapConnector {
     }));
   }
 
-  fetchEmails(storeEmail) {
-    return this.openBoxAsync().then((box) => {
+  fetchEmails(storeEmail, boxType) {
+    return this.openBoxAsync(boxType).then((box) => {
         return this.imap.getMailAsync(this.imap.seq.fetch([1, box.messages.total].map(String).join(':'), {
           bodies: '',
           struct: true,

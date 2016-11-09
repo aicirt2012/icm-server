@@ -3,7 +3,52 @@ import ImapConnector from '../helpers/ImapConnector';
 import config from '../../config/env';
 import Promise from 'bluebird';
 
-function fetchMails(req, res) {
+/* This is just for developing, will be retrieved from user later */
+const options = {
+    user: config.email.user,
+    password: config.email.pass,
+    host: config.email.host,
+    port: config.email.port,
+    tls: true,
+    mailbox: 'INBOX'
+  };
+
+function fetchAllMails(req, res) {
+  const imapConnectorAllMessages = new ImapConnector(options);
+  imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.allMessages).then((messages) => {
+    res.status(200).send(messages);
+  });
+}
+
+function fetchInboxMails(req, res) {
+  const imapConnectorInbox = new ImapConnector(options);
+  imapConnectorInbox.fetchEmails(storeEmail, config.gmail.inbox).then((messages) => {
+    res.status(200).send(messages);
+  });
+}
+
+function fetchSendMails(req, res) {
+  const imapConnectorSend = new ImapConnector(options);
+  imapConnectorSend.fetchEmails(storeEmail, config.gmail.send).then((messages) => {
+    res.status(200).send(messages);
+  });
+}
+
+function fetchDraftMails(req, res) {
+  const imapConnectorDraft = new ImapConnector(options);
+  imapConnectorDraft.fetchEmails(storeEmail, config.gmail.draft).then((messages) => {
+    res.status(200).send(messages);
+  });
+}
+
+function fetchDeletedMails(req, res) {
+  const imapConnectorDeleted = new ImapConnector(options);
+  imapConnectorDeleted.fetchEmails(storeEmail, config.gmail.deleted).then((messages) => {
+    res.status(200).send(messages);
+  });
+} 
+
+function getBoxes(req, res) {
   const options = {
     user: config.email.user,
     password: config.email.pass,
@@ -14,8 +59,8 @@ function fetchMails(req, res) {
   };
 
   const imapConnector = new ImapConnector(options);
-  imapConnector.fetchEmails(storeEmail).then((messages) => {
-    res.status(200).send(messages);
+  imapConnector.getBoxes().then((boxes) => {
+    console.log(boxes);
   });
 }
 
@@ -49,5 +94,10 @@ function storeEmail(mail) {
 }
 
 export default {
-  fetchMails
+  fetchAllMails,
+  fetchInboxMails,
+  fetchSendMails,
+  fetchDraftMails,
+  fetchDeletedMails,
+  getBoxes
 };
