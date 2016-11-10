@@ -69,19 +69,6 @@ class GmailConnector extends ImapConnector {
     });
   }
 
-  fetchAttachment(mail) {
-    return this.imap.collectEmailAsync(mail)
-      .then((msg) => {
-        msg.attachments = this.imap.findAttachments(msg);
-        msg.downloads = Promise.all(msg.attachments.map((attachment) => {
-          const emailId = msg.attributes.uid;
-          const saveAsFilename = attachment.params.name;
-          return this.imap.downloadAttachmentAsync(emailId, attachment, saveAsFilename);
-        }));
-        return Promise.props(msg);
-      });
-  }
-
 }
 
 export default GmailConnector;
