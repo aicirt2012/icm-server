@@ -25,6 +25,27 @@ class ImapConnector {
     }));
   }
 
+  addBox(boxName) {
+    return this.connect().then(() => new Promise((resolve, reject) => {
+      this.imap.addBox(boxName, (err) => {
+        err ? reject() : resolve(boxName);
+      })
+    }))
+  }
+
+  append(box, msgData, args) {
+    const options = {
+      mailbox: box,
+      ...args
+    };
+
+    return this.connect().then(() => new Promise((resolve, reject) => {
+      this.imap.append(msgData, options, (err) => {
+        err ? reject() : resolve(msgData);
+      })
+    }));
+  }
+
   fetchAttachment(mail) {
     return this.imap.collectEmailAsync(mail)
       .then((msg) => {
