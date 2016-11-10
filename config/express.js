@@ -12,7 +12,7 @@ import helmet from 'helmet';
 import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
 import config from './env';
-import APIError from '../server/helpers/APIError';
+import APIError from '../server/helpers/error/APIError';
 
 const app = express();
 

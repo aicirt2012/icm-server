@@ -5,7 +5,7 @@ import {
   MailParser
 } from 'mailparser';
 
-class ImapConnector {
+class GmailConnector {
   constructor(options) {
     this.options = options;
     this.imap = new IPromise(options);
@@ -100,4 +100,4 @@ class ImapConnector {
 
 }
 
-export default ImapConnector;
+export default GmailConnector;

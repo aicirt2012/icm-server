@@ -1,5 +1,5 @@
 import Email from '../models/email.model';
-import ImapConnector from '../helpers/ImapConnector';
+import GmailConnector from '../helpers/mail/GmailConnector';
 import config from '../../config/env';
 import Promise from 'bluebird';
 
@@ -14,39 +14,39 @@ const options = {
   };
 
 function fetchAllMails(req, res) {
-  const imapConnectorAllMessages = new ImapConnector(options);
+  const imapConnectorAllMessages = new GmailConnector(options);
   imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.allMessages).then((messages) => {
     res.status(200).send(messages);
   });
 }
 
 function fetchInboxMails(req, res) {
-  const imapConnectorInbox = new ImapConnector(options);
+  const imapConnectorInbox = new GmailConnector(options);
   imapConnectorInbox.fetchEmails(storeEmail, config.gmail.inbox).then((messages) => {
     res.status(200).send(messages);
   });
 }
 
 function fetchSendMails(req, res) {
-  const imapConnectorSend = new ImapConnector(options);
+  const imapConnectorSend = new GmailConnector(options);
   imapConnectorSend.fetchEmails(storeEmail, config.gmail.send).then((messages) => {
     res.status(200).send(messages);
   });
 }
 
 function fetchDraftMails(req, res) {
-  const imapConnectorDraft = new ImapConnector(options);
+  const imapConnectorDraft = new GmailConnector(options);
   imapConnectorDraft.fetchEmails(storeEmail, config.gmail.draft).then((messages) => {
     res.status(200).send(messages);
   });
 }
 
 function fetchDeletedMails(req, res) {
-  const imapConnectorDeleted = new ImapConnector(options);
+  const imapConnectorDeleted = new GmailConnector(options);
   imapConnectorDeleted.fetchEmails(storeEmail, config.gmail.deleted).then((messages) => {
     res.status(200).send(messages);
   });
-} 
+}
 
 function getBoxes(req, res) {
   const options = {
@@ -58,7 +58,7 @@ function getBoxes(req, res) {
     mailbox: 'INBOX'
   };
 
-  const imapConnector = new ImapConnector(options);
+  const imapConnector = new GmailConnector(options);
   imapConnector.getBoxes().then((boxes) => {
     console.log(boxes);
   });
