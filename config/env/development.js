@@ -19,6 +19,13 @@ export default {
     oauthVersion: '1.0',
     oauthSHA: 'HMAC-SHA1'
   },
+  gmail: {
+    allMessages: '[Gmail]/Alle Nachrichten',
+    inbox: 'INBOX',
+    send: '[Gmail]/Gesendet',
+    draft: '[Gmail]/Entwürfe',
+    deleted: '[Gmail]/Papierkorb'
+  },
   db: 'mongodb://localhost:27017/emailapp',
   port: 4000,
   domain: 'http://localhost'

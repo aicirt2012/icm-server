@@ -1,6 +1,6 @@
 import {
   login
-} from '../helpers/Trello';
+} from '../helpers/task/TrelloConnector';
 
 function getTrelloBoard(req, res) {
     return login(req, res);

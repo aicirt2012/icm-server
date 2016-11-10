@@ -1,7 +1,7 @@
 import Promise from 'bluebird';
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
-import APIError from '../helpers/APIError';
+import APIError from '../helpers/error/APIError';
 // import bcrypt from 'bcrypt-nodejs';
 
 /**
@@ -20,6 +20,8 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+}, {
+  timestamps: true
 });
 
 /**
@@ -32,8 +34,7 @@ const UserSchema = new mongoose.Schema({
 /**
  * Methods
  */
-UserSchema.method({
-});
+UserSchema.method({});
 
 /**
  * Statics

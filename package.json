@@ -45,6 +45,7 @@
     "helmet": "3.0.0",
     "http-status": "^0.2.0",
     "imap": "^0.8.16",
+    "imap-promise": "1.0.2",
     "joi": "9.2.0",
     "jsonwebtoken": "7.1.9",
     "mailparser": "0.6.1",
@@ -71,7 +72,6 @@
     "eslint-config-airbnb-base": "7.1.0",
     "eslint-plugin-import": "1.16.0",
     "eslint-watch": "2.1.14",
-    "ghooks": "^1.2.4",
     "gulp": "3.9.1",
     "gulp-babel": "6.1.2",
     "gulp-load-plugins": "^1.2.0",
@@ -88,9 +88,6 @@
   },
   "license": "MIT",
   "config": {
-    "ghooks": {
-      "pre-commit": "npm run lint && npm test"
-    },
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }

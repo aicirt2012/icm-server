@@ -13,7 +13,19 @@ const EmailSchema = new mongoose.Schema({
   subject: String,
   html: String,
   text: String,
-  date: Date
+  date: Date,
+  flags: [String],
+  labels: [String],
+  tasks: [{
+    id: {
+      type: String
+    },
+    date: {
+      type: Date
+    }
+  }]
+}, {
+  timestamps: true
 });
 
 EmailSchema.method({
