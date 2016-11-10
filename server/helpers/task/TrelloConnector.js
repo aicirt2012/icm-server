@@ -2,7 +2,7 @@ import {
   OAuth
 } from 'oauth';
 import url from 'url';
-import config from '../../config/env';
+import config from '../../../config/env';
 
 /* BASIC API ENDPOINTS */
 const requestURL = `${config.trello.baseURL}OAuthGetRequestToken`;

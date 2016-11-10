@@ -1,30 +1,14 @@
-import IPromise from 'imap-promise';
 import Promise from 'bluebird';
 import moment from 'moment';
 import {
   MailParser
 } from 'mailparser';
+import ImapConnector from './ImapConnector';
 
-class GmailConnector {
+class GmailConnector extends ImapConnector {
+
   constructor(options) {
-    this.options = options;
-    this.imap = new IPromise(options);
-  }
-
-  connect() {
-    return this.imap.connectAsync();
-  }
-
-  openBoxAsync(box) {
-    return this.connect().then(() => this.imap.openBoxAsync(box, false));
-  }
-
-  getBoxes() {
-    return this.connect().then(() => new Promise((resolve, reject) => {
-      this.imap.getBoxes((err, boxes) => {
-        err ? reject() : resolve(boxes);
-      });
-    }));
+    super(options);
   }
 
   fetchEmails(storeEmail, boxType) {
