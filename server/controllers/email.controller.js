@@ -1,9 +1,9 @@
 import Email from '../models/email.model';
 import GmailConnector from '../helpers/mail/GmailConnector';
+import SMTPConnector from '../helpers/mail/SMTPConnector';
 import config from '../../config/env';
 import Promise from 'bluebird';
 import nodemailer from 'nodemailer';
-import xoauth2 from 'xoauth2';
 
 /* This is just for developing, will be retrieved from user later */
 const options = {
@@ -27,33 +27,19 @@ const smtpConfig = {
     }
   };
 
-  // setup e-mail data with unicode symbols
+  // mail data from frontend
 const sendMailOptions = {
-      from: '<foo@blurdybloop.com>', // sender address
+      from: 'sebisng2', // sender address
       to: 'sebisng2@gmail.com', // list of receivers
-      subject: 'Hello', // Subject line
-      text: '<3 ', // plaintext body
-      html: '<b>Hello world </b>' // html body
+      subject: 'Subject', // Subject line
+      text: 'text', // plaintext body
+      html: '<b>text</b>' // html body
   };
 
-var sendEmail = function(smtpConfig){
-
-var transporter = nodemailer.createTransport(smtpConfig);
-// replace hardcoded options with data passed (somedata)
-
-transporter.sendMail(sendMailOptions, function(error, info){
-  if(error){
-    console.log("error occured");
-    console.log(error);
-    return false;
-  }else{
-    console.log('Message sent: ' + info.response);
-    return true;
-  };
-});
+function sendEmail() {
+  const smtpConnector = new SMTPConnector(smtpConfig,sendMailOptions);
+  smtpConnector.sendMail(smtpConfig,sendMailOptions);
 }
-//just added this for testing
-//sendEmail();
 
 function fetchAllMails(req, res) {
   const imapConnectorAllMessages = new GmailConnector(options);
@@ -141,5 +127,6 @@ export default {
   fetchSendMails,
   fetchDraftMails,
   fetchDeletedMails,
-  getBoxes
+  getBoxes,
+  sendEmail
 };
