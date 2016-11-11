@@ -15,32 +15,31 @@ const options = {
     mailbox: 'INBOX'
   };
 
-var sendEmail = function(){
-var smtpConfig = {
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true, // use SSL,
-                // you can try with TLS, but port is then 587
-  auth: {
-    user: 'sebisng2@gmail.com', // Your email id
-    pass: 's3b1sng2' // Your password
-  }
-};
-console.log("smtpConfig");
-console.log(smtpConfig);
+/* This has to be replaced with OAuth later on
+Just fix values*/
+const smtpConfig = {
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: 'sebisng2@gmail.com',
+      pass: 's3b1sng2'
+    }
+  };
+
+  // setup e-mail data with unicode symbols
+const sendMailOptions = {
+      from: '<foo@blurdybloop.com>', // sender address
+      to: 'sebisng2@gmail.com', // list of receivers
+      subject: 'Hello', // Subject line
+      text: '<3 ', // plaintext body
+      html: '<b>Hello world </b>' // html body
+  };
+
+var sendEmail = function(smtpConfig){
+
 var transporter = nodemailer.createTransport(smtpConfig);
 // replace hardcoded options with data passed (somedata)
-
-// setup e-mail data with unicode symbols
-const sendMailOptions = {
-    from: '<foo@blurdybloop.com>', // sender address
-    to: 'peter@niedermeier-ed.de', // list of receivers
-    subject: 'Hello test', // Subject line
-    text: 'Hello world ', // plaintext body
-    html: '<b>Hello world </b>' // html body
-};
-
-console.log("now call send mail");
 
 transporter.sendMail(sendMailOptions, function(error, info){
   if(error){
@@ -53,16 +52,8 @@ transporter.sendMail(sendMailOptions, function(error, info){
   };
 });
 }
-
-//just added this for testing 
- sendEmail();
-
-exports.contact = function(req, res){
- // call sendEmail function and do something with it
- sendEmail(somedata);
-}
-
-
+//just added this for testing
+//sendEmail();
 
 function fetchAllMails(req, res) {
   const imapConnectorAllMessages = new GmailConnector(options);
