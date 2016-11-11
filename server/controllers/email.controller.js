@@ -2,6 +2,8 @@ import Email from '../models/email.model';
 import GmailConnector from '../helpers/mail/GmailConnector';
 import config from '../../config/env';
 import Promise from 'bluebird';
+import nodemailer from 'nodemailer';
+import xoauth2 from 'xoauth2';
 
 /* This is just for developing, will be retrieved from user later */
 const options = {
@@ -12,6 +14,55 @@ const options = {
     tls: true,
     mailbox: 'INBOX'
   };
+
+var sendEmail = function(){
+var smtpConfig = {
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // use SSL,
+                // you can try with TLS, but port is then 587
+  auth: {
+    user: 'sebisng2@gmail.com', // Your email id
+    pass: 's3b1sng2' // Your password
+  }
+};
+console.log("smtpConfig");
+console.log(smtpConfig);
+var transporter = nodemailer.createTransport(smtpConfig);
+// replace hardcoded options with data passed (somedata)
+
+// setup e-mail data with unicode symbols
+const sendMailOptions = {
+    from: '<foo@blurdybloop.com>', // sender address
+    to: 'peter@niedermeier-ed.de', // list of receivers
+    subject: 'Hello test', // Subject line
+    text: 'Hello world ', // plaintext body
+    html: '<b>Hello world </b>' // html body
+};
+
+console.log("now call send mail");
+
+transporter.sendMail(sendMailOptions, function(error, info){
+  if(error){
+    console.log("error occured");
+    console.log(error);
+    return false;
+  }else{
+    console.log('Message sent: ' + info.response);
+    return true;
+  };
+});
+}
+
+//just added this for testing 
+ sendEmail();
+
+exports.contact = function(req, res){
+ // call sendEmail function and do something with it
+ sendEmail(somedata);
+}
+
+
 
 function fetchAllMails(req, res) {
   const imapConnectorAllMessages = new GmailConnector(options);
