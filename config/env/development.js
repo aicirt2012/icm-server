@@ -26,6 +26,14 @@ export default {
     draft: '[Gmail]/Entwürfe',
     deleted: '[Gmail]/Papierkorb'
   },
+  smtp: {
+      host: 'smtp.gmail.com',
+      port: 465,
+      auth: {
+        user: 'sebisng2@gmail.com',
+        pass: 's3b1sng2'
+      }
+  },
   db: 'mongodb://localhost:27017/emailapp',
   port: 4000,
   domain: 'http://localhost'

@@ -4,11 +4,13 @@ import nodemailer from 'nodemailer';
 
 class SMTPConnector {
 
-  constructor() {
-    let transporter = nodemailer.createTransport(smtpConfig);
+  constructor(smtpConfig, sendMailOptions) {
+    this.options = smtpConfig;
+    this.sendMailOptions = sendMailOptions;
   }
-  sendMail(smtpConfig,sendMailOptions ){
-      transporter.sendMail(sendMailOptions, function(error, info){
+  sendMail(){
+      let transporter = nodemailer.createTransport(this.options);
+      transporter.sendMail(this.sendMailOptions, function(error, info){
         if(error){
           return false;
         }else{
@@ -18,5 +20,4 @@ class SMTPConnector {
       });
   }
 }
-
 export default SMTPConnector;

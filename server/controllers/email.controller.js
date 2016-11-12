@@ -15,30 +15,30 @@ const options = {
     mailbox: 'INBOX'
   };
 
-/* This has to be replaced with OAuth later on
-Just fix values*/
 const smtpConfig = {
-    host: 'smtp.gmail.com',
-    port: 465,
+    host: config.smtp.host,
+    port: config.smtp.port,
     secure: true,
     auth: {
-      user: 'sebisng2@gmail.com',
-      pass: 's3b1sng2'
+      user: config.smtp.auth.user,
+      pass: config.smtp.auth.pass
     }
   };
 
   // mail data from frontend
 const sendMailOptions = {
-      from: 'sebisng2', // sender address
+      from: 'sebisng2@gmail.com',
       to: 'sebisng2@gmail.com', // list of receivers
-      subject: 'Subject', // Subject line
-      text: 'text', // plaintext body
-      html: '<b>text</b>' // html body
+      subject: 'Subject',
+      text: 'some random text',
+      html: '<b>some random text</b>'
   };
+
+//sendEmail();
 
 function sendEmail() {
   const smtpConnector = new SMTPConnector(smtpConfig,sendMailOptions);
-  smtpConnector.sendMail(smtpConfig,sendMailOptions);
+  smtpConnector.sendMail();
 }
 
 function fetchAllMails(req, res) {
