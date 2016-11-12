@@ -35,9 +35,8 @@ class ImapConnector {
 
   append(box, msgData, args) {
     const options = {
-      mailbox: box,
-      ...args
-    };
+      mailbox: box
+      };
 
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.append(msgData, options, (err) => {

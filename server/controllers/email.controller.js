@@ -64,6 +64,13 @@ function getBoxes(req, res) {
   });
 }
 
+function addBox(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.addBox(req.body.boxName).then((newBox) => {
+    res.status(200).send(newBox);
+  });
+}
+
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
     Email.find({
@@ -99,5 +106,6 @@ export default {
   fetchSendMails,
   fetchDraftMails,
   fetchDeletedMails,
-  getBoxes
+  getBoxes,
+  addBox
 };

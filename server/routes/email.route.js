@@ -17,4 +17,9 @@ router.route('/boxes')
     secret: config.jwt.secret
   }), emailCtrl.getBoxes);
 
+router.route('/addBox')
+.post(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.addBox);
+
 export default router;
