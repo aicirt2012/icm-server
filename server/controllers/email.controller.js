@@ -34,8 +34,6 @@ const sendMailOptions = {
       html: '<b>some random text</b>'
   };
 
-//sendEmail();
-
 function sendEmail() {
   const smtpConnector = new SMTPConnector(smtpConfig,sendMailOptions);
   smtpConnector.sendMail();
