@@ -1,7 +1,8 @@
 import {
   login,
   callback,
-  search
+  search,
+  create
 } from '../helpers/task/TrelloConnector';
 
 function getTrelloLogin(req, res) {
@@ -13,11 +14,18 @@ function getTrelloCallback(req, res) {
 }
 
 function getTrelloSearch(req, res) {
-  return search(req, res);
+  const params = ['query'];
+  return search(req, res, params);
+}
+
+function postTrelloCreate(req, res) {
+  const params = ['due', 'idList'];
+  return create(req, res, params);
 }
 
 export default {
   getTrelloLogin,
   getTrelloCallback,
-  getTrelloSearch
+  getTrelloSearch,
+  postTrelloCreate
 };

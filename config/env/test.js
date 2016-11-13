@@ -11,7 +11,7 @@ export default {
     port: 993
   },
   trello: {
-    baseURL: 'https://trello.com/1/',
+    baseURL: 'https://trello.com/1',
     appName: 'Email Client with Contextual Task Support',
     key: '734feed8b99a158d3a9cd9af87e096f3',
     secret: '498ac521e9ecb0f32467f7dffae04054efc6f13318ad20538cd75195e8d4eb54',

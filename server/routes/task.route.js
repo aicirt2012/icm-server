@@ -13,4 +13,7 @@ router.route('/callback')
 router.route('/search')
   .get(taskCtrl.getTrelloSearch);
 
+router.route('/create/*')
+  .post(taskCtrl.postTrelloCreate);
+
 export default router;
