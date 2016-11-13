@@ -5,13 +5,13 @@ import Promise from 'bluebird';
 
 /* This is just for developing, will be retrieved from user later */
 const options = {
-    user: config.email.user,
-    password: config.email.pass,
-    host: config.email.host,
-    port: config.email.port,
-    tls: true,
-    mailbox: 'INBOX'
-  };
+  user: config.email.user,
+  password: config.email.pass,
+  host: config.email.host,
+  port: config.email.port,
+  tls: true,
+  mailbox: 'INBOX'
+};
 
 function fetchAllMails(req, res) {
   const imapConnectorAllMessages = new GmailConnector(options);
@@ -63,11 +63,46 @@ function getBoxes(req, res) {
     console.log(boxes);
   });
 }
-
+//ToDo: Add Path/Prefix to Boxname automatically
 function addBox(req, res) {
   const imapConnector = new GmailConnector(options);
-  imapConnector.addBox(req.body.boxName).then((newBox) => {
-    res.status(200).send(newBox);
+  imapConnector.addBox(req.body.boxName).then((boxName) => {
+    res.status(200).send(`Created new box: ${boxName}`);
+  });
+}
+//ToDo: Add Path/Prefix to Boxname automatically
+function delBox(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.delBox(req.body.boxName).then((boxName) => {
+    res.status(200).send(`Deleted box: ${boxName}`);
+  });
+}
+//ToDo: Add Path/Prefix to Boxname automatically
+function renameBox(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
+    res.status(200).send(`Renamed box to: ${boxName}`);
+  });
+}
+
+function append(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.append(req.body.box, req.body.msgData, req.body.args).then((msgData) => {
+    res.status(200).send(msgData);
+  });
+}
+
+function move(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.move(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
+    res.status(200).send(messages);
+  });
+}
+
+function copy(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
+    res.status(200).send(messages);
   });
 }
 
@@ -107,5 +142,10 @@ export default {
   fetchDraftMails,
   fetchDeletedMails,
   getBoxes,
-  addBox
+  addBox,
+  delBox,
+  renameBox,
+  append,
+  move,
+  copy
 };

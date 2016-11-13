@@ -13,13 +13,38 @@ router.route('/')
   }), emailCtrl.fetchAllMails);
 
 router.route('/boxes')
-.get(expressJwt({
+  .get(expressJwt({
     secret: config.jwt.secret
   }), emailCtrl.getBoxes);
 
 router.route('/addBox')
-.post(expressJwt({
+  .post(expressJwt({
     secret: config.jwt.secret
   }), emailCtrl.addBox);
+
+router.route('/delBox')
+  .post(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.delBox);
+
+router.route('/renameBox')
+  .post(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.renameBox);
+
+router.route('/append')
+  .post(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.append);
+
+router.route('/move')
+  .post(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.move);
+
+router.route('/copy')
+  .post(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.copy);
 
 export default router;

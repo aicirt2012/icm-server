@@ -33,14 +33,47 @@ class ImapConnector {
     }))
   }
 
+  delBox(boxName) {
+    return this.connect().then(() => new Promise((resolve, reject) => {
+      this.imap.delBox(boxName, (err) => {
+        err ? reject() : resolve(boxName);
+      })
+    }))
+  }
+
+  renameBox(oldBoxName, newBoxName) {
+    return this.connect().then(() => new Promise((resolve, reject) => {
+      this.imap.renameBox(oldBoxName, newBoxName, (err) => {
+        err ? reject() : resolve(newBoxName);
+      })
+    }))
+  }
+
   append(box, msgData, args) {
     const options = {
-      mailbox: box
+      mailbox: box,
+      ...args
       };
 
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.append(msgData, options, (err) => {
         err ? reject() : resolve(msgData);
+      })
+    }));
+  }
+
+  move(msgId, srcBox, box) {
+    return this.openBoxAsync(srcBox).then((srcBox) => new Promise((resolve, reject) => {
+      this.imap.move(msgId, box, (err) => {
+        err ? reject() : resolve(msgId);
+      })
+    }));
+  }
+
+  copy(msgId, srcBox, box) {
+    return this.openBoxAsync(srcBox).then((srcBox) => new Promise((resolve, reject) => {
+      this.imap.copy(msgId, box, (err) => {
+        err ? reject() : resolve(msgId);
       })
     }));
   }

@@ -37,6 +37,7 @@ class GmailConnector extends ImapConnector {
         'x-gm-labels': [],
         flags: []
       };
+      let msgUID;
       mailParser.on('end', (mailObject) => {
         const email = {
           messageId: mailObject.messageId,
@@ -47,7 +48,8 @@ class GmailConnector extends ImapConnector {
           html: mailObject.html,
           date: moment(mailObject.date).format('YYYY-MM-DD HH:mm:ss'),
           flags: labels.flags,
-          labels: labels['x-gm-labels']
+          labels: labels['x-gm-labels'],
+          uid: msgUID
         };
         storeEmail(email).then((msg) => {
           resolve(msg);
@@ -62,6 +64,7 @@ class GmailConnector extends ImapConnector {
           mailParser.write(buffer);
         });
       }).once('attributes', (attrs) => {
+        msgUID = attrs.uid;
         labels = attrs;
       }).once('end', () => {
         mailParser.end();
