@@ -18,6 +18,9 @@ function routeProvider(passport) {
   router.route('/search')
     .get(taskCtrl.getTrelloSearch);
 
+  router.route('/create/*')
+    .post(taskCtrl.postTrelloCreate);
+  
   return router;
 }
 
