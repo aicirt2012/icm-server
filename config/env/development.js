@@ -26,6 +26,11 @@ export default {
     draft: '[Gmail]/Entwürfe',
     deleted: '[Gmail]/Papierkorb'
   },
+  google: {
+    clientID: process.env.GOOGLE_ID || 'APP_ID',
+    clientSecret: process.env.GOOGLE_SECRET || 'APP_SECRET',
+    callbackURL: 'http://127.0.0.1:3000/auth/google/callback'
+  },
   db: 'mongodb://localhost:27017/emailapp',
   port: 4000,
   domain: 'http://localhost'

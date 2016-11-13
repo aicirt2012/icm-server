@@ -13,6 +13,7 @@ import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
 import config from './env';
 import APIError from '../server/helpers/error/APIError';
+import passport from 'passport';
 
 const app = express();
 
@@ -33,6 +34,9 @@ app.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
+
+// Use the passport package
+app.use(passport.initialize());
 
 // enable detailed API logging in dev env
 if (config.env === 'development') {
