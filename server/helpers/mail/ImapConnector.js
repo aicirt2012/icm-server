@@ -53,13 +53,18 @@ class ImapConnector {
     const options = {
       mailbox: box,
       ...args
-      };
+    };
 
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.append(msgData, options, (err) => {
         err ? reject() : resolve(msgData);
       })
     }));
+    /*return this.openBoxAsync(options.mailbox).then((box) => new Promise((resolve, reject) => {
+      this.imap.move(msgData, options, (err) => {
+        err ? reject() : resolve(msgData);
+      })
+    }));*/
   }
 
   move(msgId, srcBox, box) {

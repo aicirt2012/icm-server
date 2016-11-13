@@ -86,6 +86,14 @@ function renameBox(req, res) {
 }
 
 function append(req, res) {
+  //this is just for testing purposes - rfc822 encoding will be done in the frontend in the future
+  req.body.msgData = `From: example@example.com
+To: example2@example.com
+Subject: As basic as it gets - the second
+
+This is the plain text body of the message.  Note the blank line
+between the header information and the body of the message.`
+
   const imapConnector = new GmailConnector(options);
   imapConnector.append(req.body.box, req.body.msgData, req.body.args).then((msgData) => {
     res.status(200).send(msgData);
