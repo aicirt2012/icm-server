@@ -34,17 +34,15 @@ const sendMailOptions = {
       html: '<b>some random text</b>'
   };
 
-function sendEmail() {
+function sendEmail(req, res) {
   const smtpConnector = new SMTPConnector(smtpConfig,sendMailOptions);
-  smtpConnector.sendMail();
+  let result = smtpConnector.sendMail();
+  console.log("email send");
+  if(result) {
+    res.status(200).send("Email was sent");
+  }
   /*need to trigger mailsync process here
-  maybe add a promise to sendmail and trigger sync after promise is resolved
-  But at the moment the getMail api call throws errors
-  */
-  /*const imapConnectorSend = new GmailConnector(options);
-  imapConnectorSend.fetchEmails(storeEmail, config.gmail.send).then((messages) => {
-    res.status(200).send(messages);
-  });*/
+*/
 }
 
 function fetchAllMails(req, res) {
