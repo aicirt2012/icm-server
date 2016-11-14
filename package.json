@@ -56,8 +56,7 @@
     "nodemailer": "2.6.4",
     "oauth": "0.9.14",
     "url": "0.11.0",
-    "winston": "2.2.0",
-    "xoauth2": "1.2.0"
+    "winston": "2.2.0"
   },
   "devDependencies": {
     "babel-cli": "6.18.0",

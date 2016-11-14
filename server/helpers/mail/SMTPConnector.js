@@ -12,13 +12,7 @@ class SMTPConnector {
     return new Promise((resolve, reject) => {
       let transporter = nodemailer.createTransport(this.options);
       transporter.sendMail(this.sendMailOptions, function(error, info) {
-        if (error) {
-          reject(error);
-          return false;
-        } else {
-          resolve(info);
-          return true;
-        };
+        error ? reject(error) : resolve(info);
       });
     });
   }

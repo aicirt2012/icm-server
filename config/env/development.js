@@ -22,11 +22,11 @@ export default {
     oauthSHA: 'HMAC-SHA1'
   },
   gmail: {
-    allMessages: '[Gmail]/Alle Nachrichten',
+    allMessages: '[Gmail]/All Mail',
     inbox: 'INBOX',
-    send: '[Gmail]/Gesendet',
-    draft: '[Gmail]/Entwürfe',
-    deleted: '[Gmail]/Papierkorb'
+    send: '[Gmail]/Send',
+    draft: '[Gmail]/Draft',
+    deleted: '[Gmail]/Trash'
   },
   smtp: {
       host: 'smtp.gmail.com',

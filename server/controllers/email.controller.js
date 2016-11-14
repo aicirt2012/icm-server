@@ -3,7 +3,6 @@ import GmailConnector from '../helpers/mail/GmailConnector';
 import SMTPConnector from '../helpers/mail/SMTPConnector';
 import config from '../../config/env';
 import Promise from 'bluebird';
-import nodemailer from 'nodemailer';
 
 /* This is just for developing, will be retrieved from user later */
 const options = {
@@ -37,14 +36,14 @@ const sendMailOptions = {
 function sendEmail(req, res) {
   const smtpConnector = new SMTPConnector(smtpConfig, sendMailOptions);
   smtpConnector.sendMail().then((result) => {
-    console.log("Email send , now trigger sync process");
+    /*  At the moment all mails are fetched when we start the synch process
+    TO DO: write new function/endpoint to just fetch last couple of mails from sendBox  */
     const imapConnectorAllMessages = new GmailConnector(options);
     imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.allMessages).then((messages) => {
       res.status(200).send(messages);
     });
   });
 }
-
 
 function fetchAllMails(req, res) {
   const imapConnectorAllMessages = new GmailConnector(options);
