@@ -1,5 +1,6 @@
 import Email from '../models/email.model';
 import GmailConnector from '../helpers/mail/GmailConnector';
+import SMTPConnector from '../helpers/mail/SMTPConnector';
 import config from '../../config/env';
 import Promise from 'bluebird';
 
@@ -12,6 +13,37 @@ const options = {
   tls: true,
   mailbox: 'INBOX'
 };
+
+const smtpConfig = {
+  host: config.smtp.host,
+  port: config.smtp.port,
+  secure: true,
+  auth: {
+    user: config.smtp.auth.user,
+    pass: config.smtp.auth.pass
+  }
+};
+
+// mail data from frontend
+const sendMailOptions = {
+  from: 'sebisng2@gmail.com',
+  to: 'sebisng2@gmail.com', // list of receivers
+  subject: 'Subject',
+  text: 'some random text',
+  html: '<b>some random text</b>'
+};
+
+function sendEmail(req, res) {
+  const smtpConnector = new SMTPConnector(smtpConfig, sendMailOptions);
+  smtpConnector.sendMail().then((result) => {
+    /*  At the moment all mails are fetched when we start the synch process
+    TO DO: write new function/endpoint to just fetch last couple of mails from sendBox  */
+    const imapConnectorAllMessages = new GmailConnector(options);
+    imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.allMessages).then((messages) => {
+      res.status(200).send(messages);
+    });
+  });
+}
 
 function fetchAllMails(req, res) {
   const imapConnectorAllMessages = new GmailConnector(options);
@@ -147,5 +179,6 @@ export default {
   renameBox,
   append,
   move,
-  copy
+  copy,
+  sendEmail
 };

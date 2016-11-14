@@ -67,4 +67,9 @@ router.route('/copy')
     secret: config.jwt.secret
   }), emailCtrl.copy);
 
+router.route('/send')
+.post(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.sendEmail);
+
 export default router;
