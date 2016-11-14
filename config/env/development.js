@@ -6,8 +6,10 @@ export default {
     expiresInSeconds: 86400
   },
   email: {
-    user: 'felix.in.tum',
-    pass: 'hYW7qHj9sfBkvyzVt2jW',
+    /*user: 'felix.in.tum',
+    pass: 'hYW7qHj9sfBkvyzVt2jW',*/
+    user: 'sebisng2@gmail.com',
+    pass: 's3b1sng2',
     host: 'imap.gmail.com',
     port: 993
   },
@@ -20,11 +22,19 @@ export default {
     oauthSHA: 'HMAC-SHA1'
   },
   gmail: {
-    allMessages: '[Gmail]/Alle Nachrichten',
+    allMessages: '[Gmail]/All Mail',
     inbox: 'INBOX',
-    send: '[Gmail]/Gesendet',
-    draft: '[Gmail]/Entwürfe',
-    deleted: '[Gmail]/Papierkorb'
+    send: '[Gmail]/Send',
+    draft: '[Gmail]/Draft',
+    deleted: '[Gmail]/Trash'
+  },
+  smtp: {
+      host: 'smtp.gmail.com',
+      port: 465,
+      auth: {
+        user: 'sebisng2@gmail.com',
+        pass: 's3b1sng2'
+      }
   },
   db: 'mongodb://localhost:27017/emailapp',
   port: 4000,
