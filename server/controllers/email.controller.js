@@ -87,7 +87,7 @@ function renameBox(req, res) {
 
 function append(req, res) {
   const imapConnector = new GmailConnector(options);
-  imapConnector.append(req.body.box, createRfcMessage(req), req.body.args).then((msgData) => {
+  imapConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData).then((msgData) => {
     res.status(200).send(msgData);
   });
 }
@@ -135,13 +135,6 @@ function storeEmail(mail) {
   });
 }
 
-function createRfcMessage(req) {
-  return `From: ${req.body.from}
-To: ${req.body.to}
-Subject: ${req.body.subject}
-${req.body.msgData}`;
-}
-
 export default {
   fetchAllMails,
   fetchInboxMails,
@@ -154,6 +147,5 @@ export default {
   renameBox,
   append,
   move,
-  copy,
-  createRfcMessage
+  copy
 };

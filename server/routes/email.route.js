@@ -12,6 +12,26 @@ router.route('/')
     secret: config.jwt.secret
   }), emailCtrl.fetchAllMails);
 
+router.route('/sendBox')
+  .get(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.fetchSendMails);
+
+router.route('/draftBox')
+  .get(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.fetchDraftMails);
+
+router.route('/trashBox')
+  .get(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.fetchDeletedMails);
+
+router.route('/inBox')
+  .get(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.fetchInboxMails);
+
 router.route('/boxes')
   .get(expressJwt({
     secret: config.jwt.secret

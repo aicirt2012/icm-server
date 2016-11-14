@@ -48,14 +48,16 @@ class ImapConnector {
     }))
   }
 
-  append(box, msgData, args) {
+  append(box, args, to, from, subject, msgData) {
     const options = {
       mailbox: box,
       ...args
     };
 
+    const msg = this.createRfcMessage(from, to, subject, msgData);
+
     return this.connect().then(() => new Promise((resolve, reject) => {
-      this.imap.append(msgData, options, (err) => {
+      this.imap.append(msg, options, (err) => {
         err ? reject() : resolve(msgData);
       })
     }));
@@ -77,6 +79,10 @@ class ImapConnector {
     }));
   }
 
+  addFlags() {
+
+  }
+
   fetchAttachment(mail) {
     return this.imap.collectEmailAsync(mail)
       .then((msg) => {
@@ -88,6 +94,13 @@ class ImapConnector {
         }));
         return Promise.props(msg);
       });
+  }
+
+  createRfcMessage(from, to, subject, msgData) {
+    return `From: ${from}
+To: ${to}
+Subject: ${subject}
+${msgData}`;
   }
 
 }
