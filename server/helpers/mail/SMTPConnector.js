@@ -8,37 +8,19 @@ class SMTPConnector {
     this.options = smtpConfig;
     this.sendMailOptions = sendMailOptions;
   }
-  //we could implement nodemailer-promise for using promises
-  /*sendMail(){
-  //  let transporter = nodemailer.createTransport(this.options);
-     return new Promise(function(resolve,reject){
+  sendMail() {
+    return new Promise((resolve, reject) => {
       let transporter = nodemailer.createTransport(this.options);
-      console.log(transporter);
-      transporter.sendMail(this.sendMailOptions, function(error, info){
-        if(error){
+      transporter.sendMail(this.sendMailOptions, function(error, info) {
+        if (error) {
           reject(error);
           return false;
-        }else{
-          console.log('Message sent: ' + info.response);
-          console.log("resolve promise");
-          resolve(transporter);
+        } else {
+          resolve(info);
           return true;
         };
       });
     });
-  }
-*/
-  sendMail(){
-      let transporter = nodemailer.createTransport(this.options);
-      transporter.sendMail(this.sendMailOptions, function(error, info){
-        if(error){
-          return false;
-        }else{
-          console.log('Message sent: ' + info.response);
-          return true;
-        };
-      });
-      return true;
   }
 }
 export default SMTPConnector;

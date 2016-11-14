@@ -6,8 +6,10 @@ export default {
     expiresInSeconds: 86400
   },
   email: {
-    user: 'felix.in.tum',
-    pass: 'hYW7qHj9sfBkvyzVt2jW',
+    /*user: 'felix.in.tum',
+    pass: 'hYW7qHj9sfBkvyzVt2jW',*/
+    user: 'sebisng2@gmail.com',
+    pass: 's3b1sng2',
     host: 'imap.gmail.com',
     port: 993
   },

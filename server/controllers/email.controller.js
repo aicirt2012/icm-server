@@ -7,43 +7,44 @@ import nodemailer from 'nodemailer';
 
 /* This is just for developing, will be retrieved from user later */
 const options = {
-    user: config.email.user,
-    password: config.email.pass,
-    host: config.email.host,
-    port: config.email.port,
-    tls: true,
-    mailbox: 'INBOX'
-  };
+  user: config.email.user,
+  password: config.email.pass,
+  host: config.email.host,
+  port: config.email.port,
+  tls: true,
+  mailbox: 'INBOX'
+};
 
 const smtpConfig = {
-    host: config.smtp.host,
-    port: config.smtp.port,
-    secure: true,
-    auth: {
-      user: config.smtp.auth.user,
-      pass: config.smtp.auth.pass
-    }
-  };
+  host: config.smtp.host,
+  port: config.smtp.port,
+  secure: true,
+  auth: {
+    user: config.smtp.auth.user,
+    pass: config.smtp.auth.pass
+  }
+};
 
-  // mail data from frontend
+// mail data from frontend
 const sendMailOptions = {
-      from: 'sebisng2@gmail.com',
-      to: 'sebisng2@gmail.com', // list of receivers
-      subject: 'Subject',
-      text: 'some random text',
-      html: '<b>some random text</b>'
-  };
+  from: 'sebisng2@gmail.com',
+  to: 'sebisng2@gmail.com', // list of receivers
+  subject: 'Subject',
+  text: 'some random text',
+  html: '<b>some random text</b>'
+};
 
 function sendEmail(req, res) {
-  const smtpConnector = new SMTPConnector(smtpConfig,sendMailOptions);
-  let result = smtpConnector.sendMail();
-  console.log("email send");
-  if(result) {
-    res.status(200).send("Email was sent");
-  }
-  /*need to trigger mailsync process here
-*/
+  const smtpConnector = new SMTPConnector(smtpConfig, sendMailOptions);
+  smtpConnector.sendMail().then((result) => {
+    console.log("Email send , now trigger sync process");
+    const imapConnectorAllMessages = new GmailConnector(options);
+    imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.allMessages).then((messages) => {
+      res.status(200).send(messages);
+    });
+  });
 }
+
 
 function fetchAllMails(req, res) {
   const imapConnectorAllMessages = new GmailConnector(options);

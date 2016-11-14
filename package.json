@@ -53,6 +53,7 @@
     "moment": "2.15.2",
     "mongoose": "4.6.5",
     "morgan": "1.7.0",
+    "nodemailer": "2.6.4",
     "oauth": "0.9.14",
     "url": "0.11.0",
     "winston": "2.2.0",
