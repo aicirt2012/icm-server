@@ -19,7 +19,7 @@ class ImapConnector {
   getBoxes() {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.getBoxes((err, boxes) => {
-        err ? reject() : resolve(boxes);
+        err ? reject(err) : resolve(boxes);
       });
     }));
   }
@@ -27,7 +27,7 @@ class ImapConnector {
   addBox(boxName) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.addBox(boxName, (err) => {
-        err ? reject() : resolve(boxName);
+        err ? reject(err) : resolve(boxName);
       })
     }))
   }
@@ -35,7 +35,7 @@ class ImapConnector {
   delBox(boxName) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.delBox(boxName, (err) => {
-        err ? reject() : resolve(boxName);
+        err ? reject(err) : resolve(boxName);
       })
     }))
   }
@@ -43,7 +43,7 @@ class ImapConnector {
   renameBox(oldBoxName, newBoxName) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.renameBox(oldBoxName, newBoxName, (err) => {
-        err ? reject() : resolve(newBoxName);
+        err ? reject(err) : resolve(newBoxName);
       })
     }))
   }
@@ -58,7 +58,7 @@ class ImapConnector {
 
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.append(msg, options, (err) => {
-        err ? reject() : resolve(msgData);
+        err ? reject(err) : resolve(msgData);
       })
     }));
   }
@@ -66,7 +66,7 @@ class ImapConnector {
   move(msgId, srcBox, box) {
     return this.openBoxAsync(srcBox).then((srcBox) => new Promise((resolve, reject) => {
       this.imap.move(msgId, box, (err) => {
-        err ? reject() : resolve(msgId);
+        err ? reject(err) : resolve(msgId);
       })
     }));
   }
@@ -74,7 +74,7 @@ class ImapConnector {
   copy(msgId, srcBox, box) {
     return this.openBoxAsync(srcBox).then((srcBox) => new Promise((resolve, reject) => {
       this.imap.copy(msgId, box, (err) => {
-        err ? reject() : resolve(msgId);
+        err ? reject(err) : resolve(msgId);
       })
     }));
   }

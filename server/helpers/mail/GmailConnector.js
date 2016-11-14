@@ -53,6 +53,8 @@ class GmailConnector extends ImapConnector {
         };
         storeEmail(email).then((msg) => {
           resolve(msg);
+        }).catch((err) => {
+          reject(err);
         });
       });
       mail.on('body', (stream, info) => {
@@ -69,7 +71,7 @@ class GmailConnector extends ImapConnector {
         labels = attrs;
       }).once('end', () => {
         mailParser.end();
-      }).on('error', () => reject());
+      }).on('error', (err) => reject(err));
     });
   }
 
