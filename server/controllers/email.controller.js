@@ -95,6 +95,48 @@ function getBoxes(req, res) {
     console.log(boxes);
   });
 }
+// ToDo: Add Path/Prefix to Boxname automatically
+function addBox(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.addBox(req.body.boxName).then((boxName) => {
+    res.status(200).send(`Created new box: ${boxName}`);
+  });
+}
+// ToDo: Add Path/Prefix to Boxname automatically
+function delBox(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.delBox(req.body.boxName).then((boxName) => {
+    res.status(200).send(`Deleted box: ${boxName}`);
+  });
+}
+// ToDo: Add Path/Prefix to Boxname automatically
+function renameBox(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
+    res.status(200).send(`Renamed box to: ${boxName}`);
+  });
+}
+
+function append(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData).then((msgData) => {
+    res.status(200).send(msgData);
+  });
+}
+
+function move(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.move(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
+    res.status(200).send(messages);
+  });
+}
+
+function copy(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
+    res.status(200).send(messages);
+  });
+}
 
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
@@ -132,5 +174,11 @@ export default {
   fetchDraftMails,
   fetchDeletedMails,
   getBoxes,
+  addBox,
+  delBox,
+  renameBox,
+  append,
+  move,
+  copy,
   sendEmail
 };

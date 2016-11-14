@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const EmailSchema = new mongoose.Schema({
   messageId: String,
+  uid: Number,
   from: [{
     address: String,
     name: String
