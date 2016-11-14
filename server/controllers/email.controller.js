@@ -63,21 +63,21 @@ function getBoxes(req, res) {
     console.log(boxes);
   });
 }
-//ToDo: Add Path/Prefix to Boxname automatically
+// ToDo: Add Path/Prefix to Boxname automatically
 function addBox(req, res) {
   const imapConnector = new GmailConnector(options);
   imapConnector.addBox(req.body.boxName).then((boxName) => {
     res.status(200).send(`Created new box: ${boxName}`);
   });
 }
-//ToDo: Add Path/Prefix to Boxname automatically
+// ToDo: Add Path/Prefix to Boxname automatically
 function delBox(req, res) {
   const imapConnector = new GmailConnector(options);
   imapConnector.delBox(req.body.boxName).then((boxName) => {
     res.status(200).send(`Deleted box: ${boxName}`);
   });
 }
-//ToDo: Add Path/Prefix to Boxname automatically
+// ToDo: Add Path/Prefix to Boxname automatically
 function renameBox(req, res) {
   const imapConnector = new GmailConnector(options);
   imapConnector.renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
@@ -86,16 +86,8 @@ function renameBox(req, res) {
 }
 
 function append(req, res) {
-  //this is just for testing purposes - rfc822 encoding will be done in the frontend in the future
-  req.body.msgData = `From: example@example.com
-To: example2@example.com
-Subject: As basic as it gets - the second
-
-This is the plain text body of the message.  Note the blank line
-between the header information and the body of the message.`
-
   const imapConnector = new GmailConnector(options);
-  imapConnector.append(req.body.box, req.body.msgData, req.body.args).then((msgData) => {
+  imapConnector.append(req.body.box, createRfcMessage(req), req.body.args).then((msgData) => {
     res.status(200).send(msgData);
   });
 }
@@ -143,6 +135,13 @@ function storeEmail(mail) {
   });
 }
 
+function createRfcMessage(req) {
+  return `From: ${req.body.from}
+To: ${req.body.to}
+Subject: ${req.body.subject}
+${req.body.msgData}`;
+}
+
 export default {
   fetchAllMails,
   fetchInboxMails,
@@ -155,5 +154,6 @@ export default {
   renameBox,
   append,
   move,
-  copy
+  copy,
+  createRfcMessage
 };

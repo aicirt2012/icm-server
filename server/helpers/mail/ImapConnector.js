@@ -2,7 +2,6 @@ import IPromise from 'imap-promise';
 import Promise from 'bluebird';
 
 class ImapConnector {
-  imap;
 
   constructor(options) {
     this.options = options;
@@ -60,11 +59,6 @@ class ImapConnector {
         err ? reject() : resolve(msgData);
       })
     }));
-    /*return this.openBoxAsync(options.mailbox).then((box) => new Promise((resolve, reject) => {
-      this.imap.move(msgData, options, (err) => {
-        err ? reject() : resolve(msgData);
-      })
-    }));*/
   }
 
   move(msgId, srcBox, box) {
