@@ -45,5 +45,6 @@ export default {
   },
   db: 'mongodb://localhost:27017/emailapp',
   port: 4000,
-  domain: 'http://localhost'
+  domain: 'http://localhost',
+  frontend: 'http://localhost:3000'
 };

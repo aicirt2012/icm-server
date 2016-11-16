@@ -28,7 +28,8 @@ function login(req, res) {
         const token = jwt.sign({
           user: {
             _id: user._id,
-            username: user.username
+            username: user.username,
+            email: req.user.email
           }
         }, config.jwt.secret, {
           expiresIn: config.jwt.expiresInSeconds
@@ -41,6 +42,21 @@ function login(req, res) {
   });
 }
 
+function oauthCallback(req, res) {
+  const token = jwt.sign({
+    user: {
+      _id: req.user._id,
+      username: req.user.username,
+      email: req.user.email
+    }
+  }, config.jwt.secret, {
+    expiresIn: config.jwt.expiresInSeconds
+  });
+  res.cookie('email-oauth', token);
+  res.redirect(config.frontend);
+}
+
 export default {
-  login
+  login,
+  oauthCallback
 };

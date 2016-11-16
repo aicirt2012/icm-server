@@ -9,7 +9,6 @@ import config from '../env';
 //   credentials (in this case, an accessToken, refreshToken, and Google
 //   profile), and invoke a callback with a user object.
 function verifyGoogle(accessToken, refreshToken, profile, done) {
-  console.log('a: ', accessToken, ' , r: ', refreshToken, ' p: ', profile);
   User.find({
     googleId: profile.id
   }, (err, user) => {
@@ -22,6 +21,7 @@ function verifyGoogle(accessToken, refreshToken, profile, done) {
       user = new User();
       user.googleId = profile.id;
       user.username = profile.displayName;
+      user.email = profile.emails[0].value;
       user.password = profile.id;
       user.save((err) => {
         if (err) {

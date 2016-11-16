@@ -18,13 +18,7 @@ function routeProvider(passport) {
   router.route('/google/callback').get(
     passport.authenticate('google', {
       failureRedirect: '/login'
-    }),
-    (req, res) => {
-      console.log(req.user);
-      res.status(200).json({
-        res: 'Yeah'
-      });
-    });
+  }),authCtrl.oauthCallback);
 
   return router;
 }
