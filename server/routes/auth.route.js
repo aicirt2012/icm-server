@@ -3,10 +3,13 @@ import validate from 'express-validation';
 import paramValidation from '../../config/param-validation';
 import authCtrl from '../controllers/auth.controller';
 
-const router = express.Router(); // eslint-disable-line new-cap
+function routeProvider(passport) {
 
-/** POST /api/auth/login - Returns token if correct username and password is provided */
-router.route('/login')
-  .post(validate(paramValidation.login), authCtrl.login);
+  const router = express.Router();
 
-export default router;
+  router.route('/login')
+    .post(validate(paramValidation.login), authCtrl.login);
+
+  return router;
+}
+export default routeProvider;

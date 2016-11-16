@@ -20,15 +20,15 @@ function login(req, res) {
 
     if (user.password === req.body.password) {
       const token = jwt.sign({
-        username: user.username
+        user: {
+          _id: user._id,
+          username: user.username
+        }
       }, config.jwt.secret, {
         expiresIn: config.jwt.expiresInSeconds
       });
       res.status(200).json({
-        token,
-        user: {
-          username: user.username
-        }
+        token
       });
       return;
     }
