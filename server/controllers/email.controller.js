@@ -164,7 +164,7 @@ function copy(req, res) {
     res.status(400).send(err);
   });
 }
-
+// ToDo: Check if UID has changed and update accordingly
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
     Email.find({
