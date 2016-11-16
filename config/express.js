@@ -15,8 +15,8 @@ import config from './env';
 import APIError from '../server/helpers/error/APIError';
 import passport from 'passport';
 import {
-  jwtAuthentication
-} from './passport/jwt';
+  config as passportConfig
+} from './passport';
 
 const app = express();
 
@@ -42,7 +42,7 @@ app.use(cors());
 
 // Use the passport package
 app.use(passport.initialize());
-jwtAuthentication(passport);
+passportConfig(passport);
 
 // enable detailed API logging in dev env
 if (config.env === 'development') {

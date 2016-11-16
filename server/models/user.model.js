@@ -12,12 +12,14 @@ const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
-    required: true
+    //required: true
   },
   password: {
     type: String,
     required: true,
   },
+  googleId: String,
+  displayName: String,
   createdAt: {
     type: Date,
     default: Date.now
@@ -26,29 +28,28 @@ const UserSchema = new mongoose.Schema({
   timestamps: true
 });
 
-UserSchema.pre('save', (next) => {
+UserSchema.pre('save', function (next) {
   let user = this;
-  if (this.isModified('password') || this.isNew) {
-    bcrypt.genSalt(10, (err, salt) => {
+  console.log('Presave');
+  if (!user.isModified('password')) return next();
+
+  bcrypt.genSalt(10, (err, salt) => {
+    if (err) {
+      return next(err);
+    }
+    bcrypt.hash(user.password, salt, (err, hash) => {
       if (err) {
         return next(err);
       }
-      bcrypt.hash(user.password, salt, (err, hash) => {
-        if (err) {
-          return next(err);
-        }
-        user.password = hash;
-        next();
-      });
+      user.password = hash;
+      next();
     });
-  } else {
-    return next();
-  }
+  });
 });
 
 UserSchema.method({
-  comparePassword: (passw, cb) => {
-    bcrypt.compare(passw, this.password, (err, isMatch) => {
+  comparePassword: function(password, cb) {
+    bcrypt.compare(password, this.password, (err, isMatch) => {
       if (err) {
         return cb(err);
       }

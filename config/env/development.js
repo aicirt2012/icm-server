@@ -29,17 +29,19 @@ export default {
     deleted: '[Gmail]/Trash'
   },
   smtp: {
-      host: 'smtp.gmail.com',
-      port: 465,
-      auth: {
-        user: 'sebisng2@gmail.com',
-        pass: 's3b1sng2'
-      }
+    host: 'smtp.gmail.com',
+    port: 465,
+    auth: {
+      user: 'sebisng2@gmail.com',
+      pass: 's3b1sng2'
+    }
   },
-  google: {
-    clientID: process.env.GOOGLE_ID || 'APP_ID',
-    clientSecret: process.env.GOOGLE_SECRET || 'APP_SECRET',
-    callbackURL: 'http://127.0.0.1:3000/auth/google/callback'
+  oauth: {
+    google: {
+      clientID: '465909145526-24o6vi7usjb15h7d0k82u1crhlvcaed0.apps.googleusercontent.com',
+      clientSecret: 'ov0JPJIiAy8g4A7rYgUdc27S',
+      callbackURL: 'http://localhost:4000/api/auth/google/callback'
+    },
   },
   db: 'mongodb://localhost:27017/emailapp',
   port: 4000,

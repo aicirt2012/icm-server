@@ -17,21 +17,27 @@ function login(req, res) {
       res.status(500).send(err);
       return;
     }
-
-    if (user.password === req.body.password) {
-      const token = jwt.sign({
-        user: {
-          _id: user._id,
-          username: user.username
-        }
-      }, config.jwt.secret, {
-        expiresIn: config.jwt.expiresInSeconds
-      });
-      res.status(200).json({
-        token
-      });
+    if (!user) {
+      res.status(401).send('Invalid Credentials');
       return;
     }
+    user.comparePassword(req.body.password, (err, isMatch) => {
+      if (!isMatch || err) {
+        res.status(401).send('Wrong password');
+      } else {
+        const token = jwt.sign({
+          user: {
+            _id: user._id,
+            username: user.username
+          }
+        }, config.jwt.secret, {
+          expiresIn: config.jwt.expiresInSeconds
+        });
+        res.status(200).json({
+          token
+        });
+      }
+    })
   });
 }
 

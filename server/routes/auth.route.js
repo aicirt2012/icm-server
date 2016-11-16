@@ -10,6 +10,22 @@ function routeProvider(passport) {
   router.route('/login')
     .post(validate(paramValidation.login), authCtrl.login);
 
+  router.route('/google').get(
+    passport.authenticate('google', {
+      scope: ['email', 'profile']
+    }));
+
+  router.route('/google/callback').get(
+    passport.authenticate('google', {
+      failureRedirect: '/login'
+    }),
+    (req, res) => {
+      console.log(req.user);
+      res.status(200).json({
+        res: 'Yeah'
+      });
+    });
+
   return router;
 }
 export default routeProvider;
