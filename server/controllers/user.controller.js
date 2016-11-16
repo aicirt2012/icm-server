@@ -31,7 +31,7 @@ function create(req, res, next) {
     username: req.body.username,
     password: req.body.password
   });
-
+  console.log('req', req);
   user.save()
     .then(savedUser => res.json(savedUser))
     .catch(e => next(e));
