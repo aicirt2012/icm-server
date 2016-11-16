@@ -2,7 +2,6 @@ import IPromise from 'imap-promise';
 import Promise from 'bluebird';
 
 class ImapConnector {
-  imap;
 
   constructor(options) {
     this.options = options;
@@ -20,9 +19,68 @@ class ImapConnector {
   getBoxes() {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.getBoxes((err, boxes) => {
-        err ? reject() : resolve(boxes);
+        err ? reject(err) : resolve(boxes);
       });
     }));
+  }
+
+  addBox(boxName) {
+    return this.connect().then(() => new Promise((resolve, reject) => {
+      this.imap.addBox(boxName, (err) => {
+        err ? reject(err) : resolve(boxName);
+      })
+    }))
+  }
+
+  delBox(boxName) {
+    return this.connect().then(() => new Promise((resolve, reject) => {
+      this.imap.delBox(boxName, (err) => {
+        err ? reject(err) : resolve(boxName);
+      })
+    }))
+  }
+
+  renameBox(oldBoxName, newBoxName) {
+    return this.connect().then(() => new Promise((resolve, reject) => {
+      this.imap.renameBox(oldBoxName, newBoxName, (err) => {
+        err ? reject(err) : resolve(newBoxName);
+      })
+    }))
+  }
+
+  append(box, args, to, from, subject, msgData) {
+    const options = {
+      mailbox: box,
+      ...args
+    };
+
+    const msg = this.createRfcMessage(from, to, subject, msgData);
+
+    return this.connect().then(() => new Promise((resolve, reject) => {
+      this.imap.append(msg, options, (err) => {
+        err ? reject(err) : resolve(msgData);
+      })
+    }));
+  }
+
+  move(msgId, srcBox, box) {
+    return this.openBoxAsync(srcBox).then((srcBox) => new Promise((resolve, reject) => {
+      this.imap.move(msgId, box, (err) => {
+        err ? reject(err) : resolve(msgId);
+      })
+    }));
+  }
+
+  copy(msgId, srcBox, box) {
+    return this.openBoxAsync(srcBox).then((srcBox) => new Promise((resolve, reject) => {
+      this.imap.copy(msgId, box, (err) => {
+        err ? reject(err) : resolve(msgId);
+      })
+    }));
+  }
+
+  addFlags() {
+
   }
 
   fetchAttachment(mail) {
@@ -36,6 +94,13 @@ class ImapConnector {
         }));
         return Promise.props(msg);
       });
+  }
+
+  createRfcMessage(from, to, subject, msgData) {
+    return `From: ${from}
+To: ${to}
+Subject: ${subject}
+${msgData}`;
   }
 
 }
