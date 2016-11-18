@@ -29,7 +29,8 @@ function get(req, res) {
 function create(req, res, next) {
   const user = new User({
     username: req.body.username,
-    password: req.body.password
+    password: req.body.password,
+    email: req.body.email
   });
   console.log('req', req);
   user.save()
@@ -47,7 +48,8 @@ function update(req, res, next) {
   const user = req.user;
   user.username = req.body.username;
   user.password = req.body.password;
-
+  user.email = req.body.email;
+  
   user.save()
     .then(savedUser => res.json(savedUser))
     .catch(e => next(e));

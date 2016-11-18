@@ -29,7 +29,7 @@ function login(req, res) {
           user: {
             _id: user._id,
             username: user.username,
-            email: req.user.email
+            email: user.email
           }
         }, config.jwt.secret, {
           expiresIn: config.jwt.expiresInSeconds
