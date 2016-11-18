@@ -19,7 +19,7 @@ class GmailConnector extends ImapConnector {
           markSeen: false,
           extensions: ['X-GM-LABELS']
         }), (mail) => {
-          return this.parseDataFromEmail(mail, storeEmail);
+          return this.parseDataFromEmail(mail, boxType, storeEmail);
         });
       })
       .then((messages) => {
@@ -30,14 +30,11 @@ class GmailConnector extends ImapConnector {
       });
   }
 
-  parseDataFromEmail(mail, storeEmail) {
+  parseDataFromEmail(mail, box, storeEmail) {
     return new Promise((resolve, reject) => {
       const mailParser = new MailParser();
-      let labels = {
-        'x-gm-labels': [],
-        flags: []
-      };
-      let msgUID;
+      let attributes;
+
       mailParser.on('end', (mailObject) => {
         const email = {
           messageId: mailObject.messageId,
@@ -47,10 +44,12 @@ class GmailConnector extends ImapConnector {
           text: mailObject.text,
           html: mailObject.html,
           date: moment(mailObject.date).format('YYYY-MM-DD HH:mm:ss'),
-          flags: labels.flags,
-          labels: labels['x-gm-labels'],
-          uid: msgUID,
-          attrs: labels
+          flags: attributes.flags,
+          labels: attributes['x-gm-labels'],
+          uid: attributes.uid,
+          attrs: attributes,
+          thrid: attributes['x-gm-thrid'],
+          box: box
         };
         storeEmail(email).then((msg) => {
           resolve(msg);
@@ -67,9 +66,8 @@ class GmailConnector extends ImapConnector {
           mailParser.write(buffer);
         });
       }).once('attributes', (attrs) => {
-        console.log(`uid: ${attrs.uid} date: ${attrs.date}`);
-        msgUID = attrs.uid;
-        labels = attrs;
+        console.log(attrs.uid);
+        attributes = attrs;
       }).once('end', () => {
         mailParser.end();
       }).on('error', (err) => reject(err));

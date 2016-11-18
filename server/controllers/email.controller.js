@@ -110,7 +110,6 @@ function getBoxes(req, res) {
     res.status(400).send(err);
   });
 }
-
 // ToDo: Add Path/Prefix to Boxname automatically
 function addBox(req, res) {
   const imapConnector = new GmailConnector(options);
@@ -151,7 +150,9 @@ function append(req, res) {
 function move(req, res) {
   const imapConnector = new GmailConnector(options);
   imapConnector.move(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
-    res.status(200).send(messages);
+    imapConnector.fetchEmails(storeEmail, req.body.box).then(() => {
+      res.status(200).send(messages);
+    })
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -193,7 +194,6 @@ function setFlags(req, res) {
   });
 }
 
-// ToDo: Check if UID has changed and update accordingly
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
     Email.find({
@@ -205,7 +205,8 @@ function storeEmail(mail) {
       if (mails.length && mails[0].flags.length === mail.flags.length &&
         mails[0].flags.reduce((a, b) => a && mail.flags.includes(b), true) &&
         mails[0].labels.length === mail.labels.length &&
-        mails[0].labels.reduce((a, b) => a && mail.labels.includes(b), true)) {
+        mails[0].labels.reduce((a, b) => a && mail.labels.includes(b), true) &&
+        mails[0].uid === mail.uid && mails[0].box === mail.box) {
         resolve(mails[0]);
       } else if (mails.length) {
         Email.findByIdAndUpdate(mails[0]._id, mail, {
