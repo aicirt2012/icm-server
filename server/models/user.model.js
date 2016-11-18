@@ -2,20 +2,24 @@ import Promise from 'bluebird';
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 import APIError from '../helpers/error/APIError';
-// import bcrypt from 'bcrypt-nodejs';
+import bcrypt from 'bcrypt';
 
-/**
- * User Schema
- */
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true
   },
+  email: {
+    type: String,
+    //unique: true,
+    //required: true
+  },
   password: {
     type: String,
     required: true,
   },
+  googleId: String,
+  displayName: String,
   createdAt: {
     type: Date,
     default: Date.now
@@ -24,60 +28,35 @@ const UserSchema = new mongoose.Schema({
   timestamps: true
 });
 
-/**
- * Add your
- * - pre-save hooks
- * - validations
- * - virtuals
- */
+UserSchema.pre('save', function (next) {
+  let user = this;
+  console.log('Presave');
+  if (!user.isModified('password')) return next();
 
-/**
- * Methods
- */
-UserSchema.method({});
+  bcrypt.genSalt(10, (err, salt) => {
+    if (err) {
+      return next(err);
+    }
+    bcrypt.hash(user.password, salt, (err, hash) => {
+      if (err) {
+        return next(err);
+      }
+      user.password = hash;
+      next();
+    });
+  });
+});
 
-/**
- * Statics
- */
-UserSchema.statics = {
-  /**
-   * Get user
-   * @param {ObjectId} id - The objectId of user.
-   * @returns {Promise<User, APIError>}
-   */
-  get(id) {
-    return this.findById(id)
-      .exec()
-      .then((user) => {
-        if (user) {
-          return user;
-        }
-        const err = new APIError('No such user exists!', httpStatus.NOT_FOUND);
-        return Promise.reject(err);
-      });
-  },
-
-  /**
-   * List users in descending order of 'createdAt' timestamp.
-   * @param {number} skip - Number of users to be skipped.
-   * @param {number} limit - Limit number of users to be returned.
-   * @returns {Promise<User[]>}
-   */
-  list({
-    skip = 0,
-    limit = 50
-  } = {}) {
-    return this.find()
-      .sort({
-        createdAt: -1
-      })
-      .skip(skip)
-      .limit(limit)
-      .exec();
+UserSchema.method({
+  comparePassword: function(password, cb) {
+    bcrypt.compare(password, this.password, (err, isMatch) => {
+      if (err) {
+        return cb(err);
+      }
+      cb(null, isMatch);
+    });
   }
-};
+});
 
-/**
- * @typedef User
- */
+
 export default mongoose.model('User', UserSchema);

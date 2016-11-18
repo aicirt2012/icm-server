@@ -13,6 +13,10 @@ import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
 import config from './env';
 import APIError from '../server/helpers/error/APIError';
+import passport from 'passport';
+import {
+  config as passportConfig
+} from './passport';
 
 const app = express();
 
@@ -22,7 +26,9 @@ if (config.env === 'development') {
 
 // parse body params and attache them to req.body
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); // TODO: think about extended = false?
+app.use(bodyParser.urlencoded({
+  extended: true
+})); // TODO: think about extended = false?
 
 app.use(cookieParser());
 app.use(compress());
@@ -33,6 +39,10 @@ app.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
+
+// Use the passport package
+app.use(passport.initialize());
+passportConfig(passport);
 
 // enable detailed API logging in dev env
 if (config.env === 'development') {
@@ -47,7 +57,7 @@ if (config.env === 'development') {
 }
 
 // mount all routes on /api path
-app.use('/api', routes);
+app.use('/api', routes(passport));
 
 // if error is not an instanceOf APIError, convert it.
 app.use((err, req, res, next) => {

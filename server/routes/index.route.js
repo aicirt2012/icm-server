@@ -4,17 +4,14 @@ import authRoutes from './auth.route';
 import emailRoutes from './email.route';
 import taskRoutes from './task.route';
 
-const router = express.Router();
+function routeProvider(passport) {
+    const router = express.Router();
+    router.use('/users', userRoutes(passport));
+    router.use('/auth', authRoutes(passport));
+    router.use('/email', emailRoutes(passport));
+    router.use('/task', taskRoutes(passport));
+    return router;
+}
 
-/** GET /health-check - API service health */
-router.get('/health-check', (req, res) =>
-  res.send('EmailAppServer is up and running.')
-);
 
-// mount routes
-router.use('/users', userRoutes);
-router.use('/auth', authRoutes);
-router.use('/email', emailRoutes);
-router.use('/task', taskRoutes);
-
-export default router;
+export default routeProvider;

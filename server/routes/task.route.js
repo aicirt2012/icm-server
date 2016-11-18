@@ -1,13 +1,17 @@
 import express from 'express';
-import expressJwt from 'express-jwt';
 import config from '../../config/env';
 import taskCtrl from '../controllers/task.controller';
 
-const router = express.Router();
+function routeProvider(passport) {
+  const router = express.Router();
+  const mw = passport.authenticate('jwt', {
+    session: false
+  });
+  router.use(mw);
 
-/** GET /api/task - Protected route,
- * needs token returned by the above as header. Authorization: Bearer {token} */
-router.route('/board')
-  .get(expressJwt({ secret: config.jwt.secret }), taskCtrl.getTrelloBoard);
+  router.route('/board')
+    .get(taskCtrl.getTrelloBoard);
+  return router;
+}
 
-export default router;
+export default routeProvider;
