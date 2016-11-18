@@ -102,15 +102,6 @@ function fetchDeletedMails(req, res) {
 }
 
 function getBoxes(req, res) {
-  const options = {
-    user: config.email.user,
-    password: config.email.pass,
-    host: config.email.host,
-    port: config.email.port,
-    tls: true,
-    mailbox: 'INBOX'
-  };
-
   const imapConnector = new GmailConnector(options);
   imapConnector.getBoxes().then((boxes) => {
     console.log(boxes);
@@ -119,6 +110,7 @@ function getBoxes(req, res) {
     res.status(400).send(err);
   });
 }
+
 // ToDo: Add Path/Prefix to Boxname automatically
 function addBox(req, res) {
   const imapConnector = new GmailConnector(options);
@@ -173,6 +165,34 @@ function copy(req, res) {
     res.status(400).send(err);
   });
 }
+
+function addFlags(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.addFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
+    res.status(200).send(messages);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+function delFlags(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.delFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
+    res.status(200).send(messages);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+function setFlags(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.setFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
+    res.status(200).send(messages);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
 // ToDo: Check if UID has changed and update accordingly
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
@@ -218,5 +238,7 @@ export default {
   move,
   copy,
   sendEmail,
-
+  addFlags,
+  delFlags,
+  setFlags
 };
