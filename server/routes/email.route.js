@@ -12,6 +12,11 @@ router.route('/')
     secret: config.jwt.secret
   }), emailCtrl.fetchAllMails);
 
+router.route('/box')
+  .post(expressJwt({
+    secret: config.jwt.secret
+  }), emailCtrl.fetchMails);
+
 router.route('/sendBox')
   .get(expressJwt({
     secret: config.jwt.secret
@@ -68,7 +73,7 @@ router.route('/copy')
   }), emailCtrl.copy);
 
 router.route('/send')
-.post(expressJwt({
+  .post(expressJwt({
     secret: config.jwt.secret
   }), emailCtrl.sendEmail);
 

@@ -47,6 +47,15 @@ function sendEmail(req, res) {
   });
 }
 
+function fetchMails(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.fetchEmails(storeEmail, req.body.box).then((messages) => {
+    res.status(200).send(messages);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
 function fetchAllMails(req, res) {
   const imapConnectorAllMessages = new GmailConnector(options);
   imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.allMessages).then((messages) => {
@@ -196,6 +205,7 @@ function storeEmail(mail) {
 
 export default {
   fetchAllMails,
+  fetchMails,
   fetchInboxMails,
   fetchSendMails,
   fetchDraftMails,
@@ -207,5 +217,6 @@ export default {
   append,
   move,
   copy,
-  sendEmail
+  sendEmail,
+
 };

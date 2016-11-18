@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const EmailSchema = new mongoose.Schema({
   messageId: String,
   uid: Number,
+  attrs: mongoose.Schema.Types.Mixed,
   from: [{
     address: String,
     name: String

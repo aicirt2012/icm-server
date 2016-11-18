@@ -24,7 +24,7 @@ export default {
   gmail: {
     allMessages: '[Gmail]/All Mail',
     inbox: 'INBOX',
-    send: '[Gmail]/Send',
+    send: '[Gmail]/Sent Mail',
     draft: '[Gmail]/Drafts',
     deleted: '[Gmail]/Trash'
   },
