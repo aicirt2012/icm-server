@@ -9,7 +9,7 @@ function routeProvider(passport) {
   });
   router.use(mw);
   /** GET /api/email - Protected route,
-   * needs token returned by the above as header. Authorization: Bearer {token} */
+   * needs token returned by the above as header. Authorization: JWT {token} */
   router.route('/')
     .get(emailCtrl.fetchAllMails);
 

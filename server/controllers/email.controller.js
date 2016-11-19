@@ -104,7 +104,7 @@ function fetchDeletedMails(req, res) {
 function getBoxes(req, res) {
   const imapConnector = new GmailConnector(options);
   imapConnector.getBoxes().then((boxes) => {
-    console.log(boxes);
+    boxes = Object.keys(boxes[Object.keys(boxes)[2]].children);
     res.status(200).send(boxes);
   }).catch((err) => {
     res.status(400).send(err);

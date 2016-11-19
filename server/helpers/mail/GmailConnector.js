@@ -66,7 +66,6 @@ class GmailConnector extends ImapConnector {
           mailParser.write(buffer);
         });
       }).once('attributes', (attrs) => {
-        console.log(attrs.uid);
         attributes = attrs;
       }).once('end', () => {
         mailParser.end();
