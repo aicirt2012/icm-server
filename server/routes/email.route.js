@@ -9,9 +9,12 @@ function routeProvider(passport) {
   });
   router.use(mw);
   /** GET /api/email - Protected route,
-   * needs token returned by the above as header. Authorization: Bearer {token} */
+   * needs token returned by the above as header. Authorization: JWT {token} */
   router.route('/')
     .get(emailCtrl.fetchAllMails);
+
+  router.route('/box')
+    .post(emailCtrl.fetchMails);
 
   router.route('/sendBox')
     .get(emailCtrl.fetchSendMails);
@@ -48,6 +51,16 @@ function routeProvider(passport) {
 
   router.route('/send')
     .post(emailCtrl.sendEmail);
+
+  router.route('/addFlags')
+    .post(emailCtrl.addFlags);
+
+  router.route('/delFlags')
+    .post(emailCtrl.delFlags);
+
+  router.route('/setFlags')
+    .post(emailCtrl.setFlags);
+
 
   return router;
 }

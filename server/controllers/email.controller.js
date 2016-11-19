@@ -47,6 +47,15 @@ function sendEmail(req, res) {
   });
 }
 
+function fetchMails(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.fetchEmails(storeEmail, req.body.box).then((messages) => {
+    res.status(200).send(messages);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
 function fetchAllMails(req, res) {
   const imapConnectorAllMessages = new GmailConnector(options);
   imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.allMessages).then((messages) => {
@@ -93,18 +102,9 @@ function fetchDeletedMails(req, res) {
 }
 
 function getBoxes(req, res) {
-  const options = {
-    user: config.email.user,
-    password: config.email.pass,
-    host: config.email.host,
-    port: config.email.port,
-    tls: true,
-    mailbox: 'INBOX'
-  };
-
   const imapConnector = new GmailConnector(options);
   imapConnector.getBoxes().then((boxes) => {
-    console.log(boxes);
+    boxes = Object.keys(boxes[Object.keys(boxes)[2]].children);
     res.status(200).send(boxes);
   }).catch((err) => {
     res.status(400).send(err);
@@ -150,7 +150,9 @@ function append(req, res) {
 function move(req, res) {
   const imapConnector = new GmailConnector(options);
   imapConnector.move(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
-    res.status(200).send(messages);
+    imapConnector.fetchEmails(storeEmail, req.body.box).then(() => {
+      res.status(200).send(messages);
+    })
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -159,6 +161,33 @@ function move(req, res) {
 function copy(req, res) {
   const imapConnector = new GmailConnector(options);
   imapConnector.copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
+    res.status(200).send(messages);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+function addFlags(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.addFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
+    res.status(200).send(messages);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+function delFlags(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.delFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
+    res.status(200).send(messages);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+function setFlags(req, res) {
+  const imapConnector = new GmailConnector(options);
+  imapConnector.setFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
     res.status(200).send(messages);
   }).catch((err) => {
     res.status(400).send(err);
@@ -176,7 +205,8 @@ function storeEmail(mail) {
       if (mails.length && mails[0].flags.length === mail.flags.length &&
         mails[0].flags.reduce((a, b) => a && mail.flags.includes(b), true) &&
         mails[0].labels.length === mail.labels.length &&
-        mails[0].labels.reduce((a, b) => a && mail.labels.includes(b), true)) {
+        mails[0].labels.reduce((a, b) => a && mail.labels.includes(b), true) &&
+        mails[0].uid === mail.uid && mails[0].box === mail.box) {
         resolve(mails[0]);
       } else if (mails.length) {
         Email.findByIdAndUpdate(mails[0]._id, mail, {
@@ -196,6 +226,7 @@ function storeEmail(mail) {
 
 export default {
   fetchAllMails,
+  fetchMails,
   fetchInboxMails,
   fetchSendMails,
   fetchDraftMails,
@@ -207,5 +238,8 @@ export default {
   append,
   move,
   copy,
-  sendEmail
+  sendEmail,
+  addFlags,
+  delFlags,
+  setFlags
 };

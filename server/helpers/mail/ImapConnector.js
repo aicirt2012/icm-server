@@ -79,8 +79,28 @@ class ImapConnector {
     }));
   }
 
-  addFlags() {
+  addFlags(msgId, flags, box) {
+    return this.openBoxAsync(box).then((box) => new Promise((resolve, reject) => {
+      this.imap.addFlags(msgId, flags, (err) => {
+        err ? reject(err) : resolve(msgId);
+      })
+    }));
+  }
 
+  delFlags(msgId, flags, box) {
+    return this.openBoxAsync(box).then((box) => new Promise((resolve, reject) => {
+      this.imap.delFlags(msgId, flags, (err) => {
+        err ? reject(err) : resolve(msgId);
+      })
+    }));
+  }
+
+  setFlags(msgId, flags, box) {
+    return this.openBoxAsync(box).then((box) => new Promise((resolve, reject) => {
+      this.imap.setFlags(msgId, flags, (err) => {
+        err ? reject(err) : resolve(msgId);
+      })
+    }));
   }
 
   fetchAttachment(mail) {

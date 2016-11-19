@@ -49,7 +49,7 @@ function update(req, res, next) {
   user.username = req.body.username;
   user.password = req.body.password;
   user.email = req.body.email;
-  
+
   user.save()
     .then(savedUser => res.json(savedUser))
     .catch(e => next(e));
