@@ -7,7 +7,7 @@ function routeProvider(passport) {
     session: false
   });
   router.use(mw);
-  
+
   /** GET /api/task - Protected route */
   router.route('/login')
     .get(taskCtrl.getTrelloLogin);
@@ -20,7 +20,7 @@ function routeProvider(passport) {
 
   router.route('/create/*')
     .post(taskCtrl.postTrelloCreate);
-  
+
   return router;
 }
 
