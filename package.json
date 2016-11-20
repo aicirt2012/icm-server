@@ -58,6 +58,7 @@
     "passport": "0.3.2",
     "passport-google-oauth": "1.0.0",
     "passport-jwt": "2.2.1",
+    "passport-trello": "0.1.5",
     "url": "0.11.0",
     "winston": "2.2.0"
   },

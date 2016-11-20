@@ -19,6 +19,7 @@ const UserSchema = new mongoose.Schema({
     required: true,
   },
   googleId: String,
+  trelloId: String,
   displayName: String,
   createdAt: {
     type: Date,

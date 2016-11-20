@@ -44,6 +44,12 @@ export default {
       clientSecret: 'ov0JPJIiAy8g4A7rYgUdc27S',
       callbackURL: 'http://localhost:4000/api/auth/google/callback'
     },
+    trello: {
+      appName: 'Email Client with Contextual Task Support',
+      consumerKey: '734feed8b99a158d3a9cd9af87e096f3',
+      consumerSecret: '498ac521e9ecb0f32467f7dffae04054efc6f13318ad20538cd75195e8d4eb54',
+      callbackURL: 'http://localhost:4000/api/auth/trello/callback'
+    }
   },
   db: 'mongodb://localhost:27017/emailapp',
   port: 4000,
