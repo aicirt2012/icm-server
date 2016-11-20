@@ -14,7 +14,6 @@ function verifyTrello(req, token, tokenSecret, profile, done) {
     if (user.length > 0) {
       return done(null, user[0]);
     } else {
-      console.log(profile);
       user = new User();
       user.trello = {
         trelloId: profile.id,

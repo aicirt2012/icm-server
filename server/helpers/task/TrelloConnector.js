@@ -4,46 +4,14 @@ import {
 import url from 'url';
 import config from '../../../config/env';
 import TaskConnector from './TaskConnector';
+import fetch from 'node-fetch';
 
 class TrelloConnector extends TaskConnector  {
   constructor(options) {
     super(options);
-    this.requestURL = `${config.trello.baseURL}/OAuthGetRequestToken`;
-    this.accessURL = `${config.trello.baseURL}/OAuthGetAccessToken`;
-    this.authorizeURL = `${config.trello.baseURL}/OAuthAuthorizeToken`;
-    this.oauthSecrets = {};
-    this.accessToken = this.options.accessToken;
-    this.accessTokenSecret = this.options.accessTokenSecret;
-    this.oauth = new OAuth(this.requestURL, this.accessURL, config.trello.key, config.trello.secret,
-      config.trello.oauthVersion, this.loginCallback, config.trello.oauthSHA);
+    this.accessToken = this.options.trelloAccessToken;
+    this.accessTokenSecret = this.options.trelloAccessTokenSecret;
   }
-
-  callback(query) {
-    const token = query.oauth_token;
-    const tokenSecret = this.oauthSecrets[token];
-    const verifier = query.oauth_verifier;
-    return new Promise((resolve, reject) => {
-      this.oauth.getOAuthAccessToken(token, tokenSecret, verifier,
-        (error, accessToken, accessTokenSecret, results) => {
-          // TODO: store accessToken and accessTokenSecret somewhere
-          console.log(accessToken);
-          console.log(accessTokenSecret);
-          error ? reject(error) : resolve(results);
-        });
-    });
-  }
-
-  //
-  // const login = function login(req, res) {
-  //   return oauth.getOAuthRequestToken((error, token, tokenSecret, results) => {
-  //     oauthSecrets[token] = tokenSecret;
-  //     res.writeHead(302, {
-  //       Location: `${authorizeURL}?scope=read,write&oauth_token=${token}&name=${config.trello.appName}`
-  //     });
-  //     return res.end();
-  //   }, this);
-  // };
-  //
 
   //
   // const create = function create(req, res, params) {
@@ -76,16 +44,12 @@ class TrelloConnector extends TaskConnector  {
   search(params) {
     const path = '/search';
     return new Promise((resolve, reject) => {
-      console.log(params);
-      console.log(this.oauth);
-      this.oauth.getProtectedResource(
-        `${config.trello.baseURL}${path}?${this.addQueries(params)}`,
-        "GET", this.accessToken, this.accessTokenSecret,
-        (error, data, response) => {
-          error ? reject(error) : resolve(data);
-        }
-      );
-    });
+      fetch(`${config.trello.baseURL}${path}?key=${config.trello.key}&token=${this.accessToken}&${this.addQueries(params)}`).then((res) => res.json()).then((json) => {
+        resolve(json);
+      }).catch((err) => {
+        reject(err);
+      })
+    });;
   }
 
   addQueries(queries) {

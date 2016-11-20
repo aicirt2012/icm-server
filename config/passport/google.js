@@ -4,10 +4,6 @@ import {
 import User from '../../server/models/user.model';
 import config from '../env';
 
-// Use the GoogleStrategy within Passport.
-//   Strategies in Passport require a `verify` function, which accept
-//   credentials (in this case, an accessToken, refreshToken, and Google
-//   profile), and invoke a callback with a user object.
 function verifyGoogle(accessToken, refreshToken, profile, done) {
   User.find({
     googleId: profile.id
