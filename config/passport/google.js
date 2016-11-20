@@ -19,7 +19,11 @@ function verifyGoogle(accessToken, refreshToken, profile, done) {
       return done(null, user[0]);
     } else {
       user = new User();
-      user.googleId = profile.id;
+      user.google = {
+        googleId: profile.id,
+        googleAccessToken: accessToken,
+        googleRefreshToken: refreshToken
+      };
       user.username = profile.displayName;
       user.email = profile.emails[0].value;
       user.password = profile.id;

@@ -18,8 +18,8 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  googleId: String,
-  trelloId: String,
+  google: mongoose.Schema.Types.Mixed,
+  trello: mongoose.Schema.Types.Mixed,
   displayName: String,
   createdAt: {
     type: Date,

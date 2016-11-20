@@ -5,17 +5,15 @@ import url from 'url';
 import config from '../../../config/env';
 import TaskConnector from './TaskConnector';
 
-
 class TrelloConnector extends TaskConnector  {
   constructor(options) {
     super(options);
     this.requestURL = `${config.trello.baseURL}/OAuthGetRequestToken`;
     this.accessURL = `${config.trello.baseURL}/OAuthGetAccessToken`;
     this.authorizeURL = `${config.trello.baseURL}/OAuthAuthorizeToken`;
-    this.loginCallback = `${config.domain}:${config.port}/api/task/callback`;
     this.oauthSecrets = {};
-    this.accessToken = config.trello.accessToken;
-    this.accessTokenSecret = config.trello.accessTokenSecret;
+    this.accessToken = this.options.accessToken;
+    this.accessTokenSecret = this.options.accessTokenSecret;
     this.oauth = new OAuth(this.requestURL, this.accessURL, config.trello.key, config.trello.secret,
       config.trello.oauthVersion, this.loginCallback, config.trello.oauthSHA);
   }

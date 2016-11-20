@@ -16,7 +16,11 @@ function verifyTrello(req, token, tokenSecret, profile, done) {
     } else {
       console.log(profile);
       user = new User();
-      user.trelloId = profile.id;
+      user.trello = {
+        trelloId: profile.id,
+        trelloAccessToken: token,
+        trelloAccessTokenSecret: tokenSecret
+      };
       user.username = profile.displayName;
       user.email = profile.emails[0].value;
       user.password = profile.id;
