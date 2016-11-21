@@ -4,6 +4,9 @@ import {
 import {
   googleAuthentication
 } from './google';
+import {
+ trelloAuthentication
+} from './trello';
 
 export function config(passport) {
   passport.serializeUser((user, done) => {
@@ -16,5 +19,6 @@ export function config(passport) {
 
   jwtAuthentication(passport);
   googleAuthentication(passport);
+  trelloAuthentication(passport);
 
 }

@@ -8,6 +8,7 @@ import cors from 'cors';
 import httpStatus from 'http-status';
 import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
+import session from 'express-session';
 import helmet from 'helmet';
 import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
@@ -39,9 +40,10 @@ app.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
-
+app.use(session({ secret: 'unnecessarySecret' }));
 // Use the passport package
 app.use(passport.initialize());
+app.use(passport.session());
 passportConfig(passport);
 
 // enable detailed API logging in dev env

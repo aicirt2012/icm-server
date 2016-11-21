@@ -4,22 +4,20 @@ import {
 import User from '../../server/models/user.model';
 import config from '../env';
 
-// Use the GoogleStrategy within Passport.
-//   Strategies in Passport require a `verify` function, which accept
-//   credentials (in this case, an accessToken, refreshToken, and Google
-//   profile), and invoke a callback with a user object.
 function verifyGoogle(accessToken, refreshToken, profile, done) {
-  User.find({
-    googleId: profile.id
+  User.findOne({
+    'google.googleId': profile.id
   }, (err, user) => {
     if (err) {
       return done(err);
     }
-    if (user.length > 0) {
-      return done(null, user[0]);
-    } else {
+    if (!user) {
       user = new User();
-      user.googleId = profile.id;
+      user.google = {
+        googleId: profile.id,
+        googleAccessToken: accessToken,
+        googleRefreshToken: refreshToken
+      };
       user.username = profile.displayName;
       user.email = profile.emails[0].value;
       user.password = profile.id;
@@ -29,7 +27,9 @@ function verifyGoogle(accessToken, refreshToken, profile, done) {
         }
         return done(null, user)
       });
-    }
+  } else {
+      return done(null, user);
+  }
   });
 }
 

@@ -3,29 +3,63 @@ import {
 } from 'oauth';
 import url from 'url';
 import config from '../../../config/env';
+import TaskConnector from './TaskConnector';
+import fetch from 'node-fetch';
 
-/* BASIC API ENDPOINTS */
-const requestURL = `${config.trello.baseURL}OAuthGetRequestToken`;
-const accessURL = `${config.trello.baseURL}OAuthGetAccessToken`;
-const authorizeURL = `${config.trello.baseURL}OAuthAuthorizeToken`;
+class TrelloConnector extends TaskConnector  {
+  constructor(options) {
+    super(options);
+    this.accessToken = this.options.trelloAccessToken;
+    this.accessTokenSecret = this.options.trelloAccessTokenSecret;
+  }
 
-const serverLocation = `${config.baseURL}:${config.port}`;
+  //
+  // const create = function create(req, res, params) {
+  //   const path = (url.parse(req.url, true).pathname).slice(7); // without /create
+  //   const queries = ;
+  //   return oauth.getProtectedResource(
+  //     `${config.trello.baseURL}${path}?${addQueries(params, queries)}`,
+  //     "POST", accessToken, accessTokenSecret,
+  //     (error, data, response) => {
+  //       return res.end(data)
+  //     }
+  //   )
+  // }
+  //
+  createTask() {
+    //Logic for creating task
+    return true;
+  }
 
-const oauth = new OAuth(requestURL, accessURL, config.trello.key, config.trello.secret,
-  config.trello.oauthVersion, serverLocation, config.trello.oauthSHA);
+  updateTask(task) {
+    //Logic for updating task
+    return true;
+  }
 
-let oauthSecrets = {};
+  deleteTask(task) {
+    //Logic for deleting task
+    return true;
+  }
 
-const login = function login(req, res) {
-  return oauth.getOAuthRequestToken((error, token, tokenSecret, results) => {
-    oauthSecrets[token] = tokenSecret;
-    res.writeHead(302, {
-      Location: `${authorizeURL}?oauth_token=${token}&name=${config.trello.appName}`
-    });
-    return res.end();
-  }, this);
+  search(params) {
+    const path = '/search';
+    return new Promise((resolve, reject) => {
+      fetch(`${config.trello.baseURL}${path}?key=${config.trello.key}&token=${this.accessToken}&${this.addQueries(params)}`).then((res) => res.json()).then((json) => {
+        resolve(json);
+      }).catch((err) => {
+        reject(err);
+      })
+    });;
+  }
+
+  addQueries(queries) {
+    let queryString = '';
+    Object.keys(queries).forEach((key) => {
+      queryString += `${key}=${queries[key]}&`;
+    })
+    console.log(queryString);
+    return queryString.slice(0, -1);
+  }
 }
 
-export default {
-  login
-};
+export default TrelloConnector;
