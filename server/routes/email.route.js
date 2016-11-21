@@ -10,26 +10,8 @@ function routeProvider(passport) {
   router.use(mw);
   /** GET /api/email - Protected route,
    * needs token returned by the above as header. Authorization: JWT {token} */
-  router.route('/')
-    .get(emailCtrl.fetchAllMails);
-
   router.route('/box')
     .post(emailCtrl.fetchMails);
-
-  router.route('/sendBox')
-    .get(emailCtrl.fetchSendMails);
-
-  router.route('/draftBox')
-    .get(emailCtrl.fetchDraftMails);
-
-  router.route('/trashBox')
-    .get(emailCtrl.fetchDeletedMails);
-
-  router.route('/inBox')
-    .get(emailCtrl.fetchInboxMails);
-
-  router.route('/boxes')
-    .get(emailCtrl.getBoxes);
 
   router.route('/addBox')
     .post(emailCtrl.addBox);

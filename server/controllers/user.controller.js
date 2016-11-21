@@ -55,6 +55,15 @@ function update(req, res, next) {
     .catch(e => next(e));
 }
 
+function updateBoxList(req, res, next) {
+  const user = req.user;
+  user.boxList = req.body.boxList;
+
+  user.save()
+    .then(savedUser => res.json(savedUser))
+    .catch(e => next(e));
+}
+
 /**
  * Get user list.
  * @property {number} req.query.skip - Number of users to be skipped.
