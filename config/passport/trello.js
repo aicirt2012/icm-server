@@ -6,26 +6,30 @@ import User from '../../server/models/user.model';
 
 function verifyTrello(req, token, tokenSecret, profile, done) {
   User.findOne({
-    trelloId: profile.id
+    'trello.trelloId': profile.id
   }, (err, user) => {
     if (err) {
       return done(err);
     }
-    user = new User();
-    user.trello = {
-      trelloId: profile.id,
-      trelloAccessToken: token,
-      trelloAccessTokenSecret: tokenSecret
-    };
-    user.username = profile.displayName;
-    user.email = profile.emails[0].value;
-    user.password = profile.id;
-    user.save((err) => {
-      if (err) {
-        return done(err);
-      }
-      return done(null, user)
-    });
+    if (!user) {
+      user = new User();
+      user.trello = {
+        trelloId: profile.id,
+        trelloAccessToken: token,
+        trelloAccessTokenSecret: tokenSecret
+      };
+      user.username = profile.displayName;
+      user.email = profile.emails[0].value;
+      user.password = profile.id;
+      user.save((err) => {
+        if (err) {
+          return done(err);
+        }
+        return done(null, user)
+      });
+    } else {
+      return done(null, user);
+    }
   });
 }
 
