@@ -5,31 +5,27 @@ import User from '../../server/models/user.model';
 import config from '../env';
 
 function verifyGoogle(accessToken, refreshToken, profile, done) {
-  User.find({
+  User.findOne({
     googleId: profile.id
   }, (err, user) => {
     if (err) {
       return done(err);
     }
-    if (user.length > 0) {
-      return done(null, user[0]);
-    } else {
-      user = new User();
-      user.google = {
-        googleId: profile.id,
-        googleAccessToken: accessToken,
-        googleRefreshToken: refreshToken
-      };
-      user.username = profile.displayName;
-      user.email = profile.emails[0].value;
-      user.password = profile.id;
-      user.save((err) => {
-        if (err) {
-          return done(err);
-        }
-        return done(null, user)
-      });
-    }
+    user = new User();
+    user.google = {
+      googleId: profile.id,
+      googleAccessToken: accessToken,
+      googleRefreshToken: refreshToken
+    };
+    user.username = profile.displayName;
+    user.email = profile.emails[0].value;
+    user.password = profile.id;
+    user.save((err) => {
+      if (err) {
+        return done(err);
+      }
+      return done(null, user)
+    });
   });
 }
 

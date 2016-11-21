@@ -5,31 +5,27 @@ import config from '../env';
 import User from '../../server/models/user.model';
 
 function verifyTrello(req, token, tokenSecret, profile, done) {
-  User.find({
+  User.findOne({
     trelloId: profile.id
   }, (err, user) => {
     if (err) {
       return done(err);
     }
-    if (user.length > 0) {
-      return done(null, user[0]);
-    } else {
-      user = new User();
-      user.trello = {
-        trelloId: profile.id,
-        trelloAccessToken: token,
-        trelloAccessTokenSecret: tokenSecret
-      };
-      user.username = profile.displayName;
-      user.email = profile.emails[0].value;
-      user.password = profile.id;
-      user.save((err) => {
-        if (err) {
-          return done(err);
-        }
-        return done(null, user)
-      });
-    }
+    user = new User();
+    user.trello = {
+      trelloId: profile.id,
+      trelloAccessToken: token,
+      trelloAccessTokenSecret: tokenSecret
+    };
+    user.username = profile.displayName;
+    user.email = profile.emails[0].value;
+    user.password = profile.id;
+    user.save((err) => {
+      if (err) {
+        return done(err);
+      }
+      return done(null, user)
+    });
   });
 }
 
