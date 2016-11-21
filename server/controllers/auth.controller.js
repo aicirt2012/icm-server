@@ -34,6 +34,7 @@ function login(req, res) {
         }, config.jwt.secret, {
           expiresIn: config.jwt.expiresInSeconds
         });
+        res.cookie('email-oauth', token); // TODO: change this to header
         res.status(200).json({
           token
         });
@@ -52,7 +53,7 @@ function oauthCallback(req, res) {
   }, config.jwt.secret, {
     expiresIn: config.jwt.expiresInSeconds
   });
-  res.cookie('email-oauth', token);
+  res.cookie('email-oauth', token); // TODO: change this to header 
   res.redirect(config.frontend);
 }
 
