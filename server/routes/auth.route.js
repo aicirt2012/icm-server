@@ -18,7 +18,18 @@ function routeProvider(passport) {
   router.route('/google/callback').get(
     passport.authenticate('google', {
       failureRedirect: '/login'
-  }),authCtrl.oauthCallback);
+    }), authCtrl.oauthCallback);
+
+  router.route('/trello').get(
+    passport.authenticate('trello', {
+      session: false
+    }));
+
+  router.route('/trello/callback').get(
+    passport.authenticate('trello', {
+      failureRedirect: '/login',
+      session: false
+    }), authCtrl.oauthCallback);
 
   return router;
 }

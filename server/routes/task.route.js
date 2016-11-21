@@ -1,5 +1,4 @@
 import express from 'express';
-import config from '../../config/env';
 import taskCtrl from '../controllers/task.controller';
 
 function routeProvider(passport) {
@@ -9,8 +8,16 @@ function routeProvider(passport) {
   });
   router.use(mw);
 
-  router.route('/board')
-    .get(taskCtrl.getTrelloBoard);
+  /** GET /api/task - Protected route */
+  router.route('/login')
+    .get(taskCtrl.getTrelloLogin);
+
+  router.route('/search')
+    .get(taskCtrl.getTrelloSearch);
+
+  router.route('/create/*')
+    .post(taskCtrl.postTrelloCreate);
+
   return router;
 }
 
