@@ -24,18 +24,9 @@ const smtpConfig = {
   }
 };
 
-// mail data from frontend
-const sendMailOptions = {
-  from: 'sebisng2@gmail.com',
-  to: 'sebisng2@gmail.com', // list of receivers
-  subject: 'Subject',
-  text: 'some random text',
-  html: '<b>some random text</b>'
-};
-
 function sendEmail(req, res) {
-  const smtpConnector = new SMTPConnector(smtpConfig, sendMailOptions);
-  smtpConnector.sendMail().then((result) => {
+  const smtpConnector = new SMTPConnector(smtpConfig);
+  smtpConnector.sendMail(req.body).then((result) => {
     /*  At the moment all mails are fetched when we start the synch process
     TO DO: write new function/endpoint to just fetch last couple of mails from sendBox  */
     const imapConnectorAllMessages = new GmailConnector(options);
