@@ -8,15 +8,21 @@ function routeProvider(passport) {
   });
   router.use(mw);
 
-  /** GET /api/task - Protected route */
-  router.route('/login')
-    .get(taskCtrl.getTrelloLogin);
+  /** POST /api/task/create - Protected route */
+  router.route('/create')
+    .post(taskCtrl.postTrelloCreate);
 
+  /** PUT /api/task/update/id - Protected route */
+  router.route('/update/*')
+    .put(taskCtrl.putTrelloUpdate);
+
+  /** DELETE /api/task/delete/id - Protected route */
+  router.route('/delete/*')
+    .delete(taskCtrl.deleteTrelloDelete);
+
+  /** GET /api/task/search - Protected route */
   router.route('/search')
     .get(taskCtrl.getTrelloSearch);
-
-  router.route('/create/*')
-    .post(taskCtrl.postTrelloCreate);
 
   return router;
 }
