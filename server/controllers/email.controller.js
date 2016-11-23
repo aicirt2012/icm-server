@@ -44,7 +44,7 @@ function sendEmail(req, res) {
     /*  At the moment all mails are fetched when we start the synch process
     TO DO: write new function/endpoint to just fetch last couple of mails from sendBox  */
     const imapConnectorAllMessages = new GmailConnector(imapOptions(req.user));
-    imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.allMessages).then((messages) => {
+    imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.send).then((messages) => {
       res.status(200).send(messages);
     }).catch((err) => {
       res.status(400).send(err);
