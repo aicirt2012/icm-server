@@ -2,9 +2,28 @@ import url from 'url';
 import TrelloConnector from '../helpers/task/TrelloConnector';
 import User from '../models/user.model';
 
-function postTrelloCreate(req, res) {
+function taskGetAll(req, res) {
   User.findOne({
-    username: req.user.username
+    _id: req.user._id
+  }, (err, user) => {
+    if (err) {
+      res.status(400).send(err);
+      return;
+    } else {
+      const params = url.parse(req.url, true).query;
+      const trelloConnector = new TrelloConnector(user.trello);
+      trelloConnector.taskGetAll(params).then((data) => {
+        res.status(200).send(data);
+      }).catch((err) => {
+        res.status(400).send(err);
+      });
+    }
+  });
+}
+
+function taskCreate(req, res) {
+  User.findOne({
+    _id: req.user._id
   }, (err, user) => {
     if (err) {
       res.status(400).send(err);
@@ -21,15 +40,35 @@ function postTrelloCreate(req, res) {
   });
 }
 
-function putTrelloUpdate(req, res) {
+function taskGet(req, res) {
   User.findOne({
-    username: req.user.username
+    _id: req.user._id
   }, (err, user) => {
     if (err) {
       res.status(400).send(err);
       return;
     } else {
-      const id = (url.parse(req.url, true).pathname).slice(8);
+      const id = req.params.idTask;
+      console.log(id);
+      const trelloConnector = new TrelloConnector(user.trello);
+      trelloConnector.getTask(id).then((data) => {
+        res.status(200).send(data);
+      }).catch((err) => {
+        res.status(400).send(err);
+      });
+    }
+  });
+}
+
+function taskUpdate(req, res) {
+  User.findOne({
+    _id: req.user._id
+  }, (err, user) => {
+    if (err) {
+      res.status(400).send(err);
+      return;
+    } else {
+      const id = req.params.idTask;
       const params = req.body;
       const trelloConnector = new TrelloConnector(user.trello);
       trelloConnector.updateTask(id, params).then((data) => {
@@ -41,15 +80,15 @@ function putTrelloUpdate(req, res) {
   });
 }
 
-function deleteTrelloDelete(req, res) {
+function taskDelete(req, res) {
   User.findOne({
-    username: req.user.username
+    _id: req.user._id
   }, (err, user) => {
     if (err) {
       res.status(400).send(err);
       return;
     } else {
-      const id = (url.parse(req.url, true).pathname).slice(8);
+      const id = req.params.idTask;
       const trelloConnector = new TrelloConnector(user.trello);
       trelloConnector.deleteTask(id).then((data) => {
         res.status(200).send(data);
@@ -60,9 +99,9 @@ function deleteTrelloDelete(req, res) {
   });
 }
 
-function getTrelloSearch(req, res) {
+function taskSearch(req, res) {
   User.findOne({
-    username: req.user.username
+    _id: req.user._id
   }, (err, user) => {
     if (err) {
       res.status(400).send(err);
@@ -80,8 +119,10 @@ function getTrelloSearch(req, res) {
 }
 
 export default {
-  postTrelloCreate,
-  putTrelloUpdate,
-  deleteTrelloDelete,
-  getTrelloSearch
+  taskGetAll,
+  taskCreate,
+  taskGet,
+  taskUpdate,
+  taskDelete,
+  taskSearch
 };

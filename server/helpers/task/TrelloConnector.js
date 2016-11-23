@@ -10,6 +10,24 @@ class TrelloConnector extends TaskConnector {
   }
 
   /**
+   * taskGetAll
+   * @params {string} - idList (required).
+   */
+  taskGetAll(params) {
+    const idList = params.idList;
+    const url = this.buildURL(`/lists/${idList}/cards`, params);
+    return new Promise((resolve, reject) => {
+      fetch(url).then((res) => res.json())
+        .then((json) => {
+          resolve(json);
+        })
+        .catch((err) => {
+          reject(err);
+        })
+    });
+  }
+
+  /**
    * create task
    * @params {string} - idList (required).
    * @params {string} - name (desirable).
@@ -29,7 +47,24 @@ class TrelloConnector extends TaskConnector {
   }
 
   /**
-   * update task 
+   * get task
+   */
+  getTask(id) {
+    const url = this.buildURL(`/cards/${id}`, '');
+    return new Promise((resolve, reject) => {
+      fetch(url)
+        .then((res) => res.json())
+        .then((json) => {
+          resolve(json);
+        })
+        .catch((err) => {
+          reject(err);
+        })
+    });
+  }
+
+  /**
+   * update task
    * @params {string} - name (optional).
    */
   updateTask(id, params) {
