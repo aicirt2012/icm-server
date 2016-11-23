@@ -1,36 +1,41 @@
+import Promise from 'bluebird';
 import Email from '../models/email.model';
 import GmailConnector from '../helpers/mail/GmailConnector';
 import SMTPConnector from '../helpers/mail/SMTPConnector';
 import config from '../../config/env';
-import Promise from 'bluebird';
 import User from '../models/user.model';
 
-/* This is just for developing, will be retrieved from user later */
-const options = {
-  user: config.email.user,
-  password: config.email.pass,
-  host: config.email.host,
-  port: config.email.port,
-  tls: true,
-  mailbox: 'INBOX'
+const imapOptions = (user) => {
+  return {
+    user: config.email.user,
+    password: config.email.pass,
+    host: config.email.host,
+    port: config.email.port,
+    tls: true,
+    mailbox: 'INBOX',
+    currentUser: user
+  };
 };
 
-const smtpConfig = {
-  host: config.smtp.host,
-  port: config.smtp.port,
-  secure: true,
-  auth: {
-    user: config.smtp.auth.user,
-    pass: config.smtp.auth.pass
-  }
+const smtpOptions = (user) => {
+  return {
+    host: config.smtp.host,
+    port: config.smtp.port,
+    secure: true,
+    auth: {
+      user: config.smtp.auth.user,
+      pass: config.smtp.auth.pass
+    },
+    currentUser: user
+  };
 };
 
 function sendEmail(req, res) {
-  const smtpConnector = new SMTPConnector(smtpConfig);
+  const smtpConnector = new SMTPConnector(smtpOptions(req.user));
   smtpConnector.sendMail(req.body).then((result) => {
     /*  At the moment all mails are fetched when we start the synch process
     TO DO: write new function/endpoint to just fetch last couple of mails from sendBox  */
-    const imapConnectorAllMessages = new GmailConnector(options);
+    const imapConnectorAllMessages = new GmailConnector(imapOptions(req.user));
     imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.allMessages).then((messages) => {
       res.status(200).send(messages);
     }).catch((err) => {
@@ -40,16 +45,13 @@ function sendEmail(req, res) {
 }
 
 function fetchMails(req, res) {
-  const syncTime = new Date();
   let promises = [];
   req.body.boxes.forEach((box) => {
-    const imapConnector = new GmailConnector(options);
+    const imapConnector = new GmailConnector(imapOptions(req.user));
     promises.push(imapConnector.fetchEmails(storeEmail, box));
   })
   Promise.all(promises).then((results) => {
-    syncDeletedMails(syncTime, req.body.boxes).then(() => {
-      res.status(200).send(results);
-    })
+    res.status(200).send(results);
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -69,7 +71,7 @@ function generateBoxList(boxes, parent, arr) {
 
 function getBoxes(user) {
   return new Promise((resolve, reject) => {
-    const imapConnector = new GmailConnector(options);
+    const imapConnector = new GmailConnector(imapOptions(req.user));
     imapConnector.getBoxes().then((boxes) => {
       let boxList = [];
       generateBoxList(boxes, null, boxList);
@@ -92,7 +94,7 @@ function getBoxes(user) {
 }
 // ToDo: Add Path/Prefix to Boxname automatically
 function addBox(req, res) {
-  const imapConnector = new GmailConnector(options);
+  const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.addBox(req.body.boxName).then((boxName) => {
     getBoxes(req.user).then(() => {
       res.status(200).send(`Created new box: ${boxName}`);
@@ -103,7 +105,7 @@ function addBox(req, res) {
 }
 // ToDo: Add Path/Prefix to Boxname automatically
 function delBox(req, res) {
-  const imapConnector = new GmailConnector(options);
+  const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.delBox(req.body.boxName).then((boxName) => {
     getBoxes(req.user).then(() => {
       res.status(200).send(`Deleted box: ${boxName}`);
@@ -114,7 +116,7 @@ function delBox(req, res) {
 }
 // ToDo: Add Path/Prefix to Boxname automatically
 function renameBox(req, res) {
-  const imapConnector = new GmailConnector(options);
+  const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
     getBoxes(req.user).then(() => {
       res.status(200).send(`Renamed box to: ${boxName}`);
@@ -125,7 +127,7 @@ function renameBox(req, res) {
 }
 
 function append(req, res) {
-  const imapConnector = new GmailConnector(options);
+  const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData).then((msgData) => {
     imapConnector.fetchEmails(storeEmail, req.body.box).then(() => {
       res.status(200).send(msgData);
@@ -136,7 +138,7 @@ function append(req, res) {
 }
 
 function move(req, res) {
-  const imapConnector = new GmailConnector(options);
+  const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.move(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
     imapConnector.fetchEmails(storeEmail, req.body.box).then(() => {
       res.status(200).send(messages);
@@ -147,7 +149,7 @@ function move(req, res) {
 }
 
 function copy(req, res) {
-  const imapConnector = new GmailConnector(options);
+  const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
     res.status(200).send(messages);
   }).catch((err) => {
@@ -156,7 +158,7 @@ function copy(req, res) {
 }
 
 function addFlags(req, res) {
-  const imapConnector = new GmailConnector(options);
+  const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.addFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
     res.status(200).send(messages);
   }).catch((err) => {
@@ -165,7 +167,7 @@ function addFlags(req, res) {
 }
 
 function delFlags(req, res) {
-  const imapConnector = new GmailConnector(options);
+  const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.delFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
     res.status(200).send(messages);
   }).catch((err) => {
@@ -174,7 +176,7 @@ function delFlags(req, res) {
 }
 
 function setFlags(req, res) {
-  const imapConnector = new GmailConnector(options);
+  const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.setFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
     res.status(200).send(messages);
   }).catch((err) => {
@@ -200,8 +202,15 @@ function storeEmail(mail) {
 }
 
 function syncDeletedMails(syncTime, boxes) {
-  return new Promise( (resolve, reject) => {
-    Email.remove({box: {"$in" : boxes}, updatedAt: {"$lt": syncTime}} , (err) => {
+  return new Promise((resolve, reject) => {
+    Email.remove({
+      box: {
+        "$in": boxes
+      },
+      updatedAt: {
+        "$lt": syncTime
+      }
+    }, (err) => {
       err ? reject(err) : resolve();
     })
   });

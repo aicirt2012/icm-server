@@ -49,7 +49,8 @@ class GmailConnector extends ImapConnector {
           uid: attributes.uid,
           attrs: attributes,
           thrid: attributes['x-gm-thrid'],
-          box: box
+          box: box,
+          user: this.options.currentUser
         };
         storeEmail(email).then((msg) => {
           resolve(msg);
