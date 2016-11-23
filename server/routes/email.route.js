@@ -8,8 +8,7 @@ function routeProvider(passport) {
     session: false
   });
   router.use(mw);
-  /** GET /api/email - Protected route,
-   * needs token returned by the above as header. Authorization: JWT {token} */
+  /* IMAP API Endpoints */
   router.route('/box')
     .post(emailCtrl.fetchMails);
 
@@ -46,6 +45,11 @@ function routeProvider(passport) {
   router.route('/setFlags')
     .post(emailCtrl.setFlags);
 
+  /* MongoDB API Endpoints */
+  router.route('/')
+    .get(emailCtrl.getPaginatedEmails);
+  router.route('/search')
+    .get(emailCtrl.searchPaginatedEmails);
 
   return router;
 }

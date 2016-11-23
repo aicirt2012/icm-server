@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate';
 
 const EmailSchema = new mongoose.Schema({
   user: {
@@ -36,14 +37,13 @@ const EmailSchema = new mongoose.Schema({
   timestamps: true
 });
 
-EmailSchema.method({
-  toClient: () => {
-    let obj = this.toObject();
-    obj.id = obj._id;
-    obj.date = obj.date.toISOString();
-    delete obj._id;
-    return obj;
-  }
+EmailSchema.plugin(mongoosePaginate);
+// TODO: add index for To and From
+EmailSchema.index({
+  text: 'text',
+  subject: 'text'
 });
+
+EmailSchema.method({});
 
 export default mongoose.model('Email', EmailSchema);

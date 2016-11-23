@@ -100,7 +100,7 @@ function getBoxes(user, details = false) {
     });
   })
 }
-// ToDo: Add Path/Prefix to Boxname automatically
+
 function addBox(req, res) {
   const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.addBox(req.body.boxName).then((boxName) => {
@@ -111,7 +111,7 @@ function addBox(req, res) {
     res.status(400).send(err);
   });
 }
-// ToDo: Add Path/Prefix to Boxname automatically
+
 function delBox(req, res) {
   const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.delBox(req.body.boxName).then((boxName) => {
@@ -122,7 +122,7 @@ function delBox(req, res) {
     res.status(400).send(err);
   });
 }
-// ToDo: Add Path/Prefix to Boxname automatically
+
 function renameBox(req, res) {
   const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
@@ -224,6 +224,44 @@ function syncDeletedMails(syncTime, boxes) {
   });
 }
 
+function getPaginatedEmails(req, res)  {
+  const options = {
+    page: req.query.page ? req.query.page : 1,
+    limit: req.query.limit ? req.query.limit : 10
+  };
+  const query = {
+    user: req.user
+  };
+  Email.paginate(query, options).then((err, emails) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      res.status(200).send(emails);
+    }
+  })
+
+}
+
+function searchPaginatedEmails(req, res) {
+  const options = {
+    page: req.query.page ? req.query.page : 1,
+    limit: req.query.limit ? req.query.limit : 10
+  };
+  const query = {
+    user: req.user,
+    $text: {
+      $search: req.query.q ? req.query.q : ''
+    }
+  };
+  Email.paginate(query, options).then((err, emails) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      res.status(200).send(emails);
+    }
+  })
+}
+
 export default {
   fetchMails,
   addBox,
@@ -236,5 +274,7 @@ export default {
   addFlags,
   delFlags,
   setFlags,
-  getInitialImapStatus
+  getInitialImapStatus,
+  getPaginatedEmails,
+  searchPaginatedEmails
 };
