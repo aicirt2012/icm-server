@@ -41,8 +41,6 @@ function getInitialImapStatus(req, res) {
 function sendEmail(req, res) {
   const smtpConnector = new SMTPConnector(smtpOptions(req.user));
   smtpConnector.sendMail(req.body).then((result) => {
-    /*  At the moment all mails are fetched when we start the synch process
-    TO DO: write new function/endpoint to just fetch last couple of mails from sendBox  */
     const imapConnectorAllMessages = new GmailConnector(imapOptions(req.user));
     imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.send).then((messages) => {
       res.status(200).send(messages);
@@ -61,7 +59,7 @@ function fetchMails(req, res) {
   Promise.all(promises).then((results) => {
     req.user.lastSync = new Date();
     req.user.save().then(() => {
-      res.status(200).send(results);
+      res.status(200).send(results[0]);
     })
   }).catch((err) => {
     res.status(400).send(err);
@@ -147,7 +145,7 @@ function append(req, res) {
 
 function move(req, res) {
   const imapConnector = new GmailConnector(imapOptions(req.user));
-  imapConnector.move(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
+  imapConnector.move(req.body.msgId, req.body.srcBox, req.body.destBox).then((messages) => {
     imapConnector.fetchEmails(storeEmail, req.body.box).then(() => {
       res.status(200).send(messages);
     })
@@ -226,14 +224,14 @@ function syncDeletedMails(syncTime, boxes) {
 
 function getPaginatedEmails(req, res)  {
   const options = {
-    page: req.query.page ? req.query.page : 1,
-    limit: req.query.limit ? req.query.limit : 10
+    page: req.query.page ? parseInt(req.query.page) : 1,
+    limit: req.query.limit ? parseInt(req.query.limit) : 10
   };
   const query = {
     user: req.user,
     box: req.query.box
   };
-  Email.paginate(query, options).then((err, emails) => {
+  Email.paginate(query, options).then((emails, err) => {
     if (err) {
       res.status(400).send(err);
     } else {
@@ -254,7 +252,7 @@ function searchPaginatedEmails(req, res) {
       $search: req.query.q ? req.query.q : ''
     }
   };
-  Email.paginate(query, options).then((err, emails) => {
+  Email.paginate(query, options).then((emails, err) => {
     if (err) {
       res.status(400).send(err);
     } else {
