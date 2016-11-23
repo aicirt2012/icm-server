@@ -61,14 +61,14 @@ function fetchMails(req, res) {
   });
 }
 
-function recursiveBoxes(boxes, parent, arr) {
+function generateBoxList(boxes, parent, arr) {
   Object.keys(boxes).forEach((key, i) => {
     const path = parent ? `${parent}/${key}` : key;
     if (key != '[Gmail]') {
       arr.push(path);
     }
     if (boxes[key].children) {
-      recursiveBoxes(boxes[key].children, path, arr);
+      generateBoxList(boxes[key].children, path, arr);
     }
   })
 }
@@ -78,7 +78,7 @@ function getBoxes(user) {
     const imapConnector = new GmailConnector(options);
     imapConnector.getBoxes().then((boxes) => {
       let boxList = [];
-      recursiveBoxes(boxes, null, boxList);
+      generateBoxList(boxes, null, boxList);
       User.findOne({
         _id: user._id
       }, (err, user) => {
