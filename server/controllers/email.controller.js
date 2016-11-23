@@ -61,7 +61,7 @@ function fetchMails(req, res) {
   Promise.all(promises).then((results) => {
     req.user.lastSync = new Date();
     req.user.save().then(() => {
-      res.status(200).send(results);
+      res.status(200).send(results[0]);
     })
   }).catch((err) => {
     res.status(400).send(err);
