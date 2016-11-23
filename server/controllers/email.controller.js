@@ -40,13 +40,16 @@ function sendEmail(req, res) {
 }
 
 function fetchMails(req, res) {
+  const syncTime = new Date();
   let promises = [];
   req.body.boxes.forEach((box) => {
     const imapConnector = new GmailConnector(options);
     promises.push(imapConnector.fetchEmails(storeEmail, box));
   })
   Promise.all(promises).then((results) => {
-    res.status(200).send(results);
+    syncDeletedMails(syncTime, req.body.boxes).then(() => {
+      res.status(200).send(results);
+    })
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -181,31 +184,26 @@ function setFlags(req, res) {
 
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
-    Email.find({
+    Email.findOneAndUpdate({
       messageId: mail.messageId
-    }, (err, mails) => {
+    }, mail, {
+      new: true,
+      upsert: true,
+      setDefaultsOnInsert: true
+    }, (err, email) => {
       if (err) {
         reject(err);
       }
-      if (mails.length && mails[0].flags.length === mail.flags.length &&
-        mails[0].flags.reduce((a, b) => a && mail.flags.includes(b), true) &&
-        mails[0].labels.length === mail.labels.length &&
-        mails[0].labels.reduce((a, b) => a && mail.labels.includes(b), true) &&
-        mails[0].uid === mail.uid && mails[0].box === mail.box) {
-        resolve(mails[0]);
-      } else if (mails.length) {
-        Email.findByIdAndUpdate(mails[0]._id, mail, {
-          new: true,
-          runValidators: true
-        }, (error, msg) => {
-          error ? reject(error) : resolve(msg);
-        });
-      } else {
-        Email.create(mail, (error, msg) => {
-          error ? reject(error) : resolve(msg);
-        });
-      }
+      resolve(email);
     });
+  });
+}
+
+function syncDeletedMails(syncTime, boxes) {
+  return new Promise( (resolve, reject) => {
+    Email.remove({box: {"$in" : boxes}, updatedAt: {"$lt": syncTime}} , (err) => {
+      err ? reject(err) : resolve();
+    })
   });
 }
 
