@@ -230,7 +230,8 @@ function getPaginatedEmails(req, res)  {
     limit: req.query.limit ? req.query.limit : 10
   };
   const query = {
-    user: req.user
+    user: req.user,
+    box: req.query.box
   };
   Email.paginate(query, options).then((err, emails) => {
     if (err) {
