@@ -71,7 +71,7 @@ function generateBoxList(boxes, parent, arr) {
 
 function getBoxes(user) {
   return new Promise((resolve, reject) => {
-    const imapConnector = new GmailConnector(imapOptions(req.user));
+    const imapConnector = new GmailConnector(imapOptions(user));
     imapConnector.getBoxes().then((boxes) => {
       let boxList = [];
       generateBoxList(boxes, null, boxList);
@@ -88,7 +88,7 @@ function getBoxes(user) {
         })
       });
     }).catch((err) => {
-      res.status(400).send(err);
+      reject(err);
     });
   })
 }
@@ -218,7 +218,6 @@ function syncDeletedMails(syncTime, boxes) {
 
 export default {
   fetchMails,
-  getBoxes,
   addBox,
   delBox,
   renameBox,
