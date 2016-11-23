@@ -22,15 +22,15 @@ const UserSchema = new mongoose.Schema({
   trello: mongoose.Schema.Types.Mixed,
   displayName: String,
   boxList: [mongoose.Schema.Types.Mixed],
-  createdAt: {
+  lastSync: {
     type: Date,
-    default: Date.now
+    default: null
   }
 }, {
   timestamps: true
 });
 
-UserSchema.pre('save', function (next) {
+UserSchema.pre('save', function(next) {
   let user = this;
   if (!user.isModified('password')) return next();
 

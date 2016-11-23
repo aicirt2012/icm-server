@@ -59,7 +59,10 @@ function fetchMails(req, res) {
     promises.push(imapConnector.fetchEmails(storeEmail, box));
   })
   Promise.all(promises).then((results) => {
-    res.status(200).send(results);
+    req.user.lastSync = new Date();
+    req.user.save().then(() => {
+      res.status(200).send(results);
+    })
   }).catch((err) => {
     res.status(400).send(err);
   });
