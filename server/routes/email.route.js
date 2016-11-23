@@ -13,6 +13,9 @@ function routeProvider(passport) {
   router.route('/box')
     .post(emailCtrl.fetchMails);
 
+  router.route('/init')
+    .get(emailCtrl.getInitialImapStatus);
+
   router.route('/addBox')
     .post(emailCtrl.addBox);
 

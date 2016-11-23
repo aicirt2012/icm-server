@@ -6,6 +6,7 @@ class ImapConnector {
   constructor(options) {
     this.options = options;
     this.imap = new IPromise(options);
+
   }
 
   connect() {
@@ -16,10 +17,52 @@ class ImapConnector {
     return this.connect().then(() => this.imap.openBoxAsync(box, false));
   }
 
-  getBoxes() {
+// TODO: fix this
+  statusBoxAsync(box, readOnly = false) {
+    return this.connect().then(() => new Promise((resolve, reject) => {
+      this.imap.status(box, (err, mailbox) => {
+        if (err) {
+          this.imap.end();
+          reject(err);
+        } else {
+          this.imap.end();
+          resolve(mailbox);
+        }
+      });
+    }));
+  }
+
+  getBoxes(details = false) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.getBoxes((err, boxes) => {
-        err ? reject(err) : resolve(boxes);
+        if (err) {
+          reject(err);
+        } else {
+          let boxList = [];
+          this._generateBoxList(boxes, null, boxList);
+          if (details) {
+            let promises = [];
+            let boxListDetails = [];
+            boxList.forEach((box) => {
+              promises.push(new Promise((resolve, reject) => {
+                this.imap.openBoxAsync(box.name, false).then((res) => { // TODO: change to statusBoxAsync and clear errors for it
+                  boxListDetails.push({
+                    name: res.name,
+                    total: res.messages.total,
+                    new: res.messages.new,
+                    unseen: res.messages.unseen
+                  });
+                  resolve(res);
+                })
+              }));
+            });
+            Promise.all(promises).then((results) => {
+              resolve(boxListDetails);
+            });
+          } else {
+            resolve(boxList);
+          }
+        }
       });
     }));
   }
@@ -121,6 +164,20 @@ class ImapConnector {
 To: ${to}
 Subject: ${subject}
 ${msgData}`;
+  }
+
+  _generateBoxList(boxes, parent, arr) {
+    Object.keys(boxes).forEach((key, i) => {
+      const path = parent ? `${parent}/${key}` : key;
+      if (key != '[Gmail]') {
+        arr.push({
+          name: path
+        });
+      }
+      if (boxes[key].children) {
+        this._generateBoxList(boxes[key].children, path, arr);
+      }
+    })
   }
 
 }

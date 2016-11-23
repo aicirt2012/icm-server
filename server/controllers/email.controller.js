@@ -30,6 +30,14 @@ const smtpOptions = (user) => {
   };
 };
 
+function getInitialImapStatus(req, res) {
+  getBoxes(req.user, true).then((boxes) => {
+    res.status(200).send(boxes);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
 function sendEmail(req, res) {
   const smtpConnector = new SMTPConnector(smtpOptions(req.user));
   smtpConnector.sendMail(req.body).then((result) => {
@@ -69,22 +77,19 @@ function generateBoxList(boxes, parent, arr) {
   })
 }
 
-function getBoxes(user) {
+function getBoxes(user, details = false) {
   return new Promise((resolve, reject) => {
     const imapConnector = new GmailConnector(imapOptions(user));
-    imapConnector.getBoxes().then((boxes) => {
-      let boxList = [];
-      generateBoxList(boxes, null, boxList);
+    imapConnector.getBoxes(details).then((boxes) => {
       User.findOne({
         _id: user._id
       }, (err, user) => {
         if (err) {
           reject(err);
         }
-        user.boxList = boxList;
-
+        user.boxList = boxes;
         user.save().then(() => {
-          resolve(boxList);
+          resolve(boxes);
         })
       });
     }).catch((err) => {
@@ -227,5 +232,6 @@ export default {
   sendEmail,
   addFlags,
   delFlags,
-  setFlags
+  setFlags,
+  getInitialImapStatus
 };

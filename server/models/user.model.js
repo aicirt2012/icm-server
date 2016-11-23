@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema({
   google: mongoose.Schema.Types.Mixed,
   trello: mongoose.Schema.Types.Mixed,
   displayName: String,
-  boxList: [String],
+  boxList: [mongoose.Schema.Types.Mixed],
   createdAt: {
     type: Date,
     default: Date.now
