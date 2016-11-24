@@ -9,7 +9,7 @@ function routeProvider(passport) {
   router.use(mw);
   
   /** GET /api/task/search - Protected route */
-  router.route('/search/')
+  router.route('/search')
     .get(taskCtrl.taskSearch);
   
   /** GET, POST /api/task/ - Protected route */
