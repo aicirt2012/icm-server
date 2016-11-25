@@ -52,8 +52,8 @@ function sendEmail(req, res) {
 
 function fetchMails(req, res) {
   let promises = [];
-  if(req.body.boxes.length < 1) {
-      req.body.boxes = req.user.boxList.map((box) => box.name);
+  if (req.body.boxes.length < 1) {
+    req.body.boxes = req.user.boxList.map((box) => box.name);
   }
   req.body.boxes.forEach((box) => {
     const imapConnector = new GmailConnector(imapOptions(req.user));
@@ -62,7 +62,9 @@ function fetchMails(req, res) {
   Promise.all(promises).then((results) => {
     req.user.lastSync = new Date();
     req.user.save().then(() => {
-      res.status(200).send({message:'Finished fetching'});
+      res.status(200).send({
+        message: 'Finished fetching'
+      });
     })
   }).catch((err) => {
     res.status(400).send(err);

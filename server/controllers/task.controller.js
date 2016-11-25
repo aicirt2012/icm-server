@@ -1,6 +1,7 @@
 import url from 'url';
 import TrelloConnector from '../helpers/task/TrelloConnector';
 import User from '../models/user.model';
+import Email from '../models/email.model';
 
 function taskGetAll(req, res) {
   const user = req.user.trello;
@@ -17,8 +18,16 @@ function taskCreate(req, res) {
   const user = req.user.trello;
   const params = req.body;
   const trelloConnector = new TrelloConnector(user);
-  trelloConnector.createTask(params).then((data) => {
-    res.status(200).send(data);
+  trelloConnector.createTask(params).then((task) => {
+    Email.findById(req.params.emailId, (err, email) => {
+      email.tasks.push({
+        id: task.id,
+        date: new Date()
+      });
+      email.save().then((email) => {
+        res.status(200).send(task);
+      });
+    });
   }).catch((err) => {
     res.status(400).send(err);
   });
