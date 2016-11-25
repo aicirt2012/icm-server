@@ -20,13 +20,17 @@ function taskCreate(req, res) {
   const trelloConnector = new TrelloConnector(user);
   trelloConnector.createTask(params).then((task) => {
     Email.findById(req.params.emailId, (err, email) => {
-      email.tasks.push({
-        id: task.id,
-        date: new Date()
-      });
-      email.save().then((email) => {
-        res.status(200).send(task);
-      });
+      if (err) {
+        res.status(400).send(err);
+      } else {
+        email.tasks.push({
+          id: task.id,
+          date: new Date()
+        });
+        email.save().then((email) => {
+          res.status(200).send(task);
+        });
+      }
     });
   }).catch((err) => {
     res.status(400).send(err);
