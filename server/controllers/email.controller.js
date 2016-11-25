@@ -283,6 +283,18 @@ function searchPaginatedEmails(req, res) {
   })
 }
 
+function getSingleMail(req, res) {
+      Email.findOne({
+        _id: req.query.id
+      }, (err,mail) => {
+        if (err) {
+          res.status(400).send(err);
+        } else {
+          res.status(200).send(mail);
+        }
+  })
+}
+
 export default {
   fetchMails,
   addBox,
@@ -297,5 +309,6 @@ export default {
   setFlags,
   getInitialImapStatus,
   getPaginatedEmails,
-  searchPaginatedEmails
+  searchPaginatedEmails,
+  getSingleMail
 };
