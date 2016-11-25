@@ -52,23 +52,40 @@ function sendEmail(req, res) {
 
 function fetchMails(req, res) {
   let promises = [];
+  let subPromises = [];
   if (req.body.boxes.length < 1) {
-    req.body.boxes = req.user.boxList.map((box) => box.name);
+    req.body.boxes = req.user.boxList.filter((box) => box.total != 0 && box.name != '[Gmail]/Important' && box.name != '[Gmail]/All Mail').map((box) => box.name);
   }
-  req.body.boxes.forEach((box) => {
+  req.body.boxes.forEach((box, index) => {
     const imapConnector = new GmailConnector(imapOptions(req.user));
-    promises.push(imapConnector.fetchEmails(storeEmail, box));
-  })
-  Promise.all(promises).then((results) => {
+    if (subPromises.length == 10) {
+      promises.push(subPromises);
+      subPromises = [];
+    }
+    subPromises.push(imapConnector.fetchEmails(storeEmail, box));
+    if (index + 1 == req.body.boxes.length) {
+      promises.push(subPromises);
+    }
+  });
+  recursivePromises(promises, () => {
     req.user.lastSync = new Date();
     req.user.save().then(() => {
       res.status(200).send({
         message: 'Finished fetching'
       });
-    })
-  }).catch((err) => {
-    res.status(400).send(err);
+    });
   });
+}
+
+function recursivePromises(promises, callback) {
+  if (promises.length > 0) {
+    Promise.all(promises[0]).then(() => {
+      promises = promises.slice(1, promises.length);
+      recursivePromises(promises, callback);
+    })
+  } else {
+    callback();
+  }
 }
 
 function generateBoxList(boxes, parent, arr) {
