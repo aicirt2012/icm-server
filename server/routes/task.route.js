@@ -22,6 +22,10 @@ function routeProvider(passport) {
     .put(taskCtrl.taskUpdate)
     .delete(taskCtrl.taskDelete);
 
+  router.route('/sociocortex/register')
+    .post(taskCtrl.registerSociocortex);
+  router.route('/sociocortex/get')
+    .get(taskCtrl.getMeSociocortex);
   /* Task routes related to emails */
   router.route('/email/:emailId/addTask')
     .post(taskCtrl.taskCreate);

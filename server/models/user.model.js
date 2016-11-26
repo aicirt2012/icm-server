@@ -20,6 +20,7 @@ const UserSchema = new mongoose.Schema({
   },
   google: mongoose.Schema.Types.Mixed,
   trello: mongoose.Schema.Types.Mixed,
+  sociocortex: mongoose.Schema.Types.Mixed,
   displayName: String,
   boxList: [mongoose.Schema.Types.Mixed],
   lastSync: {
