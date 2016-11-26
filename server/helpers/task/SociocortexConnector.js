@@ -90,7 +90,7 @@ class SociocortexConnector extends TaskConnector  {
       })
     });
   }
-  
+
   updateTask(task) {
     return new Promise((resolve, reject) => {
       this.generateRequest(`tasks/${task.id}`, null, 'PUT', task).then((res) => {
@@ -121,14 +121,6 @@ class SociocortexConnector extends TaskConnector  {
         reject(err);
       })
     });
-  }
-
-  addQueries(queries) {
-    let queryString = '';
-    Object.keys(queries).forEach((key) => {
-      queryString += `${key}=${queries[key]}&`;
-    })
-    return queryString.slice(0, -1);
   }
 
   generateRequest(endpoint, params, method, body) {
