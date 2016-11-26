@@ -9,10 +9,11 @@ class SociocortexConnector extends TaskConnector  {
     this.baseURL = 'https://server.sociocortex.com/api/v1/';
   }
 
-  persistCredentials(user, scEmail, scPassword) {
+  persistCredentials(user, scEmail, scPassword, scUserId) {
     user.sociocortex = {
       email: scEmail,
-      password: scPassword
+      password: scPassword,
+      userId: scUserId
     }
     return new Promise((resolve, reject) => {
       user.save().then((res) => {
@@ -30,8 +31,7 @@ class SociocortexConnector extends TaskConnector  {
         email: scEmail,
         password: scPassword
       }).then((res) => {
-        console.log('RESULT', res);
-        this.persistCredentials(user, scEmail, scPassword).then((user) => {
+        this.persistCredentials(user, scEmail, scPassword, res.id).then((user) => {
           resolve(user);
         });
       }).catch((err) => {
@@ -41,7 +41,37 @@ class SociocortexConnector extends TaskConnector  {
     });
   }
 
+  connect(user, scEmail, scPassword) {
+    this.options = {
+      email: scEmail,
+      scPassword: scPassword
+    };
+    this.getUserDetails().then((res) => {
+      persistCredentials(user, scEmail, scPassword, res.id)
+    })
+  }
+
   getTasksForUser() {
+    return new Promise((resolve, reject) => {
+      this.generateRequest(`users/${this.options.userId}/tasks`, null, 'GET', {}).then((res) => {
+        resolve(res);
+      }).catch((err) => {
+        reject(err);
+      })
+    });
+  }
+
+  createTaskForUser(task) {
+    return new Promise((resolve, reject) => {
+      this.generateRequest(`users/${this.options.userId}/tasks`, null, 'POST', task).then((res) => {
+        resolve(res);
+      }).catch((err) => {
+        reject(err);
+      })
+    });
+  }
+
+  getUserDetails()  {
     return new Promise((resolve, reject) => {
       this.generateRequest('users/me', null, 'GET', {}).then((res) => {
         resolve(res);
@@ -51,26 +81,40 @@ class SociocortexConnector extends TaskConnector  {
     });
   }
 
-  createTask() {
-    //Logic for creating task
-    return true;
+  getTask(task) {
+    return new Promise((resolve, reject) => {
+      this.generateRequest(`tasks/${task.id}`, null, 'GET').then((res) => {
+        resolve(res);
+      }).catch((err) => {
+        reject(err);
+      })
+    });
   }
-
+  
   updateTask(task) {
-    //Logic for updating task
-    return true;
+    return new Promise((resolve, reject) => {
+      this.generateRequest(`tasks/${task.id}`, null, 'PUT', task).then((res) => {
+        resolve(res);
+      }).catch((err) => {
+        reject(err);
+      })
+    });
   }
 
   deleteTask(task) {
-    //Logic for deleting task
-    return true;
+    return new Promise((resolve, reject) => {
+      this.generateRequest(`tasks/${task.id}`, null, 'DELETE', task).then((res) => {
+        resolve(res);
+      }).catch((err) => {
+        reject(err);
+      })
+    });
   }
 
   search(params) {
     return new Promise((resolve, reject) => {
       _generateRequest('searchResults', {
-        text: params.text,
-        resourceType: 'tasks'
+        text: params.text
       }, 'GET', {}).then((res) => {
         resolve(res);
       }).catch((err) => {
