@@ -94,10 +94,10 @@ function registerSociocortex(req, res) {
   });
 }
 
-function getMeSociocortex(req, res) {
+function connectSociocortex(req, res) {
   const options = req.user.sociocortex || {};
   const scConnector = new SociocortexConnector(options);
-  scConnector.getTasksForUser().then((data) => {
+  scConnector.connect(req.user, req.body.email, req.body.password).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
@@ -112,5 +112,5 @@ export default {
   taskDelete,
   taskSearch,
   registerSociocortex,
-  getMeSociocortex
+  connectSociocortex
 };
