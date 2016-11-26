@@ -2,6 +2,7 @@ import Promise from 'bluebird';
 import Email from '../models/email.model';
 import GmailConnector from '../helpers/mail/GmailConnector';
 import SMTPConnector from '../helpers/mail/SMTPConnector';
+import ExchangeConnector from '../helpers/mail/ExchangeConnector';
 import config from '../../config/env';
 import User from '../models/user.model';
 
@@ -283,6 +284,16 @@ function searchPaginatedEmails(req, res) {
   })
 }
 
+function testEws(req, res) {
+    const exchangeConnector = new ExchangeConnector({});
+    exchangeConnector.fetchEmails(storeEmail, 'inbox').then((results) => {
+        res.status(200).send(results);
+    }).catch((err) => {
+        res.status(400).send(err);
+    })
+
+}
+
 export default {
   fetchMails,
   addBox,
@@ -297,5 +308,6 @@ export default {
   setFlags,
   getInitialImapStatus,
   getPaginatedEmails,
-  searchPaginatedEmails
+  searchPaginatedEmails,
+  testEws
 };

@@ -55,6 +55,7 @@
     "mongoose": "4.6.5",
     "mongoose-paginate": "5.0.3",
     "morgan": "1.7.0",
+    "node-ews": "git://github.com/delsner/node-ews.git",
     "node-fetch": "1.6.3",
     "nodemailer": "2.6.4",
     "oauth": "0.9.14",
