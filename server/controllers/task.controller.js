@@ -1,5 +1,6 @@
 import url from 'url';
 import TrelloConnector from '../helpers/task/TrelloConnector';
+import SociocortexConnector from '../helpers/task/SociocortexConnector';
 import User from '../models/user.model';
 import Email from '../models/email.model';
 
@@ -82,11 +83,34 @@ function taskSearch(req, res) {
   });
 }
 
+function registerSociocortex(req, res) {
+  const options = req.user.sociocortex || {};
+  const scConnector = new SociocortexConnector(options);
+  scConnector.register(req.user, req.body.scUsername, req.body.scEmail,
+      req.body.scPassword).then((data) => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+function connectSociocortex(req, res) {
+  const options = req.user.sociocortex || {};
+  const scConnector = new SociocortexConnector(options);
+  scConnector.connect(req.user, req.body.email, req.body.password).then((data) => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
 export default {
   taskGetAll,
   taskCreate,
   taskGet,
   taskUpdate,
   taskDelete,
-  taskSearch
+  taskSearch,
+  registerSociocortex,
+  connectSociocortex
 };
