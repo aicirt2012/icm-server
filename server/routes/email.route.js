@@ -50,7 +50,7 @@ function routeProvider(passport) {
     .get(emailCtrl.getPaginatedEmails);
   router.route('/search')
     .get(emailCtrl.searchPaginatedEmails);
-  router.route('/single')
+  router.route('/single/:id')
     .get(emailCtrl.getSingleMail);
 
   return router;

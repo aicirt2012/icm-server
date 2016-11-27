@@ -285,7 +285,7 @@ function searchPaginatedEmails(req, res) {
 
 function getSingleMail(req, res) {
       Email.findOne({
-        _id: req.query.id
+        _id: req.params.id
       }, (err,mail) => {
         if (err) {
           res.status(400).send(err);
