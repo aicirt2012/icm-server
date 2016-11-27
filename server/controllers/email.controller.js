@@ -298,6 +298,5 @@ export default {
   setFlags,
   getInitialImapStatus,
   getPaginatedEmails,
-  searchPaginatedEmails,
-  testEws
+  searchPaginatedEmails
 };
