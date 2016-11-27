@@ -169,7 +169,7 @@ function append(req, res) {
 function move(req, res) {
   const imapConnector = new GmailConnector(imapOptions(req.user));
   imapConnector.move(req.body.msgId, req.body.srcBox, req.body.destBox).then((messages) => {
-    imapConnector.fetchEmails(storeEmail, req.body.box).then(() => {
+    imapConnector.fetchEmails(storeEmail, req.body.destBox).then(() => {
       res.status(200).send(messages);
     })
   }).catch((err) => {
