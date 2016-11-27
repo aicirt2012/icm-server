@@ -51,8 +51,6 @@ function routeProvider(passport) {
   router.route('/search')
     .get(emailCtrl.searchPaginatedEmails);
 
-  router.route('/test')
-    .get(emailCtrl.testEws);
   return router;
 }
 

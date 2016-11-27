@@ -17,7 +17,7 @@ class ImapConnector {
     return this.connect().then(() => this.imap.openBoxAsync(box, false));
   }
 
-// TODO: fix this
+  // TODO: fix this
   statusBoxAsync(box, readOnly = false) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.status(box, (err, mailbox) => {

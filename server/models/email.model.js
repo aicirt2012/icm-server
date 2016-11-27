@@ -9,7 +9,7 @@ const EmailSchema = new mongoose.Schema({
   messageId: String,
   uid: Number,
   box: String,
-  thrid: Number,
+  thrid: mongoose.Schema.Types.Mixed,
   attrs: mongoose.Schema.Types.Mixed,
   from: [{
     address: String,

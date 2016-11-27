@@ -284,16 +284,6 @@ function searchPaginatedEmails(req, res) {
   })
 }
 
-function testEws(req, res) {
-    const exchangeConnector = new ExchangeConnector({});
-    exchangeConnector.fetchEmails(storeEmail, 'inbox').then((results) => {
-        res.status(200).send(results);
-    }).catch((err) => {
-        res.status(400).send(err);
-    })
-
-}
-
 export default {
   fetchMails,
   addBox,
