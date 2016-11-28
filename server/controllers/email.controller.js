@@ -23,6 +23,7 @@ const smtpOptions = (user) => {
     host: config.smtp.host,
     port: config.smtp.port,
     secure: true,
+    domains: config.smtp.domains,
     auth: {
       user: config.smtp.auth.user,
       pass: config.smtp.auth.pass

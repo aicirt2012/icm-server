@@ -36,7 +36,8 @@ export default {
     auth: {
       user: 'sebisng2@gmail.com',
       pass: 's3b1sng2'
-    }
+    },
+    domains: ['gmail.com','googlemail.com']
   },
   oauth: {
     google: {
