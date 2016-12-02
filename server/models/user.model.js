@@ -19,9 +19,24 @@ const UserSchema = new mongoose.Schema({
     required: true,
   },
   google: mongoose.Schema.Types.Mixed,
+  /*email: {
+      user: 'sebisng2@gmail.com',
+      pass: 's3b1sng2',
+      host: 'imap.gmail.com',
+      port: 993,
+      accessToken:xxx,
+      accessTokenSecret:xxx
+  },*/
   trello: mongoose.Schema.Types.Mixed,
   sociocortex: mongoose.Schema.Types.Mixed,
+  /* sociocortex: { email: 'adsasdf@dsafdsf.de', password: 'adsfadf'}*/
   exchange: mongoose.Schema.Types.Mixed,
+  /*email: {
+    user: 'sebisng2@gmail.com',
+    pass: 's3b1sng2',
+    host: 'imap.gmail.com',
+    port: 993
+},*/
   displayName: String,
   boxList: [mongoose.Schema.Types.Mixed],
   lastSync: {

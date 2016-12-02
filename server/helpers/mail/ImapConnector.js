@@ -43,11 +43,13 @@ class ImapConnector {
           if (details) {
             let promises = [];
             let boxListDetails = [];
-            boxList.forEach((box) => {
+            boxList.forEach((box, index) => {
               promises.push(new Promise((resolve, reject) => {
                 this.imap.openBoxAsync(box.name, false).then((res) => { // TODO: change to statusBoxAsync and clear errors for it
                   boxListDetails.push({
+                    id: index,
                     name: res.name,
+                    shortName: res.name.substr(res.name.lastIndexOf('/') + 1, res.name.length),
                     total: res.messages.total,
                     new: res.messages.new,
                     unseen: res.messages.unseen
@@ -166,9 +168,9 @@ Subject: ${subject}
 ${msgData}`;
   }
 
-  _generateBoxList(boxes, parent, arr) {
+  _generateBoxList(boxes, parentPath, arr) {
     Object.keys(boxes).forEach((key, i) => {
-      const path = parent ? `${parent}/${key}` : key;
+      const path = parentPath ? `${parentPath}/${key}` : key;
       if (key != '[Gmail]') {
         arr.push({
           name: path
