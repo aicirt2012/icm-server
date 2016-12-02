@@ -253,7 +253,7 @@ function getPaginatedEmails(req, res)  {
   };
   const query = {
     user: req.user,
-    box: req.query.box
+    'box.name': req.query.box
   };
   Email.paginate(query, options).then((emails, err) => {
     if (err) {
