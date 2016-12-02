@@ -49,7 +49,7 @@ class GmailConnector extends ImapConnector {
           uid: attributes.uid,
           attrs: attributes,
           thrid: attributes['x-gm-thrid'],
-          box: box,
+          box: this.options.currentUser.boxList.find((b) => box === b.name),
           user: this.options.currentUser
         };
         storeEmail(email).then((msg) => {
