@@ -52,8 +52,7 @@ class ImapConnector {
                     total: res.messages.total,
                     new: res.messages.new,
                     unseen: res.messages.unseen,
-                    parent: box.parent,
-                    children: []
+                    parent: box.parent
                   });
                   resolve(res);
                 })
@@ -188,10 +187,10 @@ ${msgData}`;
   }
 
   _populateFamilyTree(boxes) {
-    boxes.forEach((box) => {
+    boxes.forEach((box, index) => {
       if (box.parent != null) {
         let parent = boxes.filter((b) => b.name == box.parent.name)[0];
-        parent.children.push(box);
+        box.parent = parent;
       }
     });
   }
