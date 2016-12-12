@@ -6,7 +6,6 @@ class ImapConnector {
   constructor(options) {
     this.options = options;
     this.imap = new IPromise(options);
-
   }
 
   connect() {
@@ -39,7 +38,7 @@ class ImapConnector {
           reject(err);
         } else {
           let boxList = [];
-          this._generateBoxList(boxes, null, boxList);
+          this._generateBoxList(boxes, null, boxList, null);
           if (details) {
             let promises = [];
             let boxListDetails = [];
@@ -52,13 +51,16 @@ class ImapConnector {
                     shortName: res.name.substr(res.name.lastIndexOf('/') + 1, res.name.length),
                     total: res.messages.total,
                     new: res.messages.new,
-                    unseen: res.messages.unseen
+                    unseen: res.messages.unseen,
+                    parent: box.parent,
+                    children: []
                   });
                   resolve(res);
                 })
               }));
             });
             Promise.all(promises).then((results) => {
+              this._populateFamiliyTree(boxListDetails);
               resolve(boxListDetails);
             });
           } else {
@@ -168,18 +170,30 @@ Subject: ${subject}
 ${msgData}`;
   }
 
-  _generateBoxList(boxes, parentPath, arr) {
+  _generateBoxList(boxes, parentPath, arr, parent) {
     Object.keys(boxes).forEach((key, i) => {
       const path = parentPath ? `${parentPath}/${key}` : key;
+      let box = null;
       if (key != '[Gmail]') {
-        arr.push({
-          name: path
-        });
+        box = {
+          name: path,
+          parent: parent
+        };
+        arr.push(box);
       }
       if (boxes[key].children) {
-        this._generateBoxList(boxes[key].children, path, arr);
+        this._generateBoxList(boxes[key].children, path, arr, box);
       }
     })
+  }
+
+  _populateFamilyTree(boxes) {
+    boxes.forEach((box) => {
+      if (box.parent != null) {
+        let parent = boxes.filter((b) => b.name == box.parent.name)[0];
+        parent.children.push(box);
+      }
+    });
   }
 
 }
