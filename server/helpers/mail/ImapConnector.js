@@ -60,7 +60,7 @@ class ImapConnector {
               }));
             });
             Promise.all(promises).then((results) => {
-              this._populateFamiliyTree(boxListDetails);
+              this._populateFamilyTree(boxListDetails);
               resolve(boxListDetails);
             });
           } else {
