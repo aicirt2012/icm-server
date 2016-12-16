@@ -249,7 +249,8 @@ function syncDeletedMails(syncTime, boxes) {
 function getPaginatedEmails(req, res)  {
   const options = {
     page: req.query.page ? parseInt(req.query.page) : 1,
-    limit: req.query.limit ? parseInt(req.query.limit) : 10
+    limit: req.query.limit ? parseInt(req.query.limit) : 10,
+    sort: { date: -1 },    
   };
   const query = {
     user: req.user,
