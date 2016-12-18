@@ -1,82 +1,81 @@
 import User from '../models/user.model';
 
-/**
- * Load user and append to req.
- */
-function load(req, res, next, id) {
-  User.get(id)
-    .then((user) => {
-      req.user = user; // eslint-disable-line no-param-reassign
-      return next();
-    })
-    .catch(e => next(e));
-}
-
-/**
- * Get user
- * @returns {User}
- */
 function get(req, res) {
-  return res.json(req.user);
+  User.findOne({
+      _id: req.params.id
+    })
+    .then((user, err) => {
+      if (user) {
+        res.status(200).send(user);
+      } else {
+        res.status(404).send(err);
+      }
+    })
 }
 
-/**
- * Create new user
- * @property {string} req.body.username - The username of user.
- * @property {string} req.body.password - The password of user.
- * @returns {User}
- */
-function create(req, res, next) {
+function create(req, res) {
   const user = new User({
     username: req.body.username,
     password: req.body.password,
     email: req.body.email
   });
-  console.log('req', req);
   user.save()
-    .then(savedUser => res.json(savedUser))
-    .catch(e => next(e));
+    .then((user, err) => {
+      if (err) {
+        res.status(404).send(err);
+      } else {
+        res.status(200).send(user);
+      }
+    })
 }
 
-/**
- * Update existing user
- * @property {string} req.body.username - The username of user.
- * @property {string} req.body.password - The password of user.
- * @returns {User}
- */
-function update(req, res, next) {
-  const user = req.user;
-  user.username = req.body.username;
-  user.password = req.body.password;
-  user.email = req.body.email;
-
-  user.save()
-    .then(savedUser => res.json(savedUser))
-    .catch(e => next(e));
+function update(req, res) {
+  User.findOneAndUpdate({
+    _id: req.params.id
+  }, req.body, {
+    new: true
+  }, (err, user) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      res.status(200).send(user);
+    }
+  });
 }
 
-/**
- * Get user list.
- * @property {number} req.query.skip - Number of users to be skipped.
- * @property {number} req.query.limit - Limit number of users to be returned.
- * @returns {User[]}
- */
 function list(req, res, next) {
-  const { limit = 50, skip = 0 } = req.query;
-  User.list({ limit, skip })
-    .then(users => res.json(users))
-    .catch(e => next(e));
+  const options = {
+    page: req.query.page ? parseInt(req.query.page) : 1,
+    limit: req.query.limit ? parseInt(req.query.limit) : 10,
+    sort: {
+      createdAt: -1
+    }
+  };
+  const query = {};
+  User.paginate(query, options).then((users, err) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      res.status(200).send(users);
+    }
+  });
 }
 
-/**
- * Delete user.
- * @returns {User}
- */
 function remove(req, res, next) {
-  const user = req.user;
-  user.remove()
-    .then(deletedUser => res.json(deletedUser))
-    .catch(e => next(e));
+  User.findByIdAndRemove(req.params.id)
+    .then((user, err) => {
+      if (user) {
+        res.status(200).send(user);
+      } else {
+        res.status(404).send(err);
+      }
+    })
 }
 
-export default { load, get, create, update, list, remove };
+export default {
+  get,
+  create,
+  update,
+  list,
+  remove
+};

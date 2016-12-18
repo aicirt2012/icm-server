@@ -19,8 +19,9 @@ after((done) => {
 
 describe('## User APIs', () => {
   let user = {
-    username: 'KK123',
-    mobileNumber: '1234567890'
+    username: 'test',
+    password: '123456',
+    email: 'test@test.de'
   };
 
   describe('# POST /api/users', () => {
@@ -31,8 +32,23 @@ describe('## User APIs', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.username).to.equal(user.username);
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
-          user = res.body;
+          user._id = res.body._id;
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# POST /api/auth/login', () => {
+    it('should log in', (done) => {
+      request(app)
+        .post('/api/auth/login')
+        .send({username:user.username, password: user.password})
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body).to.be.an('object');
+          expect(res.body.token).to.be.an('string');
+          user.token = res.body.token;
           done();
         })
         .catch(done);
@@ -43,10 +59,10 @@ describe('## User APIs', () => {
     it('should get user details', (done) => {
       request(app)
         .get(`/api/users/${user._id}`)
+        .set('Authorization', 'JWT ' + user.token)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.username).to.equal(user.username);
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
           done();
         })
         .catch(done);
@@ -54,10 +70,10 @@ describe('## User APIs', () => {
 
     it('should report error with message - Not found, when user does not exists', (done) => {
       request(app)
-        .get('/api/users/56c787ccc67fc16ccc1a5e92')
+        .get('/api/users/5256c457c71d7b3ba044c73a')
+        .set('Authorization', 'JWT ' + user.token)
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
-          expect(res.body.message).to.equal('Not Found');
           done();
         })
         .catch(done);
@@ -69,11 +85,11 @@ describe('## User APIs', () => {
       user.username = 'KK';
       request(app)
         .put(`/api/users/${user._id}`)
+        .set('Authorization', 'JWT ' + user.token)
         .send(user)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.username).to.equal('KK');
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
           done();
         })
         .catch(done);
@@ -84,9 +100,10 @@ describe('## User APIs', () => {
     it('should get all users', (done) => {
       request(app)
         .get('/api/users')
+        .set('Authorization', 'JWT ' + user.token)
         .expect(httpStatus.OK)
         .then((res) => {
-          expect(res.body).to.be.an('array');
+          expect(res.body.docs).to.be.an('array');
           done();
         })
         .catch(done);
@@ -97,10 +114,10 @@ describe('## User APIs', () => {
     it('should delete user', (done) => {
       request(app)
         .delete(`/api/users/${user._id}`)
+        .set('Authorization', 'JWT ' + user.token)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.username).to.equal('KK');
-          expect(res.body.mobileNumber).to.equal(user.mobileNumber);
           done();
         })
         .catch(done);

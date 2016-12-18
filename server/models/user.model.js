@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import httpStatus from 'http-status';
 import APIError from '../helpers/error/APIError';
 import bcrypt from 'bcrypt';
+import mongoosePaginate from 'mongoose-paginate';
 
 const UserSchema = new mongoose.Schema({
   username: {
@@ -76,5 +77,6 @@ UserSchema.method({
   }
 });
 
+UserSchema.plugin(mongoosePaginate);
 
 export default mongoose.model('User', UserSchema);

@@ -5,17 +5,24 @@ import userCtrl from '../controllers/user.controller';
 
 function routeProvider(passport) {
 
-  const router = express.Router(); // eslint-disable-line new-cap
+  const router = express.Router();
 
   router.route('/')
-    .get(userCtrl.list)
+    .get(passport.authenticate('jwt', {
+      session: false
+    }), userCtrl.list)
     .post(userCtrl.create);
 
-  router.route('/:userId')
-    .get(userCtrl.get)
-    .delete(userCtrl.remove);
-
-  router.param('userId', userCtrl.load);
+  router.route('/:id')
+    .get(passport.authenticate('jwt', {
+      session: false
+    }), userCtrl.get)
+    .put(passport.authenticate('jwt', {
+      session: false
+    }), userCtrl.update)
+    .delete(passport.authenticate('jwt', {
+      session: false
+    }), userCtrl.remove);
 
   return router;
 }

@@ -29,6 +29,9 @@ const EmailSchema = new mongoose.Schema({
     id: {
       type: String
     },
+    provider: {
+        type: String
+    },
     date: {
       type: Date
     }
