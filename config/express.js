@@ -13,7 +13,7 @@ import helmet from 'helmet';
 import winstonInstance from './winston';
 import routes from '../server/routes/index.route';
 import config from './env';
-import APIError from '../server/helpers/error/APIError';
+import APIError from '../server/core/error/APIError';
 import passport from 'passport';
 import {
   config as passportConfig

@@ -1,8 +1,8 @@
 import Promise from 'bluebird';
 import Email from '../models/email.model';
-import GmailConnector from '../helpers/mail/GmailConnector';
-import SMTPConnector from '../helpers/mail/SMTPConnector';
-import ExchangeConnector from '../helpers/mail/ExchangeConnector';
+import GmailConnector from '../core/mail/GmailConnector';
+import SMTPConnector from '../core/mail/SMTPConnector';
+import ExchangeConnector from '../core/mail/ExchangeConnector';
 import config from '../../config/env';
 import User from '../models/user.model';
 

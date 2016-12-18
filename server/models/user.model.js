@@ -1,7 +1,7 @@
 import Promise from 'bluebird';
 import mongoose from 'mongoose';
 import httpStatus from 'http-status';
-import APIError from '../helpers/error/APIError';
+import APIError from '../core/error/APIError';
 import bcrypt from 'bcrypt';
 import mongoosePaginate from 'mongoose-paginate';
 

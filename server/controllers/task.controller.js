@@ -1,6 +1,6 @@
 import url from 'url';
-import TrelloConnector from '../helpers/task/TrelloConnector';
-import SociocortexConnector from '../helpers/task/SociocortexConnector';
+import TrelloConnector from '../core/task/TrelloConnector';
+import SociocortexConnector from '../core/task/SociocortexConnector';
 import User from '../models/user.model';
 import Email from '../models/email.model';
 

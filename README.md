@@ -12,7 +12,7 @@ config - Config for ENV, express, param-validation, logging
 coverage - Code coverage summary
 server - Server source files
 |- controllers: Controller functions for routes
-|- helpers: Util/Helper classes
+|- core: Util/Helper classes
 |- models: Mongoose schemas
 |- routes: Routes/API endpoints
 |- tests: Test cases
