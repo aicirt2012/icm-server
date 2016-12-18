@@ -5,6 +5,10 @@ class ImapConnector {
 
   constructor(options) {
     this.options = options;
+    this.options['debug'] = function(err) {
+      console.log(err)
+    };
+    this.options['authTimeout'] = 10000;
     this.imap = new IPromise(options);
   }
 
@@ -16,19 +20,16 @@ class ImapConnector {
     return this.connect().then(() => this.imap.openBoxAsync(box, false));
   }
 
-  // TODO: fix this
   statusBoxAsync(box, readOnly = false) {
-    return this.connect().then(() => new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.imap.status(box, (err, mailbox) => {
         if (err) {
-          this.imap.end();
           reject(err);
         } else {
-          this.imap.end();
           resolve(mailbox);
         }
       });
-    }));
+    });
   }
 
   getBoxes(details = false) {
@@ -44,7 +45,7 @@ class ImapConnector {
             let boxListDetails = [];
             boxList.forEach((box, index) => {
               promises.push(new Promise((resolve, reject) => {
-                this.imap.openBoxAsync(box.name, false).then((res) => { // TODO: change to statusBoxAsync and clear errors for it
+                this.statusBoxAsync(box.name, false).then((res) => {
                   boxListDetails.push({
                     id: index,
                     name: res.name,
