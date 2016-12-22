@@ -10,32 +10,17 @@ class TrelloConnector extends TaskConnector {
   }
 
   /**
-   * taskGetAll
-   * @params {string} - idList (required).
-   */
-  taskGetAll(params) {
-    const idList = params.idList;
-    const url = this.buildURL(`/lists/${idList}/cards`, params);
-    return new Promise((resolve, reject) => {
-      fetch(url).then((res) => res.json())
-        .then((json) => {
-          resolve(json);
-        })
-        .catch((err) => {
-          reject(err);
-        })
-    });
-  }
-
-  /**
    * create task
    * @params {string} - idList (required).
    * @params {string} - name (desirable).
    */
-  createTask(params) {
-    const url = this.buildURL('/cards', params);
+  createTask(body) {
+    const url = this.buildURL('/cards', '');
     return new Promise((resolve, reject) => {
-      fetch(url, {method: 'POST', body: ''})
+      fetch(url, {
+          method: 'POST',
+          body: body
+        })
         .then((res) => res.json())
         .then((json) => {
           resolve(json);
@@ -67,10 +52,13 @@ class TrelloConnector extends TaskConnector {
    * update task
    * @params {string} - name (optional).
    */
-  updateTask(id, params) {
-    const url = this.buildURL(`/cards/${id}`, params);
+  updateTask(id, body) {
+    const url = this.buildURL(`/cards/${id}`, '');
     return new Promise((resolve, reject) => {
-      fetch(url, {method: 'PUT', body: ''})
+      fetch(url, {
+          method: 'PUT',
+          body: body
+        })
         .then((res) => res.json())
         .then((json) => {
           resolve(json);
@@ -87,7 +75,9 @@ class TrelloConnector extends TaskConnector {
   deleteTask(id) {
     const url = this.buildURL(`/cards/${id}`, '');
     return new Promise((resolve, reject) => {
-      fetch(url, {method: 'DELETE', body: ''})
+      fetch(url, {
+          method: 'DELETE'
+        })
         .then((res) => res.json())
         .then((json) => {
           resolve(json);
@@ -115,12 +105,65 @@ class TrelloConnector extends TaskConnector {
     });
   }
 
+  /**
+   * get boards
+   * @params {string} - query (required).
+   */
+  getBoardsForMember(params) {
+    const url = this.buildURL(`/members/${this.options.trelloId}/boards/`, params);
+    console.log(url);
+    return new Promise((resolve, reject) => {
+      fetch(url).then((res) => res.json())
+        .then((json) => {
+          console.log(json);
+          resolve(json);
+        })
+        .catch((err) => {
+          reject(err);
+        })
+    });
+  }
+
+  /**
+   * get lists from board
+   * @params {string} - query (required).
+   */
+  getListsForBoard(boardId, params) {
+    const url = this.buildURL(`/boards/${boardId}/lists`, params);
+    return new Promise((resolve, reject) => {
+      fetch(url).then((res) => res.json())
+        .then((json) => {
+          resolve(json);
+        })
+        .catch((err) => {
+          reject(err);
+        })
+    });
+  }
+
+  /**
+   * get cards from list
+   * @params {string} - query (required).
+   */
+  getCardsForList(listId, params) {
+    const url = this.buildURL(`/lists/${listId}/cards`, params);
+    return new Promise((resolve, reject) => {
+      fetch(url).then((res) => res.json())
+        .then((json) => {
+          resolve(json);
+        })
+        .catch((err) => {
+          reject(err);
+        })
+    });
+  }
+
   /* Trello Connector utils */
   buildURL(path, params) {
-    return `${config.trello.baseURL}${path}?`
-      + `key=${config.trello.key}&`
-      + `token=${this.accessToken}&`
-      + `${this.addQueries(params)}`;
+    return `${config.trello.baseURL}${path}?` +
+      `key=${config.trello.key}&` +
+      `token=${this.accessToken}` +
+      `${this.addQueries(params)}`;
   }
 
 }

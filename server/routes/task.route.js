@@ -12,9 +12,14 @@ function routeProvider(passport) {
   router.route('/search')
     .get(taskCtrl.taskSearch);
 
-  /** GET, POST /api/task/ - Protected route */
-  router.route('')
-    .get(taskCtrl.taskGetAll);
+  router.route('/boards')
+    .get(taskCtrl.getAllBoardsForMember);
+
+  router.route('/boards/:boardId/lists')
+    .get(taskCtrl.getAllListsForBoard);
+
+  router.route('/lists/:listId/cards')
+    .get(taskCtrl.getAllCardsForList);
 
   /** GET, PUT, DELETE /api/task/:idTask - Protected route */
   router.route('/:idTask')
