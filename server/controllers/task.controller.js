@@ -75,6 +75,7 @@ function taskSearch(req, res) {
 function getAllBoardsForMember(req, res) {
   const user = req.user.trello;
   const params = req.query;
+  params['lists'] = 'all';
   const trelloConnector = new TrelloConnector(user);
   trelloConnector.getBoardsForMember(params).then((data) => {
     res.status(200).send(data);
