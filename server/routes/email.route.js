@@ -10,7 +10,7 @@ function routeProvider(passport) {
   router.use(mw);
   /* IMAP API Endpoints */
   router.route('/box')
-    .post(emailCtrl.fetchMails);
+    .post(emailCtrl.syncMails);
 
   router.route('/init')
     .get(emailCtrl.getInitialImapStatus);

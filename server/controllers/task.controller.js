@@ -3,12 +3,11 @@ import TrelloConnector from '../core/task/TrelloConnector';
 import SociocortexConnector from '../core/task/SociocortexConnector';
 import User from '../models/user.model';
 import Email from '../models/email.model';
+import Task from '../models/task.model';
 
-function taskCreate(req, res) {
-  const user = req.user.trello;
-  const body = req.body;
-  const trelloConnector = new TrelloConnector(user);
-  trelloConnector.createTask(body).then((task) => {
+/* CREATE TASK */
+function createTaskForEmail(req, res) {
+  createTaskConnector(req.query.provider ||  '', req.user).createTask(req.body).then((task) => {
     Email.findById(req.params.emailId, (err, email) => {
       if (err) {
         res.status(400).send(err);
@@ -27,86 +26,83 @@ function taskCreate(req, res) {
   });
 }
 
-function taskGet(req, res) {
-  const user = req.user.trello;
-  const id = req.params.idTask;
-  const trelloConnector = new TrelloConnector(user);
-  trelloConnector.getTask(id).then((data) => {
-    res.status(200).send(data);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-
-function taskUpdate(req, res) {
-  const user = req.user.trello;
-  const id = req.params.idTask;
-  const body = req.body;
-  const trelloConnector = new TrelloConnector(user);
-  trelloConnector.updateTask(id, body).then((data) => {
-    res.status(200).send(data);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-
-function taskDelete(req, res) {
-  const user = req.user.trello;
-  const id = req.params.idTask;
-  const trelloConnector = new TrelloConnector(user);
-  trelloConnector.deleteTask(id).then((data) => {
-    res.status(200).send(data);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-
-function taskSearch(req, res) {
-  const user = req.user.trello;
-  const params = req.query;
-  const trelloConnector = new TrelloConnector(user);
-  trelloConnector.search(params).then((data) => {
-    res.status(200).send(data);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-
-function getAllBoardsForMember(req, res) {
-  const user = req.user.trello;
-  const params = req.query;
-  const trelloConnector = new TrelloConnector(user);
-  trelloConnector.getBoardsForMember(params).then((data) => {
-    res.status(200).send(data);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-
-function getAllListsForBoard(req, res) {
-  const user = req.user.trello;
-  const params = req.query;
-  const boardId = req.params.boardId;
-  const trelloConnector = new TrelloConnector(user);
-  trelloConnector.getListsForBoard(boardId, params).then((data) => {
-    res.status(200).send(data);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-
-function getAllCardsForList(req, res) {
-    const user = req.user.trello;
-    const params = req.query;
-    const listId = req.params.listId;
-    const trelloConnector = new TrelloConnector(user);
-    trelloConnector.getCardsForList(listId, params).then((data) => {
-      res.status(200).send(data);
-    }).catch((err) => {
-      res.status(400).send(err);
+function createTask(req, res) {
+  createTaskConnector(req.query.provider ||  '', req.user).createTask(req.body).then((t) => {
+    let task = new Task();
+    task['taskId'] = t.id;
+    task['provider'] = req.query.provider || 'trello';
+    task.save().then(() => {
+      res.status(200).send(t);
     });
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
 }
 
+/* GET SINGLE TASK */
+function getSingleTask(req, res) {
+  createTaskConnector(req.query.provider ||  '', req.user).getTask(req.params.taskId).then((data) => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+/* UPDATE TASK */
+function updateTask(req, res) {
+  createTaskConnector(req.query.provider ||  '', req.user).updateTask(req.params.taskId, req.body).then((data) => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+/* DELETE TASK */
+function deleteTask(req, res) {
+  createTaskConnector(req.query.provider ||  '', req.user).deleteTask(req.params.taskId).then((data) => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+/* SEARCH TASKS */
+function searchTasks(req, res) {
+  createTaskConnector(req.query.provider ||  '', req.user).search(req.query).then((data) => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+/* GET ALL BOARDS (+ LISTS) FOR MEMBER */
+function getAllBoardsForMember(req, res) {
+  createTaskConnector(req.query.provider ||  '', req.user).getBoardsForMember(req.query).then((data) => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+/* GET ALL LISTS FOR BOARD */
+function getAllListsForBoard(req, res) {
+  createTaskConnector(req.query.provider ||  '', req.user).getListsForBoard(req.params.boardId, req.query).then((data) => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+/* GET ALL CARDS FOR LIST */
+function getAllCardsForList(req, res) {
+  createTaskConnector(req.query.provider ||  '', req.user).getCardsForList(req.params.listId, req.query).then((data) => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+/* REGISTER NEW USER IN SOCIOCORTEX */ // TODO: needs generalization ?
 function registerSociocortex(req, res) {
   const options = req.user.sociocortex || {};
   const scConnector = new SociocortexConnector(options);
@@ -118,6 +114,7 @@ function registerSociocortex(req, res) {
   });
 }
 
+/* LOG IN SOCIOCORTEX */ // TODO: needs generalization ?
 function connectSociocortex(req, res) {
   const options = req.user.sociocortex || {};
   const scConnector = new SociocortexConnector(options);
@@ -128,15 +125,30 @@ function connectSociocortex(req, res) {
   });
 }
 
+/* TASK HELPER */
+function createTaskConnector(provider, user) {
+  switch (provider) {
+    case 'trello':
+      return new TrelloConnector(user.trello);
+      break;
+    case 'sociocortex':
+      return new SociocortexConnector(user.sociocortex);
+      break;
+    default:
+      return new TrelloConnector(user.trello);
+  }
+}
+
 export default {
-  taskCreate,
-  taskGet,
-  taskUpdate,
-  taskDelete,
-  taskSearch,
+  createTask,
+  createTaskForEmail,
+  searchTasks,
+  deleteTask,
+  updateTask,
+  getSingleTask,
+  getAllListsForBoard,
+  getAllBoardsForMember,
+  getAllCardsForList,
   registerSociocortex,
   connectSociocortex,
-  getAllBoardsForMember,
-  getAllListsForBoard,
-  getAllCardsForList
 };
