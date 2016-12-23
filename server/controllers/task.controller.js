@@ -7,7 +7,7 @@ import Task from '../models/task.model';
 
 /* CREATE TASK */
 function createTaskForEmail(req, res) {
-  createTaskConnector(req.query.provider ||  '', req.user).createTask(req.body).then((task) => {
+  createTaskConnector(req.query.provider, req.user).createTask(req.body).then((task) => {
     Email.findById(req.params.emailId, (err, email) => {
       if (err) {
         res.status(400).send(err);
@@ -27,7 +27,7 @@ function createTaskForEmail(req, res) {
 }
 
 function createTask(req, res) {
-  createTaskConnector(req.query.provider ||  '', req.user).createTask(req.body).then((t) => {
+  createTaskConnector(req.query.provider, req.user).createTask(req.body).then((t) => {
     let task = new Task();
     task['taskId'] = t.id;
     task['provider'] = req.query.provider || 'trello';
@@ -41,7 +41,7 @@ function createTask(req, res) {
 
 /* GET SINGLE TASK */
 function getSingleTask(req, res) {
-  createTaskConnector(req.query.provider ||  '', req.user).getTask(req.params.taskId).then((data) => {
+  createTaskConnector(req.query.provider, req.user).getTask(req.params.taskId).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
@@ -50,7 +50,7 @@ function getSingleTask(req, res) {
 
 /* UPDATE TASK */
 function updateTask(req, res) {
-  createTaskConnector(req.query.provider ||  '', req.user).updateTask(req.params.taskId, req.body).then((data) => {
+  createTaskConnector(req.query.provider, req.user).updateTask(req.params.taskId, req.body).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
@@ -59,7 +59,7 @@ function updateTask(req, res) {
 
 /* DELETE TASK */
 function deleteTask(req, res) {
-  createTaskConnector(req.query.provider ||  '', req.user).deleteTask(req.params.taskId).then((data) => {
+  createTaskConnector(req.query.provider, req.user).deleteTask(req.params.taskId).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
@@ -68,7 +68,7 @@ function deleteTask(req, res) {
 
 /* SEARCH TASKS */
 function searchTasks(req, res) {
-  createTaskConnector(req.query.provider ||  '', req.user).search(req.query).then((data) => {
+  createTaskConnector(req.query.provider, req.user).search(req.query).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
@@ -77,7 +77,7 @@ function searchTasks(req, res) {
 
 /* GET ALL BOARDS (+ LISTS) FOR MEMBER */
 function getAllBoardsForMember(req, res) {
-  createTaskConnector(req.query.provider ||  '', req.user).getBoardsForMember(req.query).then((data) => {
+  createTaskConnector(req.query.provider, req.user).getBoardsForMember(req.query).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
@@ -86,7 +86,7 @@ function getAllBoardsForMember(req, res) {
 
 /* GET ALL LISTS FOR BOARD */
 function getAllListsForBoard(req, res) {
-  createTaskConnector(req.query.provider ||  '', req.user).getListsForBoard(req.params.boardId, req.query).then((data) => {
+  createTaskConnector(req.query.provider, req.user).getListsForBoard(req.params.boardId, req.query).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
@@ -95,7 +95,7 @@ function getAllListsForBoard(req, res) {
 
 /* GET ALL CARDS FOR LIST */
 function getAllCardsForList(req, res) {
-  createTaskConnector(req.query.provider ||  '', req.user).getCardsForList(req.params.listId, req.query).then((data) => {
+  createTaskConnector(req.query.provider, req.user).getCardsForList(req.params.listId, req.query).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
