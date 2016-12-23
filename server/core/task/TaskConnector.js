@@ -4,7 +4,7 @@ class TaskConnector {
     }
 
     addQueries(queries) {
-      let queryString = '';
+      let queryString = '&';
       Object.keys(queries).forEach((key) => {
         queryString += `${key}=${queries[key]}&`;
       })

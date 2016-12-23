@@ -52,10 +52,10 @@ function sendEmail(req, res) {
   });
 }
 
-function fetchMails(req, res) {
+function syncMails(req, res) {
   let promises = [];
   let subPromises = [];
-  if (req.body.boxes.length < 1) {
+  if (!req.body.boxes || req.body.boxes.length < 1) {
     req.body.boxes = req.user.boxList.filter((box) => box.total != 0 && box.name != '[Gmail]/Important' && box.name != '[Gmail]/All Mail').map((box) => box.name);
   }
   req.body.boxes.forEach((box, index) => {
@@ -250,7 +250,7 @@ function getPaginatedEmails(req, res)  {
   const options = {
     page: req.query.page ? parseInt(req.query.page) : 1,
     limit: req.query.limit ? parseInt(req.query.limit) : 10,
-    sort: { date: -1 },    
+    sort: { date: -1 },
   };
   const query = {
     user: req.user,
@@ -299,7 +299,7 @@ function getSingleMail(req, res) {
 }
 
 export default {
-  fetchMails,
+  syncMails,
   addBox,
   delBox,
   renameBox,
