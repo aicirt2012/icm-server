@@ -19,7 +19,10 @@ class TrelloConnector extends TaskConnector {
     return new Promise((resolve, reject) => {
       fetch(url, {
           method: 'POST',
-          body: body
+          body: JSON.stringify(body),
+          headers: {
+            'Content-Type': 'application/json'
+          }
         })
         .then((res) => res.json())
         .then((json) => {
@@ -57,7 +60,10 @@ class TrelloConnector extends TaskConnector {
     return new Promise((resolve, reject) => {
       fetch(url, {
           method: 'PUT',
-          body: body
+          body: JSON.stringify(body),
+          headers: {
+            'Content-Type': 'application/json'
+          }
         })
         .then((res) => res.json())
         .then((json) => {
