@@ -116,6 +116,7 @@ class TrelloConnector extends TaskConnector {
    * @params {string} - query (required).
    */
   getBoardsForMember(params) {
+    params['lists'] = 'all';
     const url = this.buildURL(`/members/${this.options.trelloId}/boards`, params);
     console.log(url);
     return new Promise((resolve, reject) => {
