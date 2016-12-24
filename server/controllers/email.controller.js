@@ -5,6 +5,7 @@ import SMTPConnector from '../core/mail/SMTPConnector';
 import ExchangeConnector from '../core/mail/ExchangeConnector';
 import config from '../../config/env';
 import User from '../models/user.model';
+import Analyzer from '../core/engine/Analyzer';
 
 const imapOptions = (user) => {
   return {
@@ -206,11 +207,13 @@ function searchPaginatedEmails(req, res) {
 function getSingleMail(req, res) {
   Email.findOne({
     _id: req.params.id
-  }, (err, mail) => {
+  }).lean().then((mail, err) => {
+    // call analyzer with emailObject and append suggested task and already linked tasks
+    const email = new Analyzer(mail).detectPattern();
     if (err) {
       res.status(400).send(err);
     } else {
-      res.status(200).send(mail);
+      res.status(200).send(email);
     }
   })
 }
