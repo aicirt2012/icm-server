@@ -16,7 +16,7 @@ after((done) => {
 });
 
 /*
- * IMPORTANT: BEFORE TESTING LOGIN ONCE WITH THE SEBIS NG2 USER AND CONNECT * TO TRELLO
+ * IMPORTANT: BEFORE TESTING LOGIN ONCE WITH THE SEBIS NG2 USER AND CONNECT TO TRELLO
  * DEFAULT PROVIDER: TRELLO
  */
 describe('## TASK API (TRELLO)', () => {
@@ -161,5 +161,5 @@ describe('## TASK API (TRELLO)', () => {
         .catch(done);
     });
   });
-  
+
 });

@@ -33,7 +33,7 @@ const smtpOptions = (user) => {
 };
 
 function getInitialImapStatus(req, res) {
-  getBoxes(req.user, true).then((boxes) => {
+  getBoxes(req.user, true, req.query.provider).then((boxes) => {
     res.status(200).send(boxes);
   }).catch((err) => {
     res.status(400).send(err);
@@ -79,7 +79,7 @@ function syncMails(req, res) {
 
 function addBox(req, res) {
   createEmailConnector(req.query.provider, req.user).addBox(req.body.boxName).then((boxName) => {
-    getBoxes(req.user).then(() => {
+    getBoxes(req.user, false, req.query.provider).then(() => {
       res.status(200).send(`Created new box: ${boxName}`);
     });
   }).catch((err) => {
@@ -89,7 +89,7 @@ function addBox(req, res) {
 
 function delBox(req, res) {
   createEmailConnector(req.query.provider, req.user).delBox(req.body.boxName).then((boxName) => {
-    getBoxes(req.user).then(() => {
+    getBoxes(req.user, false, req.query.provider).then(() => {
       res.status(200).send(`Deleted box: ${boxName}`);
     });
   }).catch((err) => {
@@ -99,7 +99,7 @@ function delBox(req, res) {
 
 function renameBox(req, res) {
   createEmailConnector(req.query.provider, req.user).renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
-    getBoxes(req.user).then(() => {
+    getBoxes(req.user, false, req.query.provider).then(() => {
       res.status(200).send(`Renamed box to: ${boxName}`);
     });
   }).catch((err) => {
@@ -284,9 +284,9 @@ function generateBoxList(boxes, parent, arr) {
   })
 }
 
-function getBoxes(user, details = false) {
+function getBoxes(user, details = false, provider) {
   return new Promise((resolve, reject) => {
-    createEmailConnector(req.query.provider, req.user).getBoxes(details).then((boxes) => {
+    createEmailConnector(provider, user).getBoxes(details).then((boxes) => {
       User.findOne({
         _id: user._id
       }, (err, user) => {
