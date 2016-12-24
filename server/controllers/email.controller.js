@@ -43,8 +43,7 @@ function getInitialImapStatus(req, res) {
 function sendEmail(req, res) {
   const smtpConnector = new SMTPConnector(smtpOptions(req.user));
   smtpConnector.sendMail(req.body).then((result) => {
-    const imapConnectorAllMessages = new GmailConnector(imapOptions(req.user));
-    imapConnectorAllMessages.fetchEmails(storeEmail, config.gmail.send).then((messages) => {
+    createEmailConnector(req.query.provider, req.user).fetchEmails(storeEmail, config.gmail.send).then((messages) => {
       res.status(200).send(messages);
     }).catch((err) => {
       res.status(400).send(err);
@@ -59,12 +58,11 @@ function syncMails(req, res) {
     req.body.boxes = req.user.boxList.filter((box) => box.total != 0 && box.name != '[Gmail]/Important' && box.name != '[Gmail]/All Mail').map((box) => box.name);
   }
   req.body.boxes.forEach((box, index) => {
-    const imapConnector = new GmailConnector(imapOptions(req.user));
     if (subPromises.length == 10) {
       promises.push(subPromises);
       subPromises = [];
     }
-    subPromises.push(imapConnector.fetchEmails(storeEmail, box));
+    subPromises.push(createEmailConnector(req.query.provider, req.user).fetchEmails(storeEmail, box));
     if (index + 1 == req.body.boxes.length) {
       promises.push(subPromises);
     }
@@ -79,53 +77,8 @@ function syncMails(req, res) {
   });
 }
 
-function recursivePromises(promises, callback) {
-  if (promises.length > 0) {
-    Promise.all(promises[0]).then(() => {
-      promises = promises.slice(1, promises.length);
-      recursivePromises(promises, callback);
-    })
-  } else {
-    callback();
-  }
-}
-
-function generateBoxList(boxes, parent, arr) {
-  Object.keys(boxes).forEach((key, i) => {
-    const path = parent ? `${parent}/${key}` : key;
-    if (key != '[Gmail]') {
-      arr.push(path);
-    }
-    if (boxes[key].children) {
-      generateBoxList(boxes[key].children, path, arr);
-    }
-  })
-}
-
-function getBoxes(user, details = false) {
-  return new Promise((resolve, reject) => {
-    const imapConnector = new GmailConnector(imapOptions(user));
-    imapConnector.getBoxes(details).then((boxes) => {
-      User.findOne({
-        _id: user._id
-      }, (err, user) => {
-        if (err) {
-          reject(err);
-        }
-        user.boxList = boxes;
-        user.save().then(() => {
-          resolve(boxes);
-        })
-      });
-    }).catch((err) => {
-      reject(err);
-    });
-  })
-}
-
 function addBox(req, res) {
-  const imapConnector = new GmailConnector(imapOptions(req.user));
-  imapConnector.addBox(req.body.boxName).then((boxName) => {
+  createEmailConnector(req.query.provider, req.user).addBox(req.body.boxName).then((boxName) => {
     getBoxes(req.user).then(() => {
       res.status(200).send(`Created new box: ${boxName}`);
     });
@@ -135,8 +88,7 @@ function addBox(req, res) {
 }
 
 function delBox(req, res) {
-  const imapConnector = new GmailConnector(imapOptions(req.user));
-  imapConnector.delBox(req.body.boxName).then((boxName) => {
+  createEmailConnector(req.query.provider, req.user).delBox(req.body.boxName).then((boxName) => {
     getBoxes(req.user).then(() => {
       res.status(200).send(`Deleted box: ${boxName}`);
     });
@@ -146,8 +98,7 @@ function delBox(req, res) {
 }
 
 function renameBox(req, res) {
-  const imapConnector = new GmailConnector(imapOptions(req.user));
-  imapConnector.renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
+  createEmailConnector(req.query.provider, req.user).renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
     getBoxes(req.user).then(() => {
       res.status(200).send(`Renamed box to: ${boxName}`);
     });
@@ -157,7 +108,7 @@ function renameBox(req, res) {
 }
 
 function append(req, res) {
-  const imapConnector = new GmailConnector(imapOptions(req.user));
+  const imapConnector = createEmailConnector(req.query.provider, req.user);
   imapConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData).then((msgData) => {
     imapConnector.fetchEmails(storeEmail, req.body.box).then(() => {
       res.status(200).send(msgData);
@@ -168,7 +119,7 @@ function append(req, res) {
 }
 
 function move(req, res) {
-  const imapConnector = new GmailConnector(imapOptions(req.user));
+  const imapConnector = createEmailConnector(req.query.provider, req.user);
   imapConnector.move(req.body.msgId, req.body.srcBox, req.body.destBox).then((messages) => {
     imapConnector.fetchEmails(storeEmail, req.body.destBox).then(() => {
       res.status(200).send(messages);
@@ -179,8 +130,7 @@ function move(req, res) {
 }
 
 function copy(req, res) {
-  const imapConnector = new GmailConnector(imapOptions(req.user));
-  imapConnector.copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
+  createEmailConnector(req.query.provider, req.user).copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
     res.status(200).send(messages);
   }).catch((err) => {
     res.status(400).send(err);
@@ -188,8 +138,7 @@ function copy(req, res) {
 }
 
 function addFlags(req, res) {
-  const imapConnector = new GmailConnector(imapOptions(req.user));
-  imapConnector.addFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
+  createEmailConnector(req.query.provider, req.user).addFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
     res.status(200).send(messages);
   }).catch((err) => {
     res.status(400).send(err);
@@ -197,8 +146,7 @@ function addFlags(req, res) {
 }
 
 function delFlags(req, res) {
-  const imapConnector = new GmailConnector(imapOptions(req.user));
-  imapConnector.delFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
+  createEmailConnector(req.query.provider, req.user).delFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
     res.status(200).send(messages);
   }).catch((err) => {
     res.status(400).send(err);
@@ -206,12 +154,79 @@ function delFlags(req, res) {
 }
 
 function setFlags(req, res) {
-  const imapConnector = new GmailConnector(imapOptions(req.user));
-  imapConnector.setFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
+  createEmailConnector(req.query.provider, req.user).setFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
     res.status(200).send(messages);
   }).catch((err) => {
     res.status(400).send(err);
   });
+}
+
+function getPaginatedEmailsForBox(req, res)  {
+  const options = {
+    page: req.query.page ? parseInt(req.query.page) : 1,
+    limit: req.query.limit ? parseInt(req.query.limit) : 10,
+    sort: {
+      date: -1
+    },
+  };
+  const query = {
+    user: req.user,
+    'box.name': req.query.box || req.user.boxList[0].name
+  };
+  Email.paginate(query, options).then((emails, err) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      res.status(200).send(emails);
+    }
+  })
+
+}
+
+function searchPaginatedEmails(req, res) {
+  const options = {
+    page: req.query.page ? req.query.page : 1,
+    limit: req.query.limit ? req.query.limit : 10
+  };
+  const query = {
+    user: req.user,
+    $text: {
+      $search: req.query.q ? req.query.q : ''
+    }
+  };
+  Email.paginate(query, options).then((emails, err) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      res.status(200).send(emails);
+    }
+  })
+}
+
+function getSingleMail(req, res) {
+  Email.findOne({
+    _id: req.params.id
+  }, (err, mail) => {
+    if (err) {
+      res.status(400).send(err);
+    } else {
+      res.status(200).send(mail);
+    }
+  })
+}
+
+/* EMAIL HELPER */
+function createEmailConnector(provider, user) {
+  switch (provider) {
+    case 'gmail':
+      return new GmailConnector(imapOptions(user));
+      break;
+    case 'exchange':
+      return new ExchangeConnector(imapOptions(user));
+      break;
+    default:
+      return new GmailConnector(imapOptions(user));
+  }
 }
 
 function storeEmail(mail) {
@@ -246,55 +261,46 @@ function syncDeletedMails(syncTime, boxes) {
   });
 }
 
-function getPaginatedEmails(req, res)  {
-  const options = {
-    page: req.query.page ? parseInt(req.query.page) : 1,
-    limit: req.query.limit ? parseInt(req.query.limit) : 10,
-    sort: { date: -1 },
-  };
-  const query = {
-    user: req.user,
-    'box.name': req.query.box
-  };
-  Email.paginate(query, options).then((emails, err) => {
-    if (err) {
-      res.status(400).send(err);
-    } else {
-      res.status(200).send(emails);
-    }
-  })
-
+function recursivePromises(promises, callback) {
+  if (promises.length > 0) {
+    Promise.all(promises[0]).then(() => {
+      promises = promises.slice(1, promises.length);
+      recursivePromises(promises, callback);
+    })
+  } else {
+    callback();
+  }
 }
 
-function searchPaginatedEmails(req, res) {
-  const options = {
-    page: req.query.page ? req.query.page : 1,
-    limit: req.query.limit ? req.query.limit : 10
-  };
-  const query = {
-    user: req.user,
-    $text: {
-      $search: req.query.q ? req.query.q : ''
+function generateBoxList(boxes, parent, arr) {
+  Object.keys(boxes).forEach((key, i) => {
+    const path = parent ? `${parent}/${key}` : key;
+    if (key != '[Gmail]') {
+      arr.push(path);
     }
-  };
-  Email.paginate(query, options).then((emails, err) => {
-    if (err) {
-      res.status(400).send(err);
-    } else {
-      res.status(200).send(emails);
+    if (boxes[key].children) {
+      generateBoxList(boxes[key].children, path, arr);
     }
   })
 }
 
-function getSingleMail(req, res) {
-      Email.findOne({
-        _id: req.params.id
-      }, (err,mail) => {
+function getBoxes(user, details = false) {
+  return new Promise((resolve, reject) => {
+    createEmailConnector(req.query.provider, req.user).getBoxes(details).then((boxes) => {
+      User.findOne({
+        _id: user._id
+      }, (err, user) => {
         if (err) {
-          res.status(400).send(err);
-        } else {
-          res.status(200).send(mail);
+          reject(err);
         }
+        user.boxList = boxes;
+        user.save().then(() => {
+          resolve(boxes);
+        })
+      });
+    }).catch((err) => {
+      reject(err);
+    });
   })
 }
 
@@ -311,7 +317,7 @@ export default {
   delFlags,
   setFlags,
   getInitialImapStatus,
-  getPaginatedEmails,
+  getPaginatedEmailsForBox,
   searchPaginatedEmails,
   getSingleMail
 };

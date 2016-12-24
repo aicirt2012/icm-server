@@ -28,6 +28,8 @@ describe('## EMAIL API (IMAP)', () => {
     email: config.email
   };
 
+  let emails;
+
   describe('# POST /api/auth/login', () => {
     it('should log in', (done) => {
       request(app)
@@ -55,6 +57,7 @@ describe('## EMAIL API (IMAP)', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('array');
+          user.boxList = res.body;
           done();
         })
         .catch(done);
@@ -75,103 +78,116 @@ describe('## EMAIL API (IMAP)', () => {
     }).timeout(15000);
   });
 
+  describe('# GET /api/email', () => {
+    it('should get all mails from mongoDB', (done) => {
+      request(app)
+        .get(`/api/email?box=${user.boxList[0].name}`)
+        .set('Authorization', 'JWT ' + user.token)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.docs).to.be.an('array');
+          emails = res.body.docs;
+          done();
+        })
+        .catch(done);
+    });
+  });
 
+  describe('# GET /api/email/search', () => {
+    it('should search mails from mongoDB', (done) => {
+      request(app)
+        .get(`/api/email/search?q=Chrome`)
+        .set('Authorization', 'JWT ' + user.token)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.docs).to.be.an('array');
+          done();
+        })
+        .catch(done);
+    });
+  });
 
-  //
-  // describe('# GET /api/task/boards/:boardId/lists', () => {
-  //   it('should get all lists from a single board', (done) => {
-  //     request(app)
-  //       .get(`/api/task/boards/${boards[0].id}/lists`)
-  //       .set('Authorization', 'JWT ' + user.token)
-  //       .expect(httpStatus.OK)
-  //       .then((res) => {
-  //         expect(res.body).to.be.an('array');
-  //         done();
-  //       })
-  //       .catch(done);
-  //   });
-  // });
-  //
-  // describe('# GET /api/task/lists/:listId/cards', () => {
-  //   it('should get all cards from a single list', (done) => {
-  //     request(app)
-  //       .get(`/api/task/lists/${lists[0].id}/cards`)
-  //       .set('Authorization', 'JWT ' + user.token)
-  //       .expect(httpStatus.OK)
-  //       .then((res) => {
-  //         expect(res.body).to.be.an('array');
-  //         cards = res.body;
-  //         done();
-  //       })
-  //       .catch(done);
-  //   });
-  // });
-  // /* IMPORTANT: TASKS ARE TREATED AS CARDS IN TRELLO */
-  // describe('# GET /api/task/:taskId', () => {
-  //   it('should get single card', (done) => {
-  //     request(app)
-  //       .get(`/api/task/${cards[0].id}`)
-  //       .set('Authorization', 'JWT ' + user.token)
-  //       .expect(httpStatus.OK)
-  //       .then((res) => {
-  //         expect(res.body).to.be.an('object');
-  //         done();
-  //       })
-  //       .catch(done);
-  //   });
-  // });
-  //
-  // describe('# POST /api/task', () => {
-  //   it('should create single card', (done) => {
-  //     request(app)
-  //       .post(`/api/task`)
-  //       .set('Authorization', 'JWT ' + user.token)
-  //       .send({
-  //         name: 'testCard',
-  //         idList: lists[0].id
-  //       })
-  //       .expect(httpStatus.OK)
-  //       .then((res) => {
-  //         expect(res.body).to.be.an('object');
-  //         expect(res.body.name).to.equal('testCard');
-  //         createdTask = res.body;
-  //         done();
-  //       })
-  //       .catch(done);
-  //   });
-  // });
-  //
-  // describe('# PUT /api/task/:taskId', () => {
-  //   it('should update a single card', (done) => {
-  //     request(app)
-  //       .put(`/api/task/${createdTask.id}`)
-  //       .set('Authorization', 'JWT ' + user.token)
-  //       .send({
-  //         name: 'testNew'
-  //       })
-  //       .expect(httpStatus.OK)
-  //       .then((res) => {
-  //         expect(res.body).to.be.an('object');
-  //         expect(res.body.name).to.equal('testNew');
-  //         done();
-  //       })
-  //       .catch(done);
-  //   });
-  // });
-  //
-  // describe('# DELETE /api/task/:taskId', () => {
-  //   it('should delete a single card', (done) => {
-  //     request(app)
-  //       .delete(`/api/task/${createdTask.id}`)
-  //       .set('Authorization', 'JWT ' + user.token)
-  //       .expect(httpStatus.OK)
-  //       .then((res) => {
-  //         expect(res.body).to.be.an('object');
-  //         expect(res.body._value).to.equal(null);
-  //         done();
-  //       })
-  //       .catch(done);
-  //   });
-  // });
+  describe('# GET /api/email/single/:emailId', () => {
+    it('should get single mail from mongoDB', (done) => {
+      request(app)
+        .get(`/api/email/single/${emails[0]._id}`)
+        .set('Authorization', 'JWT ' + user.token)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body).to.be.an('object');
+          done();
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# POST /api/email/addBox', () => {
+    it('should add a box to the imap account', (done) => {
+      request(app)
+        .post(`/api/email/addBox`)
+        .set('Authorization', 'JWT ' + user.token)
+        .send({
+          boxName: 'NewTestBox'
+        })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          done();
+        })
+        .catch(done);
+    }).timeout(15000);
+  });
+
+  describe('# POST /api/email/renameBox', () => {
+    it('should rename a box in the imap account', (done) => {
+      request(app)
+        .post(`/api/email/renameBox`)
+        .set('Authorization', 'JWT ' + user.token)
+        .send({
+          oldBoxName: 'NewTestBox',
+          newBoxName: 'NewNewTestBox'
+        })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          done();
+        })
+        .catch(done);
+    }).timeout(15000);
+  });
+
+  describe('# POST /api/email/delBox', () => {
+    it('should delete the added box from the imap account', (done) => {
+      request(app)
+        .post(`/api/email/delBox`)
+        .set('Authorization', 'JWT ' + user.token)
+        .send({
+          boxName: 'NewNewTestBox'
+        })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          done();
+        })
+        .catch(done);
+    }).timeout(15000);
+  });
+
+  describe('# POST /api/email/send', () => {
+    it('should send an email via smtp', (done) => {
+      request(app)
+        .post(`/api/email/send`)
+        .set('Authorization', 'JWT ' + user.token)
+        .send({
+          "from": "test@test.de",
+          "to": "sebisng2@gmail.com",
+          "subject": "Running mocha tests",
+          "text": "Sorry 'bout that",
+          "html": "<b>Sorry 'bout that</b>"
+        })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          done();
+        })
+        .catch(done);
+    }).timeout(15000);
+  });
 
 });
