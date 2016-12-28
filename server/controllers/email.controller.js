@@ -9,10 +9,10 @@ import Analyzer from '../core/engine/Analyzer';
 
 const imapOptions = (user) => {
   return {
-    user: config.email.user,
-    password: config.email.pass,
-    host: config.email.host,
-    port: config.email.port,
+    user: user.google.email.user,
+    password: user.google.email.password,
+    host: user.google.email.host,
+    port: user.google.email.port,
     tls: true,
     mailbox: 'INBOX',
     currentUser: user
