@@ -1,6 +1,6 @@
 import Promise from 'bluebird';
 import moment from 'moment';
-import taskCtrl from '../controllers/task.controller';
+import TrelloConnector from '../core/task/TrelloConnector';
 
 class Analyzer {
 
@@ -15,7 +15,7 @@ class Analyzer {
     let connectedTasks = [];
     this.email.tasks.forEach(t => {
       // if or switch(t.provider)... 
-      let task = taskCtrl.getTask(t.id); // t.taskId
+      let task = TrelloConnector.getTask(t.id); // t.taskId
       connectedTasks.append(task);
     })
   }
