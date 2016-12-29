@@ -58,6 +58,7 @@
     "morgan": "1.7.0",
     "node-ews": "git://github.com/delsner/node-ews.git",
     "node-fetch": "1.6.3",
+    "node-wikipedia": "0.0.2",
     "nodemailer": "2.6.4",
     "oauth": "0.9.14",
     "passport": "0.3.2",
