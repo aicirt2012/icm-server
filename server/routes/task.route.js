@@ -37,7 +37,7 @@ function routeProvider(passport) {
 
   /* Task routes related to emails */
   router.route('/email/:emailId/addTask')
-    .post(taskCtrl.createTaskForEmail);
+    .post(taskCtrl.createTask);
 
   return router;
 }

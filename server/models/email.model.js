@@ -24,18 +24,7 @@ const EmailSchema = new mongoose.Schema({
   text: String,
   date: Date,
   flags: [String],
-  labels: [String],
-  tasks: [{
-    id: {
-      type: String
-    },
-    provider: {
-        type: String
-    },
-    date: {
-      type: Date
-    }
-  }]
+  labels: [String]
 }, {
   timestamps: true
 });

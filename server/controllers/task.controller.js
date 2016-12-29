@@ -8,31 +8,12 @@ import Email from '../models/email.model';
 import Task from '../models/task.model';
 
 /* CREATE TASK */
-function createTaskForEmail(req, res) {
-  createTaskConnector(req.query.provider, req.user).createTask(req.body).then((task) => {
-    Email.findById(req.params.emailId, (err, email) => {
-      if (err) {
-        res.status(400).send(err);
-      } else {
-        email.tasks.push({
-          id: task.id,
-          date: new Date()
-        });
-        email.save().then((email) => {
-          res.status(200).send(task);
-        });
-      }
-    });
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-
 function createTask(req, res) {
   createTaskConnector(req.query.provider, req.user).createTask(req.body).then((t) => {
     let task = new Task();
     task['taskId'] = t.id;
     task['provider'] = req.query.provider || 'trello';
+    task['email'] = req.params.emailId || null;
     task.save().then(() => {
       res.status(200).send(t);
     });
@@ -129,7 +110,6 @@ function connectSociocortex(req, res) {
 
 export default {
   createTask,
-  createTaskForEmail,
   searchTasks,
   deleteTask,
   updateTask,
