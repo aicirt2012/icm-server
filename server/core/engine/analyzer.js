@@ -1,6 +1,6 @@
 import Promise from 'bluebird';
 import moment from 'moment';
-import TrelloConnector from '../core/task/TrelloConnector';
+import TrelloConnector from '../task/TrelloConnector';
 
 class Analyzer {
 
