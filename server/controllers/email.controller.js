@@ -209,7 +209,7 @@ function getSingleMail(req, res) {
     _id: req.params.id
   }).lean().then((mail, err) => {
     // call analyzer with emailObject and append suggested task and already linked tasks
-    const email = new Analyzer(mail).detectPattern();
+    const email = new Analyzer(mail, req.user).detectPattern();
     if (err) {
       res.status(400).send(err);
     } else {

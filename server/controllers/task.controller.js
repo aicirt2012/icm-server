@@ -1,6 +1,8 @@
 import url from 'url';
-import TrelloConnector from '../core/task/TrelloConnector';
-import SociocortexConnector from '../core/task/SociocortexConnector';
+import SociocortexConnector from '../core/task/SociocortexConnector'; //TODO: remove once SC implementation is finished
+import {
+  createTaskConnector
+} from '../core/task/util'
 import User from '../models/user.model';
 import Email from '../models/email.model';
 import Task from '../models/task.model';
@@ -123,20 +125,6 @@ function connectSociocortex(req, res) {
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
-
-/* TASK HELPER */
-function createTaskConnector(provider, user) {
-  switch (provider) {
-    case 'trello':
-      return new TrelloConnector(user.trello);
-      break;
-    case 'sociocortex':
-      return new SociocortexConnector(user.sociocortex);
-      break;
-    default:
-      return new TrelloConnector(user.trello);
-  }
 }
 
 export default {
