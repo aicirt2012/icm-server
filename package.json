@@ -44,6 +44,7 @@
     "express-session": "1.14.2",
     "express-validation": "1.0.1",
     "express-winston": "2.0.0",
+    "fuse.js": "2.6.1",
     "helmet": "3.0.0",
     "http-status": "^0.2.0",
     "imap": "^0.8.16",
