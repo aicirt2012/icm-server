@@ -5,6 +5,7 @@ import {
 } from '../task/util';
 import Fuse from 'fuse.js';
 import Task from '../../models/task.model';
+import Pattern from '../../models/pattern.model';
 
 class Analyzer {
   /*
@@ -15,7 +16,13 @@ class Analyzer {
     this.user = user;
     this.linkedTasks = [];
     this.suggestedTasks = [];
-    this.taskPatterns = ['smell','pay']; // default taskPatterns: better to do 'smell pay' instead?
+    Pattern.find().then((patterns, err) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      this.taskPatterns = patterns; // default taskPatterns: better to do 'smell pay' instead?
+    });
   }
 
   // END: Email + conncetedTasks + suggestion aus Analyzer -> {subject, emailContent, suggestedTasks:[{name, desc...}], linkedTasks:[{name, desc}]}
@@ -86,6 +93,8 @@ class Analyzer {
     }, {
       sentence: "Happy new year!"
     }, {
+      sentence: "Could you get me a new milk please?"
+    }, {
       sentence: "Regards,"
     }, {
       sentence: "Felix"
@@ -105,9 +114,10 @@ class Analyzer {
 
     const fuse = new Fuse(sentences, options);
     taskPatterns.forEach((p) => {
-      extractedTasks = extractedTasks.concat(fuse.search(p));
+      extractedTasks = extractedTasks.concat(fuse.search(p.pattern));
     });
-    return extractedTasks;
+
+    return new Set(extractedTasks);
   }
 
   // Maybe it is better to show suggestions in GUI first, and only add them when the user
