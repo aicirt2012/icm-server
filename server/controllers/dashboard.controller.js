@@ -38,6 +38,15 @@ function getTopSender(userId){
   ]);
 }
 
+function getTopReceiver(userId){
+  return Email.aggregate([
+    {$match: { user: ObjectId(userId)}},
+    {$unwind: '$to'},
+    {$group: {_id: {address: '$to.address', name: '$to.name'}, count: {$sum:1}}},
+    {$sort: {'count':-1}}
+  ]);
+}
+
 function getSummary(req, res) {
 
   //TODO may consider only the last 12 month not all data ...
@@ -61,8 +70,12 @@ function getSummary(req, res) {
     })
     .then((topSender)=>{
       s.network.topsender = topSender;
+      return getTopReceiver(userId)
+    })
+    .then((topReceiver)=>{
+      s.network.topreceiver = topReceiver;
       res.status(200).send(s);
-    });
+  });
 
 }
 
