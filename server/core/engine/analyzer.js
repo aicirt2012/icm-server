@@ -3,6 +3,7 @@ import moment from 'moment';
 import {
   createTaskConnector
 } from '../task/util';
+import natural from 'natural';
 import Fuse from 'fuse.js';
 import Task from '../../models/task.model';
 import Pattern from '../../models/pattern.model';
@@ -73,32 +74,26 @@ class Analyzer {
         desc: task,
         date: this.email.date
           //, idMembers: ??? emailRecipients <-> trello user ID ???
-      }
+      };
       this.suggestedTasks.push(taskSuggestion);
     });
   }
 
   getTasksFromEmailBodyWithPatterns(taskPatterns) {
+    let sentences = [];
     let extractedTasks = [];
+    
     // Divide and extract all sentences from email body using NLP?
     // maybe using NaturalNode
-    const sentences = [{
-      sentence: "Dear Daniel,"
-    }, {
-      sentence: "Do not forget to smell Constis code today."
-    }, {
-      sentence: "Paul has to buy some coronas for new years eve."
-    }, {
-      sentence: "Peter has to pay for Coldplays tickets."
-    }, {
-      sentence: "Happy new year!"
-    }, {
-      sentence: "Could you get me a new milk please?"
-    }, {
-      sentence: "Regards,"
-    }, {
-      sentence: "Felix"
-    }];
+    let tokenizer = natural.SentenceTokenizer();
+    const tokenizedSentences = tokenizer.tokenize(this.email.text);
+    tokenizedSentences.forEach((s, i) => {
+      const fusejsSentence = {
+        id: i,
+        sentence: s
+      };
+      sentences.push(fusejsSentence);
+    });
 
     // apply fuse.js extraction
     const options = {
