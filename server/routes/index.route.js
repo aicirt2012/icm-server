@@ -4,6 +4,7 @@ import authRoutes from './auth.route';
 import emailRoutes from './email.route';
 import taskRoutes from './task.route';
 import wikiRoutes from './wiki.route';
+import translateRoutes from './translation.route';
 
 function routeProvider(passport) {
     const router = express.Router();
@@ -12,6 +13,7 @@ function routeProvider(passport) {
     router.use('/email', emailRoutes(passport));
     router.use('/task', taskRoutes(passport));
     router.use('/wiki', wikiRoutes(passport));
+    router.use('/translation', translateRoutes(passport));
     return router;
 }
 

@@ -13,7 +13,6 @@ class WikipediaConnector {
                 reject(err);
             });
         });
-
     }
 
 

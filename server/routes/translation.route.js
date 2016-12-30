@@ -1,5 +1,5 @@
 import express from 'express';
-import wikiCtrl from '../controllers/wiki.controller';
+import translationCtrl from '../controllers/translation.controller';
 
 function routeProvider(passport) {
   const router = express.Router();
@@ -11,8 +11,8 @@ function routeProvider(passport) {
   //router.use(mw);
 
   /** GET /api/wiki/search - Protected route */
-  router.route('/search')
-      .get(wikiCtrl.search);
+  router.route('/translate')
+      .get(translationCtrl.translate);
 
   return router;
 }
