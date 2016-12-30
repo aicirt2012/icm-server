@@ -1,4 +1,3 @@
-import url from 'url';
 import SociocortexConnector from '../core/task/SociocortexConnector'; //TODO: remove once SC implementation is finished
 import {
   createTaskConnector
