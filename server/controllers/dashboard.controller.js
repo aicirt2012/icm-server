@@ -21,7 +21,7 @@ function getDailyPunchCard(userId){
     {$match: { user: ObjectId(userId)}},
     {
       $project: {
-        day: { $dayOfMonth: "$date" },
+        day: { $dayOfWeek: "$date" },
         hour: { $hour: "$date" },
       }
     },
