@@ -11,7 +11,8 @@ function getMonthlyPunchCard(userId){
       }
     },
     {$group: {_id: {month: '$month', day: '$day'}, count: {$sum:1}}},
-    {$sort:{'_id.month':1, '_id.day':1}}
+    {$sort:{'_id.month':1, '_id.day':1}},
+    {$project: {_id: 0, month: '$_id.month', day: '$_id.day', count:1}}
   ]);
 }
 
@@ -25,25 +26,29 @@ function getDailyPunchCard(userId){
       }
     },
     {$group: {_id: {day: '$day', hour: '$hour'}, count: {$sum:1}}},
-    {$sort:{'_id.day':1, '_id.hour':1}}
+    {$sort:{'_id.day':1, '_id.hour':1}},
+    {$project: {_id: 0, day: '$_id.day', hour: '$_id.hour', count:1}}
   ]);
 }
 
 function getTopSender(userId){
   return Email.aggregate([
-    {$match: { user: ObjectId(userId)}},
+    {$match: { user: ObjectId("5836fe8a14272b01c404257c")}},
     {$unwind: '$from'},
     {$group: {_id: {address: '$from.address', name: '$from.name'}, count: {$sum:1}}},
-    {$sort: {'count':-1}}
+    {$sort: {count:-1}},
+    {$project: {_id: 0, address: '$_id.address', name: '$_id.name', count:1}}
   ]);
 }
+
 
 function getTopReceiver(userId){
   return Email.aggregate([
     {$match: { user: ObjectId(userId)}},
     {$unwind: '$to'},
     {$group: {_id: {address: '$to.address', name: '$to.name'}, count: {$sum:1}}},
-    {$sort: {'count':-1}}
+    {$sort: {'count':-1}},
+    {$project: {_id: 0, address: '$_id.address', name: '$_id.name', count:1}}
   ]);
 }
 
