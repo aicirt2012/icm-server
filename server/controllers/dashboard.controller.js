@@ -61,7 +61,8 @@ function getSummary(req, res) {
 
   const s = {
     punchcard:{},
-    network:{}
+    network:{},
+    structural:{}
   };
 
   getMonthlyPunchCard(userId)
