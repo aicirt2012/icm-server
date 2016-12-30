@@ -12,11 +12,11 @@ const EmailSchema = new mongoose.Schema({
   thrid: mongoose.Schema.Types.Mixed,
   attrs: mongoose.Schema.Types.Mixed,
   from: [{
-    address: String,
+    address: {type: String, index:true},
     name: String
   }],
   to: [{
-    address: String,
+    address: {type: String, index:true},
     name: String
   }],
   subject: String,

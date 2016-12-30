@@ -1,5 +1,5 @@
 import express from 'express';
-import translationCtrl from '../controllers/translation.controller';
+import dashboardCtrl from '../controllers/dashboard.controller';
 
 function routeProvider(passport) {
   const router = express.Router();
@@ -10,9 +10,9 @@ function routeProvider(passport) {
   //TODO remove comment below - only for testing purpose
   //router.use(mw);
 
-  /** GET /api/translation/translate - Protected route */
-  router.route('/translate')
-      .get(translationCtrl.translate);
+  /** GET /api/dashboard - Protected route */
+  router.route('/')
+      .get(dashboardCtrl.getSummary);
 
   return router;
 }
