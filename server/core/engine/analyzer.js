@@ -22,11 +22,10 @@ class Analyzer {
         console.log(err);
         return;
       }
-      this.taskPatterns = patterns; // default taskPatterns: better to do 'smell pay' instead?
+      this.taskPatterns = patterns;
     });
   }
 
-  // END: Email + conncetedTasks + suggestion aus Analyzer -> {subject, emailContent, suggestedTasks:[{name, desc...}], linkedTasks:[{name, desc}]}
   getEmailTasks() {
     return new Promise((resolve, reject) => {
       this.fetchLinkedTasks().then((linkedTasks) => {
@@ -40,32 +39,26 @@ class Analyzer {
     });
   }
 
-  // Fetch connected tasks for Email (sofern vorhanden) [{taskId:, provider:}] ->
-  // forEach fetch entire task object from trello (GET :taskId)
   fetchLinkedTasks() {
     return new Promise((resolve, reject) => {
       let promises = [];
       Task.find({
         email: this.email
       }).then((tasks) => {
-          tasks.forEach((t) => {
-            let connector = createTaskConnector(t.provider, this.user);
-            promises.push(connector.getTask(t.taskId));
-          });
-          Promise.all(promises).then((results) => {
-            this.linkedTasks = results;
-            resolve(results);
-          });
+        tasks.forEach((t) => {
+          let connector = createTaskConnector(t.provider, this.user);
+          promises.push(connector.getTask(t.taskId));
+        });
+        Promise.all(promises).then((results) => {
+          this.linkedTasks = results;
+          resolve(results);
+        });
       }).catch((err) => {
         reject();
       });
     });
   }
 
-  // Extract suggestion out of email object ->
-  // NEW TASK({emailsubject, emailContent, emailRecipient})
-  // (HOW CAN EMAIL FIELDS BE MAPPED TO TRELLO FIELDS) ->
-  // subject -> name, emailContent -> desc (in trello-card object)
   addSuggestedTasks() {
     let extractedTasks = this.getTasksFromEmailBodyWithPatterns(this.taskPatterns);
     extractedTasks.forEach(task => {
@@ -83,7 +76,7 @@ class Analyzer {
     let sentences = [];
     let extractedTasks = [];
     const tokenizer = new natural.SentenceTokenizer();
-    const tokenizedSentences = this.email.text.length > 30 ? tokenizer.tokenize(this.email.text) : [{'sentence':this.email.text}]; //TODO: test which length is too short
+    const tokenizedSentences = this.email.text.length > 30 ? tokenizer.tokenize(this.email.text) : [this.email.text]; //TODO: test which length is too short
     tokenizedSentences.forEach((s, i) => {
       const fusejsSentence = {
         id: i,
@@ -93,7 +86,6 @@ class Analyzer {
     });
     this.email.sentences = sentences;
 
-    // apply fuse.js extraction
     const options = {
       threshold: 0.6,
       location: 0,
