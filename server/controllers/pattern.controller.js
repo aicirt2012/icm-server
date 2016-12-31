@@ -28,7 +28,7 @@ function getSinglePattern(req, res) {
   });
 }
 
-/* UPDATE TASK */
+/* UPDATE PATTERN */
 function updatePattern(req, res) {
   Pattern.findOneAndUpdate({
     $and: [{
@@ -58,8 +58,6 @@ function deletePattern(req, res) {
       user: req.user
     }]
   }).remove().exec((err, data) => {
-      console.log(err);
-      console.log(data);
     if (err) {
       res.status(400).send(err);
     } else {

@@ -82,10 +82,10 @@ class Analyzer {
   getTasksFromEmailBodyWithPatterns(taskPatterns) {
     let sentences = [];
     let extractedTasks = [];
-    
+
     // Divide and extract all sentences from email body using NLP?
     // maybe using NaturalNode
-    let tokenizer = natural.SentenceTokenizer();
+    const tokenizer = new natural.SentenceTokenizer();
     const tokenizedSentences = tokenizer.tokenize(this.email.text);
     tokenizedSentences.forEach((s, i) => {
       const fusejsSentence = {

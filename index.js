@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import util from 'util';
 import config from './config/env';
 import app from './config/express';
-import Patterns from './server/core/engine/pattern';
+import Patterns from './server/core/engine/Pattern';
 
 const debug = require('debug')('EmailAppServer:index');
 

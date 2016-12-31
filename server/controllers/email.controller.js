@@ -5,7 +5,7 @@ import SMTPConnector from '../core/mail/SMTPConnector';
 import ExchangeConnector from '../core/mail/ExchangeConnector';
 import config from '../../config/env';
 import User from '../models/user.model';
-import Analyzer from '../core/engine/Analyzer';
+import Analyzer from '../core/engine/analyzer';
 
 const imapOptions = (user) => {
   return {
