@@ -47,15 +47,15 @@ class Analyzer {
       let promises = [];
       Task.find({
         email: this.email
-      }).then((tasks, error) => {
-        tasks.forEach((t) => {
-          let connector = createTaskConnector(t.provider, this.user);
-          promises.push(connector.getTask(t.taskId));
-        });
-        Promise.all(promises).then((results) => {
-          this.linkedTasks = results;
-          resolve(results);
-        });
+      }).then((tasks) => {
+          tasks.forEach((t) => {
+            let connector = createTaskConnector(t.provider, this.user);
+            promises.push(connector.getTask(t.taskId));
+          });
+          Promise.all(promises).then((results) => {
+            this.linkedTasks = results;
+            resolve(results);
+          });
       }).catch((err) => {
         reject();
       });
@@ -82,11 +82,8 @@ class Analyzer {
   getTasksFromEmailBodyWithPatterns(taskPatterns) {
     let sentences = [];
     let extractedTasks = [];
-
-    // Divide and extract all sentences from email body using NLP?
-    // maybe using NaturalNode
     const tokenizer = new natural.SentenceTokenizer();
-    const tokenizedSentences = tokenizer.tokenize(this.email.text);
+    const tokenizedSentences = this.email.text.length > 30 ? tokenizer.tokenize(this.email.text) : [{'sentence':this.email.text}]; //TODO: test which length is too short
     tokenizedSentences.forEach((s, i) => {
       const fusejsSentence = {
         id: i,
@@ -94,6 +91,7 @@ class Analyzer {
       };
       sentences.push(fusejsSentence);
     });
+    this.email.sentences = sentences;
 
     // apply fuse.js extraction
     const options = {
@@ -114,11 +112,6 @@ class Analyzer {
 
     return new Set(extractedTasks);
   }
-
-  // Maybe it is better to show suggestions in GUI first, and only add them when the user
-  // accepts those
-  // createSuggestedTask() {
-  // }
 
 }
 export default Analyzer;

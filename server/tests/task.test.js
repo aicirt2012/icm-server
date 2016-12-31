@@ -147,6 +147,21 @@ describe('## TASK API (TRELLO)', () => {
     });
   });
 
+  describe('# GET /api/task/search', () => {
+    it('should search for the card', (done) => {
+      request(app)
+        .get(`/api/task/search?query=testNew&modelTypes=cards`)
+        .set('Authorization', 'JWT ' + user.token)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body).to.be.an('object');
+          expect(res.body.cards).to.be.an('array');         
+          done();
+        })
+        .catch(done);
+    });
+  });
+
   describe('# DELETE /api/task/:taskId', () => {
     it('should delete a single card', (done) => {
       request(app)

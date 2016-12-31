@@ -87,6 +87,8 @@ describe('## EMAIL API (IMAP)', () => {
         .then((res) => {
           expect(res.body.docs).to.be.an('array');
           emails = res.body.docs;
+          console.log(emails);
+          console.log(emails[0]);
           done();
         })
         .catch(done);
