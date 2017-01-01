@@ -54,6 +54,61 @@ function getTopReceiver(userId) {
   ]);
 }
 
+function getNetworkGraph(userId){
+
+  class Edge{
+
+    constructor(from, to){
+      this.from = from.toLowerCase();
+      this.to = to.toLowerCase();
+      this.count = 1;
+    }
+
+    increaseCount(){
+      this.count++;
+    }
+
+    key(){
+      return this.from+'_'+this.to;
+    }
+
+    toJson(){
+      return {from: this.from, to: this.to, count: this.count};
+    }
+  }
+
+  /** Not implemented as set due the fact that the
+   *  compare for objects is not implemented in es6 */
+  const edges = new Map();
+
+  return new Promise((resolve, reject) => {
+    Email.find({user: ObjectId(userId)}, {from: 1, to: 1})
+      .then((emails)=> {
+        emails.forEach(function (email) {
+          email.from.forEach(function (from) {
+            email.to.forEach(function (to) {
+              let edge = new Edge(from.address, to.address);
+              if (edges.has(edge.key())) {
+                edge = edges.get(edge.key());
+                edge.increaseCount();
+              } else {
+                edges.set(edge.key(), edge);
+              }
+            });
+          });
+        });
+        let arr = [];
+        edges.forEach(function (e) {
+          arr.push(e.toJson());
+        });
+        resolve(arr);
+      }).catch((err)=>{
+        reject(err);
+      });
+  });
+
+}
+
 function getSummary(req, res) {
 
   let userId = null;
@@ -85,8 +140,12 @@ function getSummary(req, res) {
     })
     .then((topReceiver) => {
       s.network.topreceiver = topReceiver;
+      return getNetworkGraph(userId);
+    })
+    .then((graph) => {
+      s.network.graph = graph;
       res.status(200).send(s);
-    });
+  });
 }
 
 function getPunchcard(req, res) {
