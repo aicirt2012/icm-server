@@ -56,40 +56,37 @@ function getTopReceiver(userId) {
 
 function getSummary(req, res) {
 
+  let userId = null;
+  const s = {
+    punchcard: {},
+    network: {},
+    structural: {}
+  };
+
   //TODO may consider only the last 12 month not all data ...
   //TODO differentiate between send, received and all mails
-
   //TODO use id of current user?? assuming that the dashboard is embedded in WebApp??
-  User.findOne().then((user, err) => {
-
-    const userId = user._id;
-
-    const s = {
-      punchcard: {},
-      network: {},
-      structural: {}
-    };
-
-    getMonthlyPunchCard(userId)
-      .then((monthlySummary) => {
-        s.punchcard.monthly = monthlySummary;
-        return getDailyPunchCard(userId);
-      })
-      .then((dailySummary) => {
-        s.punchcard.daily = dailySummary;
-        return getTopSender(userId)
-      })
-      .then((topSender) => {
-        s.network.topsender = topSender;
-        return getTopReceiver(userId)
-      })
-      .then((topReceiver) => {
-        s.network.topreceiver = topReceiver;
-        res.status(200).send(s);
-      });
-
-  });
-
+  User.findOne()
+    .then((user) => {
+      userId = user._id;
+      return getMonthlyPunchCard(userId);
+    })
+    .then((monthlySummary) => {
+      s.punchcard.monthly = monthlySummary;
+      return getDailyPunchCard(userId);
+    })
+    .then((dailySummary) => {
+      s.punchcard.daily = dailySummary;
+      return getTopSender(userId)
+    })
+    .then((topSender) => {
+      s.network.topsender = topSender;
+      return getTopReceiver(userId)
+    })
+    .then((topReceiver) => {
+      s.network.topreceiver = topReceiver;
+      res.status(200).send(s);
+    });
 }
 
 
