@@ -84,9 +84,9 @@ function getNetworkGraph(userId){
   return new Promise((resolve, reject) => {
     Email.find({user: ObjectId(userId)}, {from: 1, to: 1})
       .then((emails)=> {
-        emails.forEach(function (email) {
-          email.from.forEach(function (from) {
-            email.to.forEach(function (to) {
+        emails.forEach((email)=> {
+          email.from.forEach((from)=> {
+            email.to.forEach((to)=> {
               let edge = new Edge(from.address, to.address);
               if (edges.has(edge.key())) {
                 edge = edges.get(edge.key());
@@ -98,7 +98,7 @@ function getNetworkGraph(userId){
           });
         });
         let arr = [];
-        edges.forEach(function (e) {
+        edges.forEach((e)=> {
           arr.push(e.toJson());
         });
         resolve(arr);
