@@ -5,8 +5,10 @@ import {
 } from '../task/util';
 import natural from 'natural';
 import Fuse from 'fuse.js';
+import pos from 'pos';
 import Task from '../../models/task.model';
 import Pattern from '../../models/pattern.model';
+import SyntaxRules from './SyntaxRules';
 
 class Analyzer {
   /*
@@ -64,7 +66,8 @@ class Analyzer {
     extractedTasks.forEach(task => {
       const taskSuggestion = {
         name: this.email.subject,
-        desc: task,
+        desc: task.sentence,
+        task: task,
         date: this.email.date
           //, idMembers: ??? emailRecipients <-> trello user ID ???
       };
@@ -73,10 +76,25 @@ class Analyzer {
   }
 
   getTasksFromEmailBodyWithPatterns(taskPatterns) {
+    this.email.sentences = this.getTokenizedSentencesFromText(this.email.text);
+    // Tasks are extracted from emails via 3 methods: 1. Syntax-Analysis, 2. (Word-)Pattern-Analysis, 3. Classifier (ML) (TODO)
+    let tasksBySyntax = this.extractTasksBySyntax(this.email.sentences);
+    let tasksByPatterns = this.extractTasksByPatternSearch(this.email.sentences);
+
+    let filteredTasks = [...tasksBySyntax, ...tasksByPatterns].reduce((a, b) => {
+      const index = a.findIndex((e) => e.id == b.id);
+      if (index > -1) {
+        a[index].analysis.push(b.analysis[0]);
+      }
+      return index > -1 ? a : a.concat(b);
+    }, []);
+    return filteredTasks;
+  }
+
+  getTokenizedSentencesFromText(text) {
     let sentences = [];
-    let extractedTasks = [];
     const tokenizer = new natural.SentenceTokenizer();
-    const tokenizedSentences = this.email.text.length > 30 ? tokenizer.tokenize(this.email.text) : [this.email.text]; //TODO: test which length is too short
+    const tokenizedSentences = text.length > 30 ? tokenizer.tokenize(text) : [text]; //TODO: test which length is too short
     tokenizedSentences.forEach((s, i) => {
       const fusejsSentence = {
         id: i,
@@ -84,8 +102,10 @@ class Analyzer {
       };
       sentences.push(fusejsSentence);
     });
-    this.email.sentences = sentences;
+    return sentences;
+  }
 
+  extractTasksByPatternSearch(sentences) {
     const options = {
       threshold: 0.6,
       location: 0,
@@ -96,14 +116,41 @@ class Analyzer {
         "sentence"
       ]
     };
-
     const fuse = new Fuse(sentences, options);
-    taskPatterns.forEach((p) => {
+
+    let extractedTasks = [];
+    this.taskPatterns.forEach((p) => {
       extractedTasks = extractedTasks.concat(fuse.search(p.pattern));
     });
+    let tasks = [];
+    new Set(extractedTasks).forEach((t) => {
+      tasks.push({
+        id: t.id,
+        sentence: t.sentence,
+        analysis: ['pattern']
+      });
+    });
+    return tasks;
+  }
 
-    return new Set(extractedTasks);
+  extractTasksBySyntax(sentences) {
+    let tasks = [];
+    sentences.forEach((s) => {
+      const words = new pos.Lexer().lex(s.sentence);
+      const taggedWords = new pos.Tagger().tag(words);
+      SyntaxRules.rules.forEach((r) => {
+        if (r.fn(taggedWords)) {
+          tasks.push({
+            id: s.id,
+            sentence: s.sentence,
+            analysis: [`syntax-rule-'${r.name}'`],
+          });
+        }
+      })
+    });
+    return tasks;
   }
 
 }
+
 export default Analyzer;
