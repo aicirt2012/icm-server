@@ -92,7 +92,29 @@ function getSummary(req, res) {
 
 }
 
+function getPunchcard(req, res) {
+
+  User.findOne().then((user, err) => {
+    const userId = user._id;
+
+    const s = {
+      punchcard: {}
+    };
+
+    getDailyPunchCard(userId)
+      .then((dailySummary) => {
+        let pcards = [];
+        dailySummary.forEach((c) => {
+          pcards.push([c.day, c.hour, c.count]);
+        })
+        s.punchcard = pcards;
+        res.status(200).send(s);
+      });
+
+  });
+}
 
 export default {
-  getSummary
+  getSummary,
+  getPunchcard
 };

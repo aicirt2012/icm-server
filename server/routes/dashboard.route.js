@@ -15,6 +15,9 @@ function routeProvider(passport) {
   router.route('/summary')
       .get(dashboardCtrl.getSummary);
 
+  router.route('/punchcard')
+    .get(dashboardCtrl.getPunchcard);
+
   return router;
 }
 
