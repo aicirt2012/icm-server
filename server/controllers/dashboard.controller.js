@@ -6,13 +6,7 @@ const ObjectId = mongoose.Types.ObjectId;
 function getMonthlyPunchCard(userId) {
   return Email.aggregate([
     {$match: {user: ObjectId(userId)}},
-    {
-      $project: {
-        month: {$month: "$date"},
-        day: {$dayOfMonth: "$date"}
-      }
-    },
-    {$group: {_id: {month: '$month', day: '$day'}, count: {$sum: 1}}},
+    {$group: {_id: {month: {$month: "$date"}, day: {$dayOfMonth: "$date"}}, count: {$sum: 1}}},
     {$sort: {'_id.month': 1, '_id.day': 1}},
     {$project: {_id: 0, month: '$_id.month', day: '$_id.day', count: 1}}
   ]);
@@ -21,13 +15,7 @@ function getMonthlyPunchCard(userId) {
 function getDailyPunchCard(userId) {
   return Email.aggregate([
     {$match: {user: ObjectId(userId)}},
-    {
-      $project: {
-        day: {$dayOfWeek: "$date"},
-        hour: {$hour: "$date"},
-      }
-    },
-    {$group: {_id: {day: '$day', hour: '$hour'}, count: {$sum: 1}}},
+    {$group: {_id: {day: {$dayOfWeek: "$date"}, hour: {$hour: "$date"}}, count: {$sum: 1}}},
     {$sort: {'_id.day': 1, '_id.hour': 1}},
     {$project: {_id: 0, day: '$_id.day', hour: '$_id.hour', count: 1}}
   ]);
@@ -97,7 +85,7 @@ function getNetworkGraph(userId){
             });
           });
         });
-        let arr = [];
+        const arr = [];
         edges.forEach((e)=> {
           arr.push(e.toJson());
         });
