@@ -1,6 +1,7 @@
 import Email from '../models/email.model';
 import mongoose from 'mongoose';
 import User from '../models/user.model';
+import striptags from 'striptags';
 const ObjectId = mongoose.Types.ObjectId;
 
 function getMonthlyPunchCard(userId) {
@@ -94,7 +95,42 @@ function getNetworkGraph(userId){
         reject(err);
       });
   });
+}
 
+function getActions(userId){
+  return {
+    all: undefined,
+    needreply: undefined,
+    noreply : undefined,
+  }
+}
+
+function getLabels(userId){
+  return Email.aggregate([
+    {$match: {user: userId}},
+    {$unwind: '$labels'},
+    {$group: {_id: {label: '$labels'}, count: {$sum: 1}}},
+    {$sort: {count: -1}},
+    {$project: {_id: 0, label: '$_id.label', count: 1}}
+  ]);
+}
+
+//TODO remove
+function testNer(){
+  Email.find({}).then((emails)=>{
+    emails.forEach((email)=>{
+      if(email.text != undefined){
+        email.plainText = email.text;
+      }else if(email.html != undefined){
+        email.plainText = striptags(email.html);
+      }
+      console.log(email.flags);
+      console.log(email.labels);
+      console.log('#############');
+
+    });
+    console.log(emails.length);
+  });
 }
 
 function getSummary(req, res) {
@@ -132,8 +168,16 @@ function getSummary(req, res) {
     })
     .then((graph) => {
       s.network.graph = graph;
+      return getActions(userId);
+    })
+    .then((actions)=>{
+      s.structural.actions = actions;
+      return getLabels(userId)
+    })
+    .then((labels)=>{
+      s.structural.labels = labels;
       res.status(200).send(s);
-  });
+    })
 }
 
 function getPunchcard(req, res) {
