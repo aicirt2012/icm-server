@@ -115,6 +115,16 @@ function getLabels(userId){
   ]);
 }
 
+function getConversations(userId){
+  return Email.aggregate([
+    {$match: {user: ObjectId("5836fe8a14272b01c404257c")}},
+    {$group: {_id: {thrid: '$thrid'}, nrmsg: {$sum: 1}}},
+    {$group: {_id: {nrmsg: '$nrmsg'}, nrthr: {$sum: 1}}},
+    {$project: {_id: 0, nrmsg: '$_id.nrmsg', nrthr: 1}},
+    {$sort: {nrmsg: -1}}
+  ]);
+}
+
 //TODO remove
 function testNer(){
   Email.find({}).then((emails)=>{
@@ -172,6 +182,10 @@ function getSummary(req, res) {
     })
     .then((actions)=>{
       s.structural.actions = actions;
+      return getConversations(userId)
+    })
+    .then((conversations)=>{
+      s.structural.converstations = conversations;
       return getLabels(userId)
     })
     .then((labels)=>{
