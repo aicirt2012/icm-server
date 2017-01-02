@@ -11,12 +11,9 @@ function routeProvider(passport) {
   //TODO remove comment below - only for testing purpose
   //router.use(mw);
 
-  /** GET /api/dashboard - Protected route */
+  /** GET /api/dashboard/summary - Protected route */
   router.route('/summary')
       .get(dashboardCtrl.getSummary);
-
-  router.route('/punchcard')
-    .get(dashboardCtrl.getPunchcard);
 
   return router;
 }
