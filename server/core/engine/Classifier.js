@@ -18,22 +18,12 @@ class Classifier {
     this.classifier.train();
   }
 
-  addDocument(text, label, user, email, task) {
-    const trainingData = new TrainingData({
-      text: text,
-      label: label,
-      user: user,
-      email: email,
-      task: task
-    });
-    trainingData.save().then((d) => {
-      this.classifier.addDocument(d.text, d.label);
-      this.train();
-    });
-  }
-
   classify(text) {
     return this.classifier.classify(text);
+  }
+
+  getClassifications(text) {
+    return this.classifier.getClassifications(text);
   }
 }
 
