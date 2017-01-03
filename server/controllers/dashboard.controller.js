@@ -118,7 +118,7 @@ function getLabels(userId){
 
 function getConversations(userId){
   return Email.aggregate([
-    {$match: {user: ObjectId("5836fe8a14272b01c404257c")}},
+    {$match: {user: userId}},
     {$group: {_id: {thrid: '$thrid'}, nrmsg: {$sum: 1}}},
     {$group: {_id: {nrmsg: '$nrmsg'}, nrthr: {$sum: 1}}},
     {$project: {_id: 0, nrmsg: '$_id.nrmsg', nrthr: 1}},
