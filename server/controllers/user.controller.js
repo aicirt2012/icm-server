@@ -39,6 +39,7 @@ function update(req, res) {
       res.status(400).send(err);
     } else {
       res.status(200).send(user);
+      console.log(req.body);
     }
   });
 }
