@@ -5,15 +5,44 @@ import {
 import User from '../models/user.model';
 import Email from '../models/email.model';
 import Task from '../models/task.model';
+import TrainingData from '../models/trainingData.model';
 
-/* CREATE TASK */
+/*
+ * CREATE TASK
+ * BODY: {..., email, sentenceId, sentences}
+ */
 function createTask(req, res) {
   createTaskConnector(req.query.provider, req.user).createTask(req.body).then((t) => {
     let task = new Task();
     task['taskId'] = t.id;
     task['provider'] = req.query.provider || 'trello';
-    task['email'] = req.params.emailId || null;
-    task.save().then(() => {
+    task['email'] = req.params.emailId ||  null;
+    task.save().then((result) => {
+      if (req.params.emailId) {
+        TrainingData.findOne({
+          email: result.email,
+          sentenceId: req.body.sentenceId
+        }).then((td) => {
+          if (td) {
+            td.label = true;
+            td.task = result;
+            td.save();
+          } else {
+            req.body.sentences.forEach((s) => {
+              let tdSet = new TrainingData({
+                text: s.sentence,
+                label: s.id == req.body.sentenceId,
+                email: result.email,
+                sentenceId: s.id,
+              });
+              if (s.id == req.body.sentenceId) {
+                tdSet['task'] = result;
+              }
+              tdSet.save();
+            });
+          }
+        });
+      }
       res.status(200).send(t);
     });
   }).catch((err) => {
