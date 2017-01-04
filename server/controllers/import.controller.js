@@ -210,16 +210,25 @@ function post(req, res){
 
   class EnronDataSet{
 
+    /** path to the enron data set */
     basePath;
 
+    /** counter of imported emails in mongodb */
+    mailCount = 0;
+
+    /**
+     * @param path need to end with '/'
+     */
     constructor(path){
       this.basePath = path;
     }
 
     importAccounts(){
+      let p = [];
       this.getDirectoriesSync(this.basePath).forEach((account)=>{
-        this.importAccount(account);
+        p.push(this.importAccount(account));
       });
+      return Promise.all(p);
     }
 
     importAccount(accountName){
@@ -232,9 +241,8 @@ function post(req, res){
       return user.save((err)=> {
         if (err)
           console.log(err);
-      })
-    
-     // this.importMails(this.basePath+accountName+'/' );
+        return this.importMails(this.basePath+accountName+'/' );
+      });
     }
 
     /**
@@ -243,19 +251,24 @@ function post(req, res){
      */
     importMails(path, user){
       //console.log('EnronMail Import: '+path.replace(this.basePath,''));
+      let p = [];
       this.getFilesSync(path).forEach((fileName)=>{
         const file = fs.readFileSync(path+fileName).toString();
-        let email = new EnronMail(file).analyze();
-        //TODO persist mail here
-
+        const em = new EnronMail(file).analyze();
+        let e = new Email(em)
+        e = e.save((err)=>{
+          if (err)
+            console.log(err);
+          else
+            console.log(this.mailCount++ + 'Mails imported');
+        })
+        p.push(e);
       });
       this.getDirectoriesSync(path).forEach((dir)=>{
         this.importMails(path+dir+'/', user);
-
       });
+      return Promise.all(p);
     }
-
-
 
 
     getDirectoriesSync(path){
@@ -269,7 +282,11 @@ function post(req, res){
   }
 
   const path = __dirname + '/../../../../enron_mail_20150507/maildir/';
-  new EnronDataSet(path).importAccounts();
+  new EnronDataSet(path)
+    .importAccounts()
+    .then(()=>{
+      res.status(200).send();
+    });
 
 
   /*
