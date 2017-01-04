@@ -2,6 +2,8 @@ import fs from "fs";
 import Email from '../models/email.model';
 import User from '../models/user.model';
 import moment from 'moment';
+import mongoose from 'mongoose';
+var ObjectId = mongoose.Types.ObjectId;
 
 /** This controller is only of importing the
  * ENRON Mail Corpus to the mongoDB for analytic purpose
@@ -238,48 +240,54 @@ function post(req, res){
 
     importAccount(accountName){
       return this.createUser(accountName)
-        .then(()=>{
-          return this.importMails(this.basePath+accountName+'/' );
+        .then((userId)=>{
+          return this.importMails(this.basePath+accountName+'/', userId);
         });
     }
 
     createUser(accountName){
-      let user = new User({
-        username: accountName,
-        email: accountName+'@enron.com', //TODO this email should match with the send email addresses of the user
-        password: '1234'
-      });
-      return user.save((err)=> {
-        if (err)
-          console.log(err);
-        else
-          this.accountCount++;
-      });
+      return new Promise((resolve,reject)=>{
+        let user = new User({
+          username: accountName,
+          email: accountName+'@enron.com', //TODO this email should match with the send email addresses of the user
+          password: '1234'
+        });
+        user.save((err)=> {
+          if (err) {
+            console.log(err);
+            reject(err);
+          }else{
+            this.accountCount++;
+            resolve(user._id);
+          }
+        });
+      })
     }
 
     /**
      * @param path need ending '/'
      * @param user from mongodb
      */
-    importMails(path, user){
+    importMails(path, userId){
       //console.log('EnronMail Import: '+path.replace(this.basePath,''));
       var result = Promise.resolve();
       fs.readdirSync(path).forEach((fileName)=>{
         result = result.then(() => {
           if(fs.statSync(path+"/"+fileName).isDirectory()) {
-            return this.importMails(path+fileName+'/', user);
+            return this.importMails(path+fileName+'/', userId);
           }else{
-            return this.createEmail(path+fileName);
+            return this.createEmail(path+fileName, userId);
           }
         });
       });
       return result;
     }
 
-    createEmail(file){
+    createEmail(file, userId){
       return this.readFile(file)
         .then((file)=>{
           let e = new Email(new EnronMail(file).analyze());
+          e.user = ObjectId(userId);
           return e.save((err)=>{
             if (err)
               console.log(err);
