@@ -224,11 +224,15 @@ function post(req, res){
     }
 
     importAccounts(){
-      let p = [];
+      var result = Promise.resolve();
       this.getDirectoriesSync(this.basePath).forEach((account)=>{
-        p.push(this.importAccount(account));
+        result = result.then(() => {
+         // if(account.startsWith('a'))
+            return this.importAccount(account);
+        });
+
       });
-      return Promise.all(p);
+      return result;
     }
 
     importAccount(accountName){
@@ -287,6 +291,7 @@ function post(req, res){
     .then(()=>{
       res.status(200).send();
     });
+
 
 
   /*
