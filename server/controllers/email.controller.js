@@ -9,10 +9,10 @@ import Analyzer from '../core/engine/analyzer';
 
 const imapOptions = (user) => {
   return {
-    user: config.email.user,
-    password: config.email.pass,
-    host: config.email.host,
-    port: config.email.port,
+    user: user.provider.user,
+    password: user.provider.password,
+    host: user.provider.host,
+    port: user.provider.port,
     tls: true,
     mailbox: 'INBOX',
     currentUser: user
@@ -21,13 +21,13 @@ const imapOptions = (user) => {
 
 const smtpOptions = (user) => {
   return {
-    host: config.smtp.host,
-    port: config.smtp.port,
+    host: user.provider.smtpHost,
+    port: user.provider.smtpPort,
     secure: true,
-    domains: config.smtp.domains,
+    domains: user.provider.smtpDomains,
     auth: {
-      user: config.smtp.auth.user,
-      pass: config.smtp.auth.pass
+      user: user.provider.user,
+      pass: user.provider.password
     },
     currentUser: user
   };
