@@ -20,13 +20,11 @@ function create(req, res) {
     email: req.body.email
   });
   user.save()
-    .then((user, err) => {
-      if (err) {
-        res.status(404).send(err);
-      } else {
-        res.status(200).send(user);
-      }
-    })
+    .then((user) => {
+      res.status(200).send(user);
+    }).catch((err) => {
+      res.status(404).send(err);
+    });
 }
 
 function update(req, res) {
