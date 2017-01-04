@@ -1,6 +1,7 @@
 import fs from "fs";
 import Email from '../models/email.model';
 import User from '../models/user.model';
+import moment from 'moment';
 
 /** This controller is only of importing the
  * ENRON Mail Corpus to the mongoDB for analytic purpose
@@ -213,8 +214,10 @@ function post(req, res){
     /** path to the enron data set */
     basePath;
 
-    /** counter of imported emails in mongodb */
+    /** counter of imported accounts and emails in mongodb */
     mailCount = 0;
+    accountCount = 0;
+    start = new Date();
 
     /**
      * @param path need to end with '/'
@@ -227,10 +230,9 @@ function post(req, res){
       var result = Promise.resolve();
       this.getDirectoriesSync(this.basePath).forEach((account)=>{
         result = result.then(() => {
-         // if(account.startsWith('a'))
-            return this.importAccount(account);
+          //if(account.startsWith('a'))
+          return this.importAccount(account);
         });
-
       });
       return result;
     }
@@ -245,6 +247,8 @@ function post(req, res){
       return user.save((err)=> {
         if (err)
           console.log(err);
+        else
+          this.accountCount++;
         return this.importMails(this.basePath+accountName+'/' );
       });
     }
@@ -257,16 +261,17 @@ function post(req, res){
       //console.log('EnronMail Import: '+path.replace(this.basePath,''));
       let p = [];
       this.getFilesSync(path).forEach((fileName)=>{
-        const file = fs.readFileSync(path+fileName).toString();
-        const em = new EnronMail(file).analyze();
-        let e = new Email(em)
-        e = e.save((err)=>{
-          if (err)
-            console.log(err);
-          else
-            console.log(this.mailCount++ + 'Mails imported');
-        })
-        p.push(e);
+        let rf = this.readFile(path+fileName)
+          .then((file)=>{
+            let e = new Email(new EnronMail(file).analyze());
+            return e.save((err)=>{
+              if (err)
+                console.log(err);
+              else
+                this.debugInfo();
+            });
+          });
+        p.push(rf);
       });
       this.getDirectoriesSync(path).forEach((dir)=>{
         this.importMails(path+dir+'/', user);
@@ -274,6 +279,21 @@ function post(req, res){
       return Promise.all(p);
     }
 
+    readFile(filePath){
+      return new Promise((resolve, reject)=> {
+        fs.readFile(filePath, function (err, file) {
+          if (err)
+            reject(err);
+          else
+            resolve(file.toString());
+        });
+      });
+    }
+
+    debugInfo(){
+      //moment(new Date()).diff(this.start).format('mm:ss')
+      console.log(this.mailCount++ + ' Mails imported  |  '+this.accountCount+ ' Accounts imported  |  '+moment(moment(new Date()).diff(moment(this.start))).format('m:ss'));
+    }
 
     getDirectoriesSync(path){
       return fs.readdirSync(path).filter(f => fs.statSync(path+"/"+f).isDirectory());
