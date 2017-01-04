@@ -64,7 +64,7 @@ class Analyzer {
   }
 
   addSuggestedTasks() {
-    let extractedTasks = this.getTasksFromEmailBodyWithPatterns(this.taskPatterns);
+    let extractedTasks = this.getTasksFromEmailBody();
     extractedTasks.forEach(task => {
       const taskSuggestion = {
         name: this.email.subject,
@@ -77,7 +77,7 @@ class Analyzer {
     });
   }
 
-  getTasksFromEmailBodyWithPatterns(taskPatterns) {
+  getTasksFromEmailBody() {
     this.email.sentences = this.getTokenizedSentencesFromText(this.email.text);
 
     // NOTE:
