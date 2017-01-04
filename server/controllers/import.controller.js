@@ -229,7 +229,7 @@ function post(req, res){
     }
 
     importAccounts(){
-      var result = Promise.resolve();
+      let result = Promise.resolve();
       this.getDirectoriesSync(this.basePath).forEach((account)=>{
         result = result.then(() => {
           return this.importAccount(account);
@@ -247,7 +247,7 @@ function post(req, res){
 
     createUser(accountName){
       return new Promise((resolve,reject)=>{
-        let user = new User({
+        const user = new User({
           username: accountName,
           email: accountName+'@enron.com', //TODO this email should match with the send email addresses of the user
           password: '1234'
@@ -270,7 +270,7 @@ function post(req, res){
      */
     importMails(path, userId){
       //console.log('EnronMail Import: '+path.replace(this.basePath,''));
-      var result = Promise.resolve();
+      let result = Promise.resolve();
       fs.readdirSync(path).forEach((fileName)=>{
         result = result.then(() => {
           if(fs.statSync(path+"/"+fileName).isDirectory()) {
@@ -286,7 +286,7 @@ function post(req, res){
     createEmail(file, userId){
       return this.readFile(file)
         .then((file)=>{
-          let e = new Email(new EnronMail(file).analyze());
+          const e = new Email(new EnronMail(file).analyze());
           e.user = ObjectId(userId);
           return e.save((err)=>{
             if (err)
