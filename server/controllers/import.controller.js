@@ -266,10 +266,7 @@ function post(req, res){
       var result = Promise.resolve();
       this.getFilesSync(path).forEach((fileName)=>{
         result = result.then(() => {
-          return this.readFile(path+fileName)
-            .then((file)=>{
-              return this.createEmail(file);
-            });
+          return this.createEmail(path+fileName);
         });
       });
       this.getDirectoriesSync(path).forEach((dir)=>{
@@ -277,15 +274,18 @@ function post(req, res){
       });
       return result;
     }
-    
+
     createEmail(file){
-      let e = new Email(new EnronMail(file).analyze());
-      return e.save((err)=>{
-        if (err)
-          console.log(err);
-        else
-          this.debugInfo();
-      });
+      return this.readFile(file)
+        .then((file)=>{
+          let e = new Email(new EnronMail(file).analyze());
+          return e.save((err)=>{
+            if (err)
+              console.log(err);
+            else
+              this.debugInfo();
+          });
+        });
     }
 
     readFile(filePath){
@@ -300,7 +300,9 @@ function post(req, res){
     }
 
     debugInfo(){
-      console.log(this.mailCount++ + ' Mails imported  |  '+this.accountCount+ ' Accounts imported  |  '+moment(moment(new Date()).diff(moment(this.start))).format('m:ss'));
+      this.mailCount++
+      if(this.mailCount%10 == 0)
+        console.log(this.mailCount + ' Mails imported  |  '+this.accountCount+ ' Accounts imported  |  '+moment(moment(new Date()).diff(moment(this.start))).format('m:ss'));
     }
 
     getDirectoriesSync(path){
