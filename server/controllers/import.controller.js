@@ -1,5 +1,6 @@
 import fs from "fs";
 import Email from '../models/email.model';
+import User from '../models/user.model';
 
 /** This controller is only of importing the
  * ENRON Mail Corpus to the mongoDB for analytic purpose
@@ -202,7 +203,7 @@ function post(req, res){
           this.setBody(i);
       });
 
-      console.log(this.email);
+     // console.log(this.email);
       return this.email;
     }
   }
@@ -222,9 +223,18 @@ function post(req, res){
     }
 
     importAccount(accountName){
-      //TODO create user
+      let user = new User({
+        username: accountName,
+        email: accountName+'@enron.com', //TODO this email should match with the send email addresses of the user
+        password: '1234'
+      });
 
-      this.importMails(this.basePath+accountName+'/');
+      return user.save((err)=> {
+        if (err)
+          console.log(err);
+      })
+    
+     // this.importMails(this.basePath+accountName+'/' );
     }
 
     /**
@@ -232,16 +242,20 @@ function post(req, res){
      * @param user from mongodb
      */
     importMails(path, user){
-      console.log('EnronMail Import: '+path.replace(this.basePath,''));
+      //console.log('EnronMail Import: '+path.replace(this.basePath,''));
       this.getFilesSync(path).forEach((fileName)=>{
         const file = fs.readFileSync(path+fileName).toString();
-        //let email = new EnronMail(file).analyze();
+        let email = new EnronMail(file).analyze();
         //TODO persist mail here
+
       });
       this.getDirectoriesSync(path).forEach((dir)=>{
         this.importMails(path+dir+'/', user);
+
       });
     }
+
+
 
 
     getDirectoriesSync(path){
@@ -260,11 +274,9 @@ function post(req, res){
 
   /*
   const file = __dirname + "/../../../../enron_mail_20150507/maildir/allen-p/inbox/13_";
-
   const f = fs.readFileSync(file).toString();
   const em = new EnronMail(f).analyze();
-
-*/
+  */
 
 }
 
