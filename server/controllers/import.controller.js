@@ -264,13 +264,14 @@ function post(req, res){
     importMails(path, user){
       //console.log('EnronMail Import: '+path.replace(this.basePath,''));
       var result = Promise.resolve();
-      this.getFilesSync(path).forEach((fileName)=>{
+      fs.readdirSync(path).forEach((fileName)=>{
         result = result.then(() => {
-          return this.createEmail(path+fileName);
+          if(fs.statSync(path+"/"+fileName).isDirectory()) {
+            return this.importMails(path+fileName+'/', user);
+          }else{
+            return this.createEmail(path+fileName);
+          }
         });
-      });
-      this.getDirectoriesSync(path).forEach((dir)=>{
-        this.importMails(path+dir+'/', user);
       });
       return result;
     }
@@ -282,8 +283,10 @@ function post(req, res){
           return e.save((err)=>{
             if (err)
               console.log(err);
-            else
+            else{
+              this.mailCount++
               this.debugInfo();
+            }
           });
         });
     }
@@ -300,8 +303,7 @@ function post(req, res){
     }
 
     debugInfo(){
-      this.mailCount++
-      if(this.mailCount%10 == 0)
+      if(this.mailCount%100 == 0)
         console.log(this.mailCount + ' Mails imported  |  '+this.accountCount+ ' Accounts imported  |  '+moment(moment(new Date()).diff(moment(this.start))).format('m:ss'));
     }
 
