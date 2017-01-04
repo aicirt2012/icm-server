@@ -230,7 +230,6 @@ function post(req, res){
       var result = Promise.resolve();
       this.getDirectoriesSync(this.basePath).forEach((account)=>{
         result = result.then(() => {
-          //if(account.startsWith('a'))
           return this.importAccount(account);
         });
       });
@@ -238,18 +237,23 @@ function post(req, res){
     }
 
     importAccount(accountName){
+      return this.createUser(accountName)
+        .then(()=>{
+          return this.importMails(this.basePath+accountName+'/' );
+        });
+    }
+
+    createUser(accountName){
       let user = new User({
         username: accountName,
         email: accountName+'@enron.com', //TODO this email should match with the send email addresses of the user
         password: '1234'
       });
-
       return user.save((err)=> {
         if (err)
           console.log(err);
         else
           this.accountCount++;
-        return this.importMails(this.basePath+accountName+'/' );
       });
     }
 
@@ -263,13 +267,7 @@ function post(req, res){
       this.getFilesSync(path).forEach((fileName)=>{
         let rf = this.readFile(path+fileName)
           .then((file)=>{
-            let e = new Email(new EnronMail(file).analyze());
-            return e.save((err)=>{
-              if (err)
-                console.log(err);
-              else
-                this.debugInfo();
-            });
+            return this.createEmail(file);
           });
         p.push(rf);
       });
@@ -277,6 +275,16 @@ function post(req, res){
         this.importMails(path+dir+'/', user);
       });
       return Promise.all(p);
+    }
+
+    createEmail(file){
+      let e = new Email(new EnronMail(file).analyze());
+      return e.save((err)=>{
+        if (err)
+          console.log(err);
+        else
+          this.debugInfo();
+      });
     }
 
     readFile(filePath){
@@ -291,7 +299,6 @@ function post(req, res){
     }
 
     debugInfo(){
-      //moment(new Date()).diff(this.start).format('mm:ss')
       console.log(this.mailCount++ + ' Mails imported  |  '+this.accountCount+ ' Accounts imported  |  '+moment(moment(new Date()).diff(moment(this.start))).format('m:ss'));
     }
 
