@@ -29,7 +29,9 @@ function login(req, res) {
           user: {
             _id: user._id,
             username: user.username,
-            email: user.email
+            email: user.email,
+            google: user.google ? true : false,
+            exchange: user.exchange ? true : false
           }
         }, config.jwt.secret, {
           expiresIn: config.jwt.expiresInSeconds
@@ -53,7 +55,7 @@ function oauthCallback(req, res) {
   }, config.jwt.secret, {
     expiresIn: config.jwt.expiresInSeconds
   });
-  res.cookie('email-oauth', token); // TODO: change this to header 
+  res.cookie('email-oauth', token); // TODO: change this to header
   res.redirect(config.frontend);
 }
 
