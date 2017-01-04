@@ -263,20 +263,21 @@ function post(req, res){
      */
     importMails(path, user){
       //console.log('EnronMail Import: '+path.replace(this.basePath,''));
-      let p = [];
+      var result = Promise.resolve();
       this.getFilesSync(path).forEach((fileName)=>{
-        let rf = this.readFile(path+fileName)
-          .then((file)=>{
-            return this.createEmail(file);
-          });
-        p.push(rf);
+        result = result.then(() => {
+          return this.readFile(path+fileName)
+            .then((file)=>{
+              return this.createEmail(file);
+            });
+        });
       });
       this.getDirectoriesSync(path).forEach((dir)=>{
         this.importMails(path+dir+'/', user);
       });
-      return Promise.all(p);
+      return result;
     }
-
+    
     createEmail(file){
       let e = new Email(new EnronMail(file).analyze());
       return e.save((err)=>{
