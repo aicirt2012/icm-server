@@ -228,12 +228,13 @@ function post(req, res){
       this.basePath = path;
     }
 
-    importAccounts(){
+    importAccounts(filter){
       let result = Promise.resolve();
       this.getDirectoriesSync(this.basePath).forEach((account)=>{
-        result = result.then(() => {
-          return this.importAccount(account);
-        });
+        if(account.startsWith(filter))
+          result = result.then(() => {
+            return this.importAccount(account);
+          });
       });
       return result;
     }
@@ -326,8 +327,7 @@ function post(req, res){
   }
 
   const path = __dirname + '/../../../../enron_mail_20150507/maildir/';
-  new EnronDataSet(path)
-    .importAccounts()
+  new EnronDataSet(path).importAccounts('b')
     .then(()=>{
       res.status(200).send();
     });
