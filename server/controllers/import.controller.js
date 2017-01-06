@@ -221,6 +221,9 @@ function post(req, res){
     accountCount = 0;
     start = new Date();
 
+    /** Email Threads */
+    mailThreats = new MailThreads();
+
     /**
      * @param path need to end with '/'
      */
@@ -240,9 +243,17 @@ function post(req, res){
     }
 
     importAccount(accountName){
+      this.mailThreats = new MailThreads();
       return this.createUser(accountName)
         .then((userId)=>{
           return this.importMails(this.basePath+accountName+'/', userId, []);
+        })
+        .then(()=>{
+          return new Promise((resolve, reject)=>{
+            this.mailThreats.mergeMailsToThreads();
+
+            resolve();
+          });
         });
     }
 
@@ -295,12 +306,15 @@ function post(req, res){
             if (err)
               console.log(err);
             else{
+              this.mailThreats.addSubject(e.subject, e._id);
               this.mailCount++
               this.debugInfo();
             }
           });
         });
     }
+
+
 
     readFile(filePath){
       return new Promise((resolve, reject)=> {
@@ -328,8 +342,63 @@ function post(req, res){
 
   }
 
+  class MailThreads{
+
+    subjects = new Map();
+
+    addSubject(subject, emailId){
+      /** invert subject to reduce number of compare operations */
+      let rsubject = subject.split('').reverse().join('');
+      if(this.subjects.has(rsubject)){
+        let ids = this.subjects.get(rsubject);
+        ids.push(emailId);
+        this.subjects.set(rsubject, ids);
+      }else{
+        this.subjects.set(rsubject, [emailId]);
+      }
+    }
+
+    mergeMailsToThreads(){
+      let list =  [];
+      for (var [key, value] of this.subjects)
+        list.push(key);
+      list.sort();
+      list.forEach(l=>{
+        console.log(l);
+      });
+      for(let i=0; i<list.length; i++){
+        for(let j=i+1; j<list.length; j++){
+          if(list[j] != '' && list[i] != '' && list[j].includes(list[i]) && this.subjects.has(list[j]) && this.subjects.has(list[i])){
+            // merge to shorter subject
+            console.log('match found');
+            console.log(list[i]);
+            console.log(list[j]);
+            let ids = this.subjects.get(list[i]);
+            ids =ids.concat(this.subjects.get(list[j]));
+            this.subjects.set(list[i], ids);
+            this.subjects.delete(list[j]);
+          }else{
+            break;
+          }
+        }
+      }
+      let mergeCount=0;
+      console.log('###################reverse#####################');
+      for (var [key, value] of this.subjects)
+        if(value.length>1) {
+          mergeCount += value.length;
+          console.log(key);
+          console.log(value);
+          console.log();
+        }
+
+      console.log(this.subjects.size, mergeCount);
+    }
+
+  }
+
   const path = __dirname + '/../../../../enron_mail_20150507/maildir/';
-  new EnronDataSet(path).importAccounts('b')
+  new EnronDataSet(path).importAccounts('badeer-r')
     .then(()=>{
       res.status(200).send();
     });
