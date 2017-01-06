@@ -66,9 +66,26 @@ function getNetworkGraph(userId){
     }
   }
 
+  class Node{
+
+    constructor(email, name){
+      this.email = email.toLowerCase();
+      this.name = name;
+    }
+
+    key(){
+      return this.email;
+    }
+
+    toJson(){
+      return {email: this.email, name: this.name};
+    }
+  }
+
   /** Not implemented as set due the fact that the
    *  compare for objects is not implemented in es6 */
   const edges = new Map();
+  const nodes = new Map();
 
   return new Promise((resolve, reject) => {
     Email.find({user: ObjectId(userId)}, {from: 1, to: 1})
@@ -83,14 +100,26 @@ function getNetworkGraph(userId){
               } else {
                 edges.set(edge.key(), edge);
               }
+              let node = new Node(from.address, from.name);
+              if(!nodes.has(node.key()))
+                nodes.set(node.key(), node);
+              node = new Node(to.address, to.name);
+              if(!nodes.has(node.key()))
+                nodes.set(node.key(), node);
             });
           });
         });
-        const arr = [];
+        const g = {
+          edges: [],
+          nodes: []
+        };
         edges.forEach((e)=> {
-          arr.push(e.toJson());
+          g.edges.push(e.toJson());
         });
-        resolve(arr);
+        nodes.forEach((n)=> {
+          g.nodes.push(n.toJson());
+        });
+        resolve(g);
       }).catch((err)=>{
         reject(err);
       });
