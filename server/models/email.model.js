@@ -19,6 +19,14 @@ const EmailSchema = new mongoose.Schema({
     address: {type: String, index:true},
     name: String
   }],
+  cc: [{
+    address: String,
+    name: String
+  }],
+  bcc: [{
+    address: String,
+    name: String
+  }],
   subject: String,
   html: String,
   text: String,
