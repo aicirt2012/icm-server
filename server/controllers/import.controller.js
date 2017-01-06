@@ -242,7 +242,7 @@ function post(req, res){
     importAccount(accountName){
       return this.createUser(accountName)
         .then((userId)=>{
-          return this.importMails(this.basePath+accountName+'/', userId);
+          return this.importMails(this.basePath+accountName+'/', userId, []);
         });
     }
 
@@ -269,26 +269,28 @@ function post(req, res){
      * @param path need ending '/'
      * @param user from mongodb
      */
-    importMails(path, userId){
+    importMails(path, userId, labels){
       //console.log('EnronMail Import: '+path.replace(this.basePath,''));
       let result = Promise.resolve();
       fs.readdirSync(path).forEach((fileName)=>{
         result = result.then(() => {
           if(fs.statSync(path+"/"+fileName).isDirectory()) {
-            return this.importMails(path+fileName+'/', userId);
+            labels.push(fileName.replace('_',' '));
+            return this.importMails(path+fileName+'/', userId, labels);
           }else{
-            return this.createEmail(path+fileName, userId);
+            return this.createEmail(path+fileName, userId, labels);
           }
         });
       });
       return result;
     }
 
-    createEmail(file, userId){
+    createEmail(file, userId, labels){
       return this.readFile(file)
         .then((file)=>{
           const e = new Email(new EnronMail(file).analyze());
           e.user = ObjectId(userId);
+          e.labels = labels;
           return e.save((err)=>{
             if (err)
               console.log(err);
