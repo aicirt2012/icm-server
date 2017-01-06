@@ -391,10 +391,25 @@ function post(req, res){
     }
 
     persistMailThreads(){
+      mongoose.set('debug', true)
       let result = Promise.resolve();
       for (var [key, emailIds] of this.subjects) {
+        let thrId = 'thr_'+emailIds[0];
+        let eIds = emailIds;
+        /*
+        eIds.map(emailId=>{
+          emailId = ObjectId(emailId);
+        });
+        */
         result = result.then(() => {
-          return Email.update({_id: {$in: emailIds}}, {$set: {thrid: emailIds[0]}} );
+          return new Promise((resolve, reject)=>{
+            Email.update({_id: {$in: eIds}}, {$set: {thrid: thrId}}, function(err){
+              if(err)
+                reject(err);
+              else
+                resolve();
+            });
+          });
         });
       }
       return result;
