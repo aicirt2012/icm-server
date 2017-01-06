@@ -249,11 +249,8 @@ function post(req, res){
           return this.importMails(this.basePath+accountName+'/', userId, []);
         })
         .then(()=>{
-          return new Promise((resolve, reject)=>{
-            this.mailThreats.mergeMailsToThreads();
-
-            resolve();
-          });
+          this.mailThreats.mergeMailsToThreads();
+          return this.mailThreats.persistMailThreads();
         });
     }
 
@@ -342,12 +339,17 @@ function post(req, res){
 
   }
 
+
   class MailThreads{
 
+    /** contains all subjects as key and maps
+     *  an array with related emailIds */
     subjects = new Map();
 
+    /** adds a subject to the subject map */
     addSubject(subject, emailId){
-      /** invert subject to reduce number of compare operations */
+      /** invert subject to reduce number of compare
+       *  operations to merge mails to threads*/
       let rsubject = subject.split('').reverse().join('');
       if(this.subjects.has(rsubject)){
         let ids = this.subjects.get(rsubject);
@@ -358,21 +360,25 @@ function post(req, res){
       }
     }
 
+    /** Merge mails to threads based on their subjects */
     mergeMailsToThreads(){
+
+      /** flatten list of map used to sort */
       let list =  [];
       for (var [key, value] of this.subjects)
         list.push(key);
+
+      /** sort to reduce number of compare
+       *  operations due to lexical ordering
+       *  works only due to permuted subjects characters*/
       list.sort();
-      list.forEach(l=>{
-        console.log(l);
-      });
+
+      /** find matches
+       *  the shorter subject need to be included in the longer one*/
       for(let i=0; i<list.length; i++){
         for(let j=i+1; j<list.length; j++){
           if(list[j] != '' && list[i] != '' && list[j].includes(list[i]) && this.subjects.has(list[j]) && this.subjects.has(list[i])){
-            // merge to shorter subject
-            console.log('match found');
-            console.log(list[i]);
-            console.log(list[j]);
+            /** merge to shorter subject */
             let ids = this.subjects.get(list[i]);
             ids =ids.concat(this.subjects.get(list[j]));
             this.subjects.set(list[i], ids);
@@ -382,17 +388,16 @@ function post(req, res){
           }
         }
       }
-      let mergeCount=0;
-      console.log('###################reverse#####################');
-      for (var [key, value] of this.subjects)
-        if(value.length>1) {
-          mergeCount += value.length;
-          console.log(key);
-          console.log(value);
-          console.log();
-        }
+    }
 
-      console.log(this.subjects.size, mergeCount);
+    persistMailThreads(){
+      let result = Promise.resolve();
+      for (var [key, emailIds] of this.subjects) {
+        result = result.then(() => {
+          return Email.update({_id: {$in: emailIds}}, {$set: {thrid: emailIds[0]}} );
+        });
+      }
+      return result;
     }
 
   }
