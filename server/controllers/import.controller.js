@@ -275,7 +275,7 @@ function post(req, res){
       fs.readdirSync(path).forEach((fileName)=>{
         result = result.then(() => {
           if(fs.statSync(path+"/"+fileName).isDirectory()) {
-            labels.push(fileName.replace('_',' '));
+            labels.push(fileName.replace(/_/g,' '));
             return this.importMails(path+fileName+'/', userId, labels);
           }else{
             return this.createEmail(path+fileName, userId, labels);
