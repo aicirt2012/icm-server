@@ -169,7 +169,7 @@ function post(req, res){
 
     extractPersonFormXTags(xTagStr){
       let ps = [];
-      xTagStr.replace(/(\<.*?\>)/gi,'|').split('|').forEach((p)=>{
+      xTagStr.replace(/(\<.*?\>)/gi,'|').replace(/([\w.]+@[\w.]+)/gi, '|').split('|').forEach((p)=>{
         p =  p.replace(/,/g,'').trim();
         if(p != '')
           ps.push(p);
@@ -391,7 +391,6 @@ function post(req, res){
     }
 
     persistMailThreads(){
-      mongoose.set('debug', true)
       let result = Promise.resolve();
       for (var [key, emailIds] of this.subjects) {
         let thrId = 'thr_'+emailIds[0];
