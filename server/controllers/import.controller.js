@@ -169,7 +169,10 @@ function post(req, res){
 
     extractPersonFormXTags(xTagStr){
       let ps = [];
-      xTagStr.replace(/(\<.*?\>)/gi,'|').replace(/([\w.]+@[\w.]+)/gi, '|').split('|').forEach((p)=>{
+      let str = xTagStr.replace(/(\<.*?\>)/gi,'|').replace(/([\w.]+@[\w.]+)/gi, '|');
+      if(str == xTagStr)
+        str = str.replace(/,/gi, '|');
+      str.split('|').forEach((p)=>{
         p =  p.replace(/,/g,'').trim();
         if(p != '')
           ps.push(p);
