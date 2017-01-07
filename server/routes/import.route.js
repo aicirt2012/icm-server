@@ -12,7 +12,10 @@ function routeProvider(passport) {
   //router.use(mw);
 
   router.route('/enron')
-    .post(importCtrl.post);
+    .post(importCtrl.importEnronData);
+
+  router.route('/enronall')
+    .post(importCtrl.importEnronDataAll);
 
   return router;
 }
