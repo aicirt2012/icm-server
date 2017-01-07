@@ -173,8 +173,11 @@ function post(req, res){
       if(str == xTagStr)
         str = str.replace(/,/gi, '|');
       str.split('|').forEach((p)=>{
-        p =  p.replace(/,/g,'').trim();
-        if(p != '')
+        p = p.replace(/,/g,'').replace(/"/gi,'').trim();
+        //TODO remove this cut function
+        if(p.length>60 && p.split(' ').length>1)
+          p = p.split(' ').splice(0,1);
+        if(p != '' && p != "'")
           ps.push(p);
       });
       return ps;
