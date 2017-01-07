@@ -396,14 +396,9 @@ function post(req, res){
       for (var [key, emailIds] of this.subjects) {
         let thrId = 'thr_'+emailIds[0];
         let eIds = emailIds;
-        /*
-        eIds.map(emailId=>{
-          emailId = ObjectId(emailId);
-        });
-        */
         result = result.then(() => {
           return new Promise((resolve, reject)=>{
-            Email.update({_id: {$in: eIds}}, {$set: {thrid: thrId}}, function(err){
+            Email.update({_id: {$in: eIds}}, {$set: {thrid: thrId}},{multi:true}, function(err){
               if(err)
                 reject(err);
               else
@@ -414,7 +409,6 @@ function post(req, res){
       }
       return result;
     }
-
   }
 
   const path = __dirname + '/../../../../enron_mail_20150507/maildir/';
