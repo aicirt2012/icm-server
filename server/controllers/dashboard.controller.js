@@ -4,12 +4,21 @@ import User from '../models/user.model';
 import striptags from 'striptags';
 const ObjectId = mongoose.Types.ObjectId;
 
-function getMonthlyPunchCard(userId) {
+function getMonthlyPunchCardWithYear(userId) {
   return Email.aggregate([
     {$match: {user: ObjectId(userId)}},
     {$group: {_id: {year: {$year: "$date"}, month: {$month: "$date"}, day: {$dayOfMonth: "$date"}}, count: {$sum: 1}}},
     {$sort: {'_id.year':1, '_id.month': 1, '_id.day': 1}},
     {$project: {_id: 0, year: '$_id.year', month: '$_id.month', day: '$_id.day', count: 1}}
+  ]);
+}
+
+function getMonthlyPunchCard(userId) {
+  return Email.aggregate([
+    {$match: {user: ObjectId(userId)}},
+    {$group: {_id: {month: {$month: "$date"}, day: {$dayOfMonth: "$date"}}, count: {$sum: 1}}},
+    {$sort: {'_id.month': 1, '_id.day': 1}},
+    {$project: {_id: 0, month: '$_id.month', day: '$_id.day', count: 1}}
   ]);
 }
 
