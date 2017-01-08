@@ -19,7 +19,7 @@ class Classifier {
   }
 
   classify(text) {
-    return this.classifier.classify(text);
+    return this.classifier.docs.length > 0 && this.classifier.classify(text);
   }
 
   getClassifications(text) {
