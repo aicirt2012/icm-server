@@ -37,4 +37,8 @@ if (!module.parent) {
 // init database with default entries
 Patterns.init();
 
+process.on('uncaughtException', (err) => {
+  console.log(err);
+})
+
 export default app;
