@@ -5,7 +5,7 @@ import SMTPConnector from '../core/mail/SMTPConnector';
 import ExchangeConnector from '../core/mail/ExchangeConnector';
 import config from '../../config/env';
 import User from '../models/user.model';
-import Analyzer from '../core/engine/Analyzer';
+import Analyzer from '../core/engine/analyzer';
 
 const imapOptions = (user) => {
   return {
@@ -165,7 +165,7 @@ function setFlags(req, res) {
 function getPaginatedEmailsForBox(req, res)  {
   const options = {
     page: req.query.page ? parseInt(req.query.page) : 1,
-    limit: req.query.limit ? parseInt(req.query.limit) : 10,
+    limit: req.query.limit ? parseInt(req.query.limit) : 25,
     sort: {
       date: -1
     },
@@ -186,11 +186,15 @@ function getPaginatedEmailsForBox(req, res)  {
 
 function searchPaginatedEmails(req, res) {
   const options = {
-    page: req.query.page ? req.query.page : 1,
-    limit: req.query.limit ? req.query.limit : 10
+    page: req.query.page ? parseInt(req.query.page) : 1,
+    limit: req.query.limit ? parseInt(req.query.limit) : 25,
+    sort: {
+      date: -1
+    },
   };
   const query = {
     user: req.user,
+    'box.name': req.query.box || req.user.boxList[0].name,
     $text: {
       $search: req.query.q ? req.query.q : ''
     }
@@ -209,12 +213,11 @@ function getSingleMail(req, res) {
     _id: req.params.id
   }).lean().then((mail, err) => {
     // call analyzer with emailObject and append suggested task and already linked tasks
-    const email = new Analyzer(mail).detectPattern();
-    if (err) {
-      res.status(400).send(err);
-    } else {
+    new Analyzer(mail, req.user).getEmailTasks().then((email) => {
       res.status(200).send(email);
-    }
+    }).catch((err) => {
+      res.status(400).send(err);
+    });
   })
 }
 

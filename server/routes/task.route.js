@@ -27,6 +27,9 @@ function routeProvider(passport) {
     .put(taskCtrl.updateTask)
     .delete(taskCtrl.deleteTask);
 
+  router.route('/:taskId/unlink')
+    .put(taskCtrl.unlinkTask);
+
   router.route('/')
     .post(taskCtrl.createTask);
 
@@ -37,7 +40,7 @@ function routeProvider(passport) {
 
   /* Task routes related to emails */
   router.route('/email/:emailId/addTask')
-    .post(taskCtrl.createTaskForEmail);
+    .post(taskCtrl.createTask);
 
   return router;
 }

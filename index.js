@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import util from 'util';
 import config from './config/env';
 import app from './config/express';
+import Patterns from './server/core/engine/Pattern';
 
 const debug = require('debug')('EmailAppServer:index');
 
@@ -32,5 +33,12 @@ if (!module.parent) {
     debug(`server started on port ${config.port} (${config.env})`);
   });
 }
+
+// init database with default entries
+Patterns.init();
+
+process.on('uncaughtException', (err) => {
+  console.log(err);
+})
 
 export default app;

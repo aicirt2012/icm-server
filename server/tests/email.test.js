@@ -29,6 +29,8 @@ describe('## EMAIL API (IMAP)', () => {
   };
 
   let emails;
+  let email;
+  let task;
 
   describe('# POST /api/auth/login', () => {
     it('should log in', (done) => {
@@ -115,6 +117,7 @@ describe('## EMAIL API (IMAP)', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('object');
+          email = res.body;
           done();
         })
         .catch(done);
@@ -188,6 +191,48 @@ describe('## EMAIL API (IMAP)', () => {
         })
         .catch(done);
     }).timeout(15000);
+  });
+
+  // NOTE: This test will mess up your training data set for the classifier. Please comment out if not wanted.
+  describe('# POST /api/task/email/:emailId/addTask', () => {
+    it('should create single task related to an email', (done) => {
+      request(app)
+        .get(`/api/task/boards`)
+        .set('Authorization', 'JWT ' + user.token)
+        .expect(httpStatus.OK)
+        .then((result) => {
+          request(app)
+            .post(`/api/task/email/${email._id}/addTask`)
+            .set('Authorization', 'JWT ' + user.token)
+            .send({
+              name: 'emailTestCard',
+              idList: result.body[0].lists[0].id,
+              sentences: email.sentences,
+              sentenceId: email.sentences[0].id
+            })
+            .expect(httpStatus.OK)
+            .then((res) => {
+              expect(res.body).to.be.an('object');
+              expect(res.body.name).to.equal('emailTestCard');
+              task = res.body;
+              done();
+            })
+        })
+        .catch(done);
+    });
+  });
+
+  describe('# PUT /api/task/:taskId/unlink', () => {
+    it('should unlink a task from an email', (done) => {
+      request(app)
+        .put(`/api/task/${task.id}/unlink`)
+        .set('Authorization', 'JWT ' + user.token)
+        .expect(httpStatus.OK)
+        .then((res) => {
+        console.log(res.body);
+        done();
+      }).catch(done);
+    });
   });
 
 });

@@ -36,6 +36,8 @@ class GmailConnector extends ImapConnector {
       let attributes;
 
       mailParser.on('end', (mailObject) => {
+        mailObject.html = mailObject.html && mailObject.html.includes('<body') ? mailObject.html.substring(mailObject.html.indexOf('<body')) : mailObject.html;
+
         const email = {
           messageId: mailObject.messageId,
           from: mailObject.from,
