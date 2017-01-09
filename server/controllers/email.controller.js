@@ -165,7 +165,7 @@ function setFlags(req, res) {
 function getPaginatedEmailsForBox(req, res)  {
   const options = {
     page: req.query.page ? parseInt(req.query.page) : 1,
-    limit: req.query.limit ? parseInt(req.query.limit) : 10,
+    limit: req.query.limit ? parseInt(req.query.limit) : 25,
     sort: {
       date: -1
     },
@@ -186,11 +186,15 @@ function getPaginatedEmailsForBox(req, res)  {
 
 function searchPaginatedEmails(req, res) {
   const options = {
-    page: req.query.page ? req.query.page : 1,
-    limit: req.query.limit ? req.query.limit : 10
+    page: req.query.page ? parseInt(req.query.page) : 1,
+    limit: req.query.limit ? parseInt(req.query.limit) : 25,
+    sort: {
+      date: -1
+    },
   };
   const query = {
     user: req.user,
+    'box.name': req.query.box || req.user.boxList[0].name,
     $text: {
       $search: req.query.q ? req.query.q : ''
     }
