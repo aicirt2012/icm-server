@@ -1,7 +1,5 @@
 import SociocortexConnector from '../core/task/SociocortexConnector'; //TODO: remove once SC implementation is finished
-import {
-  createTaskConnector
-} from '../core/task/util'
+import {createTaskConnector} from '../core/task/util'
 import User from '../models/user.model';
 import Email from '../models/email.model';
 import Task from '../models/task.model';
@@ -9,20 +7,17 @@ import TrainingData from '../models/trainingData.model';
 
 /*
  * CREATE TASK
- * BODY: {..., email, sentenceId, sentences}
+ * BODY: {..., sentenceId, sentences}
  */
 function createTask(req, res) {
   createTaskConnector(req.query.provider, req.user).createTask(req.body).then((t) => {
     let task = new Task();
     task['taskId'] = t.id;
     task['provider'] = req.query.provider || 'trello';
-    task['email'] = req.params.emailId ||  null;
+    task['email'] = req.params.emailId || null;
     task.save().then((result) => {
       if (req.params.emailId) {
-        TrainingData.findOne({
-          email: result.email,
-          sentenceId: req.body.sentenceId
-        }).then((td) => {
+        TrainingData.findOne({email: result.email, sentenceId: req.body.sentenceId}).then((td) => {
           if (td) {
             td.label = true;
             td.task = result;
@@ -33,7 +28,7 @@ function createTask(req, res) {
                 text: s.sentence,
                 label: s.id == req.body.sentenceId,
                 email: result.email,
-                sentenceId: s.id,
+                sentenceId: s.id
               });
               if (s.id == req.body.sentenceId) {
                 tdSet['task'] = result;
@@ -71,7 +66,36 @@ function updateTask(req, res) {
 /* DELETE TASK */
 function deleteTask(req, res) {
   createTaskConnector(req.query.provider, req.user).deleteTask(req.params.taskId).then((data) => {
-    res.status(200).send(data);
+    Task.findOne({taskId: req.params.taskId}).then((task) => {
+      TrainingData.findOne({task: task}).then((td) => {
+        if (td) {
+          td.task = null;
+          td.label = false;
+          td.save();
+        }
+        Task.remove({taskId: req.params.taskId}).then((value) => {
+          res.status(200).send(value);
+        });
+      });
+    });
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+/* UNLINK TASK */
+function unlinkTask(req, res) {
+  Task.findOne({taskId: req.params.taskId}).then((task) => {
+    TrainingData.findOne({task: task}).then((td) => {
+      if (td) {
+        td.task = null;
+        td.label = false;
+        td.save();
+      }
+      Task.remove({taskId: req.params.taskId}).then((value) => {
+        res.status(200).send(value);
+      });
+    });
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -113,19 +137,20 @@ function getAllCardsForList(req, res) {
   });
 }
 
-/* REGISTER NEW USER IN SOCIOCORTEX */ // TODO: needs generalization ?
+/* REGISTER NEW USER IN SOCIOCORTEX */
+// TODO: needs generalization ?
 function registerSociocortex(req, res) {
   const options = req.user.sociocortex || {};
   const scConnector = new SociocortexConnector(options);
-  scConnector.register(req.user, req.body.scUsername, req.body.scEmail,
-    req.body.scPassword).then((data) => {
+  scConnector.register(req.user, req.body.scUsername, req.body.scEmail, req.body.scPassword).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
   });
 }
 
-/* LOG IN SOCIOCORTEX */ // TODO: needs generalization ?
+/* LOG IN SOCIOCORTEX */
+// TODO: needs generalization ?
 function connectSociocortex(req, res) {
   const options = req.user.sociocortex || {};
   const scConnector = new SociocortexConnector(options);
@@ -140,11 +165,12 @@ export default {
   createTask,
   searchTasks,
   deleteTask,
+  unlinkTask,
   updateTask,
   getSingleTask,
   getAllListsForBoard,
   getAllBoardsForMember,
   getAllCardsForList,
   registerSociocortex,
-  connectSociocortex,
+  connectSociocortex
 };

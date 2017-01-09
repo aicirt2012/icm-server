@@ -170,11 +170,10 @@ describe('## TASK API (TRELLO)', () => {
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.be.an('object');
-          expect(res.body._value).to.equal(null);
           done();
         })
         .catch(done);
-    });
+    }).timeout(15000);
   });
 
 });

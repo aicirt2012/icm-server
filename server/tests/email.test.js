@@ -30,6 +30,7 @@ describe('## EMAIL API (IMAP)', () => {
 
   let emails;
   let email;
+  let task;
 
   describe('# POST /api/auth/login', () => {
     it('should log in', (done) => {
@@ -213,10 +214,24 @@ describe('## EMAIL API (IMAP)', () => {
             .then((res) => {
               expect(res.body).to.be.an('object');
               expect(res.body.name).to.equal('emailTestCard');
+              task = res.body;
               done();
             })
         })
         .catch(done);
+    });
+  });
+
+  describe('# PUT /api/task/:taskId/unlink', () => {
+    it('should unlink a task from an email', (done) => {
+      request(app)
+        .put(`/api/task/${task.id}/unlink`)
+        .set('Authorization', 'JWT ' + user.token)
+        .expect(httpStatus.OK)
+        .then((res) => {
+        console.log(res.body);
+        done();
+      }).catch(done);
     });
   });
 

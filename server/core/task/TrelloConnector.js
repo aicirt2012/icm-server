@@ -35,7 +35,6 @@ class TrelloConnector extends TaskConnector {
    * get task
    */
   getTask(id) {
-    params['members'] = 'true';
     const url = this.buildURL(`/cards/${id}`, '');
     return new Promise((resolve, reject) => {
       fetch(url).then((res) => res.json()).then((json) => {
