@@ -100,7 +100,7 @@ function getNetworkGraph(userId){
   const nodes = new Map();
 
   return new Promise((resolve, reject) => {
-    Email.find({user: ObjectId(userId)}, {from: 1, to: 1})
+    Email.find({user: ObjectId(userId)}, {from: 1, to: 1}).lean()
       .then((emails)=> {
         emails.forEach((email)=> {
           email.from.forEach((from)=> {
@@ -194,7 +194,6 @@ function getSummary(req, res) {
     structural: {}
   };
 
-  //TODO may consider only the last 12 month not all data ...
   //TODO differentiate between send, received and all mails
   //TODO use id of current user?? assuming that the dashboard is embedded in WebApp??
   User.findOne()
