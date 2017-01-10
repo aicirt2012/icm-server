@@ -38,7 +38,8 @@ function getTopSender(userId) {
     {$unwind: '$from'},
     {$group: {_id: {address: '$from.address', name: '$from.name'}, count: {$sum: 1}}},
     {$sort: {count: -1}},
-    {$project: {_id: 0, address: '$_id.address', name: '$_id.name', count: 1}}
+    {$project: {_id: 0, address: '$_id.address', name: '$_id.name', count: 1}},
+    {$limit : 15}
   ]);
 }
 
@@ -49,7 +50,8 @@ function getTopReceiver(userId) {
     {$unwind: '$to'},
     {$group: {_id: {address: '$to.address', name: '$to.name'}, count: {$sum: 1}}},
     {$sort: {'count': -1}},
-    {$project: {_id: 0, address: '$_id.address', name: '$_id.name', count: 1}}
+    {$project: {_id: 0, address: '$_id.address', name: '$_id.name', count: 1}},
+    {$limit : 15}
   ]);
 }
 
