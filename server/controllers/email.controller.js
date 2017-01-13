@@ -159,17 +159,33 @@ function copy(req, res) {
 }
 
 function addFlags(req, res) {
-  createEmailConnector(req.query.provider, req.user).addFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
-    res.status(200).send(messages);
+  const imapConnector = createEmailConnector(req.query.provider, req.user);
+  imapConnector.addFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
+      Email.findOne({uid:req.body.msgId, 'box.name':req.body.box}).then((email) => {
+          email.flags = email.flags.concat(req.body.flags);
+          email.save();
+          res.status(200).send({message:'Successfully added Flags',msgId:msgId, box:req.body.box});
+      })
   }).catch((err) => {
     res.status(400).send(err);
   });
 }
 
 function delFlags(req, res) {
-  createEmailConnector(req.query.provider, req.user).delFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
-    res.status(200).send(messages);
+  const imapConnector = createEmailConnector(req.query.provider, req.user);
+  imapConnector.delFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
+      Email.findOne({uid:req.body.msgId, 'box.name':req.body.box}).then((email) => {
+          req.body.flags.forEach((f)=>{
+              const index = email.flags.indexOf(f);
+              if(index > -1) {
+                  email.flags.splice(index,1);
+              }
+          });
+          email.save();
+          res.status(200).send({message:'Successfully deleted Flags',msgId:msgId, box:req.body.box});
+      });
   }).catch((err) => {
+      console.log(err);
     res.status(400).send(err);
   });
 }
