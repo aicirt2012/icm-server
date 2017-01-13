@@ -80,8 +80,11 @@ function syncMails(req, res) {
 
 function addBox(req, res) {
   createEmailConnector(req.query.provider, req.user).addBox(req.body.boxName).then((boxName) => {
-    getBoxes(req.user, false, req.query.provider).then(() => {
-      res.status(200).send({message: `Created new box: ${boxName}`});
+    getBoxes(req.user, false, req.query.provider).then((boxList) => {
+      res.status(200).send({
+          message: `Created new box: ${boxName}`,
+          boxList: boxList
+      });
     });
   }).catch((err) => {
     res.status(400).send(err);
@@ -90,8 +93,11 @@ function addBox(req, res) {
 
 function delBox(req, res) {
   createEmailConnector(req.query.provider, req.user).delBox(req.body.boxName).then((boxName) => {
-    getBoxes(req.user, false, req.query.provider).then(() => {
-      res.status(200).send({message: `Deleted box: ${boxName}`});
+    getBoxes(req.user, false, req.query.provider).then((boxList) => {
+      res.status(200).send({
+          message: `Deleted box: ${boxName}`,
+          boxList: boxList
+      });
     });
   }).catch((err) => {
     res.status(400).send(err);
@@ -100,8 +106,11 @@ function delBox(req, res) {
 
 function renameBox(req, res) {
   createEmailConnector(req.query.provider, req.user).renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
-    getBoxes(req.user, false, req.query.provider).then(() => {
-      res.status(200).send(`Renamed box to: ${boxName}`);
+    getBoxes(req.user, false, req.query.provider).then((boxList) => {
+      res.status(200).send({
+          message:`Renamed box to: ${boxName}`,
+          boxList: boxList
+      });
     });
   }).catch((err) => {
     res.status(400).send(err);
