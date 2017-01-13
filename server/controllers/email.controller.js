@@ -81,7 +81,7 @@ function syncMails(req, res) {
 function addBox(req, res) {
   createEmailConnector(req.query.provider, req.user).addBox(req.body.boxName).then((boxName) => {
     getBoxes(req.user, false, req.query.provider).then(() => {
-      res.status(200).send(`Created new box: ${boxName}`);
+      res.status(200).send({message: `Created new box: ${boxName}`});
     });
   }).catch((err) => {
     res.status(400).send(err);
@@ -91,7 +91,7 @@ function addBox(req, res) {
 function delBox(req, res) {
   createEmailConnector(req.query.provider, req.user).delBox(req.body.boxName).then((boxName) => {
     getBoxes(req.user, false, req.query.provider).then(() => {
-      res.status(200).send(`Deleted box: ${boxName}`);
+      res.status(200).send({message: `Deleted box: ${boxName}`});
     });
   }).catch((err) => {
     res.status(400).send(err);
