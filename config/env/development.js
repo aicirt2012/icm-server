@@ -2,7 +2,7 @@ export default {
   env: 'development',
   MONGOOSE_DEBUG: true,
   jwt: {
-    secret: '382a4b7a5745454f3b44346d27744b2d305b3b58394f4d75375e7d7670',
+    secret: process.env.JWT_SECRET || '382a4b7a5745454f3b44346d27744b2d305b3b58394f4d75375e7d7670',
     expiresInSeconds: 86400
   },
   email: {
