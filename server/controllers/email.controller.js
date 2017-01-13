@@ -80,12 +80,20 @@ function syncMails(req, res) {
 
 function addBox(req, res) {
   createEmailConnector(req.query.provider, req.user).addBox(req.body.boxName).then((boxName) => {
-    getBoxes(req.user, false, req.query.provider).then((boxList) => {
+      req.user.boxList.push({
+          id: req.user.boxList.length,
+          name: boxName,
+          shortName: boxName.substr(boxName.lastIndexOf('/') + 1, boxName.length),
+          total: 0,
+          new: 0,
+          unseen: 0,
+          parent: null
+      });
       res.status(200).send({
           message: `Created new box: ${boxName}`,
-          boxList: boxList
+          boxList: req.user.boxList
       });
-    });
+      getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -93,12 +101,12 @@ function addBox(req, res) {
 
 function delBox(req, res) {
   createEmailConnector(req.query.provider, req.user).delBox(req.body.boxName).then((boxName) => {
-    getBoxes(req.user, false, req.query.provider).then((boxList) => {
+      req.user.boxList.splice(req.user.boxList.findIndex((el) => el.name == boxName), 1);
       res.status(200).send({
           message: `Deleted box: ${boxName}`,
-          boxList: boxList
+          boxList: req.user.boxList
       });
-    });
+      getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -106,12 +114,14 @@ function delBox(req, res) {
 
 function renameBox(req, res) {
   createEmailConnector(req.query.provider, req.user).renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
-    getBoxes(req.user, false, req.query.provider).then((boxList) => {
+      let box = req.user.boxList.find((el) => el.name == req.body.oldBoxName);
+      box.name = req.body.newBoxName;
+      box.shortName = box.name.substr(box.name.lastIndexOf('/') + 1, box.name.length);
       res.status(200).send({
-          message:`Renamed box to: ${boxName}`,
-          boxList: boxList
+          message: `Renamed box: ${boxName}`,
+          boxList: req.user.boxList
       });
-    });
+      getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -130,8 +140,8 @@ function append(req, res) {
 
 function move(req, res) {
   const imapConnector = createEmailConnector(req.query.provider, req.user);
-  imapConnector.move(req.body.msgId, req.body.srcBox, req.body.destBox).then((messages) => {
-    imapConnector.fetchEmails(storeEmail, req.body.destBox).then(() => {
+  imapConnector.move(req.body.msgId, req.body.srcBox, req.body.destBox).then((msgId) => {
+    imapConnector.fetchEmails(storeEmail, req.body.destBox).then((messages) => {
       res.status(200).send(messages);
     })
   }).catch((err) => {
@@ -139,6 +149,7 @@ function move(req, res) {
   });
 }
 
+/* DEPRECATED - DO NOT USE */
 function copy(req, res) {
   createEmailConnector(req.query.provider, req.user).copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
     res.status(200).send(messages);

@@ -180,6 +180,7 @@ ${msgData}`;
       if (key != '[Gmail]') {
         box = {
           name: path,
+          shortName: path.substr(path.lastIndexOf('/') + 1, path.length),
           parent: parent
         };
         arr.push(box);
