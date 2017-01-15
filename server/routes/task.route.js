@@ -8,9 +8,16 @@ function routeProvider(passport) {
   });
   router.use(mw);
 
+  /** GET /api/task/search/members - Protected route */
+  router.route('/search/members')
+    .get(taskCtrl.searchMembers);
+
   /** GET /api/task/search - Protected route */
   router.route('/search')
     .get(taskCtrl.searchTasks);
+
+  router.route('/cards')
+    .post(taskCtrl.searchCardsForMembers);
 
   router.route('/boards')
     .get(taskCtrl.getAllBoardsForMember);

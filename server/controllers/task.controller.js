@@ -110,6 +110,16 @@ function searchTasks(req, res) {
   });
 }
 
+/* SEARCH MEMBERS */
+function searchMembers(req, res) {
+  createTaskConnector(req.query.provider, req.user).searchMembers(req.query).then((data) => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+
 /* GET ALL BOARDS (+ LISTS) FOR MEMBER */
 function getAllBoardsForMember(req, res) {
   createTaskConnector(req.query.provider, req.user).getBoardsForMember(req.query).then((data) => {
@@ -133,6 +143,38 @@ function getAllCardsForList(req, res) {
   createTaskConnector(req.query.provider, req.user).getCardsForList(req.params.listId, req.query).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+/* GET CARDS FOR MEMBER */
+function searchCardsForMembers(req, res) {
+  const taskConnector = createTaskConnector(req.query.provider, req.user);
+  let promises = [];
+  req.body.emailAddresses.forEach((e) => {
+    promises.push(new Promise((resolve,reject) => {
+      taskConnector.searchMembers({query: e}, req.query).then((members) => {
+        if (members.length > 0 ) {
+          taskConnector.getCardsForMember(members[0].id, req.query).then((data) => {
+            resolve(data);
+          })
+        } else {
+          resolve([]);
+        }
+      })
+    }))
+  });
+  Promise.all(promises).then((results) => {
+    let cards = [];
+    results.forEach((m) => {
+      cards = [...cards, ...m];
+    });
+    cards = cards.reduce((a,b) => {
+      return a.findIndex((e) => e.id == b.id) > -1 ? a : a.concat(b)
+    }, []);
+    res.status(200).send(cards);
+  })
+  .catch((err) => {
     res.status(400).send(err);
   });
 }
@@ -164,6 +206,7 @@ function connectSociocortex(req, res) {
 export default {
   createTask,
   searchTasks,
+  searchMembers,
   deleteTask,
   unlinkTask,
   updateTask,
@@ -171,6 +214,7 @@ export default {
   getAllListsForBoard,
   getAllBoardsForMember,
   getAllCardsForList,
+  searchCardsForMembers,
   registerSociocortex,
   connectSociocortex
 };

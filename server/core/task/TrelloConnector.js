@@ -95,6 +95,20 @@ class TrelloConnector extends TaskConnector {
       })
     });
   }
+  /**
+   * search members
+   * @params {string} - query (required).
+   */
+  searchMembers(params) {
+    const url = this.buildURL('/search/members', params);
+    return new Promise((resolve, reject) => {
+      fetch(url).then((res) => res.json()).then((json) => {
+        resolve(json);
+      }).catch((err) => {
+        reject(err);
+      })
+    });
+  }
 
   /**
    * get boards
@@ -162,6 +176,28 @@ class TrelloConnector extends TaskConnector {
     return new Promise((resolve, reject) => {
       fetch(url).then((res) => res.json()).then((json) => {
         resolve(json);
+      }).catch((err) => {
+        reject(err);
+      })
+    });
+  }
+
+  /**
+   * get cards
+   * @params {string} - query (required).
+   */
+  getCardsForMember(memberId, params) {
+    params['members'] = 'true';
+    const url = this.buildURL(`/members/${memberId}/cards`, params);
+    return new Promise((resolve, reject) => {
+      fetch(url).then((res) => res.json()).then((cards) => {
+        let promises = [];
+        cards.forEach((b) => {
+          promises.push(b);
+        });
+        Promise.all(promises).then((res) => {
+          resolve(res);
+        });
       }).catch((err) => {
         reject(err);
       })
