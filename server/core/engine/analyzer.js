@@ -54,7 +54,10 @@ class Analyzer {
           promises.push(connector.getTask(t.taskId));
         });
         Promise.all(promises).then((results) => {
-          this.linkedTasks = results;
+          this.linkedTasks = results.map((r) => {
+            r['taskType'] = 'linked';
+            return r;
+          });
           resolve(results);
         });
       }).catch((err) => {
@@ -65,12 +68,13 @@ class Analyzer {
 
   addSuggestedTasks() {
     let extractedTasks = this.getTasksFromEmailBody();
-    extractedTasks.forEach(task => {
+    extractedTasks.forEach((task) => {
       const taskSuggestion = {
         name: this.email.subject,
         desc: task.sentence,
         task: task,
-        date: this.email.date
+        date: this.email.date,
+        taskType: 'suggested'
           //, idMembers: ??? emailRecipients <-> trello user ID ???
       };
       this.suggestedTasks.push(taskSuggestion);
