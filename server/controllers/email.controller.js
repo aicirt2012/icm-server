@@ -56,7 +56,7 @@ function syncMails(req, res) {
   let promises = [];
   let subPromises = [];
   if (!req.body.boxes || req.body.boxes.length < 1) {
-    req.body.boxes = req.user.boxList.filter((box) => box.total != 0 && box.name != '[Gmail]/Important' && box.name != '[Gmail]/All Mail').map((box) => box.name);
+    req.body.boxes = req.user.boxList.filter((box) => box.total != 0 && box.name != '[Gmail]/Important' && box.name != '[Gmail]/All Mail' && box.name != '[Google Mail]/Important' && box.name != '[Google Mail]/All Mail').map((box) => box.name);
   }
   req.body.boxes.forEach((box, index) => {
     if (subPromises.length == 10) {
@@ -321,7 +321,7 @@ function recursivePromises(promises, callback) {
 function generateBoxList(boxes, parent, arr) {
   Object.keys(boxes).forEach((key, i) => {
     const path = parent ? `${parent}/${key}` : key;
-    if (key != '[Gmail]') {
+    if (key != '[Gmail]' && key != '[Google Mail]') {
       arr.push(path);
     }
     if (boxes[key].children) {
