@@ -149,34 +149,38 @@ function getAllCardsForList(req, res) {
 
 /* GET CARDS FOR MEMBER */
 function searchCardsForMembers(req, res) {
-  const taskConnector = createTaskConnector(req.query.provider, req.user);
-  let promises = [];
-  req.body.emailAddresses.forEach((e) => {
-    promises.push(new Promise((resolve,reject) => {
-      taskConnector.searchMembers({query: e}, req.query).then((members) => {
-        if (members.length > 0 ) {
-          taskConnector.getCardsForMember(members[0].id, req.query).then((data) => {
-            resolve(data);
-          })
-        } else {
-          resolve([]);
-        }
-      })
-    }))
-  });
-  Promise.all(promises).then((results) => {
-    let cards = [];
-    results.forEach((m) => {
-      cards = [...cards, ...m];
+  if(req.body.emailAddresses.length > 0 ) {
+    const taskConnector = createTaskConnector(req.query.provider, req.user);
+    let promises = [];
+    req.body.emailAddresses.forEach((e) => {
+      promises.push(new Promise((resolve,reject) => {
+        taskConnector.searchMembers({query: e}, req.query).then((members) => {
+          if (members.length > 0 ) {
+            taskConnector.getCardsForMember(members[0].id, req.query).then((data) => {
+              resolve(data);
+            })
+          } else {
+            resolve([]);
+          }
+        })
+      }))
     });
-    cards = cards.reduce((a,b) => {
-      return a.findIndex((e) => e.id == b.id) > -1 ? a : a.concat(b)
-    }, []);
-    res.status(200).send(cards);
-  })
-  .catch((err) => {
-    res.status(400).send(err);
-  });
+    Promise.all(promises).then((results) => {
+      let cards = [];
+      results.forEach((m) => {
+        cards = [...cards, ...m];
+      });
+      cards = cards.reduce((a,b) => {
+        return a.findIndex((e) => e.id == b.id) > -1 ? a : a.concat(b)
+      }, []);
+      res.status(200).send(cards);
+    })
+    .catch((err) => {
+      res.status(400).send(err);
+    });
+  } else {
+    res.status(200).send([]);
+  }
 }
 
 /* REGISTER NEW USER IN SOCIOCORTEX */
