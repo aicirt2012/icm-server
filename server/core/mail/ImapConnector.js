@@ -177,7 +177,7 @@ ${msgData}`;
     Object.keys(boxes).forEach((key, i) => {
       const path = parentPath ? `${parentPath}/${key}` : key;
       let box = null;
-      if (key != '[Gmail]' || key != '[Google Mail]') {
+      if (key != '[Gmail]' && key != '[Google Mail]') {
         box = {
           name: path,
           shortName: path.substr(path.lastIndexOf('/') + 1, path.length),
