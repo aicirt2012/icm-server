@@ -248,13 +248,17 @@ function getSingleMail(req, res) {
   Email.findOne({
     _id: req.params.id
   }).lean().then((mail, err) => {
-    // call analyzer with emailObject and append suggested task and already linked tasks
-    new Analyzer(mail, req.user).getEmailTasks().then((email) => {
-      res.status(200).send(email);
-    }).catch((err) => {
-      res.status(400).send(err);
-    });
-  })
+      // call analyzer with emailObject and append suggested task and already linked tasks
+    if(req.user.trello || req.user.sociocortex) {
+        new Analyzer(mail, req.user).getEmailTasks().then((email) => {
+          res.status(200).send(email);
+      });
+    } else {
+        res.status(200).send(mail);
+    }
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
 }
 
 /* EMAIL HELPER */
