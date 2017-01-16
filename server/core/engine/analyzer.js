@@ -70,7 +70,7 @@ class Analyzer {
     let extractedTasks = this.getTasksFromEmailBody();
     extractedTasks.forEach((task) => {
       const taskSuggestion = {
-        name: this.email.subject,
+        name: this.email.subject || '',
         desc: task.sentence,
         task: task,
         date: this.email.date,
@@ -174,7 +174,6 @@ class Analyzer {
     });
     return tasks;
   }
-
 }
 
 export default Analyzer;
