@@ -10,6 +10,9 @@ class ImapConnector {
     };
     this.options['authTimeout'] = 10000;
     this.imap = new IPromise(options);
+    this.imap.on('error', (err) => {
+        console.log(err);
+    })
   }
 
   connect() {
@@ -174,9 +177,10 @@ ${msgData}`;
     Object.keys(boxes).forEach((key, i) => {
       const path = parentPath ? `${parentPath}/${key}` : key;
       let box = null;
-      if (key != '[Gmail]') {
+      if (key != '[Gmail]' && key != '[Google Mail]') {
         box = {
           name: path,
+          shortName: path.substr(path.lastIndexOf('/') + 1, path.length),
           parent: parent
         };
         arr.push(box);

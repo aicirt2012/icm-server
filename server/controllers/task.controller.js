@@ -1,37 +1,43 @@
-import url from 'url';
-import TrelloConnector from '../core/task/TrelloConnector';
-import SociocortexConnector from '../core/task/SociocortexConnector';
+import SociocortexConnector from '../core/task/SociocortexConnector'; //TODO: remove once SC implementation is finished
+import {createTaskConnector} from '../core/task/util'
 import User from '../models/user.model';
 import Email from '../models/email.model';
 import Task from '../models/task.model';
+import TrainingData from '../models/trainingData.model';
 
-/* CREATE TASK */
-function createTaskForEmail(req, res) {
-  createTaskConnector(req.query.provider, req.user).createTask(req.body).then((task) => {
-    Email.findById(req.params.emailId, (err, email) => {
-      if (err) {
-        res.status(400).send(err);
-      } else {
-        email.tasks.push({
-          id: task.id,
-          date: new Date()
-        });
-        email.save().then((email) => {
-          res.status(200).send(task);
-        });
-      }
-    });
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-
+/*
+ * CREATE TASK
+ * BODY: {..., sentenceId, sentences}
+ */
 function createTask(req, res) {
   createTaskConnector(req.query.provider, req.user).createTask(req.body).then((t) => {
     let task = new Task();
     task['taskId'] = t.id;
     task['provider'] = req.query.provider || 'trello';
-    task.save().then(() => {
+    task['email'] = req.params.emailId || null;
+    task.save().then((result) => {
+      if (req.params.emailId) {
+        TrainingData.findOne({email: result.email, sentenceId: req.body.sentenceId}).then((td) => {
+          if (td) {
+            td.label = true;
+            td.task = result;
+            td.save();
+          } else {
+            req.body.sentences.forEach((s) => {
+              let tdSet = new TrainingData({
+                text: s.sentence,
+                label: s.id == req.body.sentenceId,
+                email: result.email,
+                sentenceId: s.id
+              });
+              if (s.id == req.body.sentenceId) {
+                tdSet['task'] = result;
+              }
+              tdSet.save();
+            });
+          }
+        });
+      }
       res.status(200).send(t);
     });
   }).catch((err) => {
@@ -60,7 +66,36 @@ function updateTask(req, res) {
 /* DELETE TASK */
 function deleteTask(req, res) {
   createTaskConnector(req.query.provider, req.user).deleteTask(req.params.taskId).then((data) => {
-    res.status(200).send(data);
+    Task.findOne({taskId: req.params.taskId}).then((task) => {
+      TrainingData.findOne({task: task}).then((td) => {
+        if (td) {
+          td.task = null;
+          td.label = false;
+          td.save();
+        }
+        Task.remove({taskId: req.params.taskId}).then((value) => {
+          res.status(200).send(value);
+        });
+      });
+    });
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+/* UNLINK TASK */
+function unlinkTask(req, res) {
+  Task.findOne({taskId: req.params.taskId}).then((task) => {
+    TrainingData.findOne({task: task}).then((td) => {
+      if (td) {
+        td.task = null;
+        td.label = false;
+        td.save();
+      }
+      Task.remove({taskId: req.params.taskId}).then((value) => {
+        res.status(200).send(value);
+      });
+    });
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -74,6 +109,16 @@ function searchTasks(req, res) {
     res.status(400).send(err);
   });
 }
+
+/* SEARCH MEMBERS */
+function searchMembers(req, res) {
+  createTaskConnector(req.query.provider, req.user).searchMembers(req.query).then((data) => {
+    res.status(200).send(data);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
 
 /* GET ALL BOARDS (+ LISTS) FOR MEMBER */
 function getAllBoardsForMember(req, res) {
@@ -102,19 +147,56 @@ function getAllCardsForList(req, res) {
   });
 }
 
-/* REGISTER NEW USER IN SOCIOCORTEX */ // TODO: needs generalization ?
+/* GET CARDS FOR MEMBER */
+function searchCardsForMembers(req, res) {
+  if(req.body.emailAddresses.length > 0 ) {
+    const taskConnector = createTaskConnector(req.query.provider, req.user);
+    let promises = [];
+    req.body.emailAddresses.forEach((e) => {
+      promises.push(new Promise((resolve,reject) => {
+        taskConnector.searchMembers({query: e}, req.query).then((members) => {
+          if (members.length > 0 ) {
+            taskConnector.getCardsForMember(members[0].id, req.query).then((data) => {
+              resolve(data);
+            })
+          } else {
+            resolve([]);
+          }
+        })
+      }))
+    });
+    Promise.all(promises).then((results) => {
+      let cards = [];
+      results.forEach((m) => {
+        cards = [...cards, ...m];
+      });
+      cards = cards.reduce((a,b) => {
+        return a.findIndex((e) => e.id == b.id) > -1 ? a : a.concat(b)
+      }, []);
+      res.status(200).send(cards);
+    })
+    .catch((err) => {
+      res.status(400).send(err);
+    });
+  } else {
+    res.status(200).send([]);
+  }
+}
+
+/* REGISTER NEW USER IN SOCIOCORTEX */
+// TODO: needs generalization ?
 function registerSociocortex(req, res) {
   const options = req.user.sociocortex || {};
   const scConnector = new SociocortexConnector(options);
-  scConnector.register(req.user, req.body.scUsername, req.body.scEmail,
-    req.body.scPassword).then((data) => {
+  scConnector.register(req.user, req.body.scUsername, req.body.scEmail, req.body.scPassword).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
   });
 }
 
-/* LOG IN SOCIOCORTEX */ // TODO: needs generalization ?
+/* LOG IN SOCIOCORTEX */
+// TODO: needs generalization ?
 function connectSociocortex(req, res) {
   const options = req.user.sociocortex || {};
   const scConnector = new SociocortexConnector(options);
@@ -125,30 +207,18 @@ function connectSociocortex(req, res) {
   });
 }
 
-/* TASK HELPER */
-function createTaskConnector(provider, user) {
-  switch (provider) {
-    case 'trello':
-      return new TrelloConnector(user.trello);
-      break;
-    case 'sociocortex':
-      return new SociocortexConnector(user.sociocortex);
-      break;
-    default:
-      return new TrelloConnector(user.trello);
-  }
-}
-
 export default {
   createTask,
-  createTaskForEmail,
   searchTasks,
+  searchMembers,
   deleteTask,
+  unlinkTask,
   updateTask,
   getSingleTask,
   getAllListsForBoard,
   getAllBoardsForMember,
   getAllCardsForList,
+  searchCardsForMembers,
   registerSociocortex,
-  connectSociocortex,
+  connectSociocortex
 };

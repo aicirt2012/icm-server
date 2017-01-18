@@ -5,7 +5,7 @@ import SMTPConnector from '../core/mail/SMTPConnector';
 import ExchangeConnector from '../core/mail/ExchangeConnector';
 import config from '../../config/env';
 import User from '../models/user.model';
-import Analyzer from '../core/engine/Analyzer';
+import Analyzer from '../core/engine/analyzer';
 
 const imapOptions = (user) => {
   return {
@@ -56,7 +56,7 @@ function syncMails(req, res) {
   let promises = [];
   let subPromises = [];
   if (!req.body.boxes || req.body.boxes.length < 1) {
-    req.body.boxes = req.user.boxList.filter((box) => box.total != 0 && box.name != '[Gmail]/Important' && box.name != '[Gmail]/All Mail').map((box) => box.name);
+    req.body.boxes = req.user.boxList.filter((box) => box.total != 0 && box.name != '[Gmail]/Important' && box.name != '[Gmail]/All Mail' && box.name != '[Google Mail]/Important' && box.name != '[Google Mail]/All Mail').map((box) => box.name);
   }
   req.body.boxes.forEach((box, index) => {
     if (subPromises.length == 10) {
@@ -80,9 +80,20 @@ function syncMails(req, res) {
 
 function addBox(req, res) {
   createEmailConnector(req.query.provider, req.user).addBox(req.body.boxName).then((boxName) => {
-    getBoxes(req.user, false, req.query.provider).then(() => {
-      res.status(200).send(`Created new box: ${boxName}`);
-    });
+      req.user.boxList.push({
+          id: req.user.boxList.length,
+          name: boxName,
+          shortName: boxName.substr(boxName.lastIndexOf('/') + 1, boxName.length),
+          total: 0,
+          new: 0,
+          unseen: 0,
+          parent: null
+      });
+      res.status(200).send({
+          message: `Created new box: ${boxName}`,
+          boxList: req.user.boxList
+      });
+      getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -90,9 +101,12 @@ function addBox(req, res) {
 
 function delBox(req, res) {
   createEmailConnector(req.query.provider, req.user).delBox(req.body.boxName).then((boxName) => {
-    getBoxes(req.user, false, req.query.provider).then(() => {
-      res.status(200).send(`Deleted box: ${boxName}`);
-    });
+      req.user.boxList.splice(req.user.boxList.findIndex((el) => el.name == boxName), 1);
+      res.status(200).send({
+          message: `Deleted box: ${boxName}`,
+          boxList: req.user.boxList
+      });
+      getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -100,9 +114,14 @@ function delBox(req, res) {
 
 function renameBox(req, res) {
   createEmailConnector(req.query.provider, req.user).renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
-    getBoxes(req.user, false, req.query.provider).then(() => {
-      res.status(200).send(`Renamed box to: ${boxName}`);
-    });
+      let box = req.user.boxList.find((el) => el.name == req.body.oldBoxName);
+      box.name = req.body.newBoxName;
+      box.shortName = box.name.substr(box.name.lastIndexOf('/') + 1, box.name.length);
+      res.status(200).send({
+          message: `Renamed box: ${boxName}`,
+          boxList: req.user.boxList
+      });
+      getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -121,8 +140,8 @@ function append(req, res) {
 
 function move(req, res) {
   const imapConnector = createEmailConnector(req.query.provider, req.user);
-  imapConnector.move(req.body.msgId, req.body.srcBox, req.body.destBox).then((messages) => {
-    imapConnector.fetchEmails(storeEmail, req.body.destBox).then(() => {
+  imapConnector.move(req.body.msgId, req.body.srcBox, req.body.destBox).then((msgId) => {
+    imapConnector.fetchEmails(storeEmail, req.body.destBox).then((messages) => {
       res.status(200).send(messages);
     })
   }).catch((err) => {
@@ -130,6 +149,7 @@ function move(req, res) {
   });
 }
 
+/* DEPRECATED - DO NOT USE */
 function copy(req, res) {
   createEmailConnector(req.query.provider, req.user).copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
     res.status(200).send(messages);
@@ -139,17 +159,33 @@ function copy(req, res) {
 }
 
 function addFlags(req, res) {
-  createEmailConnector(req.query.provider, req.user).addFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
-    res.status(200).send(messages);
+  const imapConnector = createEmailConnector(req.query.provider, req.user);
+  imapConnector.addFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
+      Email.findOne({uid:req.body.msgId, 'box.name':req.body.box}).then((email) => {
+          email.flags = email.flags.concat(req.body.flags);
+          email.save();
+          res.status(200).send({message:'Successfully added Flags',msgId:msgId, box:req.body.box});
+      })
   }).catch((err) => {
     res.status(400).send(err);
   });
 }
 
 function delFlags(req, res) {
-  createEmailConnector(req.query.provider, req.user).delFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
-    res.status(200).send(messages);
+  const imapConnector = createEmailConnector(req.query.provider, req.user);
+  imapConnector.delFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
+      Email.findOne({uid:req.body.msgId, 'box.name':req.body.box}).then((email) => {
+          req.body.flags.forEach((f)=>{
+              const index = email.flags.indexOf(f);
+              if(index > -1) {
+                  email.flags.splice(index,1);
+              }
+          });
+          email.save();
+          res.status(200).send({message:'Successfully deleted Flags',msgId:msgId, box:req.body.box});
+      });
   }).catch((err) => {
+      console.log(err);
     res.status(400).send(err);
   });
 }
@@ -165,7 +201,7 @@ function setFlags(req, res) {
 function getPaginatedEmailsForBox(req, res)  {
   const options = {
     page: req.query.page ? parseInt(req.query.page) : 1,
-    limit: req.query.limit ? parseInt(req.query.limit) : 10,
+    limit: req.query.limit ? parseInt(req.query.limit) : 25,
     sort: {
       date: -1
     },
@@ -186,11 +222,15 @@ function getPaginatedEmailsForBox(req, res)  {
 
 function searchPaginatedEmails(req, res) {
   const options = {
-    page: req.query.page ? req.query.page : 1,
-    limit: req.query.limit ? req.query.limit : 10
+    page: req.query.page ? parseInt(req.query.page) : 1,
+    limit: req.query.limit ? parseInt(req.query.limit) : 25,
+    sort: {
+      date: -1
+    },
   };
   const query = {
     user: req.user,
+    'box.name': req.query.box || req.user.boxList[0].name,
     $text: {
       $search: req.query.q ? req.query.q : ''
     }
@@ -208,14 +248,17 @@ function getSingleMail(req, res) {
   Email.findOne({
     _id: req.params.id
   }).lean().then((mail, err) => {
-    // call analyzer with emailObject and append suggested task and already linked tasks
-    const email = new Analyzer(mail).detectPattern();
-    if (err) {
-      res.status(400).send(err);
+      // call analyzer with emailObject and append suggested task and already linked tasks
+    if(req.user.trello || req.user.sociocortex) {
+        new Analyzer(mail, req.user).getEmailTasks().then((email) => {
+          res.status(200).send(email);
+      });
     } else {
-      res.status(200).send(email);
+        res.status(200).send(mail);
     }
-  })
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
 }
 
 /* EMAIL HELPER */
@@ -278,7 +321,7 @@ function recursivePromises(promises, callback) {
 function generateBoxList(boxes, parent, arr) {
   Object.keys(boxes).forEach((key, i) => {
     const path = parent ? `${parent}/${key}` : key;
-    if (key != '[Gmail]') {
+    if (key != '[Gmail]' && key != '[Google Mail]') {
       arr.push(path);
     }
     if (boxes[key].children) {
