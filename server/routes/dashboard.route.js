@@ -22,6 +22,9 @@ function routeProvider(passport) {
   router.route('/network')
     .get(dashboardCtrl.getNetwork);
 
+  router.route('/structure')
+    .get(dashboardCtrl.getStructure);
+
   return router;
 }
 

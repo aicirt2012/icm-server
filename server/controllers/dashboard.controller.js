@@ -206,7 +206,7 @@ function getNetwork(req, res){
   getTopSender(userId)
     .then((ts) => {
       s.topsender = ts;
-      return getTopReceiver(userId)
+      return getTopReceiver(userId);
     })
     .then((tr) => {
       s.topreceiver = tr;
@@ -214,6 +214,20 @@ function getNetwork(req, res){
     })
     .then((g) => {
       s.graph = g;
+      res.status(200).send(s);
+    });
+}
+
+function getStructure(req, res){
+  let userId = req.user._id;
+  const s = {};
+  getConversations(userId)
+    .then((c)=>{
+      s.converstations = c;
+      return getLabels(userId);
+    })
+    .then((l)=>{
+      s.labels = l;
       res.status(200).send(s);
     });
 }
@@ -271,5 +285,6 @@ function getSummary(req, res) {
 export default {
   getSummary,
   getTimeline,
-  getNetwork
+  getNetwork,
+  getStructure
 };
