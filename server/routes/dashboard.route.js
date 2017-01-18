@@ -9,11 +9,18 @@ function routeProvider(passport) {
   });
 
   //TODO remove comment below - only for testing purpose
-  //router.use(mw);
+  router.use(mw);
 
   /** GET /api/dashboard/summary - Protected route */
   router.route('/summary')
-      .get(dashboardCtrl.getSummary);
+    .get(dashboardCtrl.getSummary);
+
+
+  router.route('/timeline')
+    .get(dashboardCtrl.getTimeline);
+
+  router.route('/network')
+    .get(dashboardCtrl.getNetwork);
 
   return router;
 }

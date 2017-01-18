@@ -185,6 +185,39 @@ function testNer(){
   });
 }
 
+function getTimeline(req, res){
+  let userId = req.user._id;
+  const s = {};
+  console.log(userId);
+  getMonthlyPunchCard(userId)
+    .then((m) => {
+      s.monthly = m;
+      return getDailyPunchCard(userId);
+    })
+    .then((d) => {
+      s.daily = d;
+      res.status(200).send(s);
+    });
+}
+
+function getNetwork(req, res){
+  let userId = req.user._id;
+  const s = {};
+  getTopSender(userId)
+    .then((ts) => {
+      s.topsender = ts;
+      return getTopReceiver(userId)
+    })
+    .then((tr) => {
+      s.topreceiver = tr;
+      return getNetworkGraph(userId);
+    })
+    .then((g) => {
+      s.graph = g;
+      res.status(200).send(s);
+    });
+}
+
 function getSummary(req, res) {
 
   let userId = null;
@@ -236,5 +269,7 @@ function getSummary(req, res) {
 }
 
 export default {
-  getSummary
+  getSummary,
+  getTimeline,
+  getNetwork
 };
