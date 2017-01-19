@@ -1,6 +1,6 @@
 import express from 'express';
-import Attachment from '../models/attachement.model';
 import fs from 'fs';
+import Attachment from '../models/attachment.model';
 
 function routeProvider(passport) {
   const router = express.Router();
@@ -10,16 +10,15 @@ function routeProvider(passport) {
  // router.use(mw);
 
   router.route('/attach').get((req, res)=>{
-    Attachment.create('Test.txt', 'Text/plain', fs.createReadStream('D:/test.txt'))
-      .then(file=>{
-        console.log(file);
-        return Attachment.find(file._id);
-      })
-      .then(strea=>{
-        console.log(strea.toString());
 
+    //Attachment.create('mymetadata', 'doer', fs.createReadStream('D:/test.txt'));
+    //Attachment.removeById('58813d349eae471390027407');
+    Attachment.findById('58813d7055373d1d2091955f')
+      .then(a=>{
+        console.log(a.getReadStream());
       });
     res.status(200).send();
+
   });
 
   return router;
