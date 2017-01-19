@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import gridfs from 'mongoose-gridfs';
 
+/** need to ba a function otherwise mongoose is not available for gridfs */
 function Attachment() {
   return gridfs({
     collection: 'attachments',
