@@ -45,13 +45,14 @@ class Attachment {
     });
   }
 
-  static findById(attachmentId){
+  static findById(attachmentId, rs=true){
     return new Promise((resolve, reject)=>{
       AttachmentModel.find({_id: attachmentId}).lean().exec((err, attachment)=>{
         if(err)
           reject(err);
         else {
-          attachment.rs = fs.createReadStream(config.attachmentsPath+attachmentId);
+          if(rs)
+            attachment.rs = fs.createReadStream(config.attachmentsPath+attachmentId);
           resolve(attachment);
         }
       });
