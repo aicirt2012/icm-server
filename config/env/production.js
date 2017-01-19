@@ -18,6 +18,7 @@ export default {
     oauthVersion: '1.0',
     oauthSHA: 'HMAC-SHA1'
   },
+  attachmentsPath: 'D:/Attachments/',
   db: 'mongodb://localhost:27017/emailapp',
   port: 4000
 };

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import fs from 'fs';
 import util from 'util';
 import config from './config/env';
 import app from './config/express';
@@ -23,6 +24,11 @@ if (config.MONGOOSE_DEBUG) {
   mongoose.set('debug', (collectionName, method, query, doc) => {
     debug(`${collectionName}.${method}`, util.inspect(query, false, 20), doc);
   });
+}
+
+//check if the configured directory for the attachments exists
+if (!fs.existsSync(config.attachmentsPath)){
+  throw new Error('Attachment path does not exist! Create "'+config.attachmentsPath+'" path manually!');
 }
 
 // module.parent check is required to support mocha watch
