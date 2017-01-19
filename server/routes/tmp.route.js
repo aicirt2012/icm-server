@@ -15,7 +15,7 @@ function routeProvider(passport) {
     //Attachment.removeById('58813d349eae471390027407');
     Attachment.findById('58813d7055373d1d2091955f')
       .then(a=>{
-        console.log(a.getReadStream());
+        console.log(a);
       });
     res.status(200).send();
 
