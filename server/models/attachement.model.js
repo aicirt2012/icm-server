@@ -38,7 +38,14 @@ function deleteAttachment(id){
 }
 
 function findAttachment(id){
-  return Attachment.readById(id);
+  return new Promise((resolve, reject)=>{
+    Attachment().readById(id, function(err, content){
+      if(err)
+        reject(err);
+      else
+        resolve(content);
+    });
+  });
 }
 
 
