@@ -14,13 +14,11 @@ class Attachment {
 
   static create(filename, contentType, readStream){
     return new Promise((resolve, reject)=>{
-      let a = new AttachmentModel({
+      new AttachmentModel({
         filename: filename,
         contentType: contentType
-      });
-      a.save((err, attachment)=>{
-        let aId = attachment._id;
-        var writeStream = fs.createWriteStream(config.attachmentsPath+aId);
+      }).save((err, attachment)=>{
+        const writeStream = fs.createWriteStream(config.attachmentsPath+attachment._id);
         readStream.pipe(writeStream);
         writeStream.on('close', function () {
           resolve(attachment);
@@ -49,7 +47,7 @@ class Attachment {
 
   static findById(attachmentId){
     return new Promise((resolve, reject)=>{
-      AttachmentModel.findById(attachmentId, (err, attachment)=>{
+      AttachmentModel.find({_id: attachmentId}).lean().exec((err, attachment)=>{
         if(err)
           reject(err);
         else {

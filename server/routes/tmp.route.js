@@ -11,9 +11,9 @@ function routeProvider(passport) {
 
   router.route('/attach').get((req, res)=>{
 
-    //Attachment.create('mymetadata', 'doer', fs.createReadStream('D:/test.txt'));
+    Attachment.create('mymetadata', 'doer', fs.createReadStream('D:/test.txt'));
     //Attachment.removeById('58813d349eae471390027407');
-    Attachment.findById('58813d7055373d1d2091955f')
+    Attachment.findById('58814594fd0327214884ca7c')
       .then(a=>{
         console.log(a);
       });
