@@ -46,6 +46,9 @@ function routeProvider(passport) {
     .get(taskCtrl.connectSociocortex);
 
   /* Task routes related to emails */
+  router.route('/email/:emailId/linkTask')
+    .post(taskCtrl.linkTaskToMail);
+
   router.route('/email/:emailId/addTask')
     .post(taskCtrl.createTask);
 

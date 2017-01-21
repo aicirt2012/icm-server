@@ -83,6 +83,19 @@ function deleteTask(req, res) {
   });
 }
 
+/* LINK TASK TO MAIL */
+function linkTaskToMail(req, res) {
+  let task = new Task();
+  task['email'] = req.params.emailId;
+  task['provider'] = req.query.provider || 'trello';
+  task['taskId'] = req.body.taskId;
+  task.save().then((t) => {
+    res.status(200).send(t);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
 /* UNLINK TASK */
 function unlinkTask(req, res) {
   Task.findOne({taskId: req.params.taskId}).then((task) => {
@@ -212,6 +225,7 @@ export default {
   searchTasks,
   searchMembers,
   deleteTask,
+  linkTaskToMail,
   unlinkTask,
   updateTask,
   getSingleTask,
