@@ -55,6 +55,7 @@ function sendEmail(req, res) {
 function syncMails(req, res) {
   let promises = [];
   let subPromises = [];
+  const emailConnector = createEmailConnector(req.query.provider, req.user);
   if (!req.body.boxes || req.body.boxes.length < 1) {
     req.body.boxes = req.user.boxList.filter((box) => box.total != 0 && box.name != '[Gmail]/Important' && box.name != '[Gmail]/All Mail' && box.name != '[Google Mail]/Important' && box.name != '[Google Mail]/All Mail').map((box) => box.name);
   }
@@ -63,7 +64,7 @@ function syncMails(req, res) {
       promises.push(subPromises);
       subPromises = [];
     }
-    subPromises.push(createEmailConnector(req.query.provider, req.user).fetchEmails(storeEmail, box));
+    subPromises.push(emailConnector.fetchEmails(storeEmail, box));
     if (index + 1 == req.body.boxes.length) {
       promises.push(subPromises);
     }
@@ -71,6 +72,7 @@ function syncMails(req, res) {
   recursivePromises(promises, () => {
     req.user.lastSync = new Date();
     req.user.save().then(() => {
+      emailConnector.end();
       res.status(200).send({
         message: 'Finished fetching'
       });
@@ -319,8 +321,9 @@ function recursivePromises(promises, callback) {
 }
 
 function getBoxes(user, details = false, provider) {
+  const emailConnector = createEmailConnector(provider, user);
   return new Promise((resolve, reject) => {
-    createEmailConnector(provider, user).getBoxes(details).then((boxes) => {
+    emailConnector.getBoxes(details).then((boxes) => {
       User.findOne({
         _id: user._id
       }, (err, user) => {
@@ -329,6 +332,7 @@ function getBoxes(user, details = false, provider) {
         }
         user.boxList = boxes;
         user.save().then(() => {
+          emailConnector.end();
           resolve(boxes);
         })
       });

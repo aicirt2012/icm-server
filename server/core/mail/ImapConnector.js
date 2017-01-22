@@ -8,7 +8,8 @@ class ImapConnector {
     this.options['debug'] = function(err) {
       console.log(err)
     };
-    this.options['authTimeout'] = 10000;
+    this.options['connTimeout'] = 30000;
+    this.options['authTimeout'] = 30000;
     this.imap = new IPromise(options);
     this.imap.on('error', (err) => {
         console.log(err);
@@ -17,6 +18,14 @@ class ImapConnector {
 
   connect() {
     return this.imap.connectAsync();
+  }
+
+  end() {
+    this.imap.end();
+  }
+
+  destroy() {
+    this.imap.destroy();
   }
 
   openBoxAsync(box) {
