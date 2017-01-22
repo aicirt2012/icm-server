@@ -56,7 +56,8 @@ class ImapConnector {
                     total: res.messages.total,
                     new: res.messages.new,
                     unseen: res.messages.unseen,
-                    parent: box.parent
+                    parent: box.parent,
+                    level: box.level
                   });
                   resolve(res);
                 })
@@ -181,7 +182,8 @@ ${msgData}`;
         box = {
           name: path,
           shortName: path.substr(path.lastIndexOf('/') + 1, path.length),
-          parent: parent
+          parent: parent,
+          level: parent ? parent.level + 1 : 0
         };
         arr.push(box);
       }

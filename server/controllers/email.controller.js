@@ -318,18 +318,6 @@ function recursivePromises(promises, callback) {
   }
 }
 
-function generateBoxList(boxes, parent, arr) {
-  Object.keys(boxes).forEach((key, i) => {
-    const path = parent ? `${parent}/${key}` : key;
-    if (key != '[Gmail]' && key != '[Google Mail]') {
-      arr.push(path);
-    }
-    if (boxes[key].children) {
-      generateBoxList(boxes[key].children, path, arr);
-    }
-  })
-}
-
 function getBoxes(user, details = false, provider) {
   return new Promise((resolve, reject) => {
     createEmailConnector(provider, user).getBoxes(details).then((boxes) => {
