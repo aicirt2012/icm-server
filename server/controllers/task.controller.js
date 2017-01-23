@@ -37,6 +37,10 @@ function createTask(req, res) {
             });
           }
         });
+        Email.findOne({_id:result.email}).then((e)=>{
+          result['thrid'] = e.thrid;
+          result.save();
+        });
       }
       res.status(200).send(t);
     });
@@ -78,6 +82,23 @@ function deleteTask(req, res) {
         });
       });
     });
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+/* LINK TASK TO MAIL */
+function linkTaskToMail(req, res) {
+  let task = new Task();
+  task['email'] = req.params.emailId;
+  task['provider'] = req.query.provider || 'trello';
+  task['taskId'] = req.body.taskId;
+  task.save().then((t) => {
+    Email.findOne({_id:t.email}).then((e) => {
+      task['thrid'] = e.thrid;
+      task.save();
+    });
+    res.status(200).send(t);
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -212,6 +233,7 @@ export default {
   searchTasks,
   searchMembers,
   deleteTask,
+  linkTaskToMail,
   unlinkTask,
   updateTask,
   getSingleTask,

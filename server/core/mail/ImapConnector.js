@@ -3,12 +3,16 @@ import Promise from 'bluebird';
 
 class ImapConnector {
 
+  excludedBoxes = ['[Gmail]', '[Google Mail]', 'Important', 'All Mail', 'Alle Nachrichten', 'Wichtig'];
+
   constructor(options) {
     this.options = options;
     this.options['debug'] = function(err) {
       console.log(err)
     };
-    this.options['authTimeout'] = 10000;
+    this.options['connTimeout'] = 30000;
+    this.options['authTimeout'] = 30000;
+    this.options.keepAlive = false;
     this.imap = new IPromise(options);
     this.imap.on('error', (err) => {
         console.log(err);
@@ -17,6 +21,14 @@ class ImapConnector {
 
   connect() {
     return this.imap.connectAsync();
+  }
+
+  end() {
+    this.imap.end();
+  }
+
+  destroy() {
+    this.imap.destroy();
   }
 
   openBoxAsync(box) {
@@ -56,7 +68,8 @@ class ImapConnector {
                     total: res.messages.total,
                     new: res.messages.new,
                     unseen: res.messages.unseen,
-                    parent: box.parent
+                    parent: box.parent,
+                    level: box.level
                   });
                   resolve(res);
                 })
@@ -177,11 +190,12 @@ ${msgData}`;
     Object.keys(boxes).forEach((key, i) => {
       const path = parentPath ? `${parentPath}/${key}` : key;
       let box = null;
-      if (key != '[Gmail]' && key != '[Google Mail]') {
+      if (this.excludedBoxes.indexOf(key) < 0) {
         box = {
           name: path,
           shortName: path.substr(path.lastIndexOf('/') + 1, path.length),
-          parent: parent
+          parent: parent,
+          level: parent ? parent.level + 1 : 0
         };
         arr.push(box);
       }

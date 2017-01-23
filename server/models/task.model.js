@@ -7,7 +7,8 @@ const TaskSchema = new mongoose.Schema({
   email: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Email'
-  }
+  },
+  thrid: String
 }, {
   timestamps: true
 });
