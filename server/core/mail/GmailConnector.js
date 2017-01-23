@@ -55,7 +55,16 @@ class GmailConnector extends ImapConnector {
           user: this.options.currentUser
         };
         storeEmail(email).then((msg) => {
-          resolve(msg);
+          return new Promise((resolve, reject)=> {
+            console.log('***************************************************************************************************************************************staring to fetch attachements');
+            console.log(mail);
+            super.fetchAttachment(mail)
+              .then(()=>{
+                console.log('++++++++++++++++++++++++++++++++++end fetch attachements');
+
+                resolve(msg);
+              });
+          });
         }).catch((err) => {
           reject(err);
         });

@@ -154,8 +154,9 @@ class ImapConnector {
   }
 
   fetchAttachment(mail) {
-    return this.imap.collectEmailAsync(mail)
+    return this.imap.collectEmailAsync(mail)      
       .then((msg) => {
+        console.log('#############'+msg);
         msg.attachments = this.imap.findAttachments(msg);
         msg.downloads = Promise.all(msg.attachments.map((attachment) => {
           const emailId = msg.attributes.uid;
