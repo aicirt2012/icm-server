@@ -60,8 +60,10 @@ function getNetworkGraph(userId){
   class Edge{
 
     constructor(from, to){
-      this.from = from.toLowerCase();
-      this.to = to.toLowerCase();
+      if(from)
+        this.from = from.toLowerCase();
+      if(to)
+        this.to = to.toLowerCase();
       this.count = 1;
     }
 
@@ -81,7 +83,8 @@ function getNetworkGraph(userId){
   class Node{
 
     constructor(email, name){
-      this.email = email.toLowerCase();
+      if(email)
+        this.email = email.toLowerCase();
       this.name = name;
     }
 
@@ -103,23 +106,25 @@ function getNetworkGraph(userId){
     Email.find({user: ObjectId(userId)}, {from: 1, to: 1}).lean()
       .then((emails)=> {
         emails.forEach((email)=> {
-          email.from.forEach((from)=> {
-            email.to.forEach((to)=> {
-              let edge = new Edge(from.address, to.address);
-              if (edges.has(edge.key())) {
-                edge = edges.get(edge.key());
-                edge.increaseCount();
-              } else {
-                edges.set(edge.key(), edge);
-              }
-              let node = new Node(from.address, from.name);
-              if(!nodes.has(node.key()))
-                nodes.set(node.key(), node);
-              node = new Node(to.address, to.name);
-              if(!nodes.has(node.key()))
-                nodes.set(node.key(), node);
+          if(email.from != null)
+            email.from.forEach((from)=> {
+              if(email.to != null)
+                email.to.forEach((to)=> {
+                  let edge = new Edge(from.address, to.address);
+                  if (edges.has(edge.key())) {
+                    edge = edges.get(edge.key());
+                    edge.increaseCount();
+                  } else {
+                    edges.set(edge.key(), edge);
+                  }
+                  let node = new Node(from.address, from.name);
+                  if(!nodes.has(node.key()))
+                    nodes.set(node.key(), node);
+                  node = new Node(to.address, to.name);
+                  if(!nodes.has(node.key()))
+                    nodes.set(node.key(), node);
+                });
             });
-          });
         });
         const g = {
           edges: [],
