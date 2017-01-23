@@ -53,23 +53,14 @@ function sendEmail(req, res) {
 }
 
 function syncMails(req, res) {
-  let promises = [];
-  let subPromises = [];
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   if (!req.body.boxes || req.body.boxes.length < 1) {
     req.body.boxes = req.user.boxList.filter((box) => box.total != 0 && box.name != '[Gmail]/Important' && box.name != '[Gmail]/All Mail' && box.name != '[Google Mail]/Important' && box.name != '[Google Mail]/All Mail').map((box) => box.name);
   }
-  req.body.boxes.forEach((box, index) => {
-    if (subPromises.length == 10) {
-      promises.push(subPromises);
-      subPromises = [];
-    }
-    subPromises.push(emailConnector.fetchEmails(storeEmail, box));
-    if (index + 1 == req.body.boxes.length) {
-      promises.push(subPromises);
-    }
-  });
-  recursivePromises(promises, () => {
+
+  Promise.each(req.body.boxes, (box) => {
+    return emailConnector.fetchEmails(storeEmail, box);
+  }).then(() => {
     req.user.lastSync = new Date();
     req.user.save().then(() => {
       emailConnector.end();
@@ -77,7 +68,9 @@ function syncMails(req, res) {
         message: 'Finished fetching'
       });
     });
-  });
+  }).catch((err) => {
+    res.status(400).send(err);
+  })
 }
 
 function addBox(req, res) {
