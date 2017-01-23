@@ -33,7 +33,9 @@ class Analyzer {
   getEmailTasks() {
     return new Promise((resolve, reject) => {
       this.fetchLinkedTasks().then((linkedTasks) => {
-        this.addSuggestedTasks();
+        if(this.email.box.name != '[Gmail]/Drafts' && this.email.box.name != '[Gmail]/Sent Mail' && this.email.box.name != '[Google Mail]/Drafts' && this.email.box.name != '[Google Mail]/Sent Mail' ) {
+          this.addSuggestedTasks();
+        }
         this.email.linkedTasks = this.linkedTasks;
         this.email.suggestedTasks = this.suggestedTasks;
         resolve(this.email);
@@ -47,7 +49,7 @@ class Analyzer {
     return new Promise((resolve, reject) => {
       let promises = [];
       Task.find({
-        email: this.email
+        $or:[{email: this.email}, {thrid:this.email.thrid}]
       }).then((tasks) => {
         tasks.forEach((t) => {
           let connector = createTaskConnector(t.provider, this.user);
