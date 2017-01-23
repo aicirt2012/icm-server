@@ -6,6 +6,7 @@ import ExchangeConnector from '../core/mail/ExchangeConnector';
 import config from '../../config/env';
 import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
+import Attachment from '../models/attachment.model';
 
 const imapOptions = (user) => {
   return {
@@ -261,6 +262,14 @@ function getSingleMail(req, res) {
   });
 }
 
+function getAttachmentById(req, res) {
+  Attachment.findById(req.params.id, true).lean().then((attachment, err) => {
+    res.status(200).send(attachment);
+  }).catch((err) => {
+    res.status(400).send(err);
+  })
+}
+
 /* EMAIL HELPER */
 function createEmailConnector(provider, user) {
   switch (provider) {
@@ -365,5 +374,6 @@ export default {
   getInitialImapStatus,
   getPaginatedEmailsForBox,
   searchPaginatedEmails,
-  getSingleMail
+  getSingleMail,
+  getAttachmentById
 };
