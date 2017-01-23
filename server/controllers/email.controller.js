@@ -56,7 +56,7 @@ function syncMails(req, res) {
   let promises = [];
   let subPromises = [];
   if (!req.body.boxes || req.body.boxes.length < 1) {
-    req.body.boxes = req.user.boxList.filter((box) => box.total != 0 && box.name != '[Gmail]/Important' && box.name != '[Gmail]/All Mail' && box.name != '[Google Mail]/Important' && box.name != '[Google Mail]/All Mail').map((box) => box.name);
+    req.body.boxes = req.user.boxList.filter((box) => box.total != 0).map((box) => box.name);
   }
   req.body.boxes.forEach((box, index) => {
     if (subPromises.length == 10) {

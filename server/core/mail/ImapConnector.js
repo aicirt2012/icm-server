@@ -3,6 +3,8 @@ import Promise from 'bluebird';
 
 class ImapConnector {
 
+  excludedBoxes = ['[Gmail]', '[Google Mail]', 'Important', 'All Mail', 'Alle Nachrichten', 'Wichtig'];
+
   constructor(options) {
     this.options = options;
     this.options['debug'] = function(err) {
@@ -178,7 +180,7 @@ ${msgData}`;
     Object.keys(boxes).forEach((key, i) => {
       const path = parentPath ? `${parentPath}/${key}` : key;
       let box = null;
-      if (key != '[Gmail]' && key != '[Google Mail]') {
+      if (this.excludedBoxes.indexOf(key) < 0) {
         box = {
           name: path,
           shortName: path.substr(path.lastIndexOf('/') + 1, path.length),
