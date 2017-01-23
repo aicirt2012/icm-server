@@ -10,6 +10,7 @@ class ImapConnector {
     };
     this.options['connTimeout'] = 30000;
     this.options['authTimeout'] = 30000;
+    this.options.keepAlive = false;
     this.imap = new IPromise(options);
     this.imap.on('error', (err) => {
         console.log(err);
