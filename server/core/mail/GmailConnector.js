@@ -4,6 +4,7 @@ import {
   MailParser
 } from 'mailparser';
 import ImapConnector from './ImapConnector';
+import User from '../../models/user.model';
 
 class GmailConnector extends ImapConnector {
 
@@ -11,15 +12,27 @@ class GmailConnector extends ImapConnector {
     super(options);
   }
 
-  fetchEmails(storeEmail, boxType) {
-    return this.openBoxAsync(boxType).then((box) => {
-        return this.imap.getMailAsync(this.imap.seq.fetch([1, box.messages.total].map(String).join(':'), {
+  fetchEmails(storeEmail, boxName) {
+    return this.openBoxAsync(boxName).then((box) => {
+        return this.imap.getMailAsync(this.imap.seq.fetch('1:*', {
           bodies: '',
           struct: true,
           markSeen: false,
-          extensions: ['X-GM-LABELS']
+          extensions: ['X-GM-LABELS'],
+          modifiers: {
+            changedsince: this.options.currentUser.highestmodseq || '0'
+          },
         }), (mail) => {
-          return this.parseDataFromEmail(mail, boxType, storeEmail);
+          if (box && box.highestmodseq) {
+            this.options.currentUser.highestmodseq = box.highestmodseq;
+            User.findOneAndUpdate({
+              _id: this.options.currentUser._id
+            }, this.options.currentUser, {
+              new: true
+            }, (err, user) => {
+            });
+          }
+          return this.parseDataFromEmail(mail, boxName, storeEmail);
         });
       })
       .then((messages) => {

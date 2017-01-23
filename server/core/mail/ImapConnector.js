@@ -145,7 +145,9 @@ class ImapConnector {
   addFlags(msgId, flags, box) {
     return this.openBoxAsync(box).then((box) => new Promise((resolve, reject) => {
       this.imap.addFlags(msgId, flags, (err) => {
-        err ? reject(err) : resolve(msgId);
+        this.imap.closeBox(false, () => {
+          err ? reject(err) : resolve(msgId);
+        });
       })
     }));
   }
@@ -153,7 +155,9 @@ class ImapConnector {
   delFlags(msgId, flags, box) {
     return this.openBoxAsync(box).then((box) => new Promise((resolve, reject) => {
       this.imap.delFlags(msgId, flags, (err) => {
-        err ? reject(err) : resolve(msgId);
+        this.imap.closeBox(false, () => {
+          err ? reject(err) : resolve(msgId);
+        });
       })
     }));
   }

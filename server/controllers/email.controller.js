@@ -80,21 +80,21 @@ function syncMails(req, res) {
 function addBox(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.addBox(req.body.boxName).then((boxName) => {
-      req.user.boxList.push({
-          id: req.user.boxList.length,
-          name: boxName,
-          shortName: boxName.substr(boxName.lastIndexOf('/') + 1, boxName.length),
-          total: 0,
-          new: 0,
-          unseen: 0,
-          parent: null
-      });
-      emailConnector.end();
-      res.status(200).send({
-          message: `Created new box: ${boxName}`,
-          boxList: req.user.boxList
-      });
-      getBoxes(req.user, true, req.query.provider);
+    req.user.boxList.push({
+      id: req.user.boxList.length,
+      name: boxName,
+      shortName: boxName.substr(boxName.lastIndexOf('/') + 1, boxName.length),
+      total: 0,
+      new: 0,
+      unseen: 0,
+      parent: null
+    });
+    emailConnector.end();
+    res.status(200).send({
+      message: `Created new box: ${boxName}`,
+      boxList: req.user.boxList
+    });
+    getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     emailConnector.end();
     res.status(400).send(err);
@@ -104,13 +104,13 @@ function addBox(req, res) {
 function delBox(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.delBox(req.body.boxName).then((boxName) => {
-      req.user.boxList.splice(req.user.boxList.findIndex((el) => el.name == boxName), 1);
-      emailConnector.end();
-      res.status(200).send({
-          message: `Deleted box: ${boxName}`,
-          boxList: req.user.boxList
-      });
-      getBoxes(req.user, true, req.query.provider);
+    req.user.boxList.splice(req.user.boxList.findIndex((el) => el.name == boxName), 1);
+    emailConnector.end();
+    res.status(200).send({
+      message: `Deleted box: ${boxName}`,
+      boxList: req.user.boxList
+    });
+    getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     emailConnector.end();
     res.status(400).send(err);
@@ -120,14 +120,15 @@ function delBox(req, res) {
 function renameBox(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
-      let box = req.user.boxList.find((el) => el.name == req.body.oldBoxName);
-      box.name = req.body.newBoxName;
-      box.shortName = box.name.substr(box.name.lastIndexOf('/') + 1, box.name.length);
-      res.status(200).send({
-          message: `Renamed box: ${boxName}`,
-          boxList: req.user.boxList
-      });
-      getBoxes(req.user, true, req.query.provider);
+    let box = req.user.boxList.find((el) => el.name == req.body.oldBoxName);
+    box.name = req.body.newBoxName;
+    box.shortName = box.name.substr(box.name.lastIndexOf('/') + 1, box.name.length);
+    emailConnector.end();
+    res.status(200).send({
+      message: `Renamed box: ${boxName}`,
+      boxList: req.user.boxList
+    });
+    getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     emailConnector.end();
     res.status(400).send(err);
@@ -173,12 +174,19 @@ function copy(req, res) {
 function addFlags(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.addFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
-      Email.findOne({uid:req.body.msgId, 'box.name':req.body.box}).then((email) => {
-          email.flags = email.flags.concat(req.body.flags);
-          email.save();
-          emailConnector.end();
-          res.status(200).send({message:'Successfully added Flags',msgId:msgId, box:req.body.box});
-      })
+    Email.findOne({
+      uid: req.body.msgId,
+      'box.name': req.body.box
+    }).then((email) => {
+      email.flags = email.flags.concat(req.body.flags);
+      email.save();
+      emailConnector.end();
+      res.status(200).send({
+        message: 'Successfully added Flags',
+        msgId: msgId,
+        box: req.body.box
+      });
+    })
   }).catch((err) => {
     emailConnector.end();
     res.status(400).send(err);
@@ -188,17 +196,24 @@ function addFlags(req, res) {
 function delFlags(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.delFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
-      Email.findOne({uid:req.body.msgId, 'box.name':req.body.box}).then((email) => {
-          req.body.flags.forEach((f)=>{
-              const index = email.flags.indexOf(f);
-              if(index > -1) {
-                  email.flags.splice(index,1);
-              }
-          });
-          email.save();
-          emailConnector.end();
-          res.status(200).send({message:'Successfully deleted Flags',msgId:msgId, box:req.body.box});
+    Email.findOne({
+      uid: req.body.msgId,
+      'box.name': req.body.box
+    }).then((email) => {
+      req.body.flags.forEach((f) => {
+        const index = email.flags.indexOf(f);
+        if (index > -1) {
+          email.flags.splice(index, 1);
+        }
       });
+      email.save();
+      emailConnector.end();
+      res.status(200).send({
+        message: 'Successfully deleted Flags',
+        msgId: msgId,
+        box: req.body.box
+      });
+    });
   }).catch((err) => {
     emailConnector.end();
     res.status(400).send(err);
@@ -266,13 +281,13 @@ function getSingleMail(req, res) {
   Email.findOne({
     _id: req.params.id
   }).lean().then((mail, err) => {
-      // call analyzer with emailObject and append suggested task and already linked tasks
-    if(req.user.trello || req.user.sociocortex) {
-        new Analyzer(mail, req.user).getEmailTasks().then((email) => {
-          res.status(200).send(email);
+    // call analyzer with emailObject and append suggested task and already linked tasks
+    if (req.user.trello || req.user.sociocortex) {
+      new Analyzer(mail, req.user).getEmailTasks().then((email) => {
+        res.status(200).send(email);
       });
     } else {
-        res.status(200).send(mail);
+      res.status(200).send(mail);
     }
   }).catch((err) => {
     res.status(400).send(err);

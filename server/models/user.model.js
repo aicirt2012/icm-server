@@ -29,6 +29,7 @@ const UserSchema = new mongoose.Schema({
     smtpPort: Number,
     smtpDomains: [String]
   },
+  highestmodseq: String,
   google: mongoose.Schema.Types.Mixed,
   /*email: {
       user: 'sebisng2@gmail.com',
