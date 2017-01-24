@@ -32,7 +32,7 @@ function getDailyPunchCard(userId) {
   ]);
 }
 
-function getTopSender(userId) {
+function getTopFrom(userId) {
   return Email.aggregate([
     {$match: {user: ObjectId(userId)}},
     {$unwind: '$from'},
@@ -44,11 +44,33 @@ function getTopSender(userId) {
 }
 
 
-function getTopReceiver(userId) {
+function getTopTo(userId) {
   return Email.aggregate([
     {$match: {user: ObjectId(userId)}},
     {$unwind: '$to'},
     {$group: {_id: { $toLower:'$to.address'}, count: {$sum: 1}}},
+    {$sort: {'count': -1}},
+    {$project: {_id: 0, address: '$_id', count: 1}},
+    {$limit : 15}
+  ]);
+}
+
+function getTopCC(userId) {
+  return Email.aggregate([
+    {$match: {user: ObjectId(userId)}},
+    {$unwind: '$cc'},
+    {$group: {_id: { $toLower:'$cc.address'}, count: {$sum: 1}}},
+    {$sort: {'count': -1}},
+    {$project: {_id: 0, address: '$_id', count: 1}},
+    {$limit : 15}
+  ]);
+}
+
+function getTopBCC(userId) {
+  return Email.aggregate([
+    {$match: {user: ObjectId(userId)}},
+    {$unwind: '$bcc'},
+    {$group: {_id: { $toLower:'$bcc.address'}, count: {$sum: 1}}},
     {$sort: {'count': -1}},
     {$project: {_id: 0, address: '$_id', count: 1}},
     {$limit : 15}
@@ -208,13 +230,21 @@ function getTimeline(req, res){
 function getNetwork(req, res){
   let userId = req.user._id;
   const s = {};
-  getTopSender(userId)
-    .then((ts) => {
-      s.topsender = ts;
-      return getTopReceiver(userId);
+  getTopFrom(userId)
+    .then(from => {
+      s.topfrom = from;
+      return getTopTo(userId);
     })
-    .then((tr) => {
-      s.topreceiver = tr;
+    .then(to => {
+      s.topto = to;
+      return getTopCC(userId);
+    })
+    .then(cc => {
+      s.topcc = cc;
+      return getTopBCC(userId);
+    })
+    .then(bcc =>{
+      s.topbcc = bcc;
       return getNetworkGraph(userId);
     })
     .then((g) => {
@@ -259,11 +289,11 @@ function getSummary(req, res) {
     })
     .then((dailySummary) => {
       s.punchcard.daily = dailySummary;
-      return getTopSender(userId)
+      return getTopFrom(userId)
     })
     .then((topSender) => {
       s.network.topsender = topSender;
-      return getTopReceiver(userId)
+      return getTopTo(userId)
     })
     .then((topReceiver) => {
       s.network.topreceiver = topReceiver;
