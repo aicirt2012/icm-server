@@ -212,7 +212,7 @@ ${msgData}`;
   _populateFamilyTree(boxes) {
     boxes.forEach((box, index) => {
       if (box.parent != null) {
-        let parent = boxes.filter((b) => b.name == box.parent.name)[0];
+        let parent = boxes.find((b) => b.name == box.parent.name);
         box.parent = parent;
       }
     });
