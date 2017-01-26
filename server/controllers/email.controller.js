@@ -53,22 +53,15 @@ function sendEmail(req, res) {
 }
 
 function syncMails(req, res) {
+  const before = new Date();
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   if (!req.body.boxes || req.body.boxes.length < 1) {
     req.body.boxes = req.user.boxList.filter((box) => box.total != 0).map((box) => box.name);
   }
-  let highestmodseq = [];
-  Promise.each(req.body.boxes, (box) => {
-    return emailConnector.fetchEmails(storeEmail, box).then((hm) => {
-      highestmodseq.push(hm);
-    });
-  }).then(() => {
-    req.user.highestmodseq = req.user.highestmodseq && parseInt(req.user.highestmodseq) > parseInt(highestmodseq[0]) ? req.user.highestmodseq : highestmodseq[0];
-    req.user.lastSync = new Date();
-    req.user.save().then(() => {
-      res.status(200).send({
-        message: 'Finished fetching'
-      });
+  emailConnector.fetchBoxes(storeEmail, req.body.boxes).then(() => {
+    console.log('Time for fetching: ', new Date() - before);
+    res.status(200).send({
+      message: 'Finished fetching'
     });
   }).catch((err) => {
     res.status(400).send(err);

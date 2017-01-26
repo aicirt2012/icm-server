@@ -44,7 +44,7 @@ class ImapConnector {
     this.imap.destroy();
   }
 
-  openBoxAsync(box, openReadOnly = false) {
+  openBoxAndConnect(box, openReadOnly = false) {
     return this.connect().then(() => {
       return new Promise((resolve, reject) => {
         this.imap.openBox(box, openReadOnly, (err, box) => {
@@ -52,6 +52,14 @@ class ImapConnector {
         });
       })
     });
+  }
+
+  openBox(box, openReadOnly = false) {
+    return new Promise((resolve, reject) => {
+      this.imap.openBox(box, openReadOnly, (err, box) => {
+        err ? reject(err) : resolve(box);
+      });
+    })
   }
 
   statusBoxAsync(box, readOnly = false) {
@@ -174,7 +182,7 @@ class ImapConnector {
   }
 
   move(msgId, srcBox, box) {
-    return this.openBoxAsync(srcBox).then((srcBox) => new Promise((resolve, reject) => {
+    return this.openBoxAndConnect(srcBox).then((srcBox) => new Promise((resolve, reject) => {
       this.imap.move(msgId, box, (err) => {
         this.end();
         if (err) {
@@ -187,7 +195,7 @@ class ImapConnector {
   }
 
   copy(msgId, srcBox, box) {
-    return this.openBoxAsync(srcBox).then((srcBox) => new Promise((resolve, reject) => {
+    return this.openBoxAndConnect(srcBox).then((srcBox) => new Promise((resolve, reject) => {
       this.imap.copy(msgId, box, (err) => {
         this.end().then(() => {
           if (err) {
@@ -201,7 +209,7 @@ class ImapConnector {
   }
 
   addFlags(msgId, flags, box) {
-    return this.openBoxAsync(box).then((box) => new Promise((resolve, reject) => {
+    return this.openBoxAndConnect(box).then((box) => new Promise((resolve, reject) => {
       this.imap.addFlags(msgId, flags, (err) => {
         this.end().then(() => {
           if (err) {
@@ -215,7 +223,7 @@ class ImapConnector {
   }
 
   delFlags(msgId, flags, box) {
-    return this.openBoxAsync(box).then((box) => new Promise((resolve, reject) => {
+    return this.openBoxAndConnect(box).then((box) => new Promise((resolve, reject) => {
       this.imap.delFlags(msgId, flags, (err) => {
         this.end().then(() => {
           if (err) {
@@ -229,7 +237,7 @@ class ImapConnector {
   }
 
   setFlags(msgId, flags, box) {
-    return this.openBoxAsync(box).then((box) => new Promise((resolve, reject) => {
+    return this.openBoxAndConnect(box).then((box) => new Promise((resolve, reject) => {
       this.imap.setFlags(msgId, flags, (err) => {
         this.end().then(() => {
           if (err) {

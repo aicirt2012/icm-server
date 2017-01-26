@@ -12,8 +12,27 @@ class GmailConnector extends ImapConnector {
     super(options, user);
   }
 
+  fetchBoxes(storeEmail, boxes) {
+    return this.connect().then(() => new Promise((resolve, reject) => {
+      let highestmodseq = [];
+      Promise.each(boxes, (box) => {
+        return this.fetchEmails(storeEmail, box).then((hms) => {
+          highestmodseq.push(hms);
+        });
+      }).then(() => {
+        this.user.highestmodseq = this.user.highestmodseq && parseInt(this.user.highestmodseq) > parseInt(highestmodseq[0]) ? this.user.highestmodseq : highestmodseq[0];
+        this.user.lastSync = new Date();
+        this.user.save().then(() => {
+          this.end().then(() => {
+            resolve();
+          });
+        });
+      }).catch(reject)
+    })) 
+  }
+
   fetchEmails(storeEmail, boxName) {
-    return this.openBoxAsync(boxName).then((box) => {
+    return this.openBox(boxName).then((box) => {
         return new Promise((resolve, reject) => {
           let options = {
             bodies: '',
@@ -44,9 +63,7 @@ class GmailConnector extends ImapConnector {
           f.once('end', () => {
             console.log('Done fetching all messages!');
             Promise.all(promises).then(() => {
-              this.end().then(() => {
-                resolve(box.highestmodseq);
-              })
+              resolve(box.highestmodseq);
             });
           });
         });
