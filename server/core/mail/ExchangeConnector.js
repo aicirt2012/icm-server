@@ -7,8 +7,8 @@ import ImapConnector from './ImapConnector';
 
 class ExchangeConnector extends ImapConnector {
 
-  constructor(options) {
-    super(options);
+  constructor(options, user) {
+    super(options, user);
   }
 
   fetchEmails(storeEmail, boxType) {
@@ -46,7 +46,7 @@ class ExchangeConnector extends ImapConnector {
           text: mailObject.text,
           date: mailObject.headers.date,
           box: box,
-          user: this.options.currentUser
+          user: this.user
         };
         storeEmail(email).then((msg) => {
           resolve(msg);

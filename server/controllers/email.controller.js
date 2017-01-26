@@ -14,8 +14,7 @@ const imapOptions = (user) => {
     host: user.provider.host,
     port: user.provider.port,
     tls: true,
-    mailbox: 'INBOX',
-    currentUser: user
+    mailbox: 'INBOX'
   };
 };
 
@@ -46,10 +45,8 @@ function sendEmail(req, res) {
   smtpConnector.sendMail(req.body).then((result) => {
     const emailConnector = createEmailConnector(req.query.provider, req.user);
     emailConnector.fetchEmails(storeEmail, config.gmail.send).then((messages) => {
-      emailConnector.end();
       res.status(200).send(messages);
     }).catch((err) => {
-      emailConnector.end();
       res.status(400).send(err);
     });
   });
@@ -60,19 +57,20 @@ function syncMails(req, res) {
   if (!req.body.boxes || req.body.boxes.length < 1) {
     req.body.boxes = req.user.boxList.filter((box) => box.total != 0).map((box) => box.name);
   }
-
+  let highestmodseq = [];
   Promise.each(req.body.boxes, (box) => {
-    return emailConnector.fetchEmails(storeEmail, box);
+    return emailConnector.fetchEmails(storeEmail, box).then((hm) => {
+      highestmodseq.push(hm);
+    });
   }).then(() => {
+    req.user.highestmodseq = req.user.highestmodseq && parseInt(req.user.highestmodseq) > parseInt(highestmodseq[0]) ? req.user.highestmodseq : highestmodseq[0];
     req.user.lastSync = new Date();
     req.user.save().then(() => {
-      emailConnector.end();
       res.status(200).send({
         message: 'Finished fetching'
       });
     });
   }).catch((err) => {
-    emailConnector.end();
     res.status(400).send(err);
   })
 }
@@ -89,14 +87,12 @@ function addBox(req, res) {
       unseen: 0,
       parent: null
     });
-    emailConnector.end();
     res.status(200).send({
       message: `Created new box: ${boxName}`,
       boxList: req.user.boxList
     });
     getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
-    emailConnector.end();
     res.status(400).send(err);
   });
 }
@@ -105,14 +101,12 @@ function delBox(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.delBox(req.body.boxName).then((boxName) => {
     req.user.boxList.splice(req.user.boxList.findIndex((el) => el.name == boxName), 1);
-    emailConnector.end();
     res.status(200).send({
       message: `Deleted box: ${boxName}`,
       boxList: req.user.boxList
     });
     getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
-    emailConnector.end();
     res.status(400).send(err);
   });
 }
@@ -123,14 +117,12 @@ function renameBox(req, res) {
     let box = req.user.boxList.find((el) => el.name == req.body.oldBoxName);
     box.name = req.body.newBoxName;
     box.shortName = box.name.substr(box.name.lastIndexOf('/') + 1, box.name.length);
-    emailConnector.end();
     res.status(200).send({
       message: `Renamed box: ${boxName}`,
       boxList: req.user.boxList
     });
     getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
-    emailConnector.end();
     res.status(400).send(err);
   });
 }
@@ -139,11 +131,9 @@ function append(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData).then((msgData) => {
     emailConnector.fetchEmails(storeEmail, req.body.box).then(() => {
-      emailConnector.end();
       res.status(200).send(msgData);
     })
   }).catch((err) => {
-    emailConnector.end();
     res.status(400).send(err);
   });
 }
@@ -152,11 +142,9 @@ function move(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.move(req.body.msgId, req.body.srcBox, req.body.destBox).then((msgId) => {
     emailConnector.fetchEmails(storeEmail, req.body.destBox).then((messages) => {
-      emailConnector.end();
       res.status(200).send(messages);
     })
   }).catch((err) => {
-    emailConnector.end();
     res.status(400).send(err);
   });
 }
@@ -166,7 +154,6 @@ function copy(req, res) {
   createEmailConnector(req.query.provider, req.user).copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
     res.status(200).send(messages);
   }).catch((err) => {
-    emailConnector.end();
     res.status(400).send(err);
   });
 }
@@ -179,16 +166,15 @@ function addFlags(req, res) {
       'box.name': req.body.box
     }).then((email) => {
       email.flags = email.flags.concat(req.body.flags);
-      email.save();
-      emailConnector.end();
-      res.status(200).send({
-        message: 'Successfully added Flags',
-        msgId: msgId,
-        box: req.body.box
-      });
+      email.save().then(() => {
+        res.status(200).send({
+          message: 'Successfully added Flags',
+          msgId: msgId,
+          box: req.body.box
+        });
+      })
     })
   }).catch((err) => {
-    emailConnector.end();
     res.status(400).send(err);
   });
 }
@@ -206,16 +192,15 @@ function delFlags(req, res) {
           email.flags.splice(index, 1);
         }
       });
-      email.save();
-      emailConnector.end();
-      res.status(200).send({
-        message: 'Successfully deleted Flags',
-        msgId: msgId,
-        box: req.body.box
-      });
+      email.save().then(() => {
+        res.status(200).send({
+          message: 'Successfully deleted Flags',
+          msgId: msgId,
+          box: req.body.box
+        });
+      })
     });
   }).catch((err) => {
-    emailConnector.end();
     res.status(400).send(err);
   });
 }
@@ -223,10 +208,8 @@ function delFlags(req, res) {
 function setFlags(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.setFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
-    emailConnector.end();
     res.status(200).send(messages);
   }).catch((err) => {
-    emailConnector.end();
     res.status(400).send(err);
   });
 }
@@ -298,13 +281,13 @@ function getSingleMail(req, res) {
 function createEmailConnector(provider, user) {
   switch (provider) {
     case 'gmail':
-      return new GmailConnector(imapOptions(user));
+      return new GmailConnector(imapOptions(user), user);
       break;
     case 'exchange':
-      return new ExchangeConnector(imapOptions(user));
+      return new ExchangeConnector(imapOptions(user, user));
       break;
     default:
-      return new GmailConnector(imapOptions(user));
+      return new GmailConnector(imapOptions(user), user);
   }
 }
 
@@ -363,12 +346,10 @@ function getBoxes(user, details = false, provider) {
         }
         user.boxList = boxes;
         user.save().then(() => {
-          emailConnector.end();
           resolve(boxes);
         })
       });
     }).catch((err) => {
-      emailConnector.end();
       reject(err);
     });
   })

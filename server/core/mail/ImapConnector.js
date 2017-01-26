@@ -1,38 +1,57 @@
 import IPromise from 'imap-promise';
+import Imap from 'imap';
 import Promise from 'bluebird';
 
 class ImapConnector {
 
   excludedBoxes = ['[Gmail]', '[Google Mail]', 'Important', 'All Mail', 'Alle Nachrichten', 'Wichtig'];
 
-  constructor(options) {
+  constructor(options, user) {
+    this.user = user;
     this.options = options;
-    this.options['debug'] = function(err) {
+    this.options.debug = (err) => {
       console.log(err)
     };
-    this.options['connTimeout'] = 30000;
-    this.options['authTimeout'] = 30000;
+    this.options.connTimeout = 30000;
+    this.options.authTimeout = 30000;
     this.options.keepAlive = false;
-    this.imap = new IPromise(options);
-    this.imap.on('error', (err) => {
-        console.log(err);
-    })
+    this.imap = new Imap(options);
+
+    this.imap.once('error', (err) => {
+      console.log(err);
+    });
   }
 
   connect() {
-    return this.imap.connectAsync();
+    return new Promise((resolve, reject) => {
+      if (this.imap.state == 'connected') {
+        resolve();
+      } else {
+        this.imap.on('ready', resolve);
+        this.imap.connect();
+      }
+    });
   }
 
   end() {
-    this.imap.end();
+    return new Promise((resolve, reject) => {
+      this.imap.once('end', resolve);
+      this.imap.end();
+    })
   }
 
   destroy() {
     this.imap.destroy();
   }
 
-  openBoxAsync(box) {
-    return this.connect().then(() => this.imap.openBoxAsync(box, false));
+  openBoxAsync(box, openReadOnly = false) {
+    return this.connect().then(() => {
+      return new Promise((resolve, reject) => {
+        this.imap.openBox(box, openReadOnly, (err, box) => {
+          err ? reject(err) : resolve(box);
+        });
+      })
+    });
   }
 
   statusBoxAsync(box, readOnly = false) {
@@ -51,7 +70,9 @@ class ImapConnector {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.getBoxes((err, boxes) => {
         if (err) {
-          reject(err);
+          this.end().then(() => {
+            reject(err);
+          });
         } else {
           let boxList = [];
           this._generateBoxList(boxes, null, boxList, null);
@@ -59,7 +80,7 @@ class ImapConnector {
             let promises = [];
             let boxListDetails = [];
             boxList.forEach((box, index) => {
-              promises.push(new Promise((resolve, reject) => {
+              promises.push(new Promise((yay, nay) => {
                 this.statusBoxAsync(box.name, false).then((res) => {
                   boxListDetails.push({
                     id: index,
@@ -71,16 +92,20 @@ class ImapConnector {
                     parent: box.parent,
                     level: box.level
                   });
-                  resolve(res);
+                  yay(res);
                 })
               }));
             });
             Promise.all(promises).then((results) => {
               this._populateFamilyTree(boxListDetails);
-              resolve(boxListDetails);
+              this.end().then(() => {
+                resolve(boxListDetails);
+              });
             });
           } else {
-            resolve(boxList);
+            this.end().then(() => {
+              resolve(boxList);
+            });
           }
         }
       });
@@ -90,7 +115,13 @@ class ImapConnector {
   addBox(boxName) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.addBox(boxName, (err) => {
-        err ? reject(err) : resolve(boxName);
+        this.end().then(() => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(boxName);
+          }
+        });
       })
     }))
   }
@@ -98,7 +129,13 @@ class ImapConnector {
   delBox(boxName) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.delBox(boxName, (err) => {
-        err ? reject(err) : resolve(boxName);
+        this.end().then(() => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(boxName);
+          }
+        })
       })
     }))
   }
@@ -106,22 +143,32 @@ class ImapConnector {
   renameBox(oldBoxName, newBoxName) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.renameBox(oldBoxName, newBoxName, (err) => {
-        err ? reject(err) : resolve(newBoxName);
+        this.end().then(() => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(newBoxName);
+          }
+        });
       })
     }))
   }
 
   append(box, args, to, from, subject, msgData) {
-    const options = {
-      mailbox: box,
-      ...args
-    };
+    let options = args;
+    options.mailbox = box;
 
     const msg = this.createRfcMessage(from, to, subject, msgData);
 
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.append(msg, options, (err) => {
-        err ? reject(err) : resolve(msgData);
+        this.end().then(() => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(msgData);
+          }
+        });
       })
     }));
   }
@@ -129,7 +176,12 @@ class ImapConnector {
   move(msgId, srcBox, box) {
     return this.openBoxAsync(srcBox).then((srcBox) => new Promise((resolve, reject) => {
       this.imap.move(msgId, box, (err) => {
-        err ? reject(err) : resolve(msgId);
+        this.end();
+        if (err) {
+          reject(err);
+        } else {
+          resolve(msgId);
+        }
       })
     }));
   }
@@ -137,7 +189,13 @@ class ImapConnector {
   copy(msgId, srcBox, box) {
     return this.openBoxAsync(srcBox).then((srcBox) => new Promise((resolve, reject) => {
       this.imap.copy(msgId, box, (err) => {
-        err ? reject(err) : resolve(msgId);
+        this.end().then(() => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(msgId);
+          }
+        });
       })
     }));
   }
@@ -145,8 +203,12 @@ class ImapConnector {
   addFlags(msgId, flags, box) {
     return this.openBoxAsync(box).then((box) => new Promise((resolve, reject) => {
       this.imap.addFlags(msgId, flags, (err) => {
-        this.imap.closeBox(false, () => {
-          err ? reject(err) : resolve(msgId);
+        this.end().then(() => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(msgId);
+          }
         });
       })
     }));
@@ -155,8 +217,12 @@ class ImapConnector {
   delFlags(msgId, flags, box) {
     return this.openBoxAsync(box).then((box) => new Promise((resolve, reject) => {
       this.imap.delFlags(msgId, flags, (err) => {
-        this.imap.closeBox(false, () => {
-          err ? reject(err) : resolve(msgId);
+        this.end().then(() => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(msgId);
+          }
         });
       })
     }));
@@ -165,12 +231,18 @@ class ImapConnector {
   setFlags(msgId, flags, box) {
     return this.openBoxAsync(box).then((box) => new Promise((resolve, reject) => {
       this.imap.setFlags(msgId, flags, (err) => {
-        err ? reject(err) : resolve(msgId);
+        this.end().then(() => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(msgId);
+          }
+        });
       })
     }));
   }
 
-  fetchAttachment(mail) {
+  /*fetchAttachment(mail) {
     return this.imap.collectEmailAsync(mail)
       .then((msg) => {
         msg.attachments = this.imap.findAttachments(msg);
@@ -181,7 +253,7 @@ class ImapConnector {
         }));
         return Promise.props(msg);
       });
-  }
+  }*/
 
   createRfcMessage(from, to, subject, msgData) {
     return `From: ${from}

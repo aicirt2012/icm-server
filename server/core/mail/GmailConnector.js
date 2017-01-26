@@ -8,35 +8,48 @@ import User from '../../models/user.model';
 
 class GmailConnector extends ImapConnector {
 
-  constructor(options) {
-    super(options);
+  constructor(options, user) {
+    super(options, user);
   }
 
   fetchEmails(storeEmail, boxName) {
     return this.openBoxAsync(boxName).then((box) => {
-        return this.imap.getMailAsync(this.imap.seq.fetch('1:*', {
-          bodies: '',
-          struct: true,
-          markSeen: false,
-          extensions: ['X-GM-LABELS'],
-          modifiers: {
-            changedsince: this.options.currentUser.highestmodseq || '0'
-          },
-        }), (mail) => {
-          if (box && box.highestmodseq) {
-            this.options.currentUser.highestmodseq = box.highestmodseq;
-            User.findOneAndUpdate({
-              _id: this.options.currentUser._id
-            }, this.options.currentUser, {
-              new: true
-            }, (err, user) => {
-            });
+        return new Promise((resolve, reject) => {
+          let options = {
+            bodies: '',
+            struct: true,
+            markSeen: false,
+            extensions: ['X-GM-LABELS']
+          };
+
+          if (this.user.highestmodseq) {
+            options.modifiers = {
+              changedsince: this.user.highestmodseq
+            };
           }
-          return this.parseDataFromEmail(mail, boxName, storeEmail);
+
+          const f = this.imap.seq.fetch('1:*', options);
+
+          let promises = [];
+
+          f.on('message', (mail, seqno) => {
+            promises.push(this.parseDataFromEmail(mail, boxName, storeEmail));
+          });
+
+          f.once('error', (err) => {
+            console.log('Fetch error: ', err);
+            this.end().then(reject);
+          });
+
+          f.once('end', () => {
+            console.log('Done fetching all messages!');
+            Promise.all(promises).then(() => {
+              this.end().then(() => {
+                resolve(box.highestmodseq);
+              })
+            });
+          });
         });
-      })
-      .then((messages) => {
-        return messages;
       })
       .catch((error) => {
         console.error('Error: ', error.message);
@@ -64,8 +77,8 @@ class GmailConnector extends ImapConnector {
           uid: attributes.uid,
           attrs: attributes,
           thrid: attributes['x-gm-thrid'],
-          box: this.options.currentUser.boxList.find((b) => box === b.name),
-          user: this.options.currentUser
+          box: this.user.boxList.find((b) => box === b.name),
+          user: this.user
         };
         storeEmail(email).then((msg) => {
           resolve(msg);
