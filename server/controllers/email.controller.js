@@ -44,7 +44,7 @@ function sendEmail(req, res) {
   const smtpConnector = new SMTPConnector(smtpOptions(req.user));
   smtpConnector.sendMail(req.body).then((result) => {
     const emailConnector = createEmailConnector(req.query.provider, req.user);
-    emailConnector.fetchEmails(storeEmail, config.gmail.send).then((messages) => {
+    emailConnector.fetchBoxes(storeEmail, [config.gmail.send]).then((messages) => {
       res.status(200).send(messages);
     }).catch((err) => {
       res.status(400).send(err);
@@ -55,9 +55,6 @@ function sendEmail(req, res) {
 function syncMails(req, res) {
   const before = new Date();
   const emailConnector = createEmailConnector(req.query.provider, req.user);
-  if (!req.body.boxes || req.body.boxes.length < 1) {
-    req.body.boxes = req.user.boxList.filter((box) => box.total != 0).map((box) => box.name);
-  }
   emailConnector.fetchBoxes(storeEmail, req.body.boxes).then(() => {
     console.log('Time for fetching: ', new Date() - before);
     res.status(200).send({
@@ -84,7 +81,6 @@ function addBox(req, res) {
       message: `Created new box: ${boxName}`,
       boxList: req.user.boxList
     });
-    getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -98,7 +94,6 @@ function delBox(req, res) {
       message: `Deleted box: ${boxName}`,
       boxList: req.user.boxList
     });
-    getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -114,7 +109,6 @@ function renameBox(req, res) {
       message: `Renamed box: ${boxName}`,
       boxList: req.user.boxList
     });
-    getBoxes(req.user, true, req.query.provider);
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -123,7 +117,7 @@ function renameBox(req, res) {
 function append(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData).then((msgData) => {
-    emailConnector.fetchEmails(storeEmail, req.body.box).then(() => {
+    emailConnector.fetchBoxes(storeEmail, [req.body.box]).then(() => {
       res.status(200).send(msgData);
     })
   }).catch((err) => {
@@ -134,7 +128,7 @@ function append(req, res) {
 function move(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.move(req.body.msgId, req.body.srcBox, req.body.destBox).then((msgId) => {
-    emailConnector.fetchEmails(storeEmail, req.body.destBox).then((messages) => {
+    emailConnector.fetchBoxes(storeEmail, [req.body.srcBox, req.body.destBox]).then((messages) => {
       res.status(200).send(messages);
     })
   }).catch((err) => {
@@ -331,17 +325,10 @@ function getBoxes(user, details = false, provider) {
   const emailConnector = createEmailConnector(provider, user);
   return new Promise((resolve, reject) => {
     emailConnector.getBoxes(details).then((boxes) => {
-      User.findOne({
-        _id: user._id
-      }, (err, user) => {
-        if (err) {
-          reject(err);
-        }
-        user.boxList = boxes;
-        user.save().then(() => {
-          resolve(boxes);
-        })
-      });
+      user.boxList = boxes;
+      user.save().then(() => {
+        resolve(boxes);
+      })
     }).catch((err) => {
       reject(err);
     });

@@ -12,9 +12,12 @@ class GmailConnector extends ImapConnector {
     super(options, user);
   }
 
-  fetchBoxes(storeEmail, boxes) {
+  fetchBoxes(storeEmail, boxes = []) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       let highestmodseq = [];
+      if (boxes.length < 1) {
+        boxes = this.user.boxList.filter((box) => box.total != 0).map((box) => box.name);
+      }
       Promise.each(boxes, (box) => {
         return this.fetchEmails(storeEmail, box).then((hms) => {
           highestmodseq.push(hms);

@@ -150,12 +150,12 @@ class ImapConnector {
 
   renameBox(oldBoxName, newBoxName) {
     return this.connect().then(() => new Promise((resolve, reject) => {
-      this.imap.renameBox(oldBoxName, newBoxName, (err) => {
+      this.imap.renameBox(oldBoxName, newBoxName, (err, box) => {
         this.end().then(() => {
           if (err) {
             reject(err);
           } else {
-            resolve(newBoxName);
+            resolve(box);
           }
         });
       })
