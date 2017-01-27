@@ -250,9 +250,9 @@ function searchPaginatedEmails(req, res) {
 function getSingleMail(req, res) {
   Email.findOne({
     _id: req.params.id
-  }).lean().then((mail, err) => {
+  }).lean().then((mail) => {
     // call analyzer with emailObject and append suggested task and already linked tasks
-    if (req.user.trello || req.user.sociocortex) {
+    if (mail && (req.user.trello || req.user.sociocortex)) {
       new Analyzer(mail, req.user).getEmailTasks().then((email) => {
         res.status(200).send(email);
       });

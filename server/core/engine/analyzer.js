@@ -20,25 +20,29 @@ class Analyzer {
     this.user = user;
     this.linkedTasks = [];
     this.suggestedTasks = [];
-    Pattern.find().then((patterns, err) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      this.taskPatterns = patterns;
-    });
     this.classifier = new Classifier();
+  }
+
+  getPatterns() {
+    return new Promise((resolve, reject) => {
+      Pattern.find().then((patterns) => {
+        this.taskPatterns = patterns;
+        resolve();
+      }).catch(reject);
+    });
   }
 
   getEmailTasks() {
     return new Promise((resolve, reject) => {
-      this.fetchLinkedTasks().then((linkedTasks) => {
-        if(this.email.box.name != '[Gmail]/Drafts' && this.email.box.name != '[Gmail]/Sent Mail' && this.email.box.name != '[Google Mail]/Drafts' && this.email.box.name != '[Google Mail]/Sent Mail' ) {
-          this.addSuggestedTasks();
-        }
-        this.email.linkedTasks = this.linkedTasks;
-        this.email.suggestedTasks = this.suggestedTasks;
-        resolve(this.email);
+      this.getPatterns().then(() => {
+        this.fetchLinkedTasks().then((linkedTasks) => {
+          if (this.email.box.name != '[Gmail]/Drafts' && this.email.box.name != '[Gmail]/Sent Mail' && this.email.box.name != '[Google Mail]/Drafts' && this.email.box.name != '[Google Mail]/Sent Mail') {
+            this.addSuggestedTasks();
+          }
+          this.email.linkedTasks = this.linkedTasks;
+          this.email.suggestedTasks = this.suggestedTasks;
+          resolve(this.email);
+        })
       }).catch((err) => {
         reject();
       })
@@ -49,7 +53,11 @@ class Analyzer {
     return new Promise((resolve, reject) => {
       let promises = [];
       Task.find({
-        $or:[{email: this.email}, {thrid:this.email.thrid}]
+        $or: [{
+          email: this.email
+        }, {
+          thrid: this.email.thrid
+        }]
       }).then((tasks) => {
         tasks.forEach((t) => {
           let connector = createTaskConnector(t.provider, this.user);
@@ -77,7 +85,7 @@ class Analyzer {
         task: task,
         date: this.email.date,
         taskType: 'suggested'
-          //, idMembers: ??? emailRecipients <-> trello user ID ???
+        //, idMembers: ??? emailRecipients <-> trello user ID ???
       };
       this.suggestedTasks.push(taskSuggestion);
     });
