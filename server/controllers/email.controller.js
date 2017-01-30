@@ -44,8 +44,10 @@ function sendEmail(req, res) {
   const smtpConnector = new SMTPConnector(smtpOptions(req.user));
   smtpConnector.sendMail(req.body).then((result) => {
     const emailConnector = createEmailConnector(req.query.provider, req.user);
-    emailConnector.fetchBoxes(storeEmail, [config.gmail.send]).then((messages) => {
-      res.status(200).send(messages);
+    emailConnector.fetchBoxes(storeEmail, [config.gmail.send]).then(() => {
+      res.status(200).send({
+      message: 'Finished fetching'
+    });
     }).catch((err) => {
       res.status(400).send(err);
     });

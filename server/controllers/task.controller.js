@@ -1,5 +1,5 @@
 import SociocortexConnector from '../core/task/SociocortexConnector'; //TODO: remove once SC implementation is finished
-import {createTaskConnector} from '../core/task/util'
+import { createTaskConnector } from '../core/task/util'
 import User from '../models/user.model';
 import Email from '../models/email.model';
 import Task from '../models/task.model';
@@ -17,7 +17,7 @@ function createTask(req, res) {
     task['email'] = req.params.emailId || null;
     task.save().then((result) => {
       if (req.params.emailId) {
-        TrainingData.findOne({email: result.email, sentenceId: req.body.sentenceId}).then((td) => {
+        TrainingData.findOne({ email: result.email, sentenceId: req.body.sentenceId }).then((td) => {
           if (td) {
             td.label = true;
             td.task = result;
@@ -37,7 +37,7 @@ function createTask(req, res) {
             });
           }
         });
-        Email.findOne({_id:result.email}).then((e)=>{
+        Email.findOne({ _id: result.email }).then((e) => {
           result['thrid'] = e.thrid;
           result.save();
         });
@@ -70,14 +70,14 @@ function updateTask(req, res) {
 /* DELETE TASK */
 function deleteTask(req, res) {
   createTaskConnector(req.query.provider, req.user).deleteTask(req.params.taskId).then((data) => {
-    Task.findOne({taskId: req.params.taskId}).then((task) => {
-      TrainingData.findOne({task: task}).then((td) => {
+    Task.findOne({ taskId: req.params.taskId }).then((task) => {
+      TrainingData.findOne({ task: task }).then((td) => {
         if (td) {
           td.task = null;
           td.label = false;
           td.save();
         }
-        Task.remove({taskId: req.params.taskId}).then((value) => {
+        Task.remove({ taskId: req.params.taskId }).then((value) => {
           res.status(200).send(value);
         });
       });
@@ -94,7 +94,7 @@ function linkTaskToMail(req, res) {
   task['provider'] = req.query.provider || 'trello';
   task['taskId'] = req.body.taskId;
   task.save().then((t) => {
-    Email.findOne({_id:t.email}).then((e) => {
+    Email.findOne({ _id: t.email }).then((e) => {
       task['thrid'] = e.thrid;
       task.save();
     });
@@ -106,14 +106,14 @@ function linkTaskToMail(req, res) {
 
 /* UNLINK TASK */
 function unlinkTask(req, res) {
-  Task.findOne({taskId: req.params.taskId}).then((task) => {
-    TrainingData.findOne({task: task}).then((td) => {
+  Task.findOne({ taskId: req.params.taskId }).then((task) => {
+    TrainingData.findOne({ task: task }).then((td) => {
       if (td) {
         td.task = null;
         td.label = false;
         td.save();
       }
-      Task.remove({taskId: req.params.taskId}).then((value) => {
+      Task.remove({ taskId: req.params.taskId }).then((value) => {
         res.status(200).send(value);
       });
     });
@@ -144,10 +144,44 @@ function searchMembers(req, res) {
 /* GET ALL BOARDS (+ LISTS) FOR MEMBER */
 function getAllBoardsForMember(req, res) {
   createTaskConnector(req.query.provider, req.user).getBoardsForMember(req.query).then((data) => {
-    res.status(200).send(data);
+    if (req.query.linkedTasks) {
+      let promises = [];
+      data.forEach((board) => {
+        promises.push(markLinkedTasksInCards(board.cards));
+      })
+      Promise.all(promises).then(() => {
+          res.status(200).send(data);
+        })
+    } else {
+      res.status(200).send(data);
+    }
   }).catch((err) => {
     res.status(400).send(err);
   });
+}
+
+function markLinkedTasksInCards(cards) {
+  return new Promise((resolve, reject) => {
+    let promises = [];
+    cards.forEach((c) => {
+      promises.push(new Promise((resolve, reject) => {
+        Task.findOne({
+          taskId: c.id
+        }).populate({
+          path: 'email',
+          select: 'box'
+        }).then((task) => {
+          if (task) {
+            c.isLinked = true;
+            c.linkedBox = task.email.box.id;
+            c.linkedEmail = task.email._id;
+          }
+          resolve();
+        })
+      }));
+    })
+    Promise.all(promises).then(resolve)
+  })
 }
 
 /* GET ALL LISTS FOR BOARD */
@@ -170,13 +204,13 @@ function getAllCardsForList(req, res) {
 
 /* GET CARDS FOR MEMBER */
 function searchCardsForMembers(req, res) {
-  if(req.body.emailAddresses.length > 0 ) {
+  if (req.body.emailAddresses.length > 0) {
     const taskConnector = createTaskConnector(req.query.provider, req.user);
     let promises = [];
     req.body.emailAddresses.forEach((e) => {
-      promises.push(new Promise((resolve,reject) => {
-        taskConnector.searchMembers({query: e}, req.query).then((members) => {
-          if (members.length > 0 ) {
+      promises.push(new Promise((resolve, reject) => {
+        taskConnector.searchMembers({ query: e }, req.query).then((members) => {
+          if (members.length > 0) {
             taskConnector.getCardsForMember(members[0].id, req.query).then((data) => {
               resolve(data);
             })
@@ -191,14 +225,14 @@ function searchCardsForMembers(req, res) {
       results.forEach((m) => {
         cards = [...cards, ...m];
       });
-      cards = cards.reduce((a,b) => {
+      cards = cards.reduce((a, b) => {
         return a.findIndex((e) => e.id == b.id) > -1 ? a : a.concat(b)
       }, []);
       res.status(200).send(cards);
     })
-    .catch((err) => {
-      res.status(400).send(err);
-    });
+      .catch((err) => {
+        res.status(400).send(err);
+      });
   } else {
     res.status(200).send([]);
   }
