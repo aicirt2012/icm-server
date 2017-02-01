@@ -3,6 +3,7 @@ import util from 'util';
 import config from './config/env';
 import app from './config/express';
 import Patterns from './server/core/engine/Pattern';
+import Socket from './server/routes/socket';
 
 const debug = require('debug')('EmailAppServer:index');
 
@@ -36,6 +37,9 @@ if (!module.parent) {
 
 // init database with default entries
 Patterns.init();
+
+// open socket for coninious updates
+const socket =  new Socket();
 
 process.on('uncaughtException', (err) => {
   console.log(err);

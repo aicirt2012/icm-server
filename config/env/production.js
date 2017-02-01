@@ -19,5 +19,6 @@ export default {
     oauthSHA: 'HMAC-SHA1'
   },
   db: 'mongodb://localhost:27017/emailapp',
-  port: 4000
+  port: 4000,
+  socketPort: 4001
 };
