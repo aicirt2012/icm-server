@@ -1,4 +1,3 @@
-import IPromise from 'imap-promise';
 import Imap from 'imap';
 import Promise from 'bluebird';
 
