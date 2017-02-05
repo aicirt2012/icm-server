@@ -36,9 +36,7 @@ class Analyzer {
     return new Promise((resolve, reject) => {
       this.getPatterns().then(() => {
         this.fetchLinkedTasks().then((linkedTasks) => {
-          if (this.email.box.name != '[Gmail]/Drafts' && this.email.box.name != '[Gmail]/Sent Mail' && this.email.box.name != '[Google Mail]/Drafts' && this.email.box.name != '[Google Mail]/Sent Mail') {
-            this.addSuggestedTasks();
-          }
+          this.addSuggestedTasks();
           this.email.linkedTasks = this.linkedTasks;
           this.email.suggestedTasks = this.suggestedTasks;
           resolve(this.email);
@@ -94,33 +92,38 @@ class Analyzer {
   getTasksFromEmailBody() {
     this.email.sentences = this.getTokenizedSentencesFromText(this.email.text);
 
-    // NOTE:
-    // Tasks are extracted from emails via 3 methods: 1. Syntax-Analysis, 2. (Word-)Pattern-Analysis, 3. Classifier (ML)
-    let tasksBySyntax = this.extractTasksBySyntax(this.email.sentences);
-    let tasksByPatterns = this.extractTasksByPatternSearch(this.email.sentences);
-    let tasksByClassifier = this.extractTasksByClassifier(this.email.sentences);
+    let filteredTasks = [];
+    if (this.email.box.name != '[Gmail]/Drafts' && this.email.box.name != '[Gmail]/Sent Mail' && this.email.box.name != '[Google Mail]/Drafts' && this.email.box.name != '[Google Mail]/Sent Mail') {
+      // NOTE:
+      // Tasks are extracted from emails via 3 methods: 1. Syntax-Analysis, 2. (Word-)Pattern-Analysis, 3. Classifier (ML)
+      let tasksBySyntax = this.extractTasksBySyntax(this.email.sentences);
+      let tasksByPatterns = this.extractTasksByPatternSearch(this.email.sentences);
+      let tasksByClassifier = this.extractTasksByClassifier(this.email.sentences);
 
-    let filteredTasks = [...tasksBySyntax, ...tasksByPatterns, ...tasksByClassifier].reduce((a, b) => {
-      const index = a.findIndex((e) => e.id == b.id);
-      if (index > -1) {
-        a[index].analysis.push(b.analysis[0]);
-      }
-      return index > -1 ? a : a.concat(b);
-    }, []);
+      filteredTasks = [...tasksBySyntax, ...tasksByPatterns, ...tasksByClassifier].reduce((a, b) => {
+        const index = a.findIndex((e) => e.id == b.id);
+        if (index > -1) {
+          a[index].analysis.push(b.analysis[0]);
+        }
+        return index > -1 ? a : a.concat(b);
+      }, []);
+    }
     return filteredTasks;
   }
 
   getTokenizedSentencesFromText(text) {
     let sentences = [];
-    const tokenizer = new natural.SentenceTokenizer();
-    const tokenizedSentences = text.length > 30 ? tokenizer.tokenize(text) : [text]; //TODO: test which length is too short
-    tokenizedSentences.forEach((s, i) => {
-      const fusejsSentence = {
-        id: i,
-        sentence: s
-      };
-      sentences.push(fusejsSentence);
-    });
+    if (text) {
+      const tokenizer = new natural.SentenceTokenizer();
+      const tokenizedSentences = text.length > 30 ? tokenizer.tokenize(text) : [text]; //TODO: test which length is too short
+      tokenizedSentences.forEach((s, i) => {
+        const fusejsSentence = {
+          id: i,
+          sentence: s
+        };
+        sentences.push(fusejsSentence);
+      });
+    }
     return sentences;
   }
 
