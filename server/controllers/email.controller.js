@@ -120,7 +120,7 @@ function append(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData).then((msgData) => {
     emailConnector.fetchBoxes(storeEmail, [req.body.box]).then(() => {
-      res.status(200).send(msgData);
+      res.status(200).send({msgData: msgData});
     })
   }).catch((err) => {
     res.status(400).send(err);
