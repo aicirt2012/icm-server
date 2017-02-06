@@ -57,7 +57,9 @@ function oauthCallback(req, res) {
     expiresIn: config.jwt.expiresInSeconds
   });
   res.set('token', token);
-  res.cookie('email-oauth', token); // TODO: change this to header
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+  res.cookie('email-oauth', token, {maxAge: 1000 * 60 * 10, httpOnly: false}); // TODO: change this to header
   res.redirect(config.frontend);
 }
 
