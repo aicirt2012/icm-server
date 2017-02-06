@@ -56,10 +56,12 @@ function oauthCallback(req, res) {
   }, config.jwt.secret, {
     expiresIn: config.jwt.expiresInSeconds
   });
-  res.set('token', token);
+  res.set('email-oauth', token);
+  res.header('Access-Control-Allow-Credentials', true);
   res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
-  res.cookie('email-oauth', token, {maxAge: 1000 * 60 * 10, httpOnly: false}); // TODO: change this to header
+  res.cookie('email-oauth', token); // TODO: change this to header
   res.redirect(config.frontend);
 }
 
