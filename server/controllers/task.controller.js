@@ -171,7 +171,7 @@ function markLinkedTasksInCards(cards) {
           path: 'email',
           select: 'box'
         }).then((task) => {
-          if (task) {
+          if (task.email) {
             c.isLinked = true;
             c.linkedBox = task.email.box.id;
             c.linkedEmail = task.email._id;
