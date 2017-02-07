@@ -142,14 +142,18 @@ class Analyzer {
 
     let extractedTasks = [];
     this.taskPatterns.forEach((p) => {
-      extractedTasks = extractedTasks.concat(fuse.search(p.pattern));
+      const tasks = fuse.search(p.pattern).map((t) => {
+        t.pattern = p.pattern;
+        return t;
+      });
+      extractedTasks = extractedTasks.concat(tasks);
     });
     let tasks = [];
     new Set(extractedTasks).forEach((t) => {
       tasks.push({
         id: t.id,
         sentence: t.sentence,
-        analysis: ['pattern']
+        analysis: [`pattern-${t.pattern}`]
       });
     });
     return tasks;
