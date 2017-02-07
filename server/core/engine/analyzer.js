@@ -93,7 +93,7 @@ class Analyzer {
     this.email.sentences = this.getTokenizedSentencesFromText(this.email.text);
 
     let filteredTasks = [];
-    if (this.email.box.name != '[Gmail]/Drafts' && this.email.box.name != '[Gmail]/Sent Mail' && this.email.box.name != '[Google Mail]/Drafts' && this.email.box.name != '[Google Mail]/Sent Mail') {
+    if (this.email.box.name != '[Gmail]/Drafts' && this.email.box.name != '[Gmail]/Sent Mail' && this.email.box.name != '[Google Mail]/Drafts' && this.email.box.name != '[Google Mail]/Sent Mail' && !this.email.html) {
       // NOTE:
       // Tasks are extracted from emails via 3 methods: 1. Syntax-Analysis, 2. (Word-)Pattern-Analysis, 3. Classifier (ML)
       let tasksBySyntax = this.extractTasksBySyntax(this.email.sentences);
