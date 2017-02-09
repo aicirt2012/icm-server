@@ -13,10 +13,7 @@ const EmailSchema = new mongoose.Schema({
         name: String,
         shortName: String,
         level: Number,
-        parent: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'box'
-        },
+        parent: mongoose.Schema.Types.Mixed,
         unseen: Number,
         new: Number,
         total: Number,
@@ -29,8 +26,8 @@ const EmailSchema = new mongoose.Schema({
         uid: Number,
         flags: [String],
         date: Date,
-        struct: [mongoose.Schema.Types.Mixed
-            /*{
+        struct: mongoose.Schema.Types.Mixed,
+        /*[{
             language: mongoose.Schema.Types.Mixed,
             disposition: mongoose.Schema.Types.Mixed,
             md5: mongoose.Schema.Types.Mixed,
@@ -43,8 +40,7 @@ const EmailSchema = new mongoose.Schema({
             subtype: String,
             type: String,
             partID: String,
-        }*/
-        ],
+        }]*/
         'x-gm-labels': [String]
     },
     from: [{

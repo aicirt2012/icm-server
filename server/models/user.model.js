@@ -50,10 +50,6 @@ const UserSchema = new mongoose.Schema({
         new: Number,
         total: Number,
     }],
-    /*boxList: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Box'
-    }],*/
     lastSync: {
         type: Date,
         default: null
