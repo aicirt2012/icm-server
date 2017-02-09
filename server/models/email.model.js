@@ -27,9 +27,10 @@ const EmailSchema = new mongoose.Schema({
         'x-gm-msgid': String,
         modseq: String,
         uid: Number,
-        flafs: [String],
+        flags: [String],
         date: Date,
-        struct: [{
+        struct: [mongoose.Schema.Types.Mixed
+            /*{
             language: mongoose.Schema.Types.Mixed,
             disposition: mongoose.Schema.Types.Mixed,
             md5: mongoose.Schema.Types.Mixed,
@@ -38,13 +39,12 @@ const EmailSchema = new mongoose.Schema({
             encoding: String,
             description: mongoose.Schema.Types.Mixed,
             id: mongoose.Schema.Types.Mixed,
-            params: {
-                boundary: String
-            },
+            params: mongoose.Schema.Types.Mixed,
             subtype: String,
             type: String,
             partID: String,
-        }],
+        }*/
+        ],
         'x-gm-labels': [String]
     },
     from: [{
