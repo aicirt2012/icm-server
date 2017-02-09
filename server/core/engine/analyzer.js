@@ -65,7 +65,7 @@ class Analyzer {
           this.linkedTasks = results.map((r) => {
             r['taskType'] = 'linked';
             return r;
-          });
+          }).filter((task) => task.closed == false);
           resolve(results);
         });
       }).catch((err) => {
