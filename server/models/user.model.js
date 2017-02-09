@@ -49,7 +49,7 @@ const UserSchema = new mongoose.Schema({
         unseen: Number,
         new: Number,
         total: Number,
-    }, ],
+    }],
     /*boxList: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Box'
