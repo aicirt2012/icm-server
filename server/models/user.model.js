@@ -6,85 +6,78 @@ import bcrypt from 'bcrypt';
 import mongoosePaginate from 'mongoose-paginate';
 
 const UserSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-    },
-    password: {
-        type: String,
-        required: true,
-    },
-    provider: {
-        name: String,
-        user: String,
-        password: String,
-        host: String,
-        port: Number,
-        smtpHost: String,
-        smtpPort: Number,
-        smtpDomains: [String]
-    },
-    highestmodseq: String,
-    google: {
-        googleAccessToken: String,
-        googleId: String
-    },
-    trello: {
-        trelloAccessTokenSecret: String,
-        trelloAccessToken: String,
-        trelloId: String
-    },
-    sociocortex: mongoose.Schema.Types.Mixed,
-    /* sociocortex: { email: 'adsasdf@dsafdsf.de', password: 'adsfadf'}*/
-    displayName: String,
-    boxList: [{
-        id: Number,
-        name: String,
-        shortName: String,
-        level: Number,
-        parent: mongoose.Schema.Types.Mixed,
-        unseen: Number,
-        new: Number,
-        total: Number,
-    }],
-    lastSync: {
-        type: Date,
-        default: null
-    }
+  username: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  provider: {
+    name: String,
+    user: String,
+    password: String,
+    host: String,
+    port: Number,
+    smtpHost: String,
+    smtpPort: Number,
+    smtpDomains: [String]
+  },
+  highestmodseq: String,
+  google: {
+    googleAccessToken: String,
+    googleId: String
+  },
+  trello: {
+    trelloAccessTokenSecret: String,
+    trelloAccessToken: String,
+    trelloId: String
+  },
+  sociocortex: {
+    email: String,
+    password: String
+  },
+  displayName: String,
+  boxList: mongoose.Schema.Types.Mixed, // issue https://github.com/Automattic/mongoose/issues/4064 with node version, mongoose and express validation
+  lastSync: {
+    type: Date,
+    default: null
+  }
 }, {
-    timestamps: true
+  timestamps: true
 });
 
-UserSchema.pre('save', function(next) {
-    let user = this;
-    if (!user.isModified('password')) return next();
+UserSchema.pre('save', function (next) {
+  let user = this;
+  if (!user.isModified('password')) return next();
 
-    bcrypt.genSalt(10, (err, salt) => {
-        if (err) {
-            return next(err);
-        }
-        bcrypt.hash(user.password, salt, (err, hash) => {
-            if (err) {
-                return next(err);
-            }
-            user.password = hash;
-            next();
-        });
+  bcrypt.genSalt(10, (err, salt) => {
+    if (err) {
+      return next(err);
+    }
+    bcrypt.hash(user.password, salt, (err, hash) => {
+      if (err) {
+        return next(err);
+      }
+      user.password = hash;
+      next();
     });
+  });
 });
 
 UserSchema.method({
-    comparePassword: function(password, cb) {
-        bcrypt.compare(password, this.password, (err, isMatch) => {
-            if (err) {
-                return cb(err);
-            }
-            cb(null, isMatch);
-        });
-    }
+  comparePassword: function (password, cb) {
+    bcrypt.compare(password, this.password, (err, isMatch) => {
+      if (err) {
+        return cb(err);
+      }
+      cb(null, isMatch);
+    });
+  }
 });
 
 UserSchema.plugin(mongoosePaginate);
