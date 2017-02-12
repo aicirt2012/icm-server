@@ -19,6 +19,7 @@ class GmailConnector extends ImapConnector {
           markSeen: false,
           extensions: ['X-GM-LABELS']
         }), (mail) => {
+          super.fetchAttachment(mail);
           return this.parseDataFromEmail(mail, boxType, storeEmail);
         });
       })
@@ -55,16 +56,7 @@ class GmailConnector extends ImapConnector {
           user: this.options.currentUser
         };
         storeEmail(email).then((msg) => {
-          return new Promise((resolve, reject)=> {
-            console.log('***************************************************************************************************************************************staring to fetch attachements');
-            console.log(mail);
-            super.fetchAttachment(mail)
-              .then(()=>{
-                console.log('++++++++++++++++++++++++++++++++++end fetch attachements');
-
-                resolve(msg);
-              });
-          });
+          resolve(msg);
         }).catch((err) => {
           reject(err);
         });
