@@ -115,7 +115,9 @@ class Analyzer {
     let sentences = [];
     if (text) {
       const tokenizer = new natural.SentenceTokenizer();
+      text = text + '.'; // we need to add a '.' for the fusejs tokenizer
       const tokenizedSentences = text.length > 30 ? tokenizer.tokenize(text) : [text]; //TODO: test which length is too short
+      tokenizedSentences[tokenizedSentences.length - 1] = tokenizedSentences[tokenizedSentences.length - 1].slice(0, tokenizedSentences[tokenizedSentences.length - 1].length - 1); // we remove the previously added . again
       tokenizedSentences.forEach((s, i) => {
         const fusejsSentence = {
           id: i,
