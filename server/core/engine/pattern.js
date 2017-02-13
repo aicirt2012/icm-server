@@ -2,13 +2,7 @@ import Pattern from '../../models/pattern.model';
 
 export default {
   patterns: [{
-    pattern: '* have to',
-    isDefault: true
-  }, {
-    pattern: 'can you',
-    isDefault: true
-  }, {
-    pattern: '* please',
+    pattern: 'please * ASAP',
     isDefault: true
   }],
   init: function() {
