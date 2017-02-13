@@ -2,20 +2,25 @@ import natural from 'natural';
 import TrainingData from '../../models/trainingData.model';
 
 class Classifier {
-  constructor() {
+  constructor(user) {
     this.classifier = new natural.BayesClassifier();
-    TrainingData.find().then((data) => {
-      data.forEach((d) => {
-        this.classifier.addDocument(d.text, d.label);
-      });
-      this.train();
-    }).catch((err) => {
-      console.log(err);
-    });
+    this.user = user;
   }
 
   train() {
-    this.classifier.train();
+    return new Promise((resolve, reject) => {
+      TrainingData.find({
+        user: this.user
+      }).then((data) => {
+        data.forEach((d) => {
+          this.classifier.addDocument(d.text, d.label);
+        });
+        this.classifier.train();
+        resolve();
+      }).catch((err) => {
+        reject(err);
+      });
+    });
   }
 
   classify(text) {

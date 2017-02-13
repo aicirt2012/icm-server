@@ -28,7 +28,8 @@ function createTask(req, res) {
                 text: s.sentence,
                 label: s.id == req.body.sentenceId,
                 email: result.email,
-                sentenceId: s.id
+                sentenceId: s.id,
+                user: req.user
               });
               if (s.id == req.body.sentenceId) {
                 tdSet['task'] = result;

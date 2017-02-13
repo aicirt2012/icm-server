@@ -20,21 +20,32 @@ class Analyzer {
     this.user = user;
     this.linkedTasks = [];
     this.suggestedTasks = [];
-    this.classifier = new Classifier();
+    this.classifier = new Classifier(this.user);
   }
 
-  getPatterns() {
+  initAnalyzer() {
     return new Promise((resolve, reject) => {
-      Pattern.find().then((patterns) => {
+      // first collect all patterns
+      Pattern.find({
+        $or: [{
+          isDefault: true
+        }, {
+          user: this.user
+        }]
+      }).then((patterns) => {
         this.taskPatterns = patterns;
-        resolve();
+
+        // then train classifier
+        this.classifier.train().then(() => {
+          resolve();
+        });
       }).catch(reject);
     });
   }
 
   getEmailTasks() {
     return new Promise((resolve, reject) => {
-      this.getPatterns().then(() => {
+      this.initAnalyzer().then(() => {
         this.fetchLinkedTasks().then((linkedTasks) => {
           this.addSuggestedTasks();
           this.email.linkedTasks = this.linkedTasks;
@@ -131,9 +142,9 @@ class Analyzer {
 
   extractTasksByPatternSearch(sentences) {
     const options = {
-      threshold: 0.6,
+      threshold: 0.5,
       location: 0,
-      distance: 100,
+      distance: 50,
       maxPatternLength: 32,
       minMatchCharLength: 1,
       keys: [
