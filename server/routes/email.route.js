@@ -55,6 +55,10 @@ function routeProvider(passport) {
     .get(emailCtrl.getSingleMail);
   router.route('/attachment/:id')
     .get(emailCtrl.getAttachmentById);
+  router.route('/delAttachment/:id')
+    .get(emailCtrl.delAttachmentById);
+  router.route('/addAttachment')
+    .get(emailCtrl.addAttachment);
 
   return router;
 }

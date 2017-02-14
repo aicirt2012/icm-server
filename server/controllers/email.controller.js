@@ -7,6 +7,7 @@ import config from '../../config/env';
 import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
 import Attachment from '../models/attachment.model';
+import fs from 'fs';
 
 const imapOptions = (user) => {
   return {
@@ -267,7 +268,28 @@ function getAttachmentById(req, res) {
     res.status(200).send(attachment);
   }).catch((err) => {
     res.status(400).send(err);
-  })
+  });
+}
+
+function delAttachmentById(req, res) {
+  Attachment.removeById(req.params.id).lean().then((attachment, err) => {
+    res.status(200).send({
+      message: `Deleted attachment: ${attachment}`
+    });
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+}
+
+function addAttachment(req, res) {
+  Attachment.create(req.params.filename, req.params.contentType, fs.createReadStream(req.params.path))
+    .lean().then((attachment, err) => {
+    res.status(200).send({
+      message: `Created attachment: ${attachment}`
+    });
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
 }
 
 /* EMAIL HELPER */
@@ -375,5 +397,7 @@ export default {
   getPaginatedEmailsForBox,
   searchPaginatedEmails,
   getSingleMail,
-  getAttachmentById
+  getAttachmentById,
+  delAttachmentById,
+  addAttachment
 };
