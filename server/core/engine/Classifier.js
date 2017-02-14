@@ -3,7 +3,7 @@ import TrainingData from '../../models/trainingData.model';
 
 class Classifier {
   constructor(user) {
-    this.classifier = new natural.BayesClassifier();
+    this.classifier = new natural.LogisticRegressionClassifier();
     this.user = user;
   }
 
@@ -15,7 +15,9 @@ class Classifier {
         data.forEach((d) => {
           this.classifier.addDocument(d.text, d.label);
         });
-        this.classifier.train();
+        if (this.classifier.docs && this.classifier.docs.length > 0) {
+          this.classifier.train();
+        }
         resolve();
       }).catch((err) => {
         reject(err);
@@ -24,11 +26,11 @@ class Classifier {
   }
 
   classify(text) {
-    return this.classifier.docs.length > 0 && this.classifier.classify(text);
+    return this.classifier.docs && this.classifier.docs.length > 0 && this.classifier.classify(text) == 'true';
   }
 
   getClassifications(text) {
-    return this.classifier.getClassifications(text);
+    return this.classifier.docs && this.classifier.docs.length > 0 && this.classifier.getClassifications(text);
   }
 }
 

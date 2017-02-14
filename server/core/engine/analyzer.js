@@ -109,7 +109,7 @@ class Analyzer {
       // Tasks are extracted from emails via 3 methods: 1. Syntax-Analysis, 2. (Word-)Pattern-Analysis, 3. Classifier (ML)
       let tasksBySyntax = this.extractTasksBySyntax(this.email.sentences);
       let tasksByPatterns = this.extractTasksByPatternSearch(this.email.sentences);
-      let tasksByClassifier = []; //this.extractTasksByClassifier(this.email.sentences);
+      let tasksByClassifier = this.extractTasksByClassifier(this.email.sentences);
 
       filteredTasks = [...tasksBySyntax, ...tasksByPatterns, ...tasksByClassifier].reduce((a, b) => {
         const index = a.findIndex((e) => e.id == b.id);
@@ -196,14 +196,15 @@ class Analyzer {
   extractTasksByClassifier(sentences) {
     let tasks = [];
     sentences.forEach((s) => {
-      if (this.classifier.classify(s.sentence) == 'true') {
+      let label = this.classifier.classify(s.sentence);
+      s.classification = this.classifier.getClassifications(s.sentence);
+      if (s.classification.find((c) => c.label == true).value > 0.5) {
         tasks.push({
           id: s.id,
           sentence: s.sentence,
           analysis: [`classifier`]
         });
       }
-      s.classification = this.classifier.getClassifications(s.sentence);
     });
     return tasks;
   }
