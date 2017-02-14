@@ -198,7 +198,7 @@ class Analyzer {
     sentences.forEach((s) => {
       let label = this.classifier.classify(s.sentence);
       s.classification = this.classifier.getClassifications(s.sentence);
-      if (s.classification.find((c) => c.label == true).value > 0.5) {
+      if (s.classification && s.classification.length > 0 && s.classification.find((c) => c.label == true).value > 0.5) {
         tasks.push({
           id: s.id,
           sentence: s.sentence,
