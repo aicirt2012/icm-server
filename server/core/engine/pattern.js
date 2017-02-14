@@ -2,7 +2,7 @@ import Pattern from '../../models/pattern.model';
 
 export default {
   patterns: [{
-    pattern: 'please * ASAP',
+    pattern: 'please ASAP',
     isDefault: true
   }],
   init: function() {

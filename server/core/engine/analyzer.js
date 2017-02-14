@@ -142,9 +142,12 @@ class Analyzer {
 
   extractTasksByPatternSearch(sentences) {
     const options = {
+      shouldSort: true,
+      tokenize: true,
+      matchAllTokens: true,
       threshold: 0.5,
       location: 0,
-      distance: 50,
+      distance: 100,
       maxPatternLength: 32,
       minMatchCharLength: 1,
       keys: [
