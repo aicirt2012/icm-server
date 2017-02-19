@@ -12,8 +12,6 @@ const UserSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    //unique: true,
-    //required: true
   },
   password: {
     type: String,
@@ -30,20 +28,21 @@ const UserSchema = new mongoose.Schema({
     smtpDomains: [String]
   },
   highestmodseq: String,
-  google: mongoose.Schema.Types.Mixed,
-  /*email: {
-      user: 'sebisng2@gmail.com',
-      pass: 's3b1sng2',
-      host: 'imap.gmail.com',
-      port: 993,
-      accessToken:xxx,
-      accessTokenSecret:xxx
-  },*/
-  trello: mongoose.Schema.Types.Mixed,
-  sociocortex: mongoose.Schema.Types.Mixed,
-  /* sociocortex: { email: 'adsasdf@dsafdsf.de', password: 'adsfadf'}*/
+  google: {
+    googleAccessToken: String,
+    googleId: String
+  },
+  trello: {
+    trelloAccessTokenSecret: String,
+    trelloAccessToken: String,
+    trelloId: String
+  },
+  sociocortex: {
+    email: String,
+    password: String
+  },
   displayName: String,
-  boxList: [mongoose.Schema.Types.Mixed],
+  boxList: mongoose.Schema.Types.Mixed, // issue https://github.com/Automattic/mongoose/issues/4064 with node version, mongoose and express validation
   lastSync: {
     type: Date,
     default: null
@@ -52,7 +51,7 @@ const UserSchema = new mongoose.Schema({
   timestamps: true
 });
 
-UserSchema.pre('save', function(next) {
+UserSchema.pre('save', function (next) {
   let user = this;
   if (!user.isModified('password')) return next();
 
@@ -71,7 +70,7 @@ UserSchema.pre('save', function(next) {
 });
 
 UserSchema.method({
-  comparePassword: function(password, cb) {
+  comparePassword: function (password, cb) {
     bcrypt.compare(password, this.password, (err, isMatch) => {
       if (err) {
         return cb(err);

@@ -1,4 +1,3 @@
-import IPromise from 'imap-promise';
 import Imap from 'imap';
 import Promise from 'bluebird';
 
@@ -184,12 +183,13 @@ class ImapConnector {
   move(msgId, srcBox, box) {
     return this.openBoxAndConnect(srcBox).then((srcBox) => new Promise((resolve, reject) => {
       this.imap.move(msgId, box, (err) => {
-        this.end();
-        if (err) {
-          reject(err);
-        } else {
-          resolve(msgId);
-        }
+        this.end().then(() => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(msgId);
+          }
+        });
       })
     }));
   }

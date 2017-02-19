@@ -28,7 +28,8 @@ function createTask(req, res) {
                 text: s.sentence,
                 label: s.id == req.body.sentenceId,
                 email: result.email,
-                sentenceId: s.id
+                sentenceId: s.id,
+                user: req.user
               });
               if (s.id == req.body.sentenceId) {
                 tdSet['task'] = result;
@@ -171,7 +172,7 @@ function markLinkedTasksInCards(cards) {
           path: 'email',
           select: 'box'
         }).then((task) => {
-          if (task) {
+          if (task && task.email) {
             c.isLinked = true;
             c.linkedBox = task.email.box.id;
             c.linkedEmail = task.email._id;
@@ -210,13 +211,15 @@ function searchCardsForMembers(req, res) {
     req.body.emailAddresses.forEach((e) => {
       promises.push(new Promise((resolve, reject) => {
         taskConnector.searchMembers({ query: e }, req.query).then((members) => {
-          if (members.length > 0) {
+          if (members.length > 0 && members[0].id) {
             taskConnector.getCardsForMember(members[0].id, req.query).then((data) => {
               resolve(data);
             })
           } else {
             resolve([]);
           }
+        }).catch((err) => {
+          reject(err);
         })
       }))
     });
@@ -229,8 +232,7 @@ function searchCardsForMembers(req, res) {
         return a.findIndex((e) => e.id == b.id) > -1 ? a : a.concat(b)
       }, []);
       res.status(200).send(cards);
-    })
-      .catch((err) => {
+    }).catch((err) => {
         res.status(400).send(err);
       });
   } else {

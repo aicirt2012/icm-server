@@ -56,7 +56,7 @@ function oauthCallback(req, res) {
     expiresIn: config.jwt.expiresInSeconds
   });
   res.cookie('email-oauth', token); // TODO: change this to header
-  res.redirect(config.frontend);
+  res.redirect(config.frontend + '?jwt=' + token);
 }
 
 export default {

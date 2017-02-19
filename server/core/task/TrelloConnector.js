@@ -35,7 +35,7 @@ class TrelloConnector extends TaskConnector {
    * get task
    */
   getTask(id) {
-    let params = {'members':'true','board':'true','list':'true'};
+    let params = {'members':'true','board':'true','list':'true', 'stickers': 'true'};
     const url = this.buildURL(`/cards/${id}`, params);
     return new Promise((resolve, reject) => {
       fetch(url).then((res) => res.json()).then((json) => {
@@ -139,6 +139,7 @@ class TrelloConnector extends TaskConnector {
    */
   getBoard(boardId, params) {
     params['cards'] = 'visible';
+    params['card_stickers'] = 'true';
     params['members'] = 'all';
     params['tags'] = 'true';
     const url = this.buildURL(`/boards/${boardId}`, params);
@@ -172,6 +173,7 @@ class TrelloConnector extends TaskConnector {
    */
   getCardsForList(listId, params) {
     params['members'] = 'true';
+    params['stickers'] = 'true';
     const url = this.buildURL(`/lists/${listId}/cards`, params);
     return new Promise((resolve, reject) => {
       fetch(url).then((res) => res.json()).then((json) => {
@@ -188,6 +190,7 @@ class TrelloConnector extends TaskConnector {
    */
   getCardsForMember(memberId, params) {
     params['members'] = 'true';
+    params['stickers'] = 'true';
     const url = this.buildURL(`/members/${memberId}/cards`, params);
     return new Promise((resolve, reject) => {
       fetch(url).then((res) => res.json()).then((cards) => {

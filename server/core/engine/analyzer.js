@@ -20,25 +20,34 @@ class Analyzer {
     this.user = user;
     this.linkedTasks = [];
     this.suggestedTasks = [];
-    this.classifier = new Classifier();
+    this.classifier = new Classifier(this.user);
   }
 
-  getPatterns() {
+  initAnalyzer() {
     return new Promise((resolve, reject) => {
-      Pattern.find().then((patterns) => {
+      // first collect all patterns
+      Pattern.find({
+        $or: [{
+          isDefault: true
+        }, {
+          user: this.user
+        }]
+      }).then((patterns) => {
         this.taskPatterns = patterns;
-        resolve();
+
+        // then train classifier
+        this.classifier.train().then(() => {
+          resolve();
+        });
       }).catch(reject);
     });
   }
 
   getEmailTasks() {
     return new Promise((resolve, reject) => {
-      this.getPatterns().then(() => {
+      this.initAnalyzer().then(() => {
         this.fetchLinkedTasks().then((linkedTasks) => {
-          if (this.email.box.name != '[Gmail]/Drafts' && this.email.box.name != '[Gmail]/Sent Mail' && this.email.box.name != '[Google Mail]/Drafts' && this.email.box.name != '[Google Mail]/Sent Mail') {
-            this.addSuggestedTasks();
-          }
+          this.addSuggestedTasks();
           this.email.linkedTasks = this.linkedTasks;
           this.email.suggestedTasks = this.suggestedTasks;
           resolve(this.email);
@@ -67,7 +76,7 @@ class Analyzer {
           this.linkedTasks = results.map((r) => {
             r['taskType'] = 'linked';
             return r;
-          });
+          }).filter((task) => task.closed == false);
           resolve(results);
         });
       }).catch((err) => {
@@ -94,39 +103,49 @@ class Analyzer {
   getTasksFromEmailBody() {
     this.email.sentences = this.getTokenizedSentencesFromText(this.email.text);
 
-    // NOTE:
-    // Tasks are extracted from emails via 3 methods: 1. Syntax-Analysis, 2. (Word-)Pattern-Analysis, 3. Classifier (ML)
-    let tasksBySyntax = this.extractTasksBySyntax(this.email.sentences);
-    let tasksByPatterns = this.extractTasksByPatternSearch(this.email.sentences);
-    let tasksByClassifier = this.extractTasksByClassifier(this.email.sentences);
+    let filteredTasks = [];
+    if (this.email.box.name != '[Gmail]/Drafts' && this.email.box.name != '[Gmail]/Sent Mail' && this.email.box.name != '[Google Mail]/Drafts' && this.email.box.name != '[Google Mail]/Sent Mail' && !this.email.html) {
+      // NOTE:
+      // Tasks are extracted from emails via 3 methods: 1. Syntax-Analysis, 2. (Word-)Pattern-Analysis, 3. Classifier (ML)
+      let tasksBySyntax = this.extractTasksBySyntax(this.email.sentences);
+      let tasksByPatterns = this.extractTasksByPatternSearch(this.email.sentences);
+      let tasksByClassifier = this.extractTasksByClassifier(this.email.sentences);
 
-    let filteredTasks = [...tasksBySyntax, ...tasksByPatterns, ...tasksByClassifier].reduce((a, b) => {
-      const index = a.findIndex((e) => e.id == b.id);
-      if (index > -1) {
-        a[index].analysis.push(b.analysis[0]);
-      }
-      return index > -1 ? a : a.concat(b);
-    }, []);
+      filteredTasks = [...tasksBySyntax, ...tasksByPatterns, ...tasksByClassifier].reduce((a, b) => {
+        const index = a.findIndex((e) => e.id == b.id);
+        if (index > -1) {
+          a[index].analysis.push(b.analysis[0]);
+        }
+        return index > -1 ? a : a.concat(b);
+      }, []);
+    }
     return filteredTasks;
   }
 
   getTokenizedSentencesFromText(text) {
     let sentences = [];
-    const tokenizer = new natural.SentenceTokenizer();
-    const tokenizedSentences = text.length > 30 ? tokenizer.tokenize(text) : [text]; //TODO: test which length is too short
-    tokenizedSentences.forEach((s, i) => {
-      const fusejsSentence = {
-        id: i,
-        sentence: s
-      };
-      sentences.push(fusejsSentence);
-    });
+    if (text) {
+      const tokenizer = new natural.SentenceTokenizer();
+      text = text + '.'; // we need to add a '.' for the fusejs tokenizer
+      const tokenizedSentences = text.length > 30 ? tokenizer.tokenize(text) : [text]; //TODO: test which length is too short
+      tokenizedSentences[tokenizedSentences.length - 1] = tokenizedSentences[tokenizedSentences.length - 1].slice(0, tokenizedSentences[tokenizedSentences.length - 1].length - 1); // we remove the previously added . again
+      tokenizedSentences.forEach((s, i) => {
+        const fusejsSentence = {
+          id: i,
+          sentence: s
+        };
+        sentences.push(fusejsSentence);
+      });
+    }
     return sentences;
   }
 
   extractTasksByPatternSearch(sentences) {
     const options = {
-      threshold: 0.6,
+      shouldSort: true,
+      tokenize: true,
+      matchAllTokens: true,
+      threshold: 0.4,
       location: 0,
       distance: 100,
       maxPatternLength: 32,
@@ -139,14 +158,18 @@ class Analyzer {
 
     let extractedTasks = [];
     this.taskPatterns.forEach((p) => {
-      extractedTasks = extractedTasks.concat(fuse.search(p.pattern));
+      const tasks = fuse.search(p.pattern).map((t) => {
+        t.pattern = p.pattern;
+        return t;
+      });
+      extractedTasks = extractedTasks.concat(tasks);
     });
     let tasks = [];
     new Set(extractedTasks).forEach((t) => {
       tasks.push({
         id: t.id,
         sentence: t.sentence,
-        analysis: ['pattern']
+        analysis: [`pattern-${t.pattern}`]
       });
     });
     return tasks;
@@ -173,14 +196,15 @@ class Analyzer {
   extractTasksByClassifier(sentences) {
     let tasks = [];
     sentences.forEach((s) => {
-      if (this.classifier.classify(s.sentence) == 'true') {
+      let label = this.classifier.classify(s.sentence);
+      s.classification = this.classifier.getClassifications(s.sentence);
+      if (s.classification && s.classification.length > 0 && s.classification.find((c) => c.label == true).value > 0.5) {
         tasks.push({
           id: s.id,
           sentence: s.sentence,
           analysis: [`classifier`]
         });
       }
-      s.classification = this.classifier.getClassifications(s.sentence);
     });
     return tasks;
   }
