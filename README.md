@@ -26,8 +26,8 @@ gulpfile.babel.js - Gulp tasks
 
 Clone the repo:
 ```sh
-git clone git@bitbucket.org:aicirt2012/emailappserver.git
-cd emailappserver
+git clone git@bitbucket.org:aicirt2012/icm-server.git
+cd icm-server
 ```
 
 Install dependencies:
@@ -48,7 +48,7 @@ Start server:
 npm start
 
 # Selectively set DEBUG env var to get logs
-DEBUG=emailappserver:* npm start
+DEBUG=icm-server:* npm start
 ```
 Refer [debug](https://www.npmjs.com/package/debug) to know how to selectively turn on logs.
 
@@ -100,6 +100,9 @@ gulp
 
 # Use any process manager to start your services
 4. pm2 start dist/index.js
+
+# OR: for a normal node execution in production environment
+4. set node_env=production&& node dist/index.js 
 ```
 
 ## Features
