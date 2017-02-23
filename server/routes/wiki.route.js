@@ -7,8 +7,7 @@ function routeProvider(passport) {
     session: false
   });
 
-  //TODO remove comment below - only for testing purpose
-  //router.use(mw);
+  router.use(mw);
 
   /** GET /api/wiki/search - Protected route */
   router.route('/search')
