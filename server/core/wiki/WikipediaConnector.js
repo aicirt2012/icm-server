@@ -10,18 +10,14 @@ class WikipediaConnector {
     getArticle(query) {
         return new Promise((resolve, reject) => {
             wikipedia.page.data(query, { content: true }, function(article) {
-               // console.log(article.text);
-               // fs.writeFile('wiki.html', article.text['*']);
-                let teaser = '';
-                const $ = cheerio.load(article.text['*']);
+                const $ = cheerio.load(article.text['*']);               
                 let fp = $('p');
-                console.error(fp.html())
-                teaser += fp.html();
-                while(fp.next().tagName == 'p'){
+                let teaser = '<p>'+fp.html()+'</p>';
+                while(fp.next().get(0).name == 'p'){                
                     fp = fp.next();
-                    teaser += fp.html();
+                    teaser += '<p>'+fp.html()+'</p>';
                 }
-                fs.writeFile('wikiParsed.html', teaser);
+               // fs.writeFile('wikiParsed.html', teaser);
                 resolve({
                     title: article.title,
                     teaser: teaser
