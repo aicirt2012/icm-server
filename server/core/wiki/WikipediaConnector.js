@@ -10,15 +10,22 @@ class WikipediaConnector {
     getArticle(query) {
         return new Promise((resolve, reject) => {
             wikipedia.page.data(query, { content: true }, function(article) {
-                const $ = cheerio.load(article.text['*']);               
+                let $ = cheerio.load(article.text['*']);   
+
+                // find relevant teaser        
                 let fp = $('p');
                 let teaser = '<p>'+fp.html()+'</p>';
                 while(fp.next().get(0).name == 'p'){                
                     fp = fp.next();
                     teaser += '<p>'+fp.html()+'</p>';
                 }
-               // fs.writeFile('wikiParsed.html', teaser);
                 teaser = teaser.replace(/<a/g,'<span class="wiki-link"').replace(/a>/g,'span>');
+            
+                // remove references
+                $ = cheerio.load(teaser);  
+                $('.reference').remove(); 
+                teaser = $.html();
+
                 resolve({
                     title: article.title,
                     teaser: teaser
