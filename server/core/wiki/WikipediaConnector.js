@@ -18,7 +18,7 @@ class WikipediaConnector {
                     teaser += '<p>'+fp.html()+'</p>';
                 }
                // fs.writeFile('wikiParsed.html', teaser);
-                teaser = teaser.replace(/<a/g,'<span class="link"').replace(/a>/g,'span>');
+                teaser = teaser.replace(/<a/g,'<span class="wiki-link"').replace(/a>/g,'span>');
                 resolve({
                     title: article.title,
                     teaser: teaser
