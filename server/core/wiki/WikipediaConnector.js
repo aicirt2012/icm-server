@@ -25,7 +25,8 @@ class WikipediaConnector {
                 $ = cheerio.load(teaser);  
                 $('.reference').remove(); 
                 $('.update').remove(); 
-                $('.noprint').remove();                 
+                $('.noprint').remove();        
+                $('a').removeAttr('href');               
                 teaser = $.html();
 
                 resolve({
