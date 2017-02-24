@@ -43,8 +43,8 @@ class LingueeConnector {
             const $ = cheerio.load(body);
             const translation = [];
 
-            /** Select result block */
-            $('#dictionary .isMainTerm .exact .lemma.featured').map(function () {
+            /** Select result block .isMainTerm*/
+            $('#dictionary  .exact .lemma.featured').map(function () {
 
               /** A word Block represents one word with different explanations
                *   source = word of search term or variations
