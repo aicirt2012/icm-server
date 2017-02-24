@@ -4,7 +4,7 @@ import authRoutes from './auth.route';
 import emailRoutes from './email.route';
 import taskRoutes from './task.route';
 import wikiRoutes from './wiki.route';
-import translateRoutes from './translation.route';
+import translateRoutes from './translate.route';
 import dashboardRoutes from './dashboard.route';
 import importRoutes from './import.route';
 import patternRoutes from './pattern.route';
@@ -16,7 +16,7 @@ function routeProvider(passport) {
     router.use('/email', emailRoutes(passport));
     router.use('/task', taskRoutes(passport));
     router.use('/wiki', wikiRoutes(passport));
-    router.use('/translation', translateRoutes(passport));
+    router.use('/translate', translateRoutes(passport));
     router.use('/dashboard', dashboardRoutes(passport));
     router.use('/import', importRoutes(passport));
     router.use('/pattern', patternRoutes(passport));
