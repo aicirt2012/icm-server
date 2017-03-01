@@ -39,7 +39,7 @@ if (!module.parent) {
 Patterns.init();
 
 // open socket for coninious updates
-const socket =  new Socket();
+//const socket =  new Socket();
 
 process.on('uncaughtException', (err) => {
   console.log(err);

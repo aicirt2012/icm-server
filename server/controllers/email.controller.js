@@ -6,6 +6,8 @@ import ExchangeConnector from '../core/mail/ExchangeConnector';
 import config from '../../config/env';
 import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
+import fs from 'fs';
+import Socket from '../routes/socket';
 
 const imapOptions = (user) => {
   return {
@@ -285,16 +287,47 @@ function storeEmail(mail) {
     Email.findOneAndUpdate({
       messageId: mail.messageId
     }, mail, {
-      new: true,
+      new: false,
       upsert: true,
       setDefaultsOnInsert: true
-    }, (err, email) => {
+    }, (err, emailOld) => {
+      console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
+      
       if (err) {
         reject(err);
-      }
-      resolve(email);
+      }else{
+        Email.findOne({
+          messageId: mail.messageId
+        }).then(emailUpdated=>{
+         // console.log(emailOld);
+        //  console.log(emailUpdated);
+         //if(!fs.existsSync('D:\email.old.txt')){
+          Socket.createEmail(emailUpdated.user, emailUpdated);
+          //fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
+         // fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
+        // }
+          resolve(emailUpdated);
+        });
+      }   
     });
   });
+}
+
+function pushUpdateToClient(emailOld, emailNew){
+   if(isEmailUpdated(emailOld, emailUpdated))
+    Socket.createEmail(emailUpdated.user, emailUpdated);
+            
+}
+
+function isEmailNew(emailOld, emailNew){
+  return emailOld = null && emailNew != null;
+}
+
+function isEmailUpdated(emailOld, emailNew){
+  return 
+    emailOld.labels != emailNew.labels ||
+    emailOld.box != emailNew.box ||
+    emailOld.attrs != emailNew.attrs;
 }
 
 function syncDeletedMails(syncTime, boxes) {
