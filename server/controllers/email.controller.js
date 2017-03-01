@@ -8,6 +8,7 @@ import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
 import fs from 'fs';
 import Socket from '../routes/socket';
+import _ from 'lodash';
 
 const imapOptions = (user) => {
   return {
@@ -291,21 +292,20 @@ function storeEmail(mail) {
       upsert: true,
       setDefaultsOnInsert: true
     }, (err, emailOld) => {
-      console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
-      
+       
+  
       if (err) {
         reject(err);
       }else{
         Email.findOne({
           messageId: mail.messageId
-        }).then(emailUpdated=>{
-         // console.log(emailOld);
-        //  console.log(emailUpdated);
-         //if(!fs.existsSync('D:\email.old.txt')){
-          Socket.createEmail(emailUpdated.user, emailUpdated);
-          //fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
-         // fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
-        // }
+        }).then(emailUpdated=>{      
+          console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
+ 
+          fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
+          fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
+  
+          pushUpdateToClient(emailOld, emailUpdated);       
           resolve(emailUpdated);
         });
       }   
@@ -314,20 +314,31 @@ function storeEmail(mail) {
 }
 
 function pushUpdateToClient(emailOld, emailNew){
-   if(isEmailUpdated(emailOld, emailUpdated))
-    Socket.createEmail(emailUpdated.user, emailUpdated);
-            
+  /*
+  if(isEmailNew(emailOld, emailNew))
+    Socket.createEmail(emailNew.user, emailNew);          
+  else if(isEmailDeleted(emailOld, emailNew))
+    Socket.deleteEmail(emailOld.user, emailOld);  
+  else 
+  */
+  console.log(isEmailUpdated(emailOld, emailNew));
+  if(isEmailUpdated(emailOld, emailNew))   
+    Socket.updateEmail(emailNew.user, emailNew);  
 }
 
 function isEmailNew(emailOld, emailNew){
-  return emailOld = null && emailNew != null;
+  return emailOld == null && emailNew != null;
 }
 
 function isEmailUpdated(emailOld, emailNew){
-  return 
-    emailOld.labels != emailNew.labels ||
-    emailOld.box != emailNew.box ||
-    emailOld.attrs != emailNew.attrs;
+   return !_.isEqual(emailOld.labels, emailNew.labels) ||
+    !_.isEqual(emailOld.box, emailNew.box) ||
+    !_.isEqual(emailOld.attrs, emailNew.attrs) || 
+    !_.isEqual(emailOld.flags, emailNew.flags);  
+}
+
+function isEmailDeleted(emailOld, emailNew){
+  return emailOld != null && emailNew == null;
 }
 
 function syncDeletedMails(syncTime, boxes) {
