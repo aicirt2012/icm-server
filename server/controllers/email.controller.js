@@ -314,24 +314,21 @@ function storeEmail(mail) {
 }
 
 function pushUpdateToClient(emailOld, emailNew){
-  /*
-  if(isEmailNew(emailOld, emailNew))
+  console.log(emailOld, emailNew);
+  if(isEmailCreated(emailOld, emailNew))
     Socket.createEmail(emailNew.user, emailNew);          
   else if(isEmailDeleted(emailOld, emailNew))
     Socket.deleteEmail(emailOld.user, emailOld);  
-  else 
-  */
-  console.log(isEmailUpdated(emailOld, emailNew));
-  if(isEmailUpdated(emailOld, emailNew))   
+  else if(isEmailUpdated(emailOld, emailNew))   
     Socket.updateEmail(emailNew.user, emailNew);  
 }
 
-function isEmailNew(emailOld, emailNew){
+function isEmailCreated(emailOld, emailNew){
   return emailOld == null && emailNew != null;
 }
 
 function isEmailUpdated(emailOld, emailNew){
-   return !_.isEqual(emailOld.labels, emailNew.labels) ||
+  return !_.isEqual(emailOld.labels, emailNew.labels) ||
     !_.isEqual(emailOld.box, emailNew.box) ||
     !_.isEqual(emailOld.attrs, emailNew.attrs) || 
     !_.isEqual(emailOld.flags, emailNew.flags);  
@@ -351,6 +348,7 @@ function syncDeletedMails(syncTime, boxes) {
         "$lt": syncTime
       }
     }, (err) => {
+      console.log('delete not updated mails +++++++++++++++++++++++++++');
       err ? reject(err) : resolve();
     })
   });
