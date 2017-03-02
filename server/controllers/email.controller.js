@@ -310,7 +310,7 @@ function storeEmail(mail) {
 }
 
 
-
+/*
 function syncDeletedMails(syncTime, boxes) {
   return new Promise((resolve, reject) => {
     Email.remove({
@@ -326,7 +326,9 @@ function syncDeletedMails(syncTime, boxes) {
     })
   });
 }
+*/
 
+/*
 function recursivePromises(promises, callback) {
   if (promises.length > 0) {
     Promise.all(promises[0]).then(() => {
@@ -337,6 +339,7 @@ function recursivePromises(promises, callback) {
     callback();
   }
 }
+*/
 
 function getBoxes(user, details = false, provider) {
   const emailConnector = createEmailConnector(provider, user);
