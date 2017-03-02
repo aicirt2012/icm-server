@@ -302,8 +302,8 @@ function storeEmail(mail) {
         }).then(emailUpdated=>{      
           console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
  
-          fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
-          fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
+          //fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
+          //fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
   
           pushUpdateToClient(emailOld, emailUpdated);       
           resolve(emailUpdated);
@@ -314,7 +314,7 @@ function storeEmail(mail) {
 }
 
 function pushUpdateToClient(emailOld, emailNew){
-  console.log(emailOld, emailNew);
+  //console.log(emailOld, emailNew);
   if(isEmailCreated(emailOld, emailNew))
     Socket.createEmail(emailNew.user, emailNew);          
   else if(isEmailDeleted(emailOld, emailNew))

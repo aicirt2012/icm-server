@@ -10,7 +10,7 @@ import socketIo from 'socket.io';
 class Socket{
 
   /** maps the userId to the related open socket */
-  userSockets = new Map();
+  userSockets = new Map(); //<userId, socketId>
   server  = http.createServer(express);
   io = socketIo(this.server);
 
@@ -18,22 +18,19 @@ class Socket{
 
       this.server.listen(config.socketPort);
 
-      this.io.use((socket, next)=>{
-        /*
+      this.io.use((socket, next)=>{        
         const token = socket.request._query['token'];
         if(jwt.verify(token, config.jwt.secret)){
-        socket.userId = jwt.decode(token).user._id;
-        next();
+          socket.userId = jwt.decode(token).user._id;
+          next();
         }else{
-        console.log('Not Authenticated!');
-        }*/
-        socket.userId = '123';
-        next();
+          console.log('Not Authenticated!');
+        }
       });
 
       this.io.on('connection', (socket)=>{
         console.log('new socket '+socket.id + ' for user '+socket.userId);
-        this.userSockets.set(socket.userId, socket.id);
+        this.userSockets.set(socket.userId.toString(), socket.id);
 
         socket.on('disconnect', (socket)=>{
           console.log('socket closed');
@@ -41,7 +38,7 @@ class Socket{
         });
 
         //TODO remove only for testing
-        emitMsg();
+        //emitMsg();
         function emitMsg(){
           setTimeout(()=>{
             socket.emit('message', 'some date');
@@ -66,8 +63,7 @@ class Socket{
   }
 
   emitToUser(userId, msgType, msgContent){
-    //TODO remove
-    userId = '123';
+    userId = userId.toString();
     if(this.userSockets.has(userId)){   
       const socketId = this.userSockets.get(userId);
       this.io.sockets.connected[socketId].emit(msgType, JSON.stringify(msgContent));
