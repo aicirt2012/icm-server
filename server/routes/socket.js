@@ -36,16 +36,6 @@ class Socket{
           console.log('socket closed');
           this.userSockets.delete(socket.userId);
         });
-
-        //TODO remove only for testing
-        //emitMsg();
-        function emitMsg(){
-          setTimeout(()=>{
-            socket.emit('message', 'some date');
-            console.log('send msg');
-            //emitMsg();
-          }, 1000);
-        }
       });
    
   }
