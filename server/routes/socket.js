@@ -4,7 +4,7 @@ import config from '../../config/env';
 import emailCtrl from '../controllers/email.controller';
 import http from 'http';
 import socketIo from 'socket.io';
-
+import _ from 'lodash';
 
 
 class Socket{
@@ -40,6 +40,30 @@ class Socket{
    
   }
 
+  pushUpdateToClient(emailOld, emailNew){
+    if(this.isEmailCreated(emailOld, emailNew))
+      this.createEmail(emailNew.user, emailNew);          
+    else if(this.isEmailDeleted(emailOld, emailNew))
+      this.deleteEmail(emailOld.user, emailOld);  
+    else if(this.isEmailUpdated(emailOld, emailNew))   
+      this.updateEmail(emailNew.user, emailNew);  
+  }
+
+  isEmailCreated(emailOld, emailNew){
+    return emailOld == null && emailNew != null;
+  }
+
+  isEmailUpdated(emailOld, emailNew){
+    return !_.isEqual(emailOld.labels, emailNew.labels) ||
+      !_.isEqual(emailOld.box, emailNew.box) ||
+      !_.isEqual(emailOld.attrs, emailNew.attrs) || 
+      !_.isEqual(emailOld.flags, emailNew.flags);  
+  }
+
+  isEmailDeleted(emailOld, emailNew){
+    return emailOld != null && emailNew == null;
+  }
+
   createEmail(userId, email){
     this.emitToUser(userId, 'create_email', email);
   }
@@ -62,4 +86,5 @@ class Socket{
   }
 }
 
+/* exporting the instance ensures the usage as singelton pattern */
 export default new Socket();

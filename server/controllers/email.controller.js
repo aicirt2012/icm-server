@@ -8,7 +8,7 @@ import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
 import fs from 'fs';
 import Socket from '../routes/socket';
-import _ from 'lodash';
+
 
 const imapOptions = (user) => {
   return {
@@ -292,8 +292,6 @@ function storeEmail(mail) {
       upsert: true,
       setDefaultsOnInsert: true
     }, (err, emailOld) => {
-       
-  
       if (err) {
         reject(err);
       }else{
@@ -301,11 +299,9 @@ function storeEmail(mail) {
           messageId: mail.messageId
         }).then(emailUpdated=>{      
           console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
- 
           //fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
           //fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
-  
-          pushUpdateToClient(emailOld, emailUpdated);       
+          Socket.pushUpdateToClient(emailOld, emailUpdated);       
           resolve(emailUpdated);
         });
       }   
@@ -313,30 +309,7 @@ function storeEmail(mail) {
   });
 }
 
-function pushUpdateToClient(emailOld, emailNew){
-  //console.log(emailOld, emailNew);
-  if(isEmailCreated(emailOld, emailNew))
-    Socket.createEmail(emailNew.user, emailNew);          
-  else if(isEmailDeleted(emailOld, emailNew))
-    Socket.deleteEmail(emailOld.user, emailOld);  
-  else if(isEmailUpdated(emailOld, emailNew))   
-    Socket.updateEmail(emailNew.user, emailNew);  
-}
 
-function isEmailCreated(emailOld, emailNew){
-  return emailOld == null && emailNew != null;
-}
-
-function isEmailUpdated(emailOld, emailNew){
-  return !_.isEqual(emailOld.labels, emailNew.labels) ||
-    !_.isEqual(emailOld.box, emailNew.box) ||
-    !_.isEqual(emailOld.attrs, emailNew.attrs) || 
-    !_.isEqual(emailOld.flags, emailNew.flags);  
-}
-
-function isEmailDeleted(emailOld, emailNew){
-  return emailOld != null && emailNew == null;
-}
 
 function syncDeletedMails(syncTime, boxes) {
   return new Promise((resolve, reject) => {
