@@ -1,5 +1,6 @@
 import Promise from 'bluebird';
 import Email from '../models/email.model';
+import Box from '../models/box.model';
 import GmailConnector from '../core/mail/GmailConnector';
 import SMTPConnector from '../core/mail/SMTPConnector';
 import ExchangeConnector from '../core/mail/ExchangeConnector';
@@ -341,6 +342,7 @@ function recursivePromises(promises, callback) {
 }
 */
 
+
 function getBoxes(user, details = false, provider) {
   const emailConnector = createEmailConnector(provider, user);
   return new Promise((resolve, reject) => {
@@ -355,6 +357,47 @@ function getBoxes(user, details = false, provider) {
   })
 }
 
+/** ------------------ for new local interface ---------------------------------------- */
+
+/** Returns the current boxes form the database */
+//TODO enhance with unread mails
+function getBoxes2(req, res){
+  Box.find({user: req.user._id})
+    .then(boxes=>{
+        res.status(200).send(boxes);
+    });
+}
+
+/** Syncs the box strucure via IMAP */
+//TODO create push socket push mechanism
+function syncBoxes2(user, details = false, provider){
+  const emailConnector = createEmailConnector(provider, user);
+  return new Promise((resolve, reject) => {
+    emailConnector.getBoxes(details).then((boxes) => {
+      return Promise.each(boxes, (box)=>{
+        return Box.update2(box);
+      });
+    }).catch((err) => {
+      reject(err);
+    });
+  })
+}
+
+
+/** Syncs the emails via IMAP */
+//TODO 
+function snycEmail2(){
+
+}
+
+/** Sync wrapper (boxes and mails) */
+function syncViaIMAP2(req, res){
+  syncBoxes2(req.user, true, req.query.provider)
+    .then(()=>{
+      res.status(200).send();
+    });
+}
+
 export default {
   syncMails,
   addBox,
@@ -367,8 +410,9 @@ export default {
   addFlags,
   delFlags,
   setFlags,
-  getInitialImapStatus,
+  getInitialImapStatus, 
   getPaginatedEmailsForBox,
   searchPaginatedEmails,
-  getSingleMail
+  getSingleMail,
+  getBoxes2
 };

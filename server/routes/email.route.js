@@ -53,6 +53,8 @@ function routeProvider(passport) {
     .get(emailCtrl.searchPaginatedEmails);
   router.route('/single/:id')
     .get(emailCtrl.getSingleMail);
+  router.route('/box')
+    .get(emailCtrl.getBoxes2)
 
   return router;
 }
