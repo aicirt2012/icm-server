@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+import Promise from 'bluebird';
+
+mongoose.Promise = Promise;
 
 const BoxSchema = new mongoose.Schema({
     _id: Number,
@@ -12,7 +15,7 @@ const BoxSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    }, 
+    },
 }, {
     timestamps: true
 });
@@ -21,28 +24,30 @@ const BoxSchema = new mongoose.Schema({
 
 BoxSchema.method({});
 
-BoxSchema.statics.update2 = function(box){
-    return new Promise((resolve, reject) => {
-      Box.findOneAndUpdate({
-        _id: box.id
-      }, mail, {
-        new: false,
-        upsert: true,
-        setDefaultsOnInsert: true
-      }, (err, boxOld) => {
-        if (err) {
-          reject(err);
-        }else{
-          Box.findOne({
-            _id: box.id
-          }).then(boxUpdated=>{        
-            resolve(boxOld, boxUpdated);
-          });   
-        }   
-      });
+BoxSchema.statics.update2 = function (box) {
+  return new Promise((resolve, reject) => {
+    console.log('processing from inside...');
+    console.log(box);
+    Box.findOneAndUpdate({
+      _id: box.id
+    }, box, {
+      new: false,
+      upsert: true,
+      setDefaultsOnInsert: true
+    }, (err, boxOld) => {
+      if (err) {
+        reject(err);
+      } else {
+        Box.findOne({
+          _id: box.id
+        }).then(boxUpdated => {
+          resolve(boxOld, boxUpdated);
+        });
+      }
     });
+  });
 }
 
+let Box = mongoose.model('Box', BoxSchema)
 
-
-export default mongoose.model('Box', BoxSchema);
+export default Box;

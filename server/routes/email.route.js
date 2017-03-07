@@ -54,7 +54,9 @@ function routeProvider(passport) {
   router.route('/single/:id')
     .get(emailCtrl.getSingleMail);
   router.route('/box')
-    .get(emailCtrl.getBoxes2)
+    .get(emailCtrl.getBoxes2);
+  router.route('/syncAll') // boxes
+    .get(emailCtrl.syncViaIMAP2);
 
   return router;
 }

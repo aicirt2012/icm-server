@@ -298,14 +298,14 @@ function storeEmail(mail) {
       }else{
         Email.findOne({
           messageId: mail.messageId
-        }).then(emailUpdated=>{      
+        }).then(emailUpdated=>{
           console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
           //fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
           //fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
-          Socket.pushUpdateToClient(emailOld, emailUpdated);       
+          Socket.pushUpdateToClient(emailOld, emailUpdated);
           resolve(emailUpdated);
         });
-      }   
+      }
     });
   });
 }
@@ -362,18 +362,21 @@ function getBoxes(user, details = false, provider) {
 /** Returns the current boxes form the database */
 //TODO enhance with unread mails
 function getBoxes2(req, res){
+  console.log('getting boxes 2');
   Box.find({user: req.user._id})
     .then(boxes=>{
         res.status(200).send(boxes);
     });
 }
 
+/*FIRST*/
 /** Syncs the box strucure via IMAP */
 //TODO create push socket push mechanism
 function syncBoxes2(user, details = false, provider){
   const emailConnector = createEmailConnector(provider, user);
   return new Promise((resolve, reject) => {
     emailConnector.getBoxes(details).then((boxes) => {
+      console.log('HERREEEEE');
       return Promise.each(boxes, (box)=>{
         return Box.update2(box);
       });
@@ -385,13 +388,15 @@ function syncBoxes2(user, details = false, provider){
 
 
 /** Syncs the emails via IMAP */
-//TODO 
+//TODO
 function snycEmail2(){
 
 }
 
 /** Sync wrapper (boxes and mails) */
 function syncViaIMAP2(req, res){
+  console.log('syncing boxes and emails');
+  console.log(req.user);
   syncBoxes2(req.user, true, req.query.provider)
     .then(()=>{
       res.status(200).send();
@@ -410,9 +415,10 @@ export default {
   addFlags,
   delFlags,
   setFlags,
-  getInitialImapStatus, 
+  getInitialImapStatus,
   getPaginatedEmailsForBox,
   searchPaginatedEmails,
   getSingleMail,
-  getBoxes2
+  getBoxes2,
+  syncViaIMAP2
 };
