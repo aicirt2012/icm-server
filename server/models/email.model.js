@@ -18,6 +18,16 @@ const EmailSchema = new mongoose.Schema({
         new: Number,
         total: Number,
     },
+    box2: {
+        boxId: Number,
+        name: String,
+        shortName: String,
+        level: Number,
+        parent: mongoose.Schema.Types.Mixed,
+        unseen: Number,
+        new: Number,
+        total: Number
+    },
     thrid: String,
     attrs: {
         'x-gm-thrid': String,

@@ -4,7 +4,7 @@ import Promise from 'bluebird';
 mongoose.Promise = Promise;
 
 const BoxSchema = new mongoose.Schema({
-    _id: Number,
+    boxId: Number,
     name: String,
     shortName: String,
     level: Number,
@@ -24,12 +24,14 @@ const BoxSchema = new mongoose.Schema({
 
 BoxSchema.method({});
 
-BoxSchema.statics.update2 = function (box) {
+BoxSchema.statics.update2 = function (box, user) {
   return new Promise((resolve, reject) => {
-    console.log('processing from inside...');
+    console.log('--> update2');
+    console.log(box);
+    box.user = user;
     console.log(box);
     Box.findOneAndUpdate({
-      _id: box.id
+      boxId: box.id,
     }, box, {
       new: false,
       upsert: true,
@@ -39,7 +41,7 @@ BoxSchema.statics.update2 = function (box) {
         reject(err);
       } else {
         Box.findOne({
-          _id: box.id
+          boxId: box.id
         }).then(boxUpdated => {
           resolve(boxOld, boxUpdated);
         });

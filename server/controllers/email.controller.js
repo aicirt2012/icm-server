@@ -362,9 +362,10 @@ function getBoxes(user, details = false, provider) {
 /** Returns the current boxes form the database */
 //TODO enhance with unread mails
 function getBoxes2(req, res){
-  console.log('getting boxes 2');
+  console.log('--> getBoxes2');
   Box.find({user: req.user._id})
-    .then(boxes=>{
+    .then(boxes => {
+      console.log(boxes);
         res.status(200).send(boxes);
     });
 }
@@ -373,12 +374,12 @@ function getBoxes2(req, res){
 /** Syncs the box strucure via IMAP */
 //TODO create push socket push mechanism
 function syncBoxes2(user, details = false, provider){
+  console.log('--> syncBoxes2');
   const emailConnector = createEmailConnector(provider, user);
   return new Promise((resolve, reject) => {
     emailConnector.getBoxes(details).then((boxes) => {
-      console.log('HERREEEEE');
       return Promise.each(boxes, (box)=>{
-        return Box.update2(box);
+        return Box.update2(box, user);
       });
     }).catch((err) => {
       reject(err);
@@ -388,14 +389,28 @@ function syncBoxes2(user, details = false, provider){
 
 
 /** Syncs the emails via IMAP */
-//TODO
-function snycEmail2(){
+function syncMails2(req, res) {
+  const before = new Date();
+  const emailConnector = createEmailConnector(req.query.provider, req.user);
+  // use boxes from db
+  console.log('--> syncMails2');
+  console.log(req.body.boxes);
 
+  /*
+   emailConnector.fetchBoxes(storeEmail, req.body.boxes).then(() => {
+   console.log('Time for fetching: ', new Date() - before);
+   res.status(200).send({
+   message: 'Finished fetching'
+   });
+   }).catch((err) => {
+   res.status(400).send(err);
+   })
+  */
 }
 
 /** Sync wrapper (boxes and mails) */
 function syncViaIMAP2(req, res){
-  console.log('syncing boxes and emails');
+  console.log('--> syncViaIMAP2');
   console.log(req.user);
   syncBoxes2(req.user, true, req.query.provider)
     .then(()=>{
