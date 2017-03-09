@@ -50,8 +50,8 @@ function sendEmail(req, res) {
     const emailConnector = createEmailConnector(req.query.provider, req.user);
     emailConnector.fetchBoxes(storeEmail, [config.gmail.send]).then(() => {
       res.status(200).send({
-      message: 'Finished fetching'
-    });
+        message: 'Finished fetching'
+      });
     }).catch((err) => {
       res.status(400).send(err);
     });
@@ -207,7 +207,7 @@ function setFlags(req, res) {
   });
 }
 
-function getPaginatedEmailsForBox(req, res)  {
+function getPaginatedEmailsForBox(req, res) {
   const options = {
     page: req.query.page ? parseInt(req.query.page) : 1,
     limit: req.query.limit ? parseInt(req.query.limit) : 25,
@@ -295,10 +295,10 @@ function storeEmail(mail) {
     }, (err, emailOld) => {
       if (err) {
         reject(err);
-      }else{
+      } else {
         Email.findOne({
           messageId: mail.messageId
-        }).then(emailUpdated=>{
+        }).then(emailUpdated => {
           console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
           //fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
           //fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
@@ -307,40 +307,55 @@ function storeEmail(mail) {
         });
       }
     });
-  });
+  })
 }
 
-
-/*
-function syncDeletedMails(syncTime, boxes) {
+function storeEmail2(mail) {
+  console.log('==> storeEmail2');
+  console.log(mail.box);
   return new Promise((resolve, reject) => {
-    Email.remove({
-      box: {
-        "$in": boxes
-      },
-      updatedAt: {
-        "$lt": syncTime
-      }
-    }, (err) => {
-      console.log('delete not updated mails +++++++++++++++++++++++++++');
-      err ? reject(err) : resolve();
-    })
-  });
+    Box.findOne({user: mail.user, boxId: mail.box})
+      .then(box => {
+        console.log(box)
+        mail.box2 = box._id;
+        return storeEmail(mail);
+      })
+      .then(email => {
+        resolve(email);
+      })
+  })
 }
-*/
 
 /*
-function recursivePromises(promises, callback) {
-  if (promises.length > 0) {
-    Promise.all(promises[0]).then(() => {
-      promises = promises.slice(1, promises.length);
-      recursivePromises(promises, callback);
-    })
-  } else {
-    callback();
-  }
-}
-*/
+ function syncDeletedMails(syncTime, boxes) {
+ return new Promise((resolve, reject) => {
+ Email.remove({
+ box: {
+ "$in": boxes
+ },
+ updatedAt: {
+ "$lt": syncTime
+ }
+ }, (err) => {
+ console.log('delete not updated mails +++++++++++++++++++++++++++');
+ err ? reject(err) : resolve();
+ })
+ });
+ }
+ */
+
+/*
+ function recursivePromises(promises, callback) {
+ if (promises.length > 0) {
+ Promise.all(promises[0]).then(() => {
+ promises = promises.slice(1, promises.length);
+ recursivePromises(promises, callback);
+ })
+ } else {
+ callback();
+ }
+ }
+ */
 
 
 function getBoxes(user, details = false, provider) {
@@ -361,25 +376,37 @@ function getBoxes(user, details = false, provider) {
 
 /** Returns the current boxes form the database */
 //TODO enhance with unread mails
-function getBoxes2(req, res){
+function getBoxes2(req, res) {
   console.log('--> getBoxes2');
   Box.find({user: req.user._id})
     .then(boxes => {
       console.log(boxes);
-        res.status(200).send(boxes);
+      res.status(200).send(boxes);
+    });
+}
+
+// pagination
+//function getEmails2(req, res) {
+function getEmails2(user, boxId, dateLastEmail, order) {
+  Email.find({user: user, box: boxId}) // careful with boxId
+    .then(emails => {
+      console.log('--> getEmails2');
+      console.log(emails);
     });
 }
 
 /*FIRST*/
 /** Syncs the box strucure via IMAP */
 //TODO create push socket push mechanism
-function syncBoxes2(user, details = false, provider){
+function syncBoxes2(user, details = false, provider) {
   console.log('--> syncBoxes2');
   const emailConnector = createEmailConnector(provider, user);
   return new Promise((resolve, reject) => {
     emailConnector.getBoxes(details).then((boxes) => {
-      return Promise.each(boxes, (box)=>{
+      return Promise.each(boxes, (box) => {
         return Box.update2(box, user);
+      }).then(() => {
+        resolve()
       });
     }).catch((err) => {
       reject(err);
@@ -389,32 +416,40 @@ function syncBoxes2(user, details = false, provider){
 
 
 /** Syncs the emails via IMAP */
-function syncMails2(req, res) {
+function syncMails2(user, provider) {
   const before = new Date();
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  // use boxes from db
+  const emailConnector = createEmailConnector(provider, user);
   console.log('--> syncMails2');
-  console.log(req.body.boxes);
-
-  /*
-   emailConnector.fetchBoxes(storeEmail, req.body.boxes).then(() => {
-   console.log('Time for fetching: ', new Date() - before);
-   res.status(200).send({
-   message: 'Finished fetching'
-   });
-   }).catch((err) => {
-   res.status(400).send(err);
-   })
-  */
+  // use boxes from db
+  return new Promise((resolve, reject) => {
+    Box.find({user: user})
+      .then(boxes => {
+        /* retrieving all boxes */
+        emailConnector.fetchBoxes2(storeEmail2, boxes)
+          .then(() => {
+            console.log('Time for fetching: ', new Date() - before);
+            resolve();
+          })
+          .catch((err) => {
+          })
+      });
+  })
 }
 
 /** Sync wrapper (boxes and mails) */
-function syncViaIMAP2(req, res){
-  console.log('--> syncViaIMAP2');
-  console.log(req.user);
-  syncBoxes2(req.user, true, req.query.provider)
-    .then(()=>{
-      res.status(200).send();
+function syncViaIMAP2(req, res) {
+  console.log('-> syncViaIMAP2');
+  const user = req.user;
+  const provider = req.query.provider;
+
+  syncBoxes2(user, true, provider)
+    .then(() => {
+      syncMails2(user, provider).then(() => {
+        console.log('all synced!');
+        res.status(200).send({
+          message: 'Finished syncing'
+        });
+      });
     });
 }
 

@@ -26,10 +26,7 @@ BoxSchema.method({});
 
 BoxSchema.statics.update2 = function (box, user) {
   return new Promise((resolve, reject) => {
-    console.log('--> update2');
-    console.log(box);
     box.user = user;
-    console.log(box);
     Box.findOneAndUpdate({
       boxId: box.id,
     }, box, {
