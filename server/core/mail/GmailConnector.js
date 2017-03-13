@@ -37,14 +37,10 @@ class GmailConnector extends ImapConnector {
   fetchBoxes2(storeEmail, boxes = []) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       let highestmodseq = [];
-      if (boxes.length < 1) {
-        boxes = this.user.boxList.filter((box) => box.total != 0).map((box) => box.name);
-      }
       Promise.each(boxes, (box) => {
         console.log('--> Fetch boxes ... for box: ');
         console.log(box.name);
         return this.fetchEmails2(storeEmail, box).then((hms) => {
-          console.log('inside fetchboxes2');
           highestmodseq.push(hms);
         });
       }).then(() => {
@@ -210,7 +206,7 @@ class GmailConnector extends ImapConnector {
           uid: attributes.uid,
           attrs: attributes,
           thrid: attributes['x-gm-thrid'],
-          box: box.boxId,
+          box: box._id,
           user: this.user
         };
         storeEmail(email).then((msg) => {

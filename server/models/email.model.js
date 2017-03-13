@@ -9,16 +9,6 @@ const EmailSchema = new mongoose.Schema({
   messageId: String,
   uid: Number,
   box: {
-    id: Number,
-    name: String,
-    shortName: String,
-    level: Number,
-    parent: mongoose.Schema.Types.Mixed,
-    unseen: Number,
-    new: Number,
-    total: Number,
-  },
-  box2: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Box'
   },

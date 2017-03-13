@@ -91,7 +91,7 @@ class ImapConnector {
                 this.statusBoxAsync(box.name, false).then((res) => {
                   boxListDetails.push({
                     id: index,
-                    name: res.name,
+                    name: res.name, // unique
                     shortName: res.name.substr(res.name.lastIndexOf('/') + 1, res.name.length),
                     total: res.messages.total,
                     new: res.messages.new,
@@ -293,7 +293,7 @@ ${msgData}`;
     boxes.forEach((box, index) => {
       if (box.parent != null) {
         let parent = boxes.find((b) => b.name == box.parent.name);
-        box.parent = parent;
+        box.parent = parent.name;
       }
     });
   }
