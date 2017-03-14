@@ -208,8 +208,6 @@ function setFlags(req, res) {
 }
 
 function getPaginatedEmailsForBox(req, res) {
-  console.log('inside getPaginatedEmailsForBox');
-  console.log(req.query.box);
   const options = {
     page: req.query.page ? parseInt(req.query.page) : 1,
     limit: req.query.limit ? parseInt(req.query.limit) : 25,
@@ -310,13 +308,14 @@ function storeEmail(mail) {
       } else {
         Email.findOne({
           messageId: mail.messageId
-        }).then(emailUpdated => {
-          console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
-          //fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
-          //fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
-          Socket.pushUpdateToClient(emailOld, emailUpdated);
-          resolve(emailUpdated);
-        });
+        }).populate('box')
+          .then(emailUpdated => {
+            console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
+            //fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
+            //fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
+            Socket.pushUpdateToClient(emailOld, emailUpdated);
+            resolve(emailUpdated);
+          });
       }
     });
   })
