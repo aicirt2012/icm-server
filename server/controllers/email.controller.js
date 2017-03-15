@@ -154,19 +154,24 @@ function copy(req, res) {
 function addFlags(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.addFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
-    Email.findOne({
-      uid: req.body.msgId,
-      'box.name': req.body.box
-    }).then((email) => {
-      email.flags = email.flags.concat(req.body.flags);
-      email.save().then(() => {
-        res.status(200).send({
-          message: 'Successfully added Flags',
-          msgId: msgId,
-          box: req.body.box
-        });
+    Box.findOne({
+      name: req.body.box,
+      user: req.user
+    }, (err, box) => {
+      Email.findOne({
+        uid: req.body.msgId,
+        box: box
+      }).then((email) => {
+        email.flags = email.flags.concat(req.body.flags);
+        email.save().then(() => {
+          res.status(200).send({
+            message: 'Successfully added Flags',
+            msgId: msgId,
+            box: req.body.box
+          });
+        })
       })
-    })
+    });
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -175,23 +180,28 @@ function addFlags(req, res) {
 function delFlags(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.delFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
-    Email.findOne({
-      uid: req.body.msgId,
-      'box.name': req.body.box
-    }).then((email) => {
-      req.body.flags.forEach((f) => {
-        const index = email.flags.indexOf(f);
-        if (index > -1) {
-          email.flags.splice(index, 1);
-        }
-      });
-      email.save().then(() => {
-        res.status(200).send({
-          message: 'Successfully deleted Flags',
-          msgId: msgId,
-          box: req.body.box
+    Box.findOne({
+      name: req.body.box,
+      user: req.user
+    }, (err, box) => {
+      Email.findOne({
+        uid: req.body.msgId,
+        box: box
+      }).then((email) => {
+        req.body.flags.forEach((f) => {
+          const index = email.flags.indexOf(f);
+          if (index > -1) {
+            email.flags.splice(index, 1);
+          }
         });
-      })
+        email.save().then(() => {
+          res.status(200).send({
+            message: 'Successfully deleted Flags',
+            msgId: msgId,
+            box: req.body.box
+          });
+        })
+      });
     });
   }).catch((err) => {
     res.status(400).send(err);
@@ -226,7 +236,6 @@ function getPaginatedEmailsForBox(req, res) {
       user: req.user,
       box: box //|| req.user.boxList[0].name
     };
-    console.log(query);
     Email.paginate(query, options).then((emails, err) => {
       if (err) {
         res.status(400).send(err);
@@ -266,16 +275,18 @@ function searchPaginatedEmails(req, res) {
 function getSingleMail(req, res) {
   Email.findOne({
     _id: req.params.id
-  }).lean().then((mail) => {
-    // call analyzer with emailObject and append suggested task and already linked tasks
-    if (mail && (req.user.trello || req.user.sociocortex)) {
-      new Analyzer(mail, req.user).getEmailTasks().then((email) => {
-        res.status(200).send(email);
-      });
-    } else {
-      res.status(200).send(mail);
-    }
-  }).catch((err) => {
+  }).populate('box')
+    .lean()
+    .then((mail) => {
+      // call analyzer with emailObject and append suggested task and already linked tasks
+      if (mail && (req.user.trello || req.user.sociocortex)) {
+        new Analyzer(mail, req.user).getEmailTasks().then((email) => {
+          res.status(200).send(email);
+        });
+      } else {
+        res.status(200).send(mail);
+      }
+    }).catch((err) => {
     res.status(400).send(err);
   });
 }
