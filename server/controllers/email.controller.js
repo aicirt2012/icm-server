@@ -138,12 +138,10 @@ function move(req, res) {
       name: req.body.srcBox,
       user: req.user
     }, (err, srcBox) => {
-      console.log(srcBox);
       Box.findOne({
         name: req.body.destBox,
         user: req.user
       }, (err, destBox) => {
-        console.log(destBox);
         emailConnector.fetchBoxes2(storeEmail, [srcBox, destBox])
           .then((messages) => {
             res.status(200).send({messages: messages});
@@ -326,22 +324,23 @@ function storeEmail(mail) {
       new: false,
       upsert: true,
       setDefaultsOnInsert: true
-    }, (err, emailOld) => {
-      if (err) {
-        reject(err);
-      } else {
-        Email.findOne({
-          messageId: mail.messageId
-        }).populate('box')
-          .then(emailUpdated => {
-            console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
-            //fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
-            //fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
-            Socket.pushUpdateToClient(emailOld, emailUpdated);
-            resolve(emailUpdated);
-          });
-      }
-    });
+    }).populate('box')
+      .exec((err, emailOld) => {
+        if (err) {
+          reject(err);
+        } else {
+          Email.findOne({
+            messageId: mail.messageId
+          }).populate('box')
+            .then(emailUpdated => {
+              console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
+              //fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
+              //fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
+              Socket.pushUpdateToClient(emailOld, emailUpdated);
+              resolve(emailUpdated);
+            });
+        }
+      });
   })
 }
 
