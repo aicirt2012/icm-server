@@ -8,15 +8,10 @@ const BoxSchema = new mongoose.Schema({
   boxId: Number,
   name: String,
   shortName: String,
-  level: Number,
-  //parent: mongoose.Schema.Types.Mixed,
   parent: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Box'
   },
-  unseen: Number,
-  new: Number,
-  total: Number,
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
@@ -79,7 +74,7 @@ BoxSchema.statics.getBoxesByUser = (userId) => {
   return new Promise((resolve, reject) => {
     /*<boxId, box>*/
     const boxMap = new Map();
-    Box.find({user: userId})
+    Box.find({user: userId}, {_id:1, shortName: 1, parent:1})
       .then(boxes => {
         boxes.forEach(box => {
           box.unseen = 0;
@@ -90,7 +85,8 @@ BoxSchema.statics.getBoxesByUser = (userId) => {
       .then(unseenBoxes => {
         /* merge unseen count with boxes*/
         unseenBoxes.forEach(box => {
-          boxMap.get(box._id+'').unseen = box.unseen;
+          if(boxMap.has(box._id+''))
+            boxMap.get(box._id+'').unseen = box.unseen;
         });
         resolve(Array.from(boxMap.values()));
       })
