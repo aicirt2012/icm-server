@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Promise from 'bluebird';
+import Email from './email.model';
 
 mongoose.Promise = Promise;
 
@@ -70,6 +71,33 @@ BoxSchema.statics.sortByLevel = function (boxes, user) {
 
   return boxesByLevel;
 }
+
+
+BoxSchema.statics.getBoxesByUser = (userId) => {
+  return new Promise((resolve, reject)=>{
+    /*<boxId, box>*/
+    const boxMap = new Map();     
+    Box.find({user: userId, parent:null}).populate('parent')      
+      .then(boxes => {
+      console.log(boxes);
+        resolve(boxes);
+      })
+      .catch(err=>{
+        reject(err);
+      })
+  });
+
+  
+  function calcUnseenMessages(userId){
+    return Email.aggregate([
+        {$match: {flags: "\\Unseen", user: userId}}, //TODO check if unssen is the right flag
+        {$group: { _id: '$box', unseen: { $sum: 1 }}}
+      ]);
+  }
+
+}
+
+
 
 let Box = mongoose.model('Box', BoxSchema)
 
