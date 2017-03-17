@@ -77,16 +77,25 @@ BoxSchema.statics.getBoxesByUser = (userId) => {
   return new Promise((resolve, reject)=>{
     /*<boxId, box>*/
     const boxMap = new Map();     
-    Box.find({user: userId, parent:null}).populate('parent')      
+    Box.find({user: userId})      
       .then(boxes => {
-      console.log(boxes);
-        resolve(boxes);
+        boxes.forEach(box=>{ 
+          box.unseen = 0;
+          boxMap.set(box._id, box);
+        });             
+        return calcUnseenMessages(userId);
+      })   
+      .then(unseenBoxes=>{        
+        /* merge unseen count with boxes*/ 
+        unseenBoxes.forEach(box=>{
+          boxMap.get(box._id).unseen = box.unseen;
+        });
+        resolve(Array.from(boxMap.values()));
       })
       .catch(err=>{
         reject(err);
       })
   });
-
   
   function calcUnseenMessages(userId){
     return Email.aggregate([
@@ -96,8 +105,6 @@ BoxSchema.statics.getBoxesByUser = (userId) => {
   }
 
 }
-
-
 
 let Box = mongoose.model('Box', BoxSchema)
 
