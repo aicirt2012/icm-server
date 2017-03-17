@@ -396,11 +396,17 @@ function getBoxes(user, details = false, provider) {
 //TODO enhance with unread mails
 function getBoxes2(req, res) {
   console.log('--> getBoxes2');
-  Box.find({user: req.user._id})
-    .populate('parent')
+  Box.getBoxesByUser(req.user._id)
     .then(boxes => {
+      console.log('results:');
+      console.log(boxes);
       res.status(200).send(boxes);
     });
+  /*  Box.find({user: req.user._id})
+   .populate('parent')
+   .then(boxes => {
+   res.status(200).send(boxes);
+   });*/
 }
 
 // pagination
