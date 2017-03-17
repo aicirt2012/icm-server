@@ -75,18 +75,19 @@ BoxSchema.statics.getBoxesByUser = (userId) => {
     /*<boxId, box>*/
     const boxMap = new Map();
     Box.find({user: userId}, {_id:1, name:1, shortName: 1, parent:1}) //TODO remove name projection after refactoring
+      .lean() 
       .then(boxes => {
         boxes.forEach(box => {
           box.unseen = 0;
-          boxMap.set(box._id+'', box);
+          boxMap.set(box._id, box);
         });
         return calcUnseenMessages(userId);
       })
       .then(unseenBoxes => {
         /* merge unseen count with boxes*/
         unseenBoxes.forEach(box => {
-          if(boxMap.has(box._id+''))
-            boxMap.get(box._id+'').unseen = box.unseen;
+          if(boxMap.has(box._id))
+            boxMap.get(box._id).unseen = box.unseen;
         });
         resolve(Array.from(boxMap.values()));
       })
