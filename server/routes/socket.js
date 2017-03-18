@@ -4,6 +4,7 @@ import config from '../../config/env';
 import emailCtrl from '../controllers/email.controller';
 import http from 'http';
 import socketIo from 'socket.io';
+import Email from './../models/email.model';
 import _ from 'lodash';
 
 
@@ -40,37 +41,25 @@ class Socket{
 
   }
 
-  pushUpdateToClient(emailOld, emailNew, boxOld, boxUpdated) {
-    /*
-   console.log('-Old-------------------------------------------------------------------------------')
-   console.log(emailOld)
-   console.log('-New-------------------------------------------------------------------------------')
-   console.log(emailNew)
-  console.log('-Old-------------------------------------------------------------------------------')
-   console.log(boxOld)
-   console.log('-New-------------------------------------------------------------------------------')
-   console.log(boxUpdated)
-   */
+  pushUpdateToClient(emailOld, emailNew, boxOld, boxNew) {
     if (this.isEmailCreated(emailOld, emailNew)) {
       this.createEmail(emailNew.user, emailNew);
-     // this.updateBox(emailNew.user, emailNew.box);
+      this.updateBox(emailNew.user, boxNew);
     }
     else if (this.isEmailUpdated(emailOld, emailNew)) {
       this.updateEmail(emailNew.user, emailNew);
-      /*
-      if(emailNew.flags.length == 0) { // Unseen
-        emailNew.box.unseen++;
-        emailOld.box.unseen--;
-        this.updateBox(emailNew.user, emailNew.box);
-        this.updateBox(emailNew.user, emailOld.box);
-      } else {
-        this.updateBox(emailNew.user, emailNew.box);
+      if(Email.isSeenUnseenChanged(emailOld, emailNew)){        
+        if(emailOld.box == emailNew.box)
+          this.updateBox(emailNew.user, boxOld);
+        this.updateBox(emailNew.user, boxNew);
       }
-      */
     }
     else if (this.isEmailDeleted(emailOld, emailNew))
       this.deleteEmail(emailOld.user, emailOld);
+      //TODO update box
   }
+
+
 
   isEmailCreated(emailOld, emailNew){
     return emailOld == null && emailNew != null;
@@ -97,10 +86,6 @@ class Socket{
 
   deleteEmail(userId, email){
     this.emitToUser(userId, 'delete_email', email);
-  }
-
-  isBoxUpdated(oldBox, newBox){
-
   }
 
   updateBox(userId, box){

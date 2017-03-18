@@ -56,7 +56,7 @@ const EmailSchema = new mongoose.Schema({
   html: String,
   text: String,
   date: Date,
-  flags: [String],
+  flags: {type: [String], required:true},
   labels: [String]
 }, {
   timestamps: true
@@ -71,11 +71,22 @@ EmailSchema.index({
 
 
 
+EmailSchema.statics.isUnseen = (email)=>{
+  return email.flags.indexOf("\\Seen") == -1;
+}
+
+EmailSchema.statics.isSeenUnseenChanged = (emailOld, emailNew)=>{
+  return emailOld.flags != null && emailNew.flags != null 
+    && Email.isUnseen(emailOld) != Email.isUnseen(emailNew);
+}
+
+
+
 /**
  * Updates or creates an email and 
  * returns the old- and updated email
  * @param email 
- * @return Promise resolve(oldMail, updatedMail, oldBox, updatedBox)
+ * @return Promise resolve([oldMail, updatedMail, oldBox, updatedBox])
  */
 EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
   return new Promise((resolve, reject) => {
@@ -101,10 +112,6 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
       })
       .then(boxUpdated =>{
         res.push(boxUpdated);
-        console.log(res[0]);
-        console.log(res[1]);
-        console.log(res[2]);
-        console.log(res[3]);
         resolve(res);  
       })   
       .catch(err=>{
