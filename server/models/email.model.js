@@ -92,25 +92,21 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
       })
       .then(emailOld => {  
         res.push(emailOld); 
-        return Email.findOne({messageId: mail.messageId})
+        return Email.findOne({messageId: mail.messageId});
       })
       .then(emailUpdated =>{     
         res.push(emailUpdated);
-        if(res[0])
-          return Box.findWithUnseenCountById(res[0].box)
-        else
-          return Promise.resolve(null);            
+        return res[0] != null? Box.findWithUnseenCountById(res[0].box) : Promise.resolve(null);            
       })
       .then(boxOld =>{
-           console.log(boxOld)
+        console.log('hier in chain 1')
+        console.log(boxOld)
         res.push(boxOld);
-        if(res[1])
-          return Box.findWithUnseenCountById(res[1].box)
-        else
-          return Promise.resolve(null);  
+        return res[1] != null? Box.findWithUnseenCountById(res[1].box) : Promise.resolve(null);  
       })
       .then(boxUpdated =>{
-           console.log(boxUpdated)
+        console.log('hier in chain 2')
+        console.log(boxUpdated)
         res.push(boxUpdated);
         resolve(res);  
       })   
