@@ -389,9 +389,9 @@ function getEmails2(user, boxId, dateLastEmail, order) {
 
 
 /** Syncs the box strucure via IMAP */
-function syncBoxes2(user, details = false, provider) {
+function syncBoxes2(user, details = false, emailConnector) {
   return new Promise((resolve, reject) => {
-    createEmailConnector(provider, user)
+    emailConnector
       .getBoxes(details)
       .then(boxes=>{
         const sortedBoxes = Box.sortByLevel(boxes, user);
@@ -414,21 +414,20 @@ function syncBoxes2(user, details = false, provider) {
 
 
 /** Syncs the emails via IMAP */
-function syncMails2(user, provider) {
+function syncMails2(user, emailConnector) {
   const before = new Date();
-  const emailConnector = createEmailConnector(provider, user);
   console.log('--> syncMails2');
-  // use boxes from db
   return new Promise((resolve, reject) => {
     Box.find({user: user})
       .then(boxes => {
-        emailConnector.fetchBoxes2(storeEmail, boxes)
-          .then(() => {
-            console.log('Time for fetching: ', new Date() - before);
-            resolve();
-          })
-          .catch((err) => {
-          })
+        return emailConnector.fetchBoxes2(storeEmail, boxes)
+      })
+      .then(() => {
+        console.log('Time for fetching: ', new Date() - before);
+        resolve();
+      })
+      .catch(err => {
+        reject(err)
       });
   })
 }
@@ -438,15 +437,17 @@ function syncViaIMAP2(req, res) {
   console.log('-> syncViaIMAP2');
   const user = req.user;
   const provider = req.query.provider;
-
-  syncBoxes2(user, true, provider)
-    .then(() => {
-      syncMails2(user, provider).then(() => {
-        console.log('all synced!');
-        res.status(200).send({
-          message: 'Finished syncing'
-        });
-      });
+  const emailConnector = createEmailConnector(provider, user);
+  syncBoxes2(user, true, emailConnector)
+    .then(() =>{
+      return syncMails2(user, emailConnector);
+    })
+    .then(() =>{
+      console.log('all synced!');
+      res.status(200).send({message: 'Finished syncing'});
+    })
+    .catch(err =>{
+      res.status(500).send(err);
     });
 }
 
