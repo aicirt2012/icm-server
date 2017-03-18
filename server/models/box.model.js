@@ -74,7 +74,7 @@ BoxSchema.statics.sortByLevel = function (boxes, user) {
 BoxSchema.statics.findWithUnseenCountById = (boxId)=>{
   return new Promise((resolve, reject)=>{
     let b = null;
-    Box.findOne({_id: boxId}, {_id:1, name:1, shortName: 1, parent:1})
+    Box.findOne({_id: boxId}, {_id:1, name:1, shortName: 1, parent:1, user:1})
       .lean()
       .then(box=>{
         b = box;

@@ -42,6 +42,26 @@ class Socket{
   }
 
   pushUpdateToClient(emailOld, emailNew, boxOld, boxNew) {
+    if (this.isEmailCreated(emailOld, emailNew)) 
+      this.createEmail(emailNew.user, emailNew);
+    else if (this.isEmailUpdated(emailOld, emailNew)) 
+      this.updateEmail(emailNew.user, emailNew);
+    else if (this.isEmailDeleted(emailOld, emailNew))
+      this.deleteEmail(emailOld.user, emailOld);
+    this.pushBoxUpdateToClient(boxOld, boxNew);
+  }
+
+  pushBoxUpdateToClient(boxOld, boxNew) {
+    if (this.isBoxCreated(boxOld, boxNew)) 
+      this.createBox(boxNew.user, boxNew);
+    else if (this.isBoxUpdated(boxOld, boxNew)) 
+      this.updateBox(boxNew.user, boxNew);
+    else if (this.isBoxDeleted(boxOld, boxNew))
+      this.deleteBox(boxOld.user, boxOld);
+  }
+
+/*
+  pushUpdateToClient(emailOld, emailNew, boxOld, boxNew) {
     if (this.isEmailCreated(emailOld, emailNew)) {
       this.createEmail(emailNew.user, emailNew);
       this.updateBox(emailNew.user, boxNew);
@@ -58,8 +78,12 @@ class Socket{
       this.deleteEmail(emailOld.user, emailOld);
       //TODO update box
   }
+  */
 
 
+  isEmailDeleted(boxOld, boxlNew){
+    return boxOld != null && boxlNew == null;
+  }
 
   isEmailCreated(emailOld, emailNew){
     return emailOld == null && emailNew != null;
@@ -76,6 +100,20 @@ class Socket{
     return emailOld != null && emailNew == null;
   }
 
+  isBoxCreated(boxOld, boxlNew){
+    return boxOld == null && boxlNew != null;
+  }
+
+  isBoxUpdated(boxOld, boxlNew){
+    return !_.isEqual(boxOld.unseen, boxlNew.unseen) ||
+      !_.isEqual(boxOld.name, boxlNew.name) ||
+      !_.isEqual(boxOld.parent, boxlNew.parent)
+  }
+
+  isBoxDeleted(boxOld, boxNew){
+    return boxOld != null && boxNew == null;
+  }
+
   createEmail(userId, email){
     this.emitToUser(userId, 'create_email', email);
   }
@@ -88,8 +126,16 @@ class Socket{
     this.emitToUser(userId, 'delete_email', email);
   }
 
+  createBox(userId, box){
+    this.emitToUser(userId, 'create_box', box);
+  }
+
   updateBox(userId, box){
     this.emitToUser(userId, 'update_box', box);
+  }
+
+  deleteBox(userId, box){
+    this.emitToUser(userId, 'delete_box', box);
   }
 
   emitToUser(userId, msgType, msgContent){
