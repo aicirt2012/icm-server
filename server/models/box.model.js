@@ -1,21 +1,15 @@
 import mongoose from 'mongoose';
 import Promise from 'bluebird';
 import Email from './email.model';
-
+const ObjectId = mongoose.Schema.Types.ObjectId;
 mongoose.Promise = Promise;
 
 const BoxSchema = new mongoose.Schema({
   boxId: Number,
   name: String,
   shortName: String,
-  parent: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Box'
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
+  parent: {type: ObjectId, ref: 'Box'},
+  user: {type: ObjectId, ref: 'User'},
 }, {
   timestamps: true
 });
@@ -73,16 +67,16 @@ BoxSchema.statics.sortByLevel = function (boxes, user) {
 
 BoxSchema.statics.findWithUnseenCountById = (boxId)=>{
   return new Promise((resolve, reject)=>{
-    let b = null;
+    let box = null;
     Box.findOne({_id: boxId}, {_id:1, name:1, shortName: 1, parent:1, user:1})
       .lean()
-      .then(box=>{
-        b = box;
+      .then(baseBox=>{
+        box = baseBox;
         return Email.count({box:boxId, flags: {$ne: "\\Seen"}});
       })
       .then(unseen=>{
-        b.unseen = unseen;
-        resolve(b);
+        box.unseen = unseen;
+        resolve(box);
       })
       .catch(err=>{
         reject(err);
