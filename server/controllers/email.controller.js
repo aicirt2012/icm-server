@@ -317,14 +317,9 @@ function createEmailConnector(provider, user) {
 }
 
 function storeEmail(mail) {
-  //console.log(mail);
   return new Promise((resolve, reject) => {
     Email.updateAndGetOldAndUpdated(mail)
       .spread((emailOld, emailUpdated) => {
-        console.log('-1 first--------------------------------------------------')
-        console.log(emailOld)     
-        console.log('-1 updated--------------------------------------------------')
-        console.log(emailUpdated)  
         Socket.pushUpdateToClient(emailOld, emailUpdated);
         resolve(emailUpdated);
       })

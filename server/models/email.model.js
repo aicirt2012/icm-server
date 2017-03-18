@@ -77,9 +77,11 @@ EmailSchema.index({
  * Updates or creates an email and 
  * returns the old- and updated email
  * @param email 
+ * @return Promise resolve(oldMail, updatedMail)
  */
 EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
   return new Promise((resolve, reject) => {
+    const res = [];
     Email.findOneAndUpdate({
         messageId: mail.messageId
       }, mail, {
@@ -87,15 +89,16 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
         upsert: true,
         setDefaultsOnInsert: true
       })
-      .exec((err, emailOld) => {
-        if (err) {
-          reject(err);
-        } else {
-          Email.findOne({messageId: mail.messageId})
-            .then(emailUpdated => {  
-              resolve([emailOld, emailUpdated]);
-            });
-        }
+      .then(emailOld => {  
+        res.push(emailOld); 
+        return Email.findOne({messageId: mail.messageId})
+      })
+      .then(emailUpdated =>{
+        res.puhs(emailUpdated);
+        resolve(res);          
+      })
+      .catch(err=>{
+        reject(err);
       });
   });
 } 
