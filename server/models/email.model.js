@@ -2,18 +2,15 @@ import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate';
 import Promise from 'bluebird';
 import Box from './box.model';
+const ObjectId = mongoose.Schema.Types.ObjectId;
+const Mixed = mongoose.Schema.Types.Mixed;
+
 
 const EmailSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
+  user: {type: ObjectId, ref: 'User'},
   messageId: String,
   uid: Number,
-  box: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Box'
-  },
+  box: {type: ObjectId, ref: 'Box'},
   thrid: String,
   attrs: {
     'x-gm-thrid': String,
@@ -22,7 +19,7 @@ const EmailSchema = new mongoose.Schema({
     uid: Number,
     flags: [String],
     date: Date,
-    struct: mongoose.Schema.Types.Mixed,
+    struct: Mixed,
     /*[{
      language: mongoose.Schema.Types.Mixed,
      disposition: mongoose.Schema.Types.Mixed,
@@ -96,18 +93,18 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
       })
       .then(emailUpdated =>{     
         res.push(emailUpdated);
-        return res[0] != null? Box.findWithUnseenCountById(res[0].box) : Promise.resolve(null);            
+        return res[0]!=null ? Box.findWithUnseenCountById(res[0].box) : Promise.resolve(null);            
       })
       .then(boxOld =>{
-        console.log('hier in chain 1')
-        console.log(boxOld)
         res.push(boxOld);
-        return res[1] != null? Box.findWithUnseenCountById(res[1].box) : Promise.resolve(null);  
+        return res[1]!=null ? Box.findWithUnseenCountById(res[1].box) : Promise.resolve(null);  
       })
       .then(boxUpdated =>{
-        console.log('hier in chain 2')
-        console.log(boxUpdated)
         res.push(boxUpdated);
+        console.log(res[0]);
+        console.log(res[1]);
+        console.log(res[2]);
+        console.log(res[3]);
         resolve(res);  
       })   
       .catch(err=>{
