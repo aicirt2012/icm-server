@@ -398,8 +398,9 @@ function syncBoxes2(user, details = false, emailConnector) {
         return Promise.each(sortedBoxes, (box) => {
           return Box.updateAndGetOldAndUpdated(box, user);
         })
-        .then((oldBox, updatedBox) => {
+        .spread((oldBox, updatedBox) => {
           //TODO create push socket push mechanism
+          Socket.pushBoxUpdateToClient(oldBox, updatedBox);
           resolve()
         })
         .catch(err => {

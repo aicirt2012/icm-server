@@ -15,42 +15,43 @@ const BoxSchema = new mongoose.Schema({
 });
 
 
-
-BoxSchema.statics.updateAndGetOldAndUpdated = function (box, user) {
+/**
+ * Updates or creates a box and 
+ * returns the old and updated box
+ * @param box
+ * @return Promise ([oldBox, updatedBox])
+ */
+BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
   return new Promise((resolve, reject) => {
+    const res = [];
     box.user = user._id;
-    // find parent first
-    Box.findOne({
-      name: box.parent,
-      user: box.user
-    }, (err, parentBox) => {
-      box.parent = parentBox;
-
-      Box.findOneAndUpdate({
-        name: box.name,
-        user: box.user
-      }, box, {
-        new: false,
-        upsert: true,
-        setDefaultsOnInsert: true
-      }, (err, boxOld) => {
-        if (err) {
-          reject(err);
-        } else {
-          Box.findOne({
-            name: box.name,
-            user: box.user
-          }).then(boxUpdated => {
-            resolve(boxOld, boxUpdated);
-          });
-        }
+    Box.findOne({name: box.parent, user: box.user})
+      .then(parentBox => {
+        box.parent = parentBox;
+        return Box.findOneAndUpdate({
+          name: box.name,
+          user: box.user
+        }, box, {
+          new: false,
+          upsert: true,
+          setDefaultsOnInsert: true
+        });
+      })
+      .then(boxOld => {
+        res.push(boxOld);
+        return Box.findOne({name: box.name, user: box.user});
+      })
+      .then(boxUpdated => {
+        res.push(boxUpdated);
+        resolve(res);
+      })
+      .catch(err=>{
+        reject(err);
       });
-    });
   });
 }
 
-
-BoxSchema.statics.sortByLevel = function (boxes, user) {
+BoxSchema.statics.sortByLevel = (boxes, user) => {
   const levels = [...new Set(boxes.map(box => box.level))];
   let boxesByLevel = [];
 
