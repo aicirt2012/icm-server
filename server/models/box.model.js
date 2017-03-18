@@ -22,7 +22,7 @@ const BoxSchema = new mongoose.Schema({
 
 
 
-BoxSchema.statics.update2 = function (box, user) {
+BoxSchema.statics.updateAndGetOldAndUpdated = function (box, user) {
   return new Promise((resolve, reject) => {
     box.user = user._id;
     // find parent first
@@ -71,6 +71,11 @@ BoxSchema.statics.sortByLevel = function (boxes, user) {
 }
 
 
+/** 
+ * Lists all boxes of a user
+ * with the number of unseen emails
+ * @param userId 
+ */
 BoxSchema.statics.getBoxesByUser = (userId) => {
   return new Promise((resolve, reject) => {
     /*<boxId, box>*/

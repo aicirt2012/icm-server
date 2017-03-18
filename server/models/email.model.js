@@ -71,9 +71,12 @@ EmailSchema.index({
 });
 
 
-EmailSchema.method({});
-
-EmailSchema.statics.updateAndGetOldUpdated = (email)=>{
+/**
+ * Updates or creates an email and 
+ * returns the old- and updated email
+ * @param email 
+ */
+EmailSchema.statics.updateAndGetOldAndUpdated = (email)=>{
   return new Promise((resolve, reject) => {
     Email.findOneAndUpdate({
         messageId: mail.messageId

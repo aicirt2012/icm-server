@@ -318,8 +318,8 @@ function createEmailConnector(provider, user) {
 
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
-    Email.updateAndGetOldUpdated(mail)
-      .then(emailOld, emailUpdated => {
+    Email.updateAndGetOldAndUpdated(mail)
+      .then((emailOld, emailUpdated) => {
         Socket.pushUpdateToClient(emailOld, emailUpdated);
         resolve(emailUpdated);
       })
@@ -402,7 +402,7 @@ function syncBoxes2(user, details = false, provider) {
     emailConnector.getBoxes(details).then((boxes) => {
       const sortedBoxes = Box.sortByLevel(boxes, user);
       return Promise.each(sortedBoxes, (box) => {
-        return Box.update2(box, user);
+        return Box.updateAndGetOldAndUpdated(box, user);
       }).then(() => {
         resolve()
       });
