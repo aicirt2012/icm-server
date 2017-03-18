@@ -366,20 +366,15 @@ function getBoxes(user, details = false, provider) {
 /** ------------------ for new local interface ---------------------------------------- */
 
 /** Returns the current boxes form the database */
-//TODO enhance with unread mails
 function getBoxes2(req, res) {
   console.log('--> getBoxes2');
   Box.getBoxesByUser(req.user._id)
-    .then(boxes => {
-      console.log('results:');
-      console.log(boxes);
+    .then(boxes =>{
       res.status(200).send(boxes);
+    })
+    .catch(err=>{
+      res.status(500).send(err);
     });
-  /*  Box.find({user: req.user._id})
-   .populate('parent')
-   .then(boxes => {
-   res.status(200).send(boxes);
-   });*/
 }
 
 // pagination
