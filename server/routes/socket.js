@@ -41,7 +41,7 @@ class Socket{
 
   }
 
-  pushUpdateToClient(emailOld, boxOld, emailNew, boxNew) {
+  pushEmailUpdateToClient(emailOld, boxOld, emailNew, boxNew) {
     if (this.isEmailCreated(emailOld, emailNew)) 
       this.createEmail(emailNew.user, emailNew);
     else if (this.isEmailUpdated(emailOld, emailNew)) 
@@ -59,26 +59,6 @@ class Socket{
     else if (this.isBoxDeleted(boxOld, boxNew))
       this.deleteBox(boxOld.user, boxOld);
   }
-
-/*
-  pushUpdateToClient(emailOld, emailNew, boxOld, boxNew) {
-    if (this.isEmailCreated(emailOld, emailNew)) {
-      this.createEmail(emailNew.user, emailNew);
-      this.updateBox(emailNew.user, boxNew);
-    }
-    else if (this.isEmailUpdated(emailOld, emailNew)) {
-      this.updateEmail(emailNew.user, emailNew);
-      if(Email.isSeenUnseenChanged(emailOld, emailNew)){        
-        if(emailOld.box == emailNew.box)
-          this.updateBox(emailNew.user, boxOld);
-        this.updateBox(emailNew.user, boxNew);
-      }
-    }
-    else if (this.isEmailDeleted(emailOld, emailNew))
-      this.deleteEmail(emailOld.user, emailOld);
-      //TODO update box
-  }
-  */
 
 
   isEmailDeleted(boxOld, boxlNew){

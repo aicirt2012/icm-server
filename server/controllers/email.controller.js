@@ -320,7 +320,7 @@ function storeEmail(mail) {
   return new Promise((resolve, reject) => {
     Email.updateAndGetOldAndUpdated(mail)
       .spread((emailOld, boxOld, emailUpdated, boxUpdated) => {
-        Socket.pushUpdateToClient(emailOld, boxOld, emailUpdated, boxUpdated);
+        Socket.pushEmailUpdateToClient(emailOld, boxOld, emailUpdated, boxUpdated);
         resolve(emailUpdated);
       })
       .catch(err=>{
