@@ -362,18 +362,6 @@ function storeEmail(mail) {
  }
  */
 
-/*
- function recursivePromises(promises, callback) {
- if (promises.length > 0) {
- Promise.all(promises[0]).then(() => {
- promises = promises.slice(1, promises.length);
- recursivePromises(promises, callback);
- })
- } else {
- callback();
- }
- }
- */
 
 
 function getBoxes(user, details = false, provider) {
