@@ -21,6 +21,7 @@ const BoxSchema = new mongoose.Schema({
 });
 
 
+
 BoxSchema.statics.update2 = function (box, user) {
   return new Promise((resolve, reject) => {
     box.user = user._id;
@@ -100,6 +101,6 @@ BoxSchema.statics.getBoxesByUser = (userId) => {
   });
 }
 
-let Box = mongoose.model('Box', BoxSchema)
 
+let Box = mongoose.model('Box', BoxSchema)
 export default Box;

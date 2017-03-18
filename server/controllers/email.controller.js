@@ -318,30 +318,15 @@ function createEmailConnector(provider, user) {
 
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
-    Email.findOneAndUpdate({
-      messageId: mail.messageId
-    }, mail, {
-      new: false,
-      upsert: true,
-      setDefaultsOnInsert: true
-    }).populate('box')
-      .exec((err, emailOld) => {
-        if (err) {
-          reject(err);
-        } else {
-          Email.findOne({
-            messageId: mail.messageId
-          }).populate('box')
-            .then(emailUpdated => {
-              console.log('UPDATEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
-              //fs.writeFileSync('D:/email.old.txt', JSON.stringify(emailOld, undefined, 2));
-              //fs.writeFileSync('D:/email.new.txt', JSON.stringify(emailUpdated, undefined, 2));
-              Socket.pushUpdateToClient(emailOld, emailUpdated);
-              resolve(emailUpdated);
-            });
-        }
+    Email.updateAndGetOldUpdated(mail)
+      .then(emailOld, emailUpdated => {
+        Socket.pushUpdateToClient(emailOld, emailUpdated);
+        resolve(emailUpdated);
+      })
+      .catch(err=>{
+        reject(err);
       });
-  })
+  });
 }
 
 /*

@@ -70,6 +70,32 @@ EmailSchema.index({
   subject: 'text'
 });
 
+
 EmailSchema.method({});
 
-export default mongoose.model('Email', EmailSchema);
+EmailSchema.statics.updateAndGetOldUpdated = (email)=>{
+  return new Promise((resolve, reject) => {
+    Email.findOneAndUpdate({
+        messageId: mail.messageId
+      }, email, {
+        new: false,
+        upsert: true,
+        setDefaultsOnInsert: true
+      })
+      .populate('box')
+      .exec((err, emailOld) => {
+        if (err) {
+          reject(err);
+        } else {
+          Email.findOne({messageId: mail.messageId})
+            .populate('box')
+            .then(emailUpdated => {
+              resolve(emailOld, emailUpdated);
+            });
+        }
+      });
+  });
+} 
+
+let Email = mongoose.model('Email', EmailSchema)
+export default Email;
