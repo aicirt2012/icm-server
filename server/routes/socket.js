@@ -41,7 +41,7 @@ class Socket{
 
   }
 
-  pushUpdateToClient(emailOld, emailNew, boxOld, boxNew) {
+  pushUpdateToClient(emailOld, boxOld, emailNew, boxNew) {
     if (this.isEmailCreated(emailOld, emailNew)) 
       this.createEmail(emailNew.user, emailNew);
     else if (this.isEmailUpdated(emailOld, emailNew)) 

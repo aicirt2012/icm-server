@@ -86,29 +86,29 @@ EmailSchema.statics.isSeenUnseenChanged = (emailOld, emailNew)=>{
  * Updates or creates an email and 
  * returns the old- and updated email
  * @param email 
- * @return Promise resolve([oldMail, updatedMail, oldBox, updatedBox])
+ * @return Promise resolve([oldMail, oldBox, updatedMail, , updatedBox])
  */
 EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
   return new Promise((resolve, reject) => {
     const res = [];
-    Email.findOneAndUpdate({
-        messageId: mail.messageId
-      }, mail, {
-        new: false,
-        upsert: true,
-        setDefaultsOnInsert: true
-      })
+    Email.findOne({messageId: mail.messageId})
       .then(emailOld => {  
-        res.push(emailOld); 
-        return Email.findOne({messageId: mail.messageId});
-      })
-      .then(emailUpdated =>{     
-        res.push(emailUpdated);
-        return res[0]!=null ? Box.findWithUnseenCountById(res[0].box) : Promise.resolve(null);            
+        res.push(emailOld);
+        return emailOld!=null ? Box.findWithUnseenCountById(emailOld.box) : Promise.resolve(null);
       })
       .then(boxOld =>{
         res.push(boxOld);
-        return res[1]!=null ? Box.findWithUnseenCountById(res[1].box) : Promise.resolve(null);  
+        return Email.findOneAndUpdate({
+          messageId: mail.messageId
+        }, mail, {
+          new: true, // returns new doc
+          upsert: true,
+          setDefaultsOnInsert: true
+        });
+      })
+      .then(emailUpdated =>{     
+        res.push(emailUpdated);
+        return emailUpdated!=null ? Box.findWithUnseenCountById(emailUpdated.box) : Promise.resolve(null);  
       })
       .then(boxUpdated =>{
         res.push(boxUpdated);
