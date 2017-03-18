@@ -41,28 +41,28 @@ class Socket{
   }
 
   pushUpdateToClient(emailOld, emailNew) {
+    /*
+   console.log('-Old-------------------------------------------------------------------------------')
+   console.log(emailOld)
+   console.log('-New-------------------------------------------------------------------------------')
+   console.log(emailNew)
+   */
     if (this.isEmailCreated(emailOld, emailNew)) {
       this.createEmail(emailNew.user, emailNew);
-      this.updateBox(emailNew.user, emailNew.box);
+     // this.updateBox(emailNew.user, emailNew.box);
     }
     else if (this.isEmailUpdated(emailOld, emailNew)) {
       this.updateEmail(emailNew.user, emailNew);
-      console.log('inside isEmailUpdated');
-      console.log(emailNew.flags);
-      console.log(emailOld.box)
-      console.log(emailNew.box);
+      /*
       if(emailNew.flags.length == 0) { // Unseen
-        console.log('++ ++');
-        emailNew.box.unseen = emailNew.box.unseen + 1;
-        console.log(emailNew.box);
-        console.log('-- --');
-        emailOld.box.unseen = emailOld.box.unseen - 1;
-        console.log(emailOld.box);
+        emailNew.box.unseen++;
+        emailOld.box.unseen--;
         this.updateBox(emailNew.user, emailNew.box);
         this.updateBox(emailNew.user, emailOld.box);
       } else {
         this.updateBox(emailNew.user, emailNew.box);
       }
+      */
     }
     else if (this.isEmailDeleted(emailOld, emailNew))
       this.deleteEmail(emailOld.user, emailOld);
@@ -93,6 +93,10 @@ class Socket{
 
   deleteEmail(userId, email){
     this.emitToUser(userId, 'delete_email', email);
+  }
+
+  isBoxUpdated(oldBox, newBox){
+
   }
 
   updateBox(userId, box){

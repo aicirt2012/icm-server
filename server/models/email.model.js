@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate';
+import Promise from 'bluebird';
 
 const EmailSchema = new mongoose.Schema({
   user: {
@@ -71,29 +72,28 @@ EmailSchema.index({
 });
 
 
+
 /**
  * Updates or creates an email and 
  * returns the old- and updated email
  * @param email 
  */
-EmailSchema.statics.updateAndGetOldAndUpdated = (email)=>{
+EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
   return new Promise((resolve, reject) => {
     Email.findOneAndUpdate({
-        messageId: email.messageId
-      }, email, {
+        messageId: mail.messageId
+      }, mail, {
         new: false,
         upsert: true,
         setDefaultsOnInsert: true
       })
-      .populate('box')
       .exec((err, emailOld) => {
         if (err) {
           reject(err);
         } else {
-          Email.findOne({messageId: email.messageId})
-            .populate('box')
-            .then(emailUpdated => {
-              resolve(emailOld, emailUpdated);
+          Email.findOne({messageId: mail.messageId})
+            .then(emailUpdated => {  
+              resolve([emailOld, emailUpdated]);
             });
         }
       });

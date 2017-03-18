@@ -71,6 +71,24 @@ BoxSchema.statics.sortByLevel = function (boxes, user) {
 }
 
 
+BoxSchema.findByIdWithUnseen = (boxId)=>{
+  new Promise((resolve, reject)=>{
+    let b = null;
+    Box.findOne({_id: boxId}, {_id:1, name:1, shortName: 1, parent:1})
+      .then(box=>{
+        b = box;
+        return Email.count({box:boxId, flags: {$ne: "\\Seen"}})
+      })
+      .then(unseen=>{
+        b.unseen = unseen;
+        resolve(b);
+      })
+      .catch(err=>{
+        reject(err);
+      })
+  });  
+}
+
 /** 
  * Lists all boxes of a user
  * with the number of unseen emails
