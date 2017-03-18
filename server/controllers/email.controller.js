@@ -348,7 +348,7 @@ function storeEmail(mail) {
  */
 
 
-
+//TODO remove this mehtod
 function getBoxes(user, details = false, provider) {
   const emailConnector = createEmailConnector(provider, user);
   return new Promise((resolve, reject) => {
@@ -367,7 +367,6 @@ function getBoxes(user, details = false, provider) {
 
 /** Returns the current boxes form the database */
 function getBoxes2(req, res) {
-  console.log('--> getBoxes2');
   Box.getBoxesByUser(req.user._id)
     .then(boxes =>{
       res.status(200).send(boxes);
@@ -388,22 +387,28 @@ function getEmails2(user, boxId, dateLastEmail, order) {
     });
 }
 
-/*FIRST*/
+
 /** Syncs the box strucure via IMAP */
-//TODO create push socket push mechanism
 function syncBoxes2(user, details = false, provider) {
-  const emailConnector = createEmailConnector(provider, user);
   return new Promise((resolve, reject) => {
-    emailConnector.getBoxes(details).then((boxes) => {
-      const sortedBoxes = Box.sortByLevel(boxes, user);
-      return Promise.each(sortedBoxes, (box) => {
-        return Box.updateAndGetOldAndUpdated(box, user);
-      }).then(() => {
-        resolve()
+    createEmailConnector(provider, user)
+      .getBoxes(details)
+      .then(boxes=>{
+        const sortedBoxes = Box.sortByLevel(boxes, user);
+        return Promise.each(sortedBoxes, (box) => {
+          return Box.updateAndGetOldAndUpdated(box, user);
+        })
+        .then((oldBox, updatedBox) => {
+          //TODO create push socket push mechanism
+          resolve()
+        })
+        .catch(err => {
+          reject(err);
+        });
+      })
+      .catch(err => {
+        reject(err);
       });
-    }).catch((err) => {
-      reject(err);
-    });
   })
 }
 

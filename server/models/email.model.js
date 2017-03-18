@@ -79,7 +79,7 @@ EmailSchema.index({
 EmailSchema.statics.updateAndGetOldAndUpdated = (email)=>{
   return new Promise((resolve, reject) => {
     Email.findOneAndUpdate({
-        messageId: mail.messageId
+        messageId: email.messageId
       }, email, {
         new: false,
         upsert: true,
@@ -90,7 +90,7 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (email)=>{
         if (err) {
           reject(err);
         } else {
-          Email.findOne({messageId: mail.messageId})
+          Email.findOne({messageId: email.messageId})
             .populate('box')
             .then(emailUpdated => {
               resolve(emailOld, emailUpdated);
