@@ -319,8 +319,8 @@ function createEmailConnector(provider, user) {
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
     Email.updateAndGetOldAndUpdated(mail)
-      .spread((emailOld, emailUpdated) => {
-        Socket.pushUpdateToClient(emailOld, emailUpdated);
+      .spread((emailOld, emailUpdated, boxOld, boxUpdated) => {
+        Socket.pushUpdateToClient(emailOld, emailUpdated, boxOld, boxUpdated);
         resolve(emailUpdated);
       })
       .catch(err=>{

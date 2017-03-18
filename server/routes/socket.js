@@ -40,12 +40,16 @@ class Socket{
 
   }
 
-  pushUpdateToClient(emailOld, emailNew) {
+  pushUpdateToClient(emailOld, emailNew, boxOld, boxUpdated) {
     /*
    console.log('-Old-------------------------------------------------------------------------------')
    console.log(emailOld)
    console.log('-New-------------------------------------------------------------------------------')
    console.log(emailNew)
+  console.log('-Old-------------------------------------------------------------------------------')
+   console.log(boxOld)
+   console.log('-New-------------------------------------------------------------------------------')
+   console.log(boxUpdated)
    */
     if (this.isEmailCreated(emailOld, emailNew)) {
       this.createEmail(emailNew.user, emailNew);

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate';
 import Promise from 'bluebird';
+import Box from './box.model';
 
 const EmailSchema = new mongoose.Schema({
   user: {
@@ -77,7 +78,7 @@ EmailSchema.index({
  * Updates or creates an email and 
  * returns the old- and updated email
  * @param email 
- * @return Promise resolve(oldMail, updatedMail)
+ * @return Promise resolve(oldMail, updatedMail, oldBox, updatedBox)
  */
 EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
   return new Promise((resolve, reject) => {
@@ -93,10 +94,26 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
         res.push(emailOld); 
         return Email.findOne({messageId: mail.messageId})
       })
-      .then(emailUpdated =>{
-        res.puhs(emailUpdated);
-        resolve(res);          
+      .then(emailUpdated =>{     
+        res.push(emailUpdated);
+        if(res[0])
+          return Box.findWithUnseenCountById(res[0].box)
+        else
+          return Promise.resolve(null);            
       })
+      .then(boxOld =>{
+           console.log(boxOld)
+        res.push(boxOld);
+        if(res[1])
+          return Box.findWithUnseenCountById(res[1].box)
+        else
+          return Promise.resolve(null);  
+      })
+      .then(boxUpdated =>{
+           console.log(boxUpdated)
+        res.push(boxUpdated);
+        resolve(res);  
+      })   
       .catch(err=>{
         reject(err);
       });
