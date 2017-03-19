@@ -286,7 +286,7 @@ function searchPaginatedEmails(req, res) {
 function getSingleMail(req, res) {
   Email.findOne({
     _id: req.params.id
-  }).populate('box')
+  }).populate('box') //TODO check if this is needed -> should be removed
     .lean()
     .then((mail) => {
       // call analyzer with emailObject and append suggested task and already linked tasks
@@ -364,6 +364,60 @@ function getBoxes(user, details = false, provider) {
 }
 
 /** ------------------ for new local interface ---------------------------------------- */
+
+/**
+ * Returns the searched email, this is meant to return also a simple mail list for every box
+ * @param sort fild that will be used to sort e.g. {date: -1}
+ * @param boxId 
+ * @param search string to search 
+ */
+function searchPaginatedEmails2(req, res) {
+
+  const sort = req.query.sort;
+  const boxId = req.query.boxId;
+  const search = req.query.search;
+
+  /* default parms */
+  const query = {
+    user: req.user,
+  };
+  const select = {}
+  const options = {
+    limit: 25,
+    sort: {
+      date: -1
+    },
+  };
+
+  if(box != null)
+    query.box = boxId;
+  
+  if(search != null && search != '')
+    query.$text = {$search: search};
+  
+  // von:max mysubject -> max 
+  // von: max mysubject -> max 
+  // from:max mysubject -> max 
+  // from: max mysubject -> max 
+  if(search.includes('von:')){
+    search.splice(' ')
+  }
+
+  // an:max mysubject -> max 
+  // an: max mysubject -> max 
+  // to:max mysubject -> max 
+
+  if(sort != null)
+    options.sort = sort;
+
+  Email.find(query, select, options)
+    .then(emails => {
+      res.status(200).send(emails);
+    })
+    .catch(err =>{
+      res.status(400).send(err);
+    });
+}
 
 /** Returns the current boxes form the database */
 function getBoxes2(req, res) {
