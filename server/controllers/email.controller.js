@@ -399,8 +399,8 @@ function syncBoxes2(user, details = false, emailConnector) {
           return Box.updateAndGetOldAndUpdated(box, user);
         })
         .spread((oldBox, updatedBox) => {
-          //TODO create push socket push mechanism
-          Socket.pushBoxUpdateToClient(oldBox, updatedBox);
+          //TODO create batch push socket push mechanism
+          //Socket.pushBoxUpdateToClient(oldBox, updatedBox);
           resolve()
         })
         .catch(err => {

@@ -51,7 +51,20 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
   });
 }
 
+
 BoxSchema.statics.sortByLevel = (boxes, user) => {
+  /*
+  //TODO implement map approach
+  const map = new Map();
+  boxes.forEach(box=>{
+    if(map.has(box.level))
+      map.get(box.level).push(box);
+    else  
+      map.set(box.level, [box]);
+  })
+  // get keys -> sort keys -> iterate ove key values and concat
+  */
+   
   const levels = [...new Set(boxes.map(box => box.level))];
   let boxesByLevel = [];
 
