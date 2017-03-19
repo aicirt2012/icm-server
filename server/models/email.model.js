@@ -56,7 +56,7 @@ const EmailSchema = new mongoose.Schema({
   html: String,
   text: String,
   date: Date,
-  flags: {type: [String], required:true},
+  flags: [String],
   labels: [String]
 }, {
   timestamps: true

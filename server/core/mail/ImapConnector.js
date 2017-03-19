@@ -90,14 +90,14 @@ class ImapConnector {
               promises.push(new Promise((yay, nay) => {
                 this.statusBoxAsync(box.name, false).then((res) => {
                   boxListDetails.push({
-                    id: index,
+                    id: index, //TODO check if needed
                     name: res.name, // unique
                     shortName: res.name.substr(res.name.lastIndexOf('/') + 1, res.name.length),
-                    total: res.messages.total,
-                    new: res.messages.new,
-                    unseen: res.messages.unseen,
+                    total: res.messages.total, //TODO remove in future
+                    new: res.messages.new, //TODO remove in future
+                    unseen: res.messages.unseen, //TODO remove in future
                     parent: box.parent,
-                    level: box.level
+                    level: box.level //TODO check if needed
                   });
                   yay(res);
                 })

@@ -16,6 +16,7 @@ const BoxSchema = new mongoose.Schema({
 
 
 /**
+ * TODO add unseen count with additional query
  * Updates or creates a box and 
  * returns the old and updated box
  * @param box
