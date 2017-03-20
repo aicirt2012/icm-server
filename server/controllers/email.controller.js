@@ -163,57 +163,61 @@ function copy(req, res) {
 }
 
 function addFlags(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.addFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
-    Box.findOne({
-      name: req.body.box,
-      user: req.user
-    }, (err, box) => {
-      Email.findOne({
-        uid: req.body.msgId,
-        box: box
-      }).then((email) => {
-        email.flags = email.flags.concat(req.body.flags);
-        email.save().then(() => {
-          res.status(200).send({
-            message: 'Successfully added Flags',
-            msgId: msgId,
-            box: req.body.box
-          });
+  Box.findOne({
+    _id: req.body.boxId,
+    user: req.user
+  }, (err, box) => {
+    const emailConnector = createEmailConnector(req.query.provider, req.user);
+    emailConnector.addFlags(req.body.msgId, req.body.flags, box.name)
+      .then((msgId) => {
+        console.log('inside add flags');
+        console.log(box);
+        Email.findOne({
+          uid: req.body.msgId,
+          box: box
+        }).then((email) => {
+          email.flags = email.flags.concat(req.body.flags);
+          email.save().then(() => {
+            res.status(200).send({
+              message: 'Successfully added Flags',
+              msgId: msgId,
+              box: req.body.box
+            });
+          })
         })
-      })
-    });
+      });
   }).catch((err) => {
     res.status(400).send(err);
   });
 }
 
 function delFlags(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.delFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
-    Box.findOne({
-      name: req.body.box,
-      user: req.user
-    }, (err, box) => {
-      Email.findOne({
-        uid: req.body.msgId,
-        box: box
-      }).then((email) => {
-        req.body.flags.forEach((f) => {
-          const index = email.flags.indexOf(f);
-          if (index > -1) {
-            email.flags.splice(index, 1);
-          }
-        });
-        email.save().then(() => {
-          res.status(200).send({
-            message: 'Successfully deleted Flags',
-            msgId: msgId,
-            box: req.body.box
+  Box.findOne({
+    _id: req.body.boxId,
+    user: req.user
+  }, (err, box) => {
+    const emailConnector = createEmailConnector(req.query.provider, req.user);
+    emailConnector.delFlags(req.body.msgId, req.body.flags, box.name)
+      .then((msgId) => {
+        Email.findOne({
+          uid: req.body.msgId,
+          box: box
+        }).then((email) => {
+          req.body.flags.forEach((f) => {
+            const index = email.flags.indexOf(f);
+            if (index > -1) {
+              email.flags.splice(index, 1);
+            }
           });
-        })
+          email.save().then(() => {
+            res.status(200).send({
+              message: 'Successfully deleted Flags',
+              msgId: msgId,
+              box: req.body.box
+            });
+          })
+        });
       });
-    });
   }).catch((err) => {
     res.status(400).send(err);
   });
@@ -234,8 +238,7 @@ function getPaginatedEmailsForBox(req, res) {
     limit: req.query.limit ? parseInt(req.query.limit) : 25,
     sort: {
       date: -1
-    },
-    populate: 'box'
+    }
   };
 
   Box.findOne({
@@ -286,8 +289,7 @@ function searchPaginatedEmails(req, res) {
 function getSingleMail(req, res) {
   Email.findOne({
     _id: req.params.id
-  }).populate('box') //TODO check if this is needed -> should be removed
-    .lean()
+  }).lean()
     .then((mail) => {
       // call analyzer with emailObject and append suggested task and already linked tasks
       if (mail && (req.user.trello || req.user.sociocortex)) {
@@ -323,7 +325,7 @@ function storeEmail(mail) {
         Socket.pushEmailUpdateToClient(emailOld, boxOld, emailUpdated, boxUpdated);
         resolve(emailUpdated);
       })
-      .catch(err=>{
+      .catch(err => {
         reject(err);
       });
   });
@@ -368,16 +370,18 @@ function getBoxes(user, details = false, provider) {
 /**
  * Returns the searched email, this is meant to return also a simple mail list for every box
  * @param sort fild that will be used to sort e.g. {date: -1}
- * @param boxId 
- * @param search string to search 
+ * @param boxId
+ * @param search string to searchs
+ * @param lastEmailDate
  */
 function searchPaginatedEmails2(req, res) {
 
   const sort = req.query.sort;
   const boxId = req.query.boxId;
   const search = req.query.search;
+  const lastEmailDate = req.query.lastEmailDate;
 
-  /* default parms */
+  /* default params */
   const query = {
     user: req.user,
   };
@@ -389,32 +393,32 @@ function searchPaginatedEmails2(req, res) {
     },
   };
 
-  if(box != null)
+  if (box != null)
     query.box = boxId;
-  
-  if(search != null && search != '')
+
+  if (search != null && search != '')
     query.$text = {$search: search};
-  
-  // von:max mysubject -> max 
-  // von: max mysubject -> max 
-  // from:max mysubject -> max 
-  // from: max mysubject -> max 
-  if(search.includes('von:')){
+
+  // von:max mysubject -> max
+  // von: max mysubject -> max
+  // from:max mysubject -> max
+  // from: max mysubject -> max
+  if (search.includes('von:')) {
     search.splice(' ')
   }
 
-  // an:max mysubject -> max 
-  // an: max mysubject -> max 
-  // to:max mysubject -> max 
+  // an:max mysubject -> max
+  // an: max mysubject -> max
+  // to:max mysubject -> max
 
-  if(sort != null)
+  if (sort != null)
     options.sort = sort;
 
   Email.find(query, select, options)
     .then(emails => {
       res.status(200).send(emails);
     })
-    .catch(err =>{
+    .catch(err => {
       res.status(400).send(err);
     });
 }
@@ -422,10 +426,10 @@ function searchPaginatedEmails2(req, res) {
 /** Returns the current boxes form the database */
 function getBoxes2(req, res) {
   Box.getBoxesByUser(req.user._id)
-    .then(boxes =>{
+    .then(boxes => {
       res.status(200).send(boxes);
     })
-    .catch(err=>{
+    .catch(err => {
       res.status(500).send(err);
     });
 }
@@ -434,7 +438,6 @@ function getBoxes2(req, res) {
 //function getEmails2(req, res) {
 function getEmails2(user, boxId, dateLastEmail, order) {
   Email.find({user: user, box: boxId}) // careful with boxId
-    .populate('box')
     .then(emails => {
       console.log('--> getEmails2');
       console.log(emails);
@@ -447,19 +450,19 @@ function syncBoxes2(user, details = false, emailConnector) {
   return new Promise((resolve, reject) => {
     emailConnector
       .getBoxes(details)
-      .then(boxes=>{
+      .then(boxes => {
         const sortedBoxes = Box.sortByLevel(boxes, user);
         return Promise.each(sortedBoxes, (box) => {
           return Box.updateAndGetOldAndUpdated(box, user);
         })
-        .spread((oldBox, updatedBox) => {
-          //TODO create batch push socket push mechanism
-          //Socket.pushBoxUpdateToClient(oldBox, updatedBox);
-          resolve()
-        })
-        .catch(err => {
-          reject(err);
-        });
+          .spread((oldBox, updatedBox) => {
+            //TODO create batch push socket push mechanism
+            //Socket.pushBoxUpdateToClient(oldBox, updatedBox);
+            resolve()
+          })
+          .catch(err => {
+            reject(err);
+          });
       })
       .catch(err => {
         reject(err);
@@ -494,14 +497,14 @@ function syncViaIMAP2(req, res) {
   const provider = req.query.provider;
   const emailConnector = createEmailConnector(provider, user);
   syncBoxes2(user, true, emailConnector)
-    .then(() =>{
+    .then(() => {
       return syncMails2(user, emailConnector);
     })
-    .then(() =>{
+    .then(() => {
       console.log('all synced!');
       res.status(200).send({message: 'Finished syncing'});
     })
-    .catch(err =>{
+    .catch(err => {
       res.status(500).send(err);
     });
 }
