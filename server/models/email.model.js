@@ -104,21 +104,21 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
           new: true, // returns new doc
           upsert: true,
           setDefaultsOnInsert: true
-        });
+        }).populate('box');
       })
-      .then(emailUpdated =>{     
+      .then(emailUpdated =>{
         res.push(emailUpdated);
-        return emailUpdated!=null ? Box.findWithUnseenCountById(emailUpdated.box) : Promise.resolve(null);  
+        return emailUpdated!=null ? Box.findWithUnseenCountById(emailUpdated.box) : Promise.resolve(null);
       })
       .then(boxUpdated =>{
         res.push(boxUpdated);
-        resolve(res);  
-      })   
+        resolve(res);
+      })
       .catch(err=>{
         reject(err);
       });
   });
-} 
+}
 
 let Email = mongoose.model('Email', EmailSchema)
 export default Email;
