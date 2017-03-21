@@ -10,7 +10,6 @@ import Analyzer from '../core/engine/analyzer';
 import fs from 'fs';
 import Socket from '../routes/socket';
 
-
 const imapOptions = (user) => {
   return {
     user: user.provider.user,
@@ -232,7 +231,10 @@ function setFlags(req, res) {
   });
 }
 
+
 function getPaginatedEmailsForBox(req, res) {
+  searchPaginatedEmails2(req, res);
+  /*
   const options = {
     page: req.query.page ? parseInt(req.query.page) : 1,
     limit: req.query.limit ? parseInt(req.query.limit) : 25,
@@ -259,9 +261,11 @@ function getPaginatedEmailsForBox(req, res) {
     });
 
   });
+  */
 
 }
 
+/*
 function searchPaginatedEmails(req, res) {
   const options = {
     page: req.query.page ? parseInt(req.query.page) : 1,
@@ -285,6 +289,7 @@ function searchPaginatedEmails(req, res) {
     }
   })
 }
+*/
 
 function getSingleMail(req, res) {
   Email.findOne({
@@ -376,51 +381,70 @@ function getBoxes(user, details = false, provider) {
  */
 function searchPaginatedEmails2(req, res) {
 
-  const sort = req.query.sort;
+  console.log('inside searchPaginatedEmails2');
+
   const boxId = req.query.boxId;
+  const sort = req.query.sort; // ASC or DESC
   const search = req.query.search;
-  const lastEmailDate = req.query.lastEmailDate;
+  const lastEmailDate = new Date(req.query.lastEmailDate);
+
+  console.log(sort);
+  console.log(boxId);
+  console.log(search);
+  console.log(lastEmailDate);
 
   /* default params */
   const query = {
     user: req.user,
+    date: {$lt: lastEmailDate}
   };
-  const select = {}
+  const select = {};
   const options = {
     limit: 25,
     sort: {
-      date: -1
+      date: sort == 'DESC' ? -1 : 1
     },
   };
 
-  if (box != null)
-    query.box = boxId;
+  query.box = boxId;
 
-  if (search != null && search != '')
-    query.$text = {$search: search};
+  /*
+   if (search != null && search != '')
+   query.$text = {$search: search};
 
-  // von:max mysubject -> max
-  // von: max mysubject -> max
-  // from:max mysubject -> max
-  // from: max mysubject -> max
-  if (search.includes('von:')) {
-    search.splice(' ')
-  }
+   // von:max mysubject -> max
+   // von: max mysubject -> max
+   // from:max mysubject -> max
+   // from: max mysubject -> max
+   if (search.includes('von:')) {
+   search.splice(' ')
+   query.from =
+   }
 
-  // an:max mysubject -> max
-  // an: max mysubject -> max
-  // to:max mysubject -> max
+   // an:max mysubject -> max
+   // an: max mysubject -> max
+   // to:max mysubject -> max
 
-  if (sort != null)
-    options.sort = sort;
+   if (sort != null)
+   options.sort = sort;
+   */
+
+  console.log('final query');
+  console.log(query);
 
   Email.find(query, select, options)
     .then(emails => {
+      console.log('results');
+      emails.forEach(email => {
+        console.log(email.subject + ' ' + email.box);
+      })
       res.status(200).send(emails);
     })
     .catch(err => {
       res.status(400).send(err);
     });
+
+
 }
 
 /** Returns the current boxes form the database */
@@ -436,6 +460,7 @@ function getBoxes2(req, res) {
 
 // pagination
 //function getEmails2(req, res) {
+/*
 function getEmails2(user, boxId, dateLastEmail, order) {
   Email.find({user: user, box: boxId}) // careful with boxId
     .then(emails => {
@@ -443,6 +468,7 @@ function getEmails2(user, boxId, dateLastEmail, order) {
       console.log(emails);
     });
 }
+*/
 
 
 /** Syncs the box strucure via IMAP */
@@ -523,7 +549,7 @@ export default {
   setFlags,
   getInitialImapStatus,
   getPaginatedEmailsForBox,
-  searchPaginatedEmails,
+  searchPaginatedEmails2,
   getSingleMail,
   getBoxes2,
   syncViaIMAP2
