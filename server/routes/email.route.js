@@ -9,8 +9,10 @@ function routeProvider(passport) {
   });
   router.use(mw);
   /* IMAP API Endpoints */
-  router.route('/sync')
-    .post(emailCtrl.syncMails);
+  /*
+   router.route('/sync')
+   .post(emailCtrl.syncMails);
+   */
 
   router.route('/init')
     .get(emailCtrl.getInitialImapStatus);

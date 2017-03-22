@@ -47,28 +47,35 @@ function sendEmail(req, res) {
   const smtpConnector = new SMTPConnector(smtpOptions(req.user));
   smtpConnector.sendMail(req.body).then((result) => {
     const emailConnector = createEmailConnector(req.query.provider, req.user);
-    emailConnector.fetchBoxes(storeEmail, [config.gmail.send]).then(() => {
-      res.status(200).send({
-        message: 'Finished fetching'
+    Box.findOne({name: config.gmail.send, user: req.user})
+      .then(box => {
+        console.log('inside sendEmail');
+        console.log(box);
+        emailConnector.fetchBoxes2(storeEmail, [box])
+          .then(() => {
+            res.status(200).send({message: 'Finished fetching'});
+          })
+      })
+      .catch((err) => {
+        res.status(400).send(err);
       });
-    }).catch((err) => {
-      res.status(400).send(err);
-    });
   });
 }
 
-function syncMails(req, res) {
-  const before = new Date();
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.fetchBoxes(storeEmail, req.body.boxes).then(() => {
-    console.log('Time for fetching: ', new Date() - before);
-    res.status(200).send({
-      message: 'Finished fetching'
-    });
-  }).catch((err) => {
-    res.status(400).send(err);
-  })
-}
+/*
+ function syncMails(req, res) {
+ const before = new Date();
+ const emailConnector = createEmailConnector(req.query.provider, req.user);
+ emailConnector.fetchBoxes(storeEmail, req.body.boxes).then(() => {
+ console.log('Time for fetching: ', new Date() - before);
+ res.status(200).send({
+ message: 'Finished fetching'
+ });
+ }).catch((err) => {
+ res.status(400).send(err);
+ })
+ }
+ */
 
 function addBox(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
@@ -121,13 +128,19 @@ function renameBox(req, res) {
 
 function append(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData).then((msgData) => {
-    emailConnector.fetchBoxes(storeEmail, [req.body.box]).then(() => {
-      res.status(200).send({msgData: msgData});
+  Box.findOne({name: req.body.box, user: req.user})
+    .then(box => {
+      emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData)
+        .then((msgData) => {
+          emailConnector.fetchBoxes2(storeEmail, [box])
+            .then(() => {
+              res.status(200).send({msgData: msgData});
+            })
+        })
     })
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
+    .catch((err) => {
+      res.status(400).send(err);
+    });
 }
 
 function move(req, res) {
@@ -236,62 +249,7 @@ function setFlags(req, res) {
 
 function getPaginatedEmailsForBox(req, res) {
   searchPaginatedEmails2(req, res);
-  /*
-   const options = {
-   page: req.query.page ? parseInt(req.query.page) : 1,
-   limit: req.query.limit ? parseInt(req.query.limit) : 25,
-   sort: {
-   date: -1
-   }
-   };
-
-   Box.findOne({
-   name: req.query.box,
-   user: req.user
-   }, (err, box) => {
-
-   const query = {
-   user: req.user,
-   box: box //|| req.user.boxList[0].name
-   };
-   Email.paginate(query, options).then((emails, err) => {
-   if (err) {
-   res.status(400).send(err);
-   } else {
-   res.status(200).send(emails);
-   }
-   });
-
-   });
-   */
-
 }
-
-/*
- function searchPaginatedEmails(req, res) {
- const options = {
- page: req.query.page ? parseInt(req.query.page) : 1,
- limit: req.query.limit ? parseInt(req.query.limit) : 25,
- sort: {
- date: -1
- },
- };
- const query = {
- user: req.user,
- 'box.name': req.query.box || req.user.boxList[0].name,
- $text: {
- $search: req.query.q ? req.query.q : ''
- }
- };
- Email.paginate(query, options).then((emails, err) => {
- if (err) {
- res.status(400).send(err);
- } else {
- res.status(200).send(emails);
- }
- })
- }
- */
 
 function getSingleMail(req, res) {
   Email.findOne({
@@ -463,19 +421,6 @@ function getBoxes2(req, res) {
     });
 }
 
-// pagination
-//function getEmails2(req, res) {
-/*
- function getEmails2(user, boxId, dateLastEmail, order) {
- Email.find({user: user, box: boxId}) // careful with boxId
- .then(emails => {
- console.log('--> getEmails2');
- console.log(emails);
- });
- }
- */
-
-
 /** Syncs the box strucure via IMAP */
 function syncBoxes2(user, details = false, emailConnector) {
   return new Promise((resolve, reject) => {
@@ -541,7 +486,6 @@ function syncViaIMAP2(req, res) {
 }
 
 export default {
-  syncMails,
   addBox,
   delBox,
   renameBox,
