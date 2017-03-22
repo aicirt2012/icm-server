@@ -131,25 +131,27 @@ function append(req, res) {
 }
 
 function move(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.move(req.body.msgId, req.body.srcBox, req.body.destBox).then((msgId) => {
-    Box.findOne({
-      name: req.body.srcBox,
-      user: req.user
-    }, (err, srcBox) => {
-      Box.findOne({
-        name: req.body.destBox,
+  Email.findOne({_id: req.body.emailId})
+    .populate('box')
+    .then(email => {
+      return [email, Box.findOne({
+        _id: req.body.newBoxId,
         user: req.user
-      }, (err, destBox) => {
+      })]
+    })
+    .spread((email, destBox) => {
+      const srcBox = email.box;
+      const emailConnector = createEmailConnector(req.query.provider, req.user);
+      emailConnector.move(email.uid, srcBox.name, destBox.name).then((msgId) => {
         emailConnector.fetchBoxes2(storeEmail, [srcBox, destBox])
           .then((messages) => {
             res.status(200).send({messages: messages});
           })
       });
+    })
+    .catch(err => {
+      res.status(400).send(err);
     });
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
 }
 
 /* DEPRECATED - DO NOT USE */
@@ -235,61 +237,61 @@ function setFlags(req, res) {
 function getPaginatedEmailsForBox(req, res) {
   searchPaginatedEmails2(req, res);
   /*
-  const options = {
-    page: req.query.page ? parseInt(req.query.page) : 1,
-    limit: req.query.limit ? parseInt(req.query.limit) : 25,
-    sort: {
-      date: -1
-    }
-  };
+   const options = {
+   page: req.query.page ? parseInt(req.query.page) : 1,
+   limit: req.query.limit ? parseInt(req.query.limit) : 25,
+   sort: {
+   date: -1
+   }
+   };
 
-  Box.findOne({
-    name: req.query.box,
-    user: req.user
-  }, (err, box) => {
+   Box.findOne({
+   name: req.query.box,
+   user: req.user
+   }, (err, box) => {
 
-    const query = {
-      user: req.user,
-      box: box //|| req.user.boxList[0].name
-    };
-    Email.paginate(query, options).then((emails, err) => {
-      if (err) {
-        res.status(400).send(err);
-      } else {
-        res.status(200).send(emails);
-      }
-    });
+   const query = {
+   user: req.user,
+   box: box //|| req.user.boxList[0].name
+   };
+   Email.paginate(query, options).then((emails, err) => {
+   if (err) {
+   res.status(400).send(err);
+   } else {
+   res.status(200).send(emails);
+   }
+   });
 
-  });
-  */
+   });
+   */
 
 }
 
 /*
-function searchPaginatedEmails(req, res) {
-  const options = {
-    page: req.query.page ? parseInt(req.query.page) : 1,
-    limit: req.query.limit ? parseInt(req.query.limit) : 25,
-    sort: {
-      date: -1
-    },
-  };
-  const query = {
-    user: req.user,
-    'box.name': req.query.box || req.user.boxList[0].name,
-    $text: {
-      $search: req.query.q ? req.query.q : ''
-    }
-  };
-  Email.paginate(query, options).then((emails, err) => {
-    if (err) {
-      res.status(400).send(err);
-    } else {
-      res.status(200).send(emails);
-    }
-  })
-}
-*/
+ function searchPaginatedEmails(req, res) {
+ const options = {
+ page: req.query.page ? parseInt(req.query.page) : 1,
+ limit: req.query.limit ? parseInt(req.query.limit) : 25,
+ sort: {
+ date: -1
+ },
+ };
+ const query = {
+ user: req.user,
+ 'box.name': req.query.box || req.user.boxList[0].name,
+ $text: {
+ $search: req.query.q ? req.query.q : ''
+ }
+ };
+ Email.paginate(query, options).then((emails, err) => {
+ if (err) {
+ res.status(400).send(err);
+ } else {
+ res.status(200).send(emails);
+ }
+ })
+ }
+ */
 
 function getSingleMail(req, res) {
   Email.findOne({
@@ -400,13 +402,16 @@ function searchPaginatedEmails2(req, res) {
   };
   const select = {};
   const options = {
-    limit: 25,
+    limit: 15,
     sort: {
       date: sort == 'DESC' ? -1 : 1
     },
   };
 
-  query.box = boxId;
+  if (boxId != 'NONE') {
+    console.log('boxId: ' + boxId);
+    query.box = boxId;
+  }
 
   /*
    if (search != null && search != '')
@@ -461,14 +466,14 @@ function getBoxes2(req, res) {
 // pagination
 //function getEmails2(req, res) {
 /*
-function getEmails2(user, boxId, dateLastEmail, order) {
-  Email.find({user: user, box: boxId}) // careful with boxId
-    .then(emails => {
-      console.log('--> getEmails2');
-      console.log(emails);
-    });
-}
-*/
+ function getEmails2(user, boxId, dateLastEmail, order) {
+ Email.find({user: user, box: boxId}) // careful with boxId
+ .then(emails => {
+ console.log('--> getEmails2');
+ console.log(emails);
+ });
+ }
+ */
 
 
 /** Syncs the box strucure via IMAP */
