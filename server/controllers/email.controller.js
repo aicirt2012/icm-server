@@ -371,26 +371,39 @@ function searchPaginatedEmails2(req, res) {
     query.box = boxId;
   }
 
+  if (search != null && search != '') {
+    const fromSearch = search.match(/from: ?"([a-zA-Z0-9 ]*)"([a-zA-Z0-9 ]*)/);
+    console.log('from search');
+    console.log(fromSearch);
+    const from = fromSearch != null ? fromSearch[1] : null;
+    const searchTerm = fromSearch != null ? fromSearch[2] : null;
+
+    console.log(from);
+    console.log(searchTerm);
+
+    if (from != null) {
+      query['from.name'] = new RegExp('.*'+from+'.*', "i")
+    }
+
+    if (searchTerm != null && searchTerm != ' ' && searchTerm != '') {
+      query.$text = {$search: searchTerm};
+    }
+  }
+
+  // von:max mysubject -> max
+  // von: max mysubject -> max
+  // from:max mysubject -> max
+  // from: max mysubject -> max
   /*
-   if (search != null && search != '')
-   query.$text = {$search: search};
+  if (search.includes('von:')) {
+    search.splice(' ')
+    query.from =
+  }
+  */
 
-   // von:max mysubject -> max
-   // von: max mysubject -> max
-   // from:max mysubject -> max
-   // from: max mysubject -> max
-   if (search.includes('von:')) {
-   search.splice(' ')
-   query.from =
-   }
-
-   // an:max mysubject -> max
-   // an: max mysubject -> max
-   // to:max mysubject -> max
-
-   if (sort != null)
-   options.sort = sort;
-   */
+  // an:max mysubject -> max
+  // an: max mysubject -> max
+  // to:max mysubject -> max
 
   console.log('final query');
   console.log(query);
@@ -404,6 +417,7 @@ function searchPaginatedEmails2(req, res) {
       res.status(200).send(emails);
     })
     .catch(err => {
+      console.log(err);
       res.status(400).send(err);
     });
 
