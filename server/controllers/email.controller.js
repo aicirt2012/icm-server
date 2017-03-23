@@ -287,6 +287,10 @@ function storeEmail(mail) {
   return new Promise((resolve, reject) => {
     Email.updateAndGetOldAndUpdated(mail)
       .spread((emailOld, boxOld, emailUpdated, boxUpdated) => {
+        // TODO new box numbers do not work properly
+        console.log('inside storeEmail...');
+        console.log(JSON.stringify(boxOld));
+        console.log(JSON.stringify(boxUpdated));
         Socket.pushEmailUpdateToClient(emailOld, boxOld, emailUpdated, boxUpdated);
         resolve(emailUpdated);
       })
@@ -296,6 +300,7 @@ function storeEmail(mail) {
   });
 }
 
+// Don't delete this
 /*
  function syncDeletedMails(syncTime, boxes) {
  return new Promise((resolve, reject) => {
@@ -358,7 +363,7 @@ function searchPaginatedEmails2(req, res) {
     user: req.user,
     date: {$lt: lastEmailDate}
   };
-  const select = {};
+  const select = {}; // only necessary
   const options = {
     limit: 15,
     sort: {
