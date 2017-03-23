@@ -152,17 +152,6 @@ function move(req, res) {
     });
 }
 
-/* DEPRECATED - DO NOT USE */
-/*
-function copy(req, res) {
-  createEmailConnector(req.query.provider, req.user).copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
-    res.status(200).send(messages);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-*/
-
 function addFlags(req, res) {
   Box.findOne({
     _id: req.body.boxId,
@@ -497,7 +486,6 @@ export default {
   renameBox,
   append,
   move,
-  /*copy,*/
   sendEmail,
   addFlags,
   delFlags,

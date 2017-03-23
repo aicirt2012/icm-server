@@ -9,11 +9,6 @@ function routeProvider(passport) {
   });
   router.use(mw);
   /* IMAP API Endpoints */
-  /*
-   router.route('/sync')
-   .post(emailCtrl.syncMails);
-   */
-
   router.route('/init')
     .get(emailCtrl.getInitialImapStatus);
 
@@ -31,12 +26,6 @@ function routeProvider(passport) {
 
   router.route('/move')
     .post(emailCtrl.move);
-
-  /* DEPRECATED - DO NOT USE */
-  /*
-   router.route('/copy')
-   .post(emailCtrl.copy);
-   */
 
   router.route('/send')
     .post(emailCtrl.sendEmail);
