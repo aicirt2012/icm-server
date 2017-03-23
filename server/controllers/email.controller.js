@@ -62,21 +62,6 @@ function sendEmail(req, res) {
   });
 }
 
-/*
- function syncMails(req, res) {
- const before = new Date();
- const emailConnector = createEmailConnector(req.query.provider, req.user);
- emailConnector.fetchBoxes(storeEmail, req.body.boxes).then(() => {
- console.log('Time for fetching: ', new Date() - before);
- res.status(200).send({
- message: 'Finished fetching'
- });
- }).catch((err) => {
- res.status(400).send(err);
- })
- }
- */
-
 function addBox(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.addBox(req.body.boxName).then((boxName) => {
