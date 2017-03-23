@@ -51,7 +51,7 @@ function sendEmail(req, res) {
       .then(box => {
         console.log('inside sendEmail');
         console.log(box);
-        emailConnector.fetchBoxes2(storeEmail, [box])
+        emailConnector.fetchBoxes(storeEmail, [box])
           .then(() => {
             res.status(200).send({message: 'Finished fetching'});
           })
@@ -132,7 +132,7 @@ function append(req, res) {
     .then(box => {
       emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData)
         .then((msgData) => {
-          emailConnector.fetchBoxes2(storeEmail, [box])
+          emailConnector.fetchBoxes(storeEmail, [box])
             .then(() => {
               res.status(200).send({msgData: msgData});
             })
@@ -156,7 +156,7 @@ function move(req, res) {
       const srcBox = email.box;
       const emailConnector = createEmailConnector(req.query.provider, req.user);
       emailConnector.move(email.uid, srcBox.name, destBox.name).then((msgId) => {
-        emailConnector.fetchBoxes2(storeEmail, [srcBox, destBox])
+        emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
           .then((messages) => {
             res.status(200).send({messages: messages});
           })
@@ -473,7 +473,7 @@ function syncMails2(user, emailConnector) {
   return new Promise((resolve, reject) => {
     Box.find({user: user})
       .then(boxes => {
-        return emailConnector.fetchBoxes2(storeEmail, boxes)
+        return emailConnector.fetchBoxes(storeEmail, boxes)
       })
       .then(() => {
         console.log('Time for fetching: ', new Date() - before);
