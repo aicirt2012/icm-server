@@ -12,6 +12,7 @@ class GmailConnector extends ImapConnector {
     super(options, user);
   }
 
+  /*
   fetchBoxes(storeEmail, boxes = []) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       let highestmodseq = [];
@@ -33,6 +34,7 @@ class GmailConnector extends ImapConnector {
       }).catch(reject)
     })) 
   }
+  */
 
   fetchBoxes2(storeEmail, boxes = []) {
     return this.connect().then(() => new Promise((resolve, reject) => {
@@ -55,6 +57,7 @@ class GmailConnector extends ImapConnector {
     }))
   }
 
+  /*
   fetchEmails(storeEmail, boxName) {
     return this.openBox(boxName).then((box) => {
         return new Promise((resolve, reject) => {
@@ -95,7 +98,7 @@ class GmailConnector extends ImapConnector {
       .catch((error) => {
         console.error('Error: ', error.message);
       });
-  }
+  }*/
 
   fetchEmails2(storeEmail, newBox) {
     return this.openBox(newBox.name).then((box) => {
@@ -139,6 +142,7 @@ class GmailConnector extends ImapConnector {
       });
   }
 
+  /*
   parseDataFromEmail(mail, box, storeEmail) {
     return new Promise((resolve, reject) => {
       const mailParser = new MailParser();
@@ -184,6 +188,7 @@ class GmailConnector extends ImapConnector {
       }).on('error', (err) => reject(err));
     });
   }
+  */
 
   parseDataFromEmail2(mail, box, storeEmail) {
     return new Promise((resolve, reject) => {
