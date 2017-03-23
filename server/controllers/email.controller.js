@@ -480,6 +480,17 @@ function syncViaIMAP2(req, res) {
     });
 }
 
+function autocomplete(req, res){
+  Email.getCollection('emails').aggregate([
+    {$match: {user: req.user._id}},
+    {$project: {address: {$setUnion: [ "$from", "$to", "$cc", "$bcc"]}}},
+    {$unwind: '$address'},
+    {$group: {_id: {address:{$toLower:'$address.address'}, name:'$address.name'}}},    
+    {$project: {_id: 0, address: '$_id.address', name: '$_id.name'}},
+    //{$match: {$or:[{address: /+search+/},{address: /fe/}]}}
+ ]);
+}
+
 export default {
   addBox,
   delBox,
