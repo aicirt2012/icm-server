@@ -16,8 +16,6 @@ class GmailConnector extends ImapConnector {
     return this.connect().then(() => new Promise((resolve, reject) => {
       let highestmodseq = [];
       Promise.each(boxes, (box) => {
-        console.log('--> Fetch boxes ... for box: ');
-        console.log(box.name);
         return this.fetchEmails(storeEmail, box).then((hms) => {
           highestmodseq.push(hms);
         });
