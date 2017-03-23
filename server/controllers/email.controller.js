@@ -153,6 +153,7 @@ function move(req, res) {
 }
 
 /* DEPRECATED - DO NOT USE */
+/*
 function copy(req, res) {
   createEmailConnector(req.query.provider, req.user).copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
     res.status(200).send(messages);
@@ -160,6 +161,7 @@ function copy(req, res) {
     res.status(400).send(err);
   });
 }
+*/
 
 function addFlags(req, res) {
   Box.findOne({
@@ -495,7 +497,7 @@ export default {
   renameBox,
   append,
   move,
-  copy,
+  /*copy,*/
   sendEmail,
   addFlags,
   delFlags,

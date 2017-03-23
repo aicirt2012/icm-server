@@ -33,8 +33,10 @@ function routeProvider(passport) {
     .post(emailCtrl.move);
 
   /* DEPRECATED - DO NOT USE */
-  router.route('/copy')
-    .post(emailCtrl.copy);
+  /*
+   router.route('/copy')
+   .post(emailCtrl.copy);
+   */
 
   router.route('/send')
     .post(emailCtrl.sendEmail);
