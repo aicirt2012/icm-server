@@ -149,32 +149,24 @@ function move(req, res) {
 }
 
 function addFlags(req, res) {
-  Box.findOne({
-    _id: req.body.boxId,
-    user: req.user
-  }, (err, box) => {
-    const emailConnector = createEmailConnector(req.query.provider, req.user);
-    emailConnector.addFlags(req.body.msgId, req.body.flags, box.name)
-      .then((msgId) => {
-        console.log('inside add flags');
-        console.log(box);
-        Email.findOne({
-          uid: req.body.msgId,
-          box: box
-        }).then((email) => {
-          email.flags = email.flags.concat(req.body.flags);
-          email.save().then(() => {
-            res.status(200).send({
-              message: 'Successfully added Flags',
-              msgId: msgId,
-              box: req.body.box
-            });
-          })
-        })
-      });
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
+  const emailConnector = createEmailConnector(req.query.provider, req.user);
+  Box.findOne({_id: req.body.boxId, user: req.user})
+    .then(box => {
+      return [box, emailConnector.addFlags(req.body.msgId, req.body.flags, box.name)]
+    })
+    .spread((box, msgId) => {
+      return Email.findOne({uid: req.body.msgId, box: box})
+    })
+    .then((email) => {
+      email.flags = email.flags.concat(req.body.flags);
+      return email.save();
+    })
+    .then(() => {
+      res.status(200).send({message: 'Successfully added Flags'});
+    })
+    .catch(err => {
+      res.status(400).send(err);
+    });
 }
 
 function delFlags(req, res) {
