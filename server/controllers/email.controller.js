@@ -112,15 +112,16 @@ function append(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   Box.findOne({name: req.body.box, user: req.user})
     .then(box => {
-      emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData)
-        .then((msgData) => {
-          emailConnector.fetchBoxes(storeEmail, [box])
-            .then(() => {
-              res.status(200).send({msgData: msgData});
-            })
-        })
+      return [box, emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData)]
+    })
+    .spread((box, msgData) => {
+      return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
+    })
+    .spread((msgData, result) => {
+      res.status(200).send({msgData: msgData});
     })
     .catch((err) => {
+      console.log(err);
       res.status(400).send(err);
     });
 }
