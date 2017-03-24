@@ -4,6 +4,9 @@ import httpStatus from 'http-status';
 import APIError from '../core/error/APIError';
 import bcrypt from 'bcrypt';
 import mongoosePaginate from 'mongoose-paginate';
+import GmailConnector from '../core/mail/GmailConnector';
+import SMTPConnector from '../core/mail/SMTPConnector';
+import ExchangeConnector from '../core/mail/ExchangeConnector';
 
 const UserSchema = new mongoose.Schema({
   username: {type: String, required: true},
@@ -65,6 +68,23 @@ UserSchema.method({
       }
       cb(null, isMatch);
     });
+  },
+  createEmailConnector: function() {
+    switch (this.provider.name) {
+      case 'gmail': return new GmailConnector(this.imapOptions(), this); break;
+      case 'exchange': return new ExchangeConnector(this.imapOptions(), this); break;
+      default: return new GmailConnector(this.imapOptions(), this);
+    }
+  },
+  imapOptions: function(){
+    return {
+      user: this.provider.user,
+      password: this.provider.password,
+      host: this.provider.host,
+      port: this.provider.port,
+      tls: true,
+      mailbox: 'INBOX'
+    };
   }
 });
 
