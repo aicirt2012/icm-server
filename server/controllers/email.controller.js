@@ -207,17 +207,15 @@ function getSingleMail(req, res) {
     });
 }
 
-/* EMAIL HELPER */
+/**
+ * Returns an email connector depending on the provider
+ * @param user
+ */
 function createEmailConnector(provider, user) {
   switch (provider) {
-    case 'gmail':
-      return new GmailConnector(imapOptions(user), user);
-      break;
-    case 'exchange':
-      return new ExchangeConnector(imapOptions(user, user));
-      break;
-    default:
-      return new GmailConnector(imapOptions(user), user);
+    case 'gmail': return new GmailConnector(imapOptions(user), user); break;
+    case 'exchange': return new ExchangeConnector(imapOptions(user, user)); break;
+    default: return new GmailConnector(imapOptions(user), user);
   }
 }
 
@@ -411,6 +409,9 @@ function syncViaIMAP(req, res) {
   console.log('-> syncViaIMAP2');
   const user = req.user;
   const provider = req.query.provider;
+  console.log('---------------------------------------------------');
+  console.log(provider);
+  console.log(user.provider.name);
   const emailConnector = createEmailConnector(provider, user);
   syncBoxes2(user, true, emailConnector)
     .then(() => {
