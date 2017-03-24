@@ -1,9 +1,6 @@
 import Promise from 'bluebird';
 import Email from '../models/email.model';
 import Box from '../models/box.model';
-import GmailConnector from '../core/mail/GmailConnector';
-import SMTPConnector from '../core/mail/SMTPConnector';
-import ExchangeConnector from '../core/mail/ExchangeConnector';
 import config from '../../config/env';
 import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
@@ -367,12 +364,14 @@ function syncMails(user, emailConnector) {
   })
 }
 
-/** Sync wrapper (boxes and mails) */
-function syncViaIMAP(req, res) {
-  console.log('-> syncViaIMAP2');
+
+/**
+ * Syncronizes the boxes and emails the user via IMAP
+ */
+function syncIMAP(req, res) {
+  console.log('-> syncIMAP');
   const user = req.user;
   const emailConnector = user.createEmailConnector();
-
   syncBoxes2(user, true, emailConnector)
     .then(() => {
       return syncMails(user, emailConnector);
@@ -408,5 +407,5 @@ export default {
   searchPaginatedEmails,
   getSingleMail,
   getBoxes,
-  syncViaIMAP
+  syncIMAP
 };
