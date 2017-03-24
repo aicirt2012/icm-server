@@ -41,12 +41,10 @@ function sendEmail(req, res) {
     const emailConnector = createEmailConnector(req.query.provider, req.user);
     Box.findOne({name: config.gmail.send, user: req.user})
       .then(box => {
-        console.log('inside sendEmail');
-        console.log(box);
-        emailConnector.fetchBoxes(storeEmail, [box])
-          .then(() => {
-            res.status(200).send({message: 'Finished fetching'});
-          })
+        return emailConnector.fetchBoxes(storeEmail, [box])
+      })
+      .then(() => {
+        res.status(200).send({message: 'Finished fetching'});
       })
       .catch((err) => {
         res.status(400).send(err);
@@ -461,13 +459,13 @@ function syncViaIMAP2(req, res) {
     });
 }
 
-function autocomplete(req, res){
+function autocomplete(req, res) {
   Email.autocomplete(req.user._id)
-    .then(suggestions=>{
-        res.status(200).send(suggestions);
+    .then(suggestions => {
+      res.status(200).send(suggestions);
     })
-    .catch(err=>{
-        res.status(500).send(err);
+    .catch(err => {
+      res.status(500).send(err);
     });
 }
 
