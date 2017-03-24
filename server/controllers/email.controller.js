@@ -9,7 +9,7 @@ import Socket from '../routes/socket';
 
 function sendEmail(req, res) {
   req.user.createSMTPConnector().sendMail(req.body)
-    .then((result) => {
+    .then(result => {
       return Box.findOne({name: config.gmail.send, user: req.user});
     })
     .then(box => {
@@ -164,6 +164,7 @@ function delFlags(req, res) {
     });
 }
 
+/** Returns one single mail with all details */
 function getSingleMail(req, res) {
   Email.findOne({_id: req.params.id}).lean()
     .then((mail) => {
@@ -178,7 +179,8 @@ function getSingleMail(req, res) {
 }
 
 
-
+/** Stores an email in the database and 
+ *  pushs upates via socket to the client */
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
     Email.updateAndGetOldAndUpdated(mail)
@@ -215,7 +217,6 @@ function storeEmail(mail) {
  }
  */
 
-/** ------------------ for new local interface ---------------------------------------- */
 
 /**
  * Returns the searched email, this is meant to return also a simple mail list for every box
@@ -309,7 +310,7 @@ function searchPaginatedEmails(req, res) {
 
 }
 
-/** Returns the current boxes form the database */
+/** Returns the current boxes from the database */
 function getBoxes(req, res) {
   Box.getBoxesByUser(req.user._id)
     .then(boxes => {
@@ -320,7 +321,7 @@ function getBoxes(req, res) {
     });
 }
 
-/** Syncs the box strucure via IMAP */
+/** Syncronizes the boxes of the user via IMAP */
 function syncBoxes2(user, details = false, emailConnector) {
   return new Promise((resolve, reject) => {
     emailConnector
@@ -345,10 +346,10 @@ function syncBoxes2(user, details = false, emailConnector) {
   })
 }
 
-/** Syncs the emails via IMAP */
+/** Syncronizes the emails of the user via IMAP */
 function syncMails(user, emailConnector) {
   const before = new Date();
-  console.log('--> syncMails2');
+  console.log('--> syncMails');
   return new Promise((resolve, reject) => {
     Box.find({user: user})
       .then(boxes => {
@@ -365,9 +366,7 @@ function syncMails(user, emailConnector) {
 }
 
 
-/**
- * Syncronizes the boxes and emails the user via IMAP
- */
+/** Syncronizes the boxes and emails of the user via IMAP */
 function syncIMAP(req, res) {
   console.log('-> syncIMAP');
   const user = req.user;
@@ -385,6 +384,7 @@ function syncIMAP(req, res) {
     });
 }
 
+/** Creates autocomplete suggestions for email addresses */
 function autocomplete(req, res) {
   Email.autocomplete(req.user._id)
     .then(suggestions => {
