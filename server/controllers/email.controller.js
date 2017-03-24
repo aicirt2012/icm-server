@@ -127,25 +127,23 @@ function append(req, res) {
 }
 
 function move(req, res) {
-  Email.findOne({_id: req.body.emailId})
-    .populate('box')
+  const emailConnector = createEmailConnector(req.query.provider, req.user);
+  Email.findOne({_id: req.body.emailId}).populate('box')
     .then(email => {
-      return [email, Box.findOne({
-        _id: req.body.newBoxId,
-        user: req.user
-      })]
+      return [email, Box.findOne({_id: req.body.newBoxId, user: req.user})]
     })
     .spread((email, destBox) => {
       const srcBox = email.box;
-      const emailConnector = createEmailConnector(req.query.provider, req.user);
-      emailConnector.move(email.uid, srcBox.name, destBox.name).then((msgId) => {
-        emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
-          .then((messages) => {
-            res.status(200).send({messages: messages});
-          })
-      });
+      return [srcBox, destBox, emailConnector.move(email.uid, srcBox.name, destBox.name)]
+    })
+    .spread((srcBox, destBox, msgId) => {
+      return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
+    })
+    .then((messages) => {
+      res.status(200).send({messages: messages});
     })
     .catch(err => {
+      console.log(err);
       res.status(400).send(err);
     });
 }
