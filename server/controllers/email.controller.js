@@ -194,18 +194,6 @@ function delFlags(req, res) {
     });
 }
 
-/*
-function setFlags(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.setFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
-    res.status(200).send(messages);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-*/
-
-
 function getPaginatedEmailsForBox(req, res) {
   searchPaginatedEmails2(req, res);
 }

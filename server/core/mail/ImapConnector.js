@@ -236,22 +236,6 @@ class ImapConnector {
     }));
   }
 
-  /*
-  setFlags(msgId, flags, box) {
-    return this.openBoxAndConnect(box).then((box) => new Promise((resolve, reject) => {
-      this.imap.setFlags(msgId, flags, (err) => {
-        this.end().then(() => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(msgId);
-          }
-        });
-      })
-    }));
-  }
-  */
-
   // TODO fetchAttachment
   /*fetchAttachment(mail) {
     return this.imap.collectEmailAsync(mail)
