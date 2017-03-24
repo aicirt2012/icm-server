@@ -34,8 +34,10 @@ function routeProvider(passport) {
     .post(emailCtrl.delFlags);
 
   /* MongoDB API Endpoints */
+  /*
   router.route('/')
     .get(emailCtrl.getPaginatedEmailsForBox);
+    */
   router.route('/search')
     .get(emailCtrl.searchPaginatedEmails2);
   router.route('/single/:id')

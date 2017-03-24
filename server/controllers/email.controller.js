@@ -194,9 +194,12 @@ function delFlags(req, res) {
     });
 }
 
+/*
 function getPaginatedEmailsForBox(req, res) {
+  console.log('inside getPaginatedEmailsForBox');
   searchPaginatedEmails2(req, res);
 }
+*/
 
 function getSingleMail(req, res) {
   console.log('inside get single');
@@ -450,8 +453,7 @@ export default {
   sendEmail,
   addFlags,
   delFlags,
-  /*setFlags,*/
-  getPaginatedEmailsForBox,
+  /*getPaginatedEmailsForBox,*/
   searchPaginatedEmails2,
   getSingleMail,
   getBoxes2,
