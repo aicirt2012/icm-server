@@ -69,7 +69,7 @@ UserSchema.method({
       cb(null, isMatch);
     });
   },
-  createEmailConnector: function() {
+  createIMAPConnector: function() {
     const imapOptions = {
       user: this.provider.user,
       password: this.provider.password,
@@ -85,7 +85,7 @@ UserSchema.method({
     }
   },
   createSMTPConnector: function(){
-    const smtpOptions = {
+    return new SMTPConnector({
       host: this.provider.smtpHost,
       port: this.provider.smtpPort,
       secure: true,
@@ -95,8 +95,7 @@ UserSchema.method({
         pass: this.provider.password
       },
       currentUser: this
-    };
-    return new SMTPConnector(smtpOptions);
+    });
   }
 });
 
