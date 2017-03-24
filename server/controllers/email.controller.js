@@ -37,19 +37,21 @@ const smtpOptions = (user) => {
 
 function sendEmail(req, res) {
   const smtpConnector = new SMTPConnector(smtpOptions(req.user));
-  smtpConnector.sendMail(req.body).then((result) => {
-    const emailConnector = createEmailConnector(req.query.provider, req.user);
-    Box.findOne({name: config.gmail.send, user: req.user})
-      .then(box => {
-        return emailConnector.fetchBoxes(storeEmail, [box])
-      })
-      .then(() => {
-        res.status(200).send({message: 'Finished fetching'});
-      })
-      .catch((err) => {
-        res.status(400).send(err);
-      });
-  });
+  const emailConnector = createEmailConnector(req.query.provider, req.user);
+  smtpConnector.sendMail(req.body)
+    .then((result) => {
+      return Box.findOne({name: config.gmail.send, user: req.user});
+    })
+    .then(box => {
+      return emailConnector.fetchBoxes(storeEmail, [box]);
+    })
+    .then(() => {
+      res.status(200).send({message: 'Finished fetching'});
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).send(err);
+    });
 }
 
 function addBox(req, res) {
