@@ -199,21 +199,17 @@ function getPaginatedEmailsForBox(req, res) {
 }
 
 function getSingleMail(req, res) {
-  Email.findOne({
-    _id: req.params.id
-  }).lean()
+  console.log('inside get single');
+  Email.findOne({_id: req.params.id}).lean()
     .then((mail) => {
-      // call analyzer with emailObject and append suggested task and already linked tasks
-      if (mail && (req.user.trello || req.user.sociocortex)) {
-        new Analyzer(mail, req.user).getEmailTasks().then((email) => {
-          res.status(200).send(email);
-        });
-      } else {
-        res.status(200).send(mail);
-      }
-    }).catch((err) => {
-    res.status(400).send(err);
-  });
+      return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
+    })
+    .then(email => {
+      res.status(200).send(email);
+    })
+    .catch((err) => {
+      res.status(400).send(err);
+    });
 }
 
 /* EMAIL HELPER */
