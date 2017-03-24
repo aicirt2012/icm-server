@@ -35,16 +35,6 @@ const smtpOptions = (user) => {
   };
 };
 
-/*
-function getInitialImapStatus(req, res) {
-  getBoxes(req.user, true, req.query.provider).then((boxes) => {
-    res.status(200).send(boxes);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-*/
-
 function sendEmail(req, res) {
   const smtpConnector = new SMTPConnector(smtpOptions(req.user));
   smtpConnector.sendMail(req.body).then((result) => {
@@ -102,6 +92,7 @@ function delBox(req, res) {
     });
 }
 
+// TODO refactor. req.user.boxList not used anymore
 function renameBox(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
@@ -282,8 +273,8 @@ function storeEmail(mail) {
   });
 }
 
-// Don't delete this
 /*
+ // TODO syncDeletedMails
  function syncDeletedMails(syncTime, boxes) {
  return new Promise((resolve, reject) => {
  Email.remove({
@@ -300,24 +291,6 @@ function storeEmail(mail) {
  });
  }
  */
-
-
-/*
-//TODO remove this method
-function getBoxes(user, details = false, provider) {
-  const emailConnector = createEmailConnector(provider, user);
-  return new Promise((resolve, reject) => {
-    emailConnector.getBoxes(details).then((boxes) => {
-      user.boxList = boxes;
-      user.save().then(() => {
-        resolve(boxes);
-      })
-    }).catch((err) => {
-      reject(err);
-    });
-  })
-}
-*/
 
 /** ------------------ for new local interface ---------------------------------------- */
 
@@ -508,7 +481,6 @@ export default {
   addFlags,
   delFlags,
   setFlags,
-  /*getInitialImapStatus,*/
   getPaginatedEmailsForBox,
   searchPaginatedEmails2,
   getSingleMail,
