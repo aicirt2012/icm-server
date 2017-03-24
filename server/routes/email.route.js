@@ -33,8 +33,10 @@ function routeProvider(passport) {
   router.route('/delFlags')
     .post(emailCtrl.delFlags);
 
-  router.route('/setFlags')
-    .post(emailCtrl.setFlags);
+  /*
+   router.route('/setFlags')
+   .post(emailCtrl.setFlags);
+   */
 
   /* MongoDB API Endpoints */
   router.route('/')

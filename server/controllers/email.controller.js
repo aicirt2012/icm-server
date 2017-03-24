@@ -194,6 +194,7 @@ function delFlags(req, res) {
     });
 }
 
+/*
 function setFlags(req, res) {
   const emailConnector = createEmailConnector(req.query.provider, req.user);
   emailConnector.setFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
@@ -202,6 +203,7 @@ function setFlags(req, res) {
     res.status(400).send(err);
   });
 }
+*/
 
 
 function getPaginatedEmailsForBox(req, res) {
@@ -464,7 +466,7 @@ export default {
   sendEmail,
   addFlags,
   delFlags,
-  setFlags,
+  /*setFlags,*/
   getPaginatedEmailsForBox,
   searchPaginatedEmails2,
   getSingleMail,
