@@ -70,14 +70,7 @@ UserSchema.method({
     });
   },
   createEmailConnector: function() {
-    switch (this.provider.name) {
-      case 'gmail': return new GmailConnector(this.imapOptions(), this); break;
-      case 'exchange': return new ExchangeConnector(this.imapOptions(), this); break;
-      default: return new GmailConnector(this.imapOptions(), this);
-    }
-  },
-  imapOptions: function(){
-    return {
+    const imapOptions = {
       user: this.provider.user,
       password: this.provider.password,
       host: this.provider.host,
@@ -85,12 +78,14 @@ UserSchema.method({
       tls: true,
       mailbox: 'INBOX'
     };
+    switch (this.provider.name) {
+      case 'gmail': return new GmailConnector(imapOptions, this); break;
+      case 'exchange': return new ExchangeConnector(imapOptions, this); break;
+      default: return new GmailConnector(imapOptions, this);
+    }
   },
   createSMTPConnector: function(){
-    return new SMTPConnector(this.smtpOptions());
-  },
-  smtpOptions: function(){
-    return {
+    const smtpOptions = {
       host: this.provider.smtpHost,
       port: this.provider.smtpPort,
       secure: true,
@@ -101,6 +96,7 @@ UserSchema.method({
       },
       currentUser: this
     };
+    return new SMTPConnector(smtpOptions);
   }
 });
 
