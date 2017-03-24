@@ -35,6 +35,7 @@ const smtpOptions = (user) => {
   };
 };
 
+/*
 function getInitialImapStatus(req, res) {
   getBoxes(req.user, true, req.query.provider).then((boxes) => {
     res.status(200).send(boxes);
@@ -42,6 +43,7 @@ function getInitialImapStatus(req, res) {
     res.status(400).send(err);
   });
 }
+*/
 
 function sendEmail(req, res) {
   const smtpConnector = new SMTPConnector(smtpOptions(req.user));
@@ -63,37 +65,41 @@ function sendEmail(req, res) {
 }
 
 function addBox(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.addBox(req.body.boxName).then((boxName) => {
-    req.user.boxList.push({
-      id: req.user.boxList.length,
-      name: boxName,
-      shortName: boxName.substr(boxName.lastIndexOf('/') + 1, boxName.length),
-      total: 0,
-      new: 0,
-      unseen: 0,
-      parent: null
+  const user = req.user;
+  const emailConnector = createEmailConnector(req.query.provider, user);
+  emailConnector.addBox(req.body.boxName)
+    .then(() => {
+      return syncBoxes2(user, true, emailConnector);
+    })
+    .then(() => {
+      return Box.getBoxesByUser(user._id);
+    })
+    .then(boxes => {
+      res.status(200).send(boxes);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).send(err);
     });
-    res.status(200).send({
-      message: `Created new box: ${boxName}`,
-      boxList: req.user.boxList
-    });
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
 }
 
 function delBox(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.delBox(req.body.boxName).then((boxName) => {
-    req.user.boxList.splice(req.user.boxList.findIndex((el) => el.name == boxName), 1);
-    res.status(200).send({
-      message: `Deleted box: ${boxName}`,
-      boxList: req.user.boxList
+  const user = req.user;
+  const emailConnector = createEmailConnector(req.query.provider, user);
+  emailConnector.delBox(req.body.boxName)
+    .then(() => {
+      // TODO emailConnector.delBox working but syncBoxes2 does not delete box id DB
+      return syncBoxes2(user, true, emailConnector);
+    })
+    .then(() => {
+      return Box.getBoxesByUser(user._id);
+    })
+    .then(boxes => {
+      res.status(200).send(boxes);
+    })
+    .catch((err) => {
+      res.status(400).send(err);
     });
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
 }
 
 function renameBox(req, res) {
@@ -296,7 +302,8 @@ function storeEmail(mail) {
  */
 
 
-//TODO remove this mehtod
+/*
+//TODO remove this method
 function getBoxes(user, details = false, provider) {
   const emailConnector = createEmailConnector(provider, user);
   return new Promise((resolve, reject) => {
@@ -310,6 +317,7 @@ function getBoxes(user, details = false, provider) {
     });
   })
 }
+*/
 
 /** ------------------ for new local interface ---------------------------------------- */
 
@@ -363,7 +371,7 @@ function searchPaginatedEmails2(req, res) {
     console.log(searchTerm);
 
     if (from != null) {
-      query['from.name'] = new RegExp('.*'+from+'.*', "i")
+      query['from.name'] = new RegExp('.*' + from + '.*', "i")
     }
 
     if (searchTerm != null && searchTerm != ' ' && searchTerm != '') {
@@ -376,11 +384,11 @@ function searchPaginatedEmails2(req, res) {
   // from:max mysubject -> max
   // from: max mysubject -> max
   /*
-  if (search.includes('von:')) {
-    search.splice(' ')
-    query.from =
-  }
-  */
+   if (search.includes('von:')) {
+   search.splice(' ')
+   query.from =
+   }
+   */
 
   // an:max mysubject -> max
   // an: max mysubject -> max
@@ -500,7 +508,7 @@ export default {
   addFlags,
   delFlags,
   setFlags,
-  getInitialImapStatus,
+  /*getInitialImapStatus,*/
   getPaginatedEmailsForBox,
   searchPaginatedEmails2,
   getSingleMail,

@@ -17,11 +17,12 @@ const BoxSchema = new mongoose.Schema({
 
 /**
  * TODO add unseen count with additional query
- * Updates or creates a box and 
+ * Updates or creates a box and
  * returns the old and updated box
  * @param box
  * @return Promise ([oldBox, updatedBox])
  */
+// TODO check if box = null;
 BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
   return new Promise((resolve, reject) => {
     const res = [];
@@ -52,6 +53,9 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
   });
 }
 
+// BoxSchema.statics.deleteBoxById
+// move all emails to box trash and then delete box and then return promise
+
 
 BoxSchema.statics.sortByLevel = (boxes, user) => {
   /*
@@ -60,12 +64,12 @@ BoxSchema.statics.sortByLevel = (boxes, user) => {
   boxes.forEach(box=>{
     if(map.has(box.level))
       map.get(box.level).push(box);
-    else  
+    else
       map.set(box.level, [box]);
   })
   // get keys -> sort keys -> iterate ove key values and concat
   */
-   
+
   const levels = [...new Set(boxes.map(box => box.level))];
   let boxesByLevel = [];
 
@@ -96,20 +100,20 @@ BoxSchema.statics.findWithUnseenCountById = (boxId)=>{
       .catch(err=>{
         reject(err);
       })
-  });  
+  });
 }
 
-/** 
+/**
  * Lists all boxes of a user
  * with the number of unseen emails
- * @param userId 
+ * @param userId
  */
 BoxSchema.statics.getBoxesByUser = (userId) => {
   return new Promise((resolve, reject) => {
     /*<boxId, box>*/
     const boxMap = new Map();
     Box.find({user: userId}, {_id:1, name:1, shortName: 1, parent:1}) //TODO remove name projection after refactoring
-      .lean() 
+      .lean()
       .then(boxes => {
         boxes.forEach(box => {
           box.unseen = 0;
