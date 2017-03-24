@@ -42,9 +42,9 @@ class Socket{
   }
 
   pushEmailUpdateToClient(emailOld, boxOld, emailNew, boxNew) {
-    if (this.isEmailCreated(emailOld, emailNew)) 
+    if (this.isEmailCreated(emailOld, emailNew))
       this.createEmail(emailNew.user, emailNew);
-    else if (this.isEmailUpdated(emailOld, emailNew)) 
+    else if (this.isEmailUpdated(emailOld, emailNew))
       this.updateEmail(emailNew.user, emailNew);
     else if (this.isEmailDeleted(emailOld, emailNew))
       this.deleteEmail(emailOld.user, emailOld);
@@ -52,9 +52,9 @@ class Socket{
   }
 
   pushBoxUpdateToClient(boxOld, boxNew) {
-    if (this.isBoxCreated(boxOld, boxNew)) 
+    if (this.isBoxCreated(boxOld, boxNew))
       this.createBox(boxNew.user, boxNew);
-    else if (this.isBoxUpdated(boxOld, boxNew)) 
+    else if (this.isBoxUpdated(boxOld, boxNew))
       this.updateBox(boxNew.user, boxNew);
     else if (this.isBoxDeleted(boxOld, boxNew))
       this.deleteBox(boxOld.user, boxOld);
@@ -122,6 +122,7 @@ class Socket{
     userId = userId.toString();
     if(this.userSockets.has(userId)){
       const socketId = this.userSockets.get(userId);
+      // TODO error 'cannot read property emit of undefined' on first sync (fresh client);
       this.io.sockets.connected[socketId].emit(msgType, JSON.stringify(msgContent));
       console.log('Emit Message: '+userId+' '+msgType+' '+ (msgContent.subject ? msgContent.subject : msgContent.name));
     }

@@ -266,7 +266,7 @@ function storeEmail(mail) {
  * @param search string to searchs
  * @param lastEmailDate
  */
-function searchPaginatedEmails2(req, res) {
+function searchPaginatedEmails(req, res) {
 
   console.log('inside searchPaginatedEmails2');
 
@@ -352,7 +352,7 @@ function searchPaginatedEmails2(req, res) {
 }
 
 /** Returns the current boxes form the database */
-function getBoxes2(req, res) {
+function getBoxes(req, res) {
   Box.getBoxesByUser(req.user._id)
     .then(boxes => {
       res.status(200).send(boxes);
@@ -387,9 +387,8 @@ function syncBoxes2(user, details = false, emailConnector) {
   })
 }
 
-
 /** Syncs the emails via IMAP */
-function syncMails2(user, emailConnector) {
+function syncMails(user, emailConnector) {
   const before = new Date();
   console.log('--> syncMails2');
   return new Promise((resolve, reject) => {
@@ -408,14 +407,14 @@ function syncMails2(user, emailConnector) {
 }
 
 /** Sync wrapper (boxes and mails) */
-function syncViaIMAP2(req, res) {
+function syncViaIMAP(req, res) {
   console.log('-> syncViaIMAP2');
   const user = req.user;
   const provider = req.query.provider;
   const emailConnector = createEmailConnector(provider, user);
   syncBoxes2(user, true, emailConnector)
     .then(() => {
-      return syncMails2(user, emailConnector);
+      return syncMails(user, emailConnector);
     })
     .then(() => {
       console.log('all synced!');
@@ -445,8 +444,8 @@ export default {
   sendEmail,
   addFlags,
   delFlags,
-  searchPaginatedEmails2,
+  searchPaginatedEmails,
   getSingleMail,
-  getBoxes2,
-  syncViaIMAP2
+  getBoxes,
+  syncViaIMAP
 };
