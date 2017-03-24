@@ -10,30 +10,13 @@ import Analyzer from '../core/engine/analyzer';
 import fs from 'fs';
 import Socket from '../routes/socket';
 
-
-const smtpOptions = (user) => {
-  return {
-    host: user.provider.smtpHost,
-    port: user.provider.smtpPort,
-    secure: true,
-    domains: user.provider.smtpDomains,
-    auth: {
-      user: user.provider.user,
-      pass: user.provider.password
-    },
-    currentUser: user
-  };
-};
-
 function sendEmail(req, res) {
-  const smtpConnector = new SMTPConnector(smtpOptions(req.user));
-  const emailConnector = req.user.createEmailConnector();
-  smtpConnector.sendMail(req.body)
+  req.user.createSMTPConnector().sendMail(req.body)
     .then((result) => {
       return Box.findOne({name: config.gmail.send, user: req.user});
     })
     .then(box => {
-      return emailConnector.fetchBoxes(storeEmail, [box]);
+      return req.user.createEmailConnector().fetchBoxes(storeEmail, [box]);
     })
     .then(() => {
       res.status(200).send({message: 'Finished fetching'});
@@ -46,7 +29,7 @@ function sendEmail(req, res) {
 
 function addBox(req, res) {
   const user = req.user;
-  const emailConnector = createEmailConnector(req.query.provider, user);
+  const emailConnector = user.createEmailConnector();
   emailConnector.addBox(req.body.boxName)
     .then(() => {
       return syncBoxes2(user, true, emailConnector);

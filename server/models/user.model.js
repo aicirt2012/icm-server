@@ -85,6 +85,22 @@ UserSchema.method({
       tls: true,
       mailbox: 'INBOX'
     };
+  },
+  createSMTPConnector: function(){
+    return new SMTPConnector(this.smtpOptions());
+  },
+  smtpOptions: function(){
+    return {
+      host: this.provider.smtpHost,
+      port: this.provider.smtpPort,
+      secure: true,
+      domains: this.provider.smtpDomains,
+      auth: {
+        user: this.provider.user,
+        pass: this.provider.password
+      },
+      currentUser: this
+    };
   }
 });
 
