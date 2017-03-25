@@ -8,6 +8,7 @@ import Promise from 'bluebird';
  * https://tools.ietf.org/html/rfc4551#page-6 
  * https://www.skytale.net/blog/archives/23-Manual-IMAP.html
  * http://stackoverflow.com/questions/9956324/imap-synchronization 
+ * http://www.imapwiki.org/ClientImplementation/Synchronization
 */
 
 class ImapConnector {
@@ -95,7 +96,7 @@ class ImapConnector {
           this._generateBoxList(boxes, null, boxList, null);
           console.log('boxList----------------------------------')
           console.log(boxList);
-          if (details) {
+          if (true) {
             let promises = [];
             let boxListDetails = [];
             boxList.forEach((box, index) => {
@@ -107,8 +108,8 @@ class ImapConnector {
                     name: res.name, // unique name used as id
                     shortName: res.name.substr(res.name.lastIndexOf('/') + 1, res.name.length),
                     total: res.messages.total, 
-                    new: res.messages.new, 
-                    unseen: res.messages.unseen, 
+                    //new: res.messages.new, 
+                    //unseen: res.messages.unseen, 
                     parent: box.parent,
                     uidvalidity: res.uidvalidity, // currently not used
                   });
@@ -117,7 +118,8 @@ class ImapConnector {
               }));
             });
             Promise.all(promises).then((results) => {
-              this._populateFamilyTree(boxListDetails);
+              console.log('familiy tree----------------------');
+              console.log(boxListDetails)
               this.end().then(() => {
                 resolve(boxListDetails);
               });
@@ -279,7 +281,6 @@ class ImapConnector {
           name: path,
           shortName: path.substr(path.lastIndexOf('/') + 1, path.length),
           parent: parent ? parent.name : null,
-      //    level: parent ? parent.level + 1 : 0
         };
         arr.push(box);
       }
@@ -289,14 +290,6 @@ class ImapConnector {
     })
   }
 
-  _populateFamilyTree(boxes) {
-    boxes.forEach((box, index) => {
-      if (box.parent != null) {
-        let parent = boxes.find((b) => b.name == box.parent.name);
-        box.parent = parent.name;
-      }
-    });
-  }
 
 }
 
