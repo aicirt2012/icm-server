@@ -108,7 +108,7 @@ BoxSchema.statics.findWithUnseenCountById = (boxId)=>{
  * with the number of unseen emails
  * @param userId
  */
-BoxSchema.statics.getBoxesByUser = (userId) => {
+BoxSchema.statics.getBoxesByUserId = (userId) => {
   return new Promise((resolve, reject) => {
     /*<boxId, box>*/
     const boxMap = new Map();

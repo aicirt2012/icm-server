@@ -32,7 +32,7 @@ function addBox(req, res) {
       return syncBoxes(user, true, emailConnector);
     })
     .then(() => {
-      return Box.getBoxesByUser(user._id);
+      return Box.getBoxesByUserId(user._id);
     })
     .then(boxes => {
       res.status(200).send(boxes);
@@ -52,7 +52,7 @@ function delBox(req, res) {
       return syncBoxes(user, true, emailConnector);
     })
     .then(() => {
-      return Box.getBoxesByUser(user._id);
+      return Box.getBoxesByUserId(user._id);
     })
     .then(boxes => {
       res.status(200).send(boxes);
@@ -227,17 +227,17 @@ function storeEmail(mail) {
  */
 function searchPaginatedEmails(req, res) {
 
-  console.log('inside searchPaginatedEmails2');
+  //console.log('inside searchPaginatedEmails2');
 
   const boxId = req.query.boxId;
   const sort = req.query.sort; // ASC or DESC
   const search = req.query.search;
   const lastEmailDate = new Date(req.query.lastEmailDate);
 
-  console.log(sort);
-  console.log(boxId);
-  console.log(search);
-  console.log(lastEmailDate);
+  //console.log(sort);
+  //console.log(boxId);
+  //console.log(search);
+  //console.log(lastEmailDate);
 
   /* default params */
   const query = {
@@ -253,19 +253,19 @@ function searchPaginatedEmails(req, res) {
   };
 
   if (boxId != 'NONE') {
-    console.log('boxId: ' + boxId);
+    //console.log('boxId: ' + boxId);
     query.box = boxId;
   }
 
   if (search != null && search != '') {
     const fromSearch = search.match(/from: ?"([a-zA-Z0-9 ]*)"([a-zA-Z0-9 ]*)/);
-    console.log('from search');
-    console.log(fromSearch);
+    //console.log('from search');
+    //console.log(fromSearch);
     const from = fromSearch != null ? fromSearch[1] : null;
     const searchTerm = fromSearch != null ? fromSearch[2] : null;
 
-    console.log(from);
-    console.log(searchTerm);
+    //console.log(from);
+    //console.log(searchTerm);
 
     if (from != null) {
       query['from.name'] = new RegExp('.*' + from + '.*', "i")
@@ -291,19 +291,19 @@ function searchPaginatedEmails(req, res) {
   // an: max mysubject -> max
   // to:max mysubject -> max
 
-  console.log('final query');
-  console.log(query);
+  //console.log('final query');
+  //console.log(query);
 
   Email.find(query, select, options)
     .then(emails => {
-      console.log('results');
+      //console.log('results');
       emails.forEach(email => {
-        console.log(email.subject + ' ' + email.box);
+        //console.log(email.subject + ' ' + email.box);
       })
       res.status(200).send(emails);
     })
     .catch(err => {
-      console.log(err);
+      //console.log(err);
       res.status(400).send(err);
     });
 
@@ -312,7 +312,7 @@ function searchPaginatedEmails(req, res) {
 
 /** Returns the current boxes from the database */
 function getBoxes(req, res) {
-  Box.getBoxesByUser(req.user._id)
+  Box.getBoxesByUserId(req.user._id)
     .then(boxes => {
       res.status(200).send(boxes);
     })
