@@ -327,8 +327,8 @@ function syncIMAPBoxes(user, details = false, emailConnector) {
     emailConnector
       .getBoxes(details)
       .then(boxes => {
-        const sortedBoxes = Box.sortByLevel(boxes, user);
-        return Promise.each(sortedBoxes, (box) => {
+        //const sortedBoxes = Box.sortByLevel(boxes, user);
+        return Promise.each(boxes, (box) => {
           return Box.updateAndGetOldAndUpdated(box, user);
         })
           .spread((oldBox, updatedBox) => {
@@ -371,7 +371,7 @@ function syncIMAP(req, res) {
   console.log('-> syncIMAP');
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  syncIMAPBoxes(user, true, emailConnector)
+  syncIMAPBoxes(user, false, emailConnector)
     .then(() => {
       return syncIMAPMails(user, emailConnector);
     })

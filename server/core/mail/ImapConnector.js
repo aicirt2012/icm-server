@@ -1,6 +1,15 @@
 import Imap from 'imap';
 import Promise from 'bluebird';
 
+/** 
+ * Usefull documentation sources:
+ * https://github.com/mscdex/node-imap
+ * https://tools.ietf.org/html/rfc4549
+ * https://tools.ietf.org/html/rfc4551#page-6 
+ * https://www.skytale.net/blog/archives/23-Manual-IMAP.html
+ * http://stackoverflow.com/questions/9956324/imap-synchronization 
+*/
+
 class ImapConnector {
 
   excludedBoxes = ['[Gmail]', '[Google Mail]', 'Important', 'All Mail', 'Alle Nachrichten', 'Wichtig'];
@@ -73,6 +82,7 @@ class ImapConnector {
     });
   }
 
+  /** returns boxes in array sorted, that the parent is before the child */
   getBoxes(details = false) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.getBoxes((err, boxes) => {
@@ -83,21 +93,24 @@ class ImapConnector {
         } else {
           let boxList = [];
           this._generateBoxList(boxes, null, boxList, null);
+          console.log('boxList----------------------------------')
+          console.log(boxList);
           if (details) {
             let promises = [];
             let boxListDetails = [];
             boxList.forEach((box, index) => {
               promises.push(new Promise((yay, nay) => {
                 this.statusBoxAsync(box.name, false).then((res) => {
+                  console.log('res---------------------------------------');
+                  console.log(res);
                   boxListDetails.push({
-                    id: index, //TODO check if needed
-                    name: res.name, // unique
+                    name: res.name, // unique name used as id
                     shortName: res.name.substr(res.name.lastIndexOf('/') + 1, res.name.length),
-                    total: res.messages.total, //TODO remove in future
-                    new: res.messages.new, //TODO remove in future
-                    unseen: res.messages.unseen, //TODO remove in future
+                    total: res.messages.total, 
+                    new: res.messages.new, 
+                    unseen: res.messages.unseen, 
                     parent: box.parent,
-                    level: box.level //TODO check if needed
+                    uidvalidity: res.uidvalidity, // currently not used
                   });
                   yay(res);
                 })
@@ -252,9 +265,9 @@ class ImapConnector {
 
   createRfcMessage(from, to, subject, msgData) {
     return `From: ${from}
-To: ${to}
-Subject: ${subject}
-${msgData}`;
+      To: ${to}
+      Subject: ${subject}
+      ${msgData}`;
   }
 
   _generateBoxList(boxes, parentPath, arr, parent) {
@@ -265,8 +278,8 @@ ${msgData}`;
         box = {
           name: path,
           shortName: path.substr(path.lastIndexOf('/') + 1, path.length),
-          parent: parent,
-          level: parent ? parent.level + 1 : 0
+          parent: parent ? parent.name : null,
+      //    level: parent ? parent.level + 1 : 0
         };
         arr.push(box);
       }
