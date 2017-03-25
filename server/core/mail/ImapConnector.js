@@ -94,22 +94,16 @@ class ImapConnector {
         } else {
           let boxList = [];
           this._generateBoxList(boxes, null, boxList, null);
-          console.log('boxList----------------------------------')
-          console.log(boxList);
-          if (true) {
+          if (details) {
             let promises = [];
             let boxListDetails = [];
             boxList.forEach((box, index) => {
               promises.push(new Promise((yay, nay) => {
                 this.statusBoxAsync(box.name, false).then((res) => {
-                  console.log('res---------------------------------------');
-                  console.log(res);
                   boxListDetails.push({
                     name: res.name, // unique name used as id
                     shortName: res.name.substr(res.name.lastIndexOf('/') + 1, res.name.length),
                     total: res.messages.total, 
-                    //new: res.messages.new, 
-                    //unseen: res.messages.unseen, 
                     parent: box.parent,
                     uidvalidity: res.uidvalidity, // currently not used
                   });
@@ -118,8 +112,6 @@ class ImapConnector {
               }));
             });
             Promise.all(promises).then((results) => {
-              console.log('familiy tree----------------------');
-              console.log(boxListDetails)
               this.end().then(() => {
                 resolve(boxListDetails);
               });
