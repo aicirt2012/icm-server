@@ -29,7 +29,7 @@ function addBox(req, res) {
   const emailConnector = user.createIMAPConnector();
   emailConnector.addBox(req.body.boxName)
     .then(() => {
-      return syncBoxes2(user, true, emailConnector);
+      return syncBoxes(user, true, emailConnector);
     })
     .then(() => {
       return Box.getBoxesByUser(user._id);
@@ -48,8 +48,8 @@ function delBox(req, res) {
   const emailConnector = user.createIMAPConnector();
   emailConnector.delBox(req.body.boxName)
     .then(() => {
-      // TODO emailConnector.delBox working but syncBoxes2 does not delete box id DB
-      return syncBoxes2(user, true, emailConnector);
+      // TODO emailConnector.delBox working but syncBoxes does not delete box id DB
+      return syncBoxes(user, true, emailConnector);
     })
     .then(() => {
       return Box.getBoxesByUser(user._id);
@@ -322,7 +322,7 @@ function getBoxes(req, res) {
 }
 
 /** Syncronizes the boxes of the user via IMAP */
-function syncBoxes2(user, details = false, emailConnector) {
+function syncBoxes(user, details = false, emailConnector) {
   return new Promise((resolve, reject) => {
     emailConnector
       .getBoxes(details)
@@ -371,7 +371,7 @@ function syncIMAP(req, res) {
   console.log('-> syncIMAP');
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  syncBoxes2(user, true, emailConnector)
+  syncBoxes(user, true, emailConnector)
     .then(() => {
       return syncMails(user, emailConnector);
     })
