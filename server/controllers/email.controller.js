@@ -322,7 +322,7 @@ function getBoxes(req, res) {
 }
 
 /** Syncronizes the boxes of the user via IMAP */
-function syncBoxes(user, details = false, emailConnector) {
+function syncIMAPBoxes(user, details = false, emailConnector) {
   return new Promise((resolve, reject) => {
     emailConnector
       .getBoxes(details)
@@ -347,9 +347,9 @@ function syncBoxes(user, details = false, emailConnector) {
 }
 
 /** Syncronizes the emails of the user via IMAP */
-function syncMails(user, emailConnector) {
+function syncIMAPMails(user, emailConnector) {
   const before = new Date();
-  console.log('--> syncMails');
+  console.log('--> syncIMAPMails');
   return new Promise((resolve, reject) => {
     Box.find({user: user})
       .then(boxes => {
@@ -371,9 +371,9 @@ function syncIMAP(req, res) {
   console.log('-> syncIMAP');
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  syncBoxes(user, true, emailConnector)
+  syncIMAPBoxes(user, true, emailConnector)
     .then(() => {
-      return syncMails(user, emailConnector);
+      return syncIMAPMails(user, emailConnector);
     })
     .then(() => {
       console.log('all synced!');
