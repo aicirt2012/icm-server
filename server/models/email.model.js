@@ -55,7 +55,7 @@ const EmailSchema = new mongoose.Schema({
   subject: String,
   html: String,
   text: String,
-  date: Date,
+  date: {type: Date, index: true},
   flags: [String],
   labels: [String]
 }, {
@@ -63,7 +63,7 @@ const EmailSchema = new mongoose.Schema({
 });
 
 EmailSchema.plugin(mongoosePaginate);
-// TODO: add index for To and From
+
 EmailSchema.index({
   text: 'text',
   subject: 'text'
