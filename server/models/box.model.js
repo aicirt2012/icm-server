@@ -27,9 +27,13 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
   return new Promise((resolve, reject) => {
     const res = [];
     box.user = user._id;
-    Box.findWithUnseen({name: box.parent, user: box.user})
+    Box.findWithUnseen({name: box.name, user: box.user})
+      .then(boxOld=>{
+        res.push(boxOld);
+        return Box.findOne({name: box.parent, user: box.user});
+      })
       .then(parentBox => {
-        box.parent = parentBox;
+        box.parent = parentBox ? parentBox._id : null;
         return Box.findOneAndUpdate({
           name: box.name,
           user: box.user
@@ -39,8 +43,7 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
           setDefaultsOnInsert: true
         });
       })
-      .then(boxOld => {
-        res.push(boxOld);
+      .then(() => {        
         return Box.findWithUnseen({name: box.name, user: box.user});
       })
       .then(boxUpdated => {
@@ -173,10 +176,11 @@ BoxSchema.statics.findWithUnseen = (query)=>{
       .lean()
       .then(baseBox=>{
         box = baseBox;
-        return Email.count({box:boxId, flags: {$ne: "\\Seen"}});
+        return Email.count({box:baseBox, flags: {$ne: "\\Seen"}});
       })
       .then(unseen=>{
-        box.unseen = unseen;
+        if(box)
+          box.unseen = unseen;
         resolve(box);
       })
       .catch(err=>{

@@ -240,7 +240,9 @@ function syncIMAPBoxes(user, emailConnector) {
           return new Promise((resolve, reject)=>{
             Box.updateAndGetOldAndUpdated(box, user)
               .spread((oldBox, updatedBox) => {
+                console.log('here')
                 Socket.pushBoxUpdateToClient(oldBox, updatedBox);
+                console.log('here2')
                 resolve()
               })
               .catch(err => {
