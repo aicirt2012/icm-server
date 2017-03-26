@@ -119,7 +119,7 @@ function move(req, res) {
 }
 
 function addFlags(req, res) {
-  const emailConnector = user.createIMAPConnector();
+  const emailConnector = req.user.createIMAPConnector();
   Box.findOne({_id: req.body.boxId, user: req.user})
     .then(box => {
       return [box, emailConnector.addFlags(req.body.msgId, req.body.flags, box.name)]
