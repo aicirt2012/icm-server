@@ -53,7 +53,33 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
   });
 }
 
+/**
+ * Cascade deletes a box including the child 
+ * boxes with all related emails by boxId
+ * @param boxId box to deleted
+ */
+BoxSchema.statics.cascadeDeleteBoxById = (boxId)=>{
+  return new Promise((resolve, reject)=>{
+    Box.getChildBoxesById(boxId)
+      .then(boxIds=>{
+          boxIds.push(boxId);//TODO (minor) delete childs first therefore permute array
+          Promise.each(boxIds, boxId=>{
+            return Box.deleteBoxById(boxId);
+          })
+          .then(()=>{
+            resolve();
+          });
+      })
+      .catch(err=>{
+        reject(err);
+      })
+  });
+}
 
+/**
+ * Deletes a box with all related emails by boxId
+ * @param boxId box to deleted
+ */
 BoxSchema.statics.deleteBoxById = (boxId)=>{
   return new Promise((resolve, reject)=>{
     Box.remove({_id: boxId})
@@ -69,6 +95,11 @@ BoxSchema.statics.deleteBoxById = (boxId)=>{
   });
 }
 
+/** 
+ * Calulates direct and indirect calcChilds
+ * @param boxId that represents the root
+ * @return [boxIds] ordered by deep search
+ */
 BoxSchema.statics.getChildBoxesById = (boxId)=>{
   return new Promise((resolve, reject)=>{
     Box.find({parent: {$ne:null}},{_id:1,parent:1})
@@ -84,8 +115,8 @@ BoxSchema.statics.getChildBoxesById = (boxId)=>{
       })
       .catch(err=>{
         reject(err);
-      })
-  })  
+      });
+  }); 
 
   function calcChilds(boxId, map){    
     let childIds = [];
@@ -100,28 +131,6 @@ BoxSchema.statics.getChildBoxesById = (boxId)=>{
   }
 }
 
-BoxSchema.statics.getChildBoxesById2 = (boxId)=>{
-  return new Promise((resolve, reject)=>{
-    Box.find({parent:ObjectId(boxId)})
-      .then(boxes=>{
-        const childBoxIds = [];
-        console.log('boxxxxxxxxxxxxxxxxxxes');
-        Promise.each(boxes, box=>{
-          childBoxIds.push(box._id);
-          return Box.getChildBoxesById(box._id)
-            .then(Ids=>{
-              childBoxIds.concat(ids);
-            });
-        })
-        .then(()=>{
-          resolve(childBoxIds);
-        });
-      })
-      .catch(err=>{
-        reject(err);
-      })
-  })  
-}
 // move all emails to box trash and then delete box and then return promise
 
 

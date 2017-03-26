@@ -372,14 +372,6 @@ function syncIMAPMails(user, emailConnector) {
 
 /** Syncronizes the boxes and emails of the user via IMAP */
 function syncIMAP(req, res) {
-  Box.getChildBoxesById("58cd4ba918a0b92bcfec12a1")
-  .then(boxIds=>{
-    console.log('nested boxids-------------------');
-    console.log(boxIds);
-  })
-  .catch(err=>{
-    console.log(err);
-  })
   console.log('-> syncIMAP');
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
