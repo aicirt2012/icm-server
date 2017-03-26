@@ -85,10 +85,10 @@ class Socket{
   }
 
   isBoxUpdated(boxOld, boxNew){
-    return boxOld != null && boxNew != null; 
+    return boxOld != null && boxNew != null && (
       !_.isEqual(boxOld.unseen, boxNew.unseen) ||
       !_.isEqual(boxOld.name, boxNew.name) ||
-      !_.isEqual(boxOld.parent, boxNew.parent)
+      !_.isEqual(boxOld.parent, boxNew.parent))
   }
 
   isBoxDeleted(boxOld, boxNew){

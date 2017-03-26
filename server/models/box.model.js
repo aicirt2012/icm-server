@@ -27,7 +27,7 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
   return new Promise((resolve, reject) => {
     const res = [];
     box.user = user._id;
-    Box.findOne({name: box.parent, user: box.user})
+    Box.findWithUnseen({name: box.parent, user: box.user})
       .then(parentBox => {
         box.parent = parentBox;
         return Box.findOneAndUpdate({
@@ -41,7 +41,7 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
       })
       .then(boxOld => {
         res.push(boxOld);
-        return Box.findOne({name: box.name, user: box.user});
+        return Box.findWithUnseen({name: box.name, user: box.user});
       })
       .then(boxUpdated => {
         res.push(boxUpdated);
@@ -163,9 +163,13 @@ BoxSchema.statics.getChildBoxesById = (boxId)=>{
 
 
 BoxSchema.statics.findWithUnseenCountById = (boxId)=>{
+  return Box.findWithUnseen({_id: boxId});
+}
+
+BoxSchema.statics.findWithUnseen = (query)=>{
   return new Promise((resolve, reject)=>{
     let box = null;
-    Box.findOne({_id: boxId}, {_id:1, name:1, shortName: 1, parent:1, user:1})
+    Box.findOne(query, {_id:1, name:1, shortName: 1, parent:1, user:1})
       .lean()
       .then(baseBox=>{
         box = baseBox;
