@@ -80,14 +80,15 @@ class Socket{
     return emailOld != null && emailNew == null;
   }
 
-  isBoxCreated(boxOld, boxlNew){
-    return boxOld == null && boxlNew != null;
+  isBoxCreated(boxOld, boxNew){
+    return boxOld == null && boxNew != null;
   }
 
-  isBoxUpdated(boxOld, boxlNew){
-    return !_.isEqual(boxOld.unseen, boxlNew.unseen) ||
-      !_.isEqual(boxOld.name, boxlNew.name) ||
-      !_.isEqual(boxOld.parent, boxlNew.parent)
+  isBoxUpdated(boxOld, boxNew){
+    return boxOld != null && boxNew != null; 
+      !_.isEqual(boxOld.unseen, boxNew.unseen) ||
+      !_.isEqual(boxOld.name, boxNew.name) ||
+      !_.isEqual(boxOld.parent, boxNew.parent)
   }
 
   isBoxDeleted(boxOld, boxNew){

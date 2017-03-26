@@ -198,25 +198,6 @@ function storeEmail(mail) {
   });
 }
 
-/*
- // TODO syncDeletedMails
- function syncDeletedMails(syncTime, boxes) {
- return new Promise((resolve, reject) => {
- Email.remove({
- box: {
- "$in": boxes
- },
- updatedAt: {
- "$lt": syncTime
- }
- }, (err) => {
- console.log('delete not updated mails +++++++++++++++++++++++++++');
- err ? reject(err) : resolve();
- })
- });
- }
- */
-
 
 /** Search emails either for box or user serach */
 function searchMails(req, res) {
@@ -259,7 +240,6 @@ function syncIMAPBoxes(user, emailConnector) {
           return new Promise((resolve, reject)=>{
             Box.updateAndGetOldAndUpdated(box, user)
               .spread((oldBox, updatedBox) => {
-                console.log('boxes updated');
                 Socket.pushBoxUpdateToClient(oldBox, updatedBox);
                 resolve()
               })
@@ -272,7 +252,10 @@ function syncIMAPBoxes(user, emailConnector) {
       .then(()=>{
         return Box.deleteUpdatedAtOlderThan(user._id, user.lastSync);        
       })
-      .then(()=>{
+      .then(delBoxes=>{
+        delBoxes.forEach(box=>{
+          Socket.pushBoxUpdateToClient(box, null);
+        });
         resolve();
       })
       .catch(err => {

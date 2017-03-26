@@ -62,14 +62,16 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
  */
 BoxSchema.statics.deleteUpdatedAtOlderThan = (userId, updateDate)=>{
   return new Promise((resolve, reject)=>{
-    Box.find({user:userId, updatedAt: {$lt:updateDate}},{_id:1})
-      .then(boxIds=>{
-        return Promise.each(boxIds, boxId=>{
-          return Box.cascadeDeleteBoxById(boxId);
+    let blist = [];
+    Box.find({user:userId, updatedAt: {$lt:updateDate}})
+      .then(boxes=>{
+        blist = boxes;
+        return Promise.each(boxes, box=>{
+          return Box.cascadeDeleteBoxById(box._id);
         })
       })
       .then(()=>{
-        resolve();
+        resolve(blist);
       })
       .catch(err=>{
         reject(err);
