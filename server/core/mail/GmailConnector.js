@@ -21,7 +21,7 @@ class GmailConnector extends ImapConnector {
         });
       }).then(() => {
         this.user.highestmodseq = this.user.highestmodseq && parseInt(this.user.highestmodseq) > parseInt(highestmodseq[0]) ? this.user.highestmodseq : highestmodseq[0];
-        this.user.lastSync = new Date();
+        //this.user.lastSync = new Date();
         this.user.save().then(() => {
           this.end().then(() => {
             resolve();

@@ -260,7 +260,6 @@ function syncIMAPBoxes(user, emailConnector) {
             Box.updateAndGetOldAndUpdated(box, user)
               .spread((oldBox, updatedBox) => {
                 console.log('boxes updated');
-                //TODO create batch push socket push mechanism
                 //Socket.pushBoxUpdateToClient(oldBox, updatedBox);
                 resolve()
               })
@@ -271,7 +270,9 @@ function syncIMAPBoxes(user, emailConnector) {
         });         
       })
       .then(()=>{
-        //TODO delete boxes
+        return Box.deleteUpdatedAtOlderThan(user._id, user.lastSync);        
+      })
+      .then(()=>{
         resolve();
       })
       .catch(err => {
@@ -305,7 +306,11 @@ function syncIMAP(req, res) {
   console.log('-> syncIMAP');
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  syncIMAPBoxes(user, emailConnector)
+  user.lastSync = new Date();
+  user.save()
+    .then(()=>{  
+      return syncIMAPBoxes(user, emailConnector)
+    })
     .then(() => {
       return syncIMAPMails(user, emailConnector);
     })

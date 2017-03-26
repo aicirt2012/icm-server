@@ -53,6 +53,30 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
   });
 }
 
+/** 
+ * Casecade deletes all boxes with child boxes that 
+ * have no later update than a certain date
+ * @param userId
+ * @param updateDate boxes with an updateAt 
+ * date less than updateDate are deleted
+ */
+BoxSchema.statics.deleteUpdatedAtOlderThan = (userId, updateDate)=>{
+  return new Promise((resolve, reject)=>{
+    Box.find({user:userId, updatedAt: {$lt:updateDate}},{_id:1})
+      .then(boxIds=>{
+        return Promise.each(boxIds, boxId=>{
+          return Box.cascadeDeleteBoxById(boxId);
+        })
+      })
+      .then(()=>{
+        resolve();
+      })
+      .catch(err=>{
+        reject(err);
+      })
+  });
+}
+
 /**
  * Cascade deletes a box including the child 
  * boxes with all related emails by boxId
