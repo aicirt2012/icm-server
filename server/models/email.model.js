@@ -120,6 +120,11 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
   });
 } 
 
+
+/**
+ * Returns autocomplete suggestions for email addresses
+ * @param userId only consider emails of this user
+ */
 EmailSchema.statics.autocomplete = (userId)=>{
   return Email.getCollection('emails').aggregate([
     {$match: {user: userId}},
@@ -129,6 +134,79 @@ EmailSchema.statics.autocomplete = (userId)=>{
     {$project: {_id: 0, address: '$_id.address', name: '$_id.name'}},
     //{$match: {$or:[{address: /+search+/},{address: /fe/}]}} //TODO add vars
  ]);
+}
+
+/**
+ * Returns the searched email, this is meant to return also a simple mail list for every box
+ * @param userId 
+ * @param opt.sort fild that will be used to sort e.g. ASC or DESC
+ * @param opt.boxId
+ * @param opt.search string to searchs
+ * @param opt.lastEmailDate
+ */
+EmailSchema.statics.search = (userId, opt) => {
+
+  const boxId = opt.boxId;
+  const sort = opt.sort; 
+  const search = opt.search;
+  const lastEmailDate = opt.lastEmailDate;
+
+  /* default params */
+  const query = {
+    user: userId,
+    date: {$lt: lastEmailDate}
+  };
+  const select = {}; // only necessary
+  const options = {
+    limit: 15,
+    sort: {
+      date: sort == 'DESC' ? -1 : 1
+    },
+  };
+
+  if (boxId != 'NONE') {
+    //console.log('boxId: ' + boxId);
+    query.box = boxId;
+  }
+
+  if (search != null && search != '') {
+    const fromSearch = search.match(/from: ?"([a-zA-Z0-9 ]*)"([a-zA-Z0-9 ]*)/);
+    //console.log('from search');
+    //console.log(fromSearch);
+    const from = fromSearch != null ? fromSearch[1] : null;
+    const searchTerm = fromSearch != null ? fromSearch[2] : null;
+
+    //console.log(from);
+    //console.log(searchTerm);
+
+    if (from != null) {
+      query['from.name'] = new RegExp('.*' + from + '.*', "i")
+    }
+
+    if (searchTerm != null && searchTerm != ' ' && searchTerm != '') {
+      query.$text = {$search: searchTerm};
+    }
+  }
+
+  // von:max mysubject -> max
+  // von: max mysubject -> max
+  // from:max mysubject -> max
+  // from: max mysubject -> max
+  /*
+   if (search.includes('von:')) {
+   search.splice(' ')
+   query.from =
+   }
+   */
+
+  // an:max mysubject -> max
+  // an: max mysubject -> max
+  // to:max mysubject -> max
+
+  //console.log('final query');
+  //console.log(query);
+
+  return Email.find(query, select, options)
 }
 
 let Email = mongoose.model('Email', EmailSchema)

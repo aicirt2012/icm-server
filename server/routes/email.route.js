@@ -35,7 +35,7 @@ function routeProvider(passport) {
 
   /* MongoDB API Endpoints */
   router.route('/search')
-    .get(emailCtrl.searchPaginatedEmails);
+    .get(emailCtrl.searchMails);
   router.route('/single/:id')
     .get(emailCtrl.getSingleMail);
   router.route('/box')

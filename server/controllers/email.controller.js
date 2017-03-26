@@ -218,96 +218,23 @@ function storeEmail(mail) {
  */
 
 
-/**
- * Returns the searched email, this is meant to return also a simple mail list for every box
- * @param sort fild that will be used to sort e.g. {date: -1}
- * @param boxId
- * @param search string to searchs
- * @param lastEmailDate
- */
-function searchPaginatedEmails(req, res) {
+/** Search emails either for box or user serach */
+function searchMails(req, res) {
 
-  //console.log('inside searchPaginatedEmails2');
-
-  const boxId = req.query.boxId;
-  const sort = req.query.sort; // ASC or DESC
-  const search = req.query.search;
-  const lastEmailDate = new Date(req.query.lastEmailDate);
-
-  //console.log(sort);
-  //console.log(boxId);
-  //console.log(search);
-  //console.log(lastEmailDate);
-
-  /* default params */
-  const query = {
-    user: req.user,
-    date: {$lt: lastEmailDate}
-  };
-  const select = {}; // only necessary
   const options = {
-    limit: 15,
-    sort: {
-      date: sort == 'DESC' ? -1 : 1
-    },
+    boxId: req.query.boxId,
+    sort: req.query.sort, // ASC or DESC
+    search: req.query.search,
+    lastEmailDate: new Date(req.query.lastEmailDate)
   };
-
-  if (boxId != 'NONE') {
-    //console.log('boxId: ' + boxId);
-    query.box = boxId;
-  }
-
-  if (search != null && search != '') {
-    const fromSearch = search.match(/from: ?"([a-zA-Z0-9 ]*)"([a-zA-Z0-9 ]*)/);
-    //console.log('from search');
-    //console.log(fromSearch);
-    const from = fromSearch != null ? fromSearch[1] : null;
-    const searchTerm = fromSearch != null ? fromSearch[2] : null;
-
-    //console.log(from);
-    //console.log(searchTerm);
-
-    if (from != null) {
-      query['from.name'] = new RegExp('.*' + from + '.*', "i")
-    }
-
-    if (searchTerm != null && searchTerm != ' ' && searchTerm != '') {
-      query.$text = {$search: searchTerm};
-    }
-  }
-
-  // von:max mysubject -> max
-  // von: max mysubject -> max
-  // from:max mysubject -> max
-  // from: max mysubject -> max
-  /*
-   if (search.includes('von:')) {
-   search.splice(' ')
-   query.from =
-   }
-   */
-
-  // an:max mysubject -> max
-  // an: max mysubject -> max
-  // to:max mysubject -> max
-
-  //console.log('final query');
-  //console.log(query);
-
-  Email.find(query, select, options)
-    .then(emails => {
-      //console.log('results');
-      emails.forEach(email => {
-        //console.log(email.subject + ' ' + email.box);
-      })
+ 
+  Email.search(req.user._id, options)
+    .then(emails => {      
       res.status(200).send(emails);
     })
     .catch(err => {
-      //console.log(err);
       res.status(400).send(err);
     });
-
-
 }
 
 /** Returns the current boxes from the database */
@@ -408,7 +335,7 @@ export default {
   sendEmail,
   addFlags,
   delFlags,
-  searchPaginatedEmails,
+  searchMails,
   getSingleMail,
   getBoxes,
   syncIMAP
