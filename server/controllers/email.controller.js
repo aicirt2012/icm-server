@@ -24,38 +24,33 @@ function sendEmail(req, res) {
     });
 }
 
+/** Adds a box and updates the client via socket */
 function addBox(req, res) {
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
   emailConnector.addBox(req.body.boxName)
     .then(() => {
-      return syncBoxes(user, true, emailConnector);
+      return syncIMAPBoxes(user, emailConnector);
     })
     .then(() => {
-      return Box.getBoxesByUserId(user._id);
-    })
-    .then(boxes => {
-      res.status(200).send(boxes);
+      res.status(200).send();
     })
     .catch((err) => {
-      console.log(err);
       res.status(400).send(err);
     });
 }
 
+/** Deletes a box and updates the client via Socket */
 function delBox(req, res) {
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
   emailConnector.delBox(req.body.boxName)
     .then(() => {
       // TODO emailConnector.delBox working but syncBoxes does not delete box id DB
-      return syncBoxes(user, true, emailConnector);
+      return syncIMAPBoxes(user, emailConnector);
     })
     .then(() => {
-      return Box.getBoxesByUserId(user._id);
-    })
-    .then(boxes => {
-      res.status(200).send(boxes);
+      res.status(200).send();
     })
     .catch((err) => {
       res.status(400).send(err);
@@ -98,7 +93,7 @@ function append(req, res) {
 
 function move(req, res) {
   const emailConnector = req.user.createIMAPConnector();
-  Email.findOne({_id: req.body.emailId}).populate('box')
+  Email.findOne({_id: req.body.emailId})
     .then(email => {
       return [email, Box.findOne({_id: req.body.newBoxId, user: req.user})]
     })
