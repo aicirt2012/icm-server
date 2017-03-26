@@ -9,12 +9,6 @@ function routeProvider(passport) {
   });
   router.use(mw);
   /* IMAP API Endpoints */
-  router.route('/sync')
-    .post(emailCtrl.syncMails);
-
-  router.route('/init')
-    .get(emailCtrl.getInitialImapStatus);
-
   router.route('/addBox')
     .post(emailCtrl.addBox);
 
@@ -30,10 +24,6 @@ function routeProvider(passport) {
   router.route('/move')
     .post(emailCtrl.move);
 
-  /* DEPRECATED - DO NOT USE */
-  router.route('/copy')
-    .post(emailCtrl.copy);
-
   router.route('/send')
     .post(emailCtrl.sendEmail);
 
@@ -43,16 +33,15 @@ function routeProvider(passport) {
   router.route('/delFlags')
     .post(emailCtrl.delFlags);
 
-  router.route('/setFlags')
-    .post(emailCtrl.setFlags);
-
   /* MongoDB API Endpoints */
-  router.route('/')
-    .get(emailCtrl.getPaginatedEmailsForBox);
   router.route('/search')
-    .get(emailCtrl.searchPaginatedEmails);
+    .get(emailCtrl.searchMails);
   router.route('/single/:id')
     .get(emailCtrl.getSingleMail);
+  router.route('/box')
+    .get(emailCtrl.getBoxes);
+  router.route('/syncAll') // boxes
+    .get(emailCtrl.syncIMAP);
 
   return router;
 }

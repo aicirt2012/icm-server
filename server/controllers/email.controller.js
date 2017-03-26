@@ -1,108 +1,70 @@
 import Promise from 'bluebird';
 import Email from '../models/email.model';
-import GmailConnector from '../core/mail/GmailConnector';
-import SMTPConnector from '../core/mail/SMTPConnector';
-import ExchangeConnector from '../core/mail/ExchangeConnector';
+import Box from '../models/box.model';
 import config from '../../config/env';
 import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
-
-const imapOptions = (user) => {
-  return {
-    user: user.provider.user,
-    password: user.provider.password,
-    host: user.provider.host,
-    port: user.provider.port,
-    tls: true,
-    mailbox: 'INBOX'
-  };
-};
-
-const smtpOptions = (user) => {
-  return {
-    host: user.provider.smtpHost,
-    port: user.provider.smtpPort,
-    secure: true,
-    domains: user.provider.smtpDomains,
-    auth: {
-      user: user.provider.user,
-      pass: user.provider.password
-    },
-    currentUser: user
-  };
-};
-
-function getInitialImapStatus(req, res) {
-  getBoxes(req.user, true, req.query.provider).then((boxes) => {
-    res.status(200).send(boxes);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
+import fs from 'fs';
+import Socket from '../routes/socket';
 
 function sendEmail(req, res) {
-  const smtpConnector = new SMTPConnector(smtpOptions(req.user));
-  smtpConnector.sendMail(req.body).then((result) => {
-    const emailConnector = createEmailConnector(req.query.provider, req.user);
-    emailConnector.fetchBoxes(storeEmail, [config.gmail.send]).then(() => {
-      res.status(200).send({
-      message: 'Finished fetching'
-    });
-    }).catch((err) => {
+  req.user.createSMTPConnector().sendMail(req.body)
+    .then(result => {
+      return Box.findOne({name: config.gmail.send, user: req.user});
+    })
+    .then(box => {
+      return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
+    })
+    .then(() => {
+      res.status(200).send({message: 'Finished fetching'});
+    })
+    .catch((err) => {
+      console.log(err);
       res.status(400).send(err);
     });
-  });
-}
-
-function syncMails(req, res) {
-  const before = new Date();
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.fetchBoxes(storeEmail, req.body.boxes).then(() => {
-    console.log('Time for fetching: ', new Date() - before);
-    res.status(200).send({
-      message: 'Finished fetching'
-    });
-  }).catch((err) => {
-    res.status(400).send(err);
-  })
 }
 
 function addBox(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.addBox(req.body.boxName).then((boxName) => {
-    req.user.boxList.push({
-      id: req.user.boxList.length,
-      name: boxName,
-      shortName: boxName.substr(boxName.lastIndexOf('/') + 1, boxName.length),
-      total: 0,
-      new: 0,
-      unseen: 0,
-      parent: null
+  const user = req.user;
+  const emailConnector = user.createIMAPConnector();
+  emailConnector.addBox(req.body.boxName)
+    .then(() => {
+      return syncBoxes(user, true, emailConnector);
+    })
+    .then(() => {
+      return Box.getBoxesByUserId(user._id);
+    })
+    .then(boxes => {
+      res.status(200).send(boxes);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).send(err);
     });
-    res.status(200).send({
-      message: `Created new box: ${boxName}`,
-      boxList: req.user.boxList
-    });
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
 }
 
 function delBox(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.delBox(req.body.boxName).then((boxName) => {
-    req.user.boxList.splice(req.user.boxList.findIndex((el) => el.name == boxName), 1);
-    res.status(200).send({
-      message: `Deleted box: ${boxName}`,
-      boxList: req.user.boxList
+  const user = req.user;
+  const emailConnector = user.createIMAPConnector();
+  emailConnector.delBox(req.body.boxName)
+    .then(() => {
+      // TODO emailConnector.delBox working but syncBoxes does not delete box id DB
+      return syncBoxes(user, true, emailConnector);
+    })
+    .then(() => {
+      return Box.getBoxesByUserId(user._id);
+    })
+    .then(boxes => {
+      res.status(200).send(boxes);
+    })
+    .catch((err) => {
+      res.status(400).send(err);
     });
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
 }
 
+// TODO refactor. req.user.boxList not used anymore
 function renameBox(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
+  const emailConnector = user.createIMAPConnector();
   emailConnector.renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
     let box = req.user.boxList.find((el) => el.name == req.body.oldBoxName);
     box.name = req.body.newBoxName;
@@ -117,240 +79,255 @@ function renameBox(req, res) {
 }
 
 function append(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData).then((msgData) => {
-    emailConnector.fetchBoxes(storeEmail, [req.body.box]).then(() => {
+  const emailConnector = user.createIMAPConnector();
+  Box.findOne({name: req.body.box, user: req.user})
+    .then(box => {
+      return [box, emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData)]
+    })
+    .spread((box, msgData) => {
+      return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
+    })
+    .spread((msgData, result) => {
       res.status(200).send({msgData: msgData});
     })
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
+    .catch((err) => {
+      console.log(err);
+      res.status(400).send(err);
+    });
 }
 
 function move(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.move(req.body.msgId, req.body.srcBox, req.body.destBox).then((msgId) => {
-    emailConnector.fetchBoxes(storeEmail, [req.body.srcBox, req.body.destBox]).then((messages) => {
+  const emailConnector = user.createIMAPConnector();
+  Email.findOne({_id: req.body.emailId}).populate('box')
+    .then(email => {
+      return [email, Box.findOne({_id: req.body.newBoxId, user: req.user})]
+    })
+    .spread((email, destBox) => {
+      const srcBox = email.box;
+      return [srcBox, destBox, emailConnector.move(email.uid, srcBox.name, destBox.name)]
+    })
+    .spread((srcBox, destBox, msgId) => {
+      return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
+    })
+    .then((messages) => {
       res.status(200).send({messages: messages});
     })
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-
-/* DEPRECATED - DO NOT USE */
-function copy(req, res) {
-  createEmailConnector(req.query.provider, req.user).copy(req.body.msgId, req.body.srcBox, req.body.box).then((messages) => {
-    res.status(200).send(messages);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
+    .catch(err => {
+      console.log(err);
+      res.status(400).send(err);
+    });
 }
 
 function addFlags(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.addFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
-    Email.findOne({
-      uid: req.body.msgId,
-      'box.name': req.body.box
-    }).then((email) => {
-      email.flags = email.flags.concat(req.body.flags);
-      email.save().then(() => {
-        res.status(200).send({
-          message: 'Successfully added Flags',
-          msgId: msgId,
-          box: req.body.box
-        });
-      })
+  const emailConnector = user.createIMAPConnector();
+  Box.findOne({_id: req.body.boxId, user: req.user})
+    .then(box => {
+      return [box, emailConnector.addFlags(req.body.msgId, req.body.flags, box.name)]
     })
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
+    .spread((box, msgId) => {
+      return Email.findOne({uid: req.body.msgId, box: box})
+    })
+    .then((email) => {
+      email.flags = email.flags.concat(req.body.flags);
+      return email.save();
+    })
+    .then(() => {
+      res.status(200).send({message: 'Successfully added Flags'});
+    })
+    .catch(err => {
+      res.status(400).send(err);
+    });
 }
 
 function delFlags(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.delFlags(req.body.msgId, req.body.flags, req.body.box).then((msgId) => {
-    Email.findOne({
-      uid: req.body.msgId,
-      'box.name': req.body.box
-    }).then((email) => {
+  const emailConnector = user.createIMAPConnector();
+  Box.findOne({_id: req.body.boxId, user: req.user})
+    .then(box => {
+      return [box, emailConnector.delFlags(req.body.msgId, req.body.flags, box.name)]
+    })
+    .spread((box, msgId) => {
+      return Email.findOne({uid: req.body.msgId, box: box})
+    })
+    .then((email) => {
       req.body.flags.forEach((f) => {
         const index = email.flags.indexOf(f);
-        if (index > -1) {
+        if (index > -1)
           email.flags.splice(index, 1);
-        }
       });
-      email.save().then(() => {
-        res.status(200).send({
-          message: 'Successfully deleted Flags',
-          msgId: msgId,
-          box: req.body.box
-        });
-      })
+      return email.save()
+    })
+    .then(() => {
+      res.status(200).send({message: 'Successfully deleted Flags'});
+    })
+    .catch((err) => {
+      res.status(400).send(err);
     });
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
 }
 
-function setFlags(req, res) {
-  const emailConnector = createEmailConnector(req.query.provider, req.user);
-  emailConnector.setFlags(req.body.msgId, req.body.flags, req.body.box).then((messages) => {
-    res.status(200).send(messages);
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
-}
-
-function getPaginatedEmailsForBox(req, res)  {
-  const options = {
-    page: req.query.page ? parseInt(req.query.page) : 1,
-    limit: req.query.limit ? parseInt(req.query.limit) : 25,
-    sort: {
-      date: -1
-    },
-  };
-  const query = {
-    user: req.user,
-    'box.name': req.query.box || req.user.boxList[0].name
-  };
-  Email.paginate(query, options).then((emails, err) => {
-    if (err) {
-      res.status(400).send(err);
-    } else {
-      res.status(200).send(emails);
-    }
-  })
-
-}
-
-function searchPaginatedEmails(req, res) {
-  const options = {
-    page: req.query.page ? parseInt(req.query.page) : 1,
-    limit: req.query.limit ? parseInt(req.query.limit) : 25,
-    sort: {
-      date: -1
-    },
-  };
-  const query = {
-    user: req.user,
-    'box.name': req.query.box || req.user.boxList[0].name,
-    $text: {
-      $search: req.query.q ? req.query.q : ''
-    }
-  };
-  Email.paginate(query, options).then((emails, err) => {
-    if (err) {
-      res.status(400).send(err);
-    } else {
-      res.status(200).send(emails);
-    }
-  })
-}
-
+/** Returns one single mail with all details */
 function getSingleMail(req, res) {
-  Email.findOne({
-    _id: req.params.id
-  }).lean().then((mail) => {
-    // call analyzer with emailObject and append suggested task and already linked tasks
-    if (mail && (req.user.trello || req.user.sociocortex)) {
-      new Analyzer(mail, req.user).getEmailTasks().then((email) => {
-        res.status(200).send(email);
-      });
-    } else {
-      res.status(200).send(mail);
-    }
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
+  Email.findOne({_id: req.params.id}).lean()
+    .then((mail) => {
+      return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
+    })
+    .then(email => {
+      res.status(200).send(email);
+    })
+    .catch((err) => {
+      res.status(400).send(err);
+    });
 }
 
-/* EMAIL HELPER */
-function createEmailConnector(provider, user) {
-  switch (provider) {
-    case 'gmail':
-      return new GmailConnector(imapOptions(user), user);
-      break;
-    case 'exchange':
-      return new ExchangeConnector(imapOptions(user, user));
-      break;
-    default:
-      return new GmailConnector(imapOptions(user), user);
-  }
-}
 
+/** Stores an email in the database and 
+ *  pushs upates via socket to the client */
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
-    Email.findOneAndUpdate({
-      messageId: mail.messageId
-    }, mail, {
-      new: true,
-      upsert: true,
-      setDefaultsOnInsert: true
-    }, (err, email) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(email);
-    });
-  });
-}
-
-function syncDeletedMails(syncTime, boxes) {
-  return new Promise((resolve, reject) => {
-    Email.remove({
-      box: {
-        "$in": boxes
-      },
-      updatedAt: {
-        "$lt": syncTime
-      }
-    }, (err) => {
-      err ? reject(err) : resolve();
-    })
-  });
-}
-
-function recursivePromises(promises, callback) {
-  if (promises.length > 0) {
-    Promise.all(promises[0]).then(() => {
-      promises = promises.slice(1, promises.length);
-      recursivePromises(promises, callback);
-    })
-  } else {
-    callback();
-  }
-}
-
-function getBoxes(user, details = false, provider) {
-  const emailConnector = createEmailConnector(provider, user);
-  return new Promise((resolve, reject) => {
-    emailConnector.getBoxes(details).then((boxes) => {
-      user.boxList = boxes;
-      user.save().then(() => {
-        resolve(boxes);
+    Email.updateAndGetOldAndUpdated(mail)
+      .spread((emailOld, boxOld, emailUpdated, boxUpdated) => {
+        // TODO new box numbers do not work properly
+        console.log('inside storeEmail...');
+        console.log(JSON.stringify(boxOld));
+        console.log(JSON.stringify(boxUpdated));
+        Socket.pushEmailUpdateToClient(emailOld, boxOld, emailUpdated, boxUpdated);
+        resolve(emailUpdated);
       })
-    }).catch((err) => {
-      reject(err);
+      .catch(err => {
+        reject(err);
+      });
+  });
+}
+
+
+/** Search emails either for box or user serach */
+function searchMails(req, res) {
+
+  const options = {
+    boxId: req.query.boxId,
+    sort: req.query.sort, // ASC or DESC
+    search: req.query.search,
+    lastEmailDate: new Date(req.query.lastEmailDate)
+  };
+ 
+  Email.search(req.user._id, options)
+    .then(emails => {      
+      res.status(200).send(emails);
+    })
+    .catch(err => {
+      res.status(400).send(err);
     });
+}
+
+/** Returns the current boxes from the database */
+function getBoxes(req, res) {
+  Box.getBoxesByUserId(req.user._id)
+    .then(boxes => {
+      res.status(200).send(boxes);
+    })
+    .catch(err => {
+      res.status(500).send(err);
+    });
+}
+
+/** Syncronizes the boxes of the user via IMAP */
+function syncIMAPBoxes(user, emailConnector) {
+  return new Promise((resolve, reject) => {
+    emailConnector
+      .getBoxes(false)
+      .then(boxes => {
+        console.log(boxes);
+        return Promise.each(boxes, (box) => {
+          return new Promise((resolve, reject)=>{
+            Box.updateAndGetOldAndUpdated(box, user)
+              .spread((oldBox, updatedBox) => {
+                Socket.pushBoxUpdateToClient(oldBox, updatedBox);
+                resolve()
+              })
+              .catch(err => {
+                reject(err);
+              });
+          });           
+        });         
+      })
+      .then(()=>{
+        return Box.deleteUpdatedAtOlderThan(user._id, user.lastSync);        
+      })
+      .then(delBoxes=>{
+        delBoxes.forEach(box=>{
+          Socket.pushBoxUpdateToClient(box, null);
+        });
+        resolve();
+      })
+      .catch(err => {
+        reject(err);
+      });
   })
+}
+
+/** Syncronizes the emails of the user via IMAP */
+function syncIMAPMails(user, emailConnector) {
+  const before = new Date();
+  console.log('--> syncIMAPMails');
+  return new Promise((resolve, reject) => {
+    Box.find({user: user})
+      .then(boxes => {
+        return emailConnector.fetchBoxes(storeEmail, boxes)
+      })
+      .then(() => {
+        console.log('Time for fetching: ', new Date() - before);
+        resolve();
+      })
+      .catch(err => {
+        reject(err)
+      });
+  })
+}
+
+
+/** Syncronizes the boxes and emails of the user via IMAP */
+function syncIMAP(req, res) {
+  console.log('-> syncIMAP');
+  const user = req.user;
+  const emailConnector = user.createIMAPConnector();
+  user.lastSync = new Date();
+  user.save()
+    .then(()=>{  
+      return syncIMAPBoxes(user, emailConnector)
+    })
+    .then(() => {
+      return syncIMAPMails(user, emailConnector);
+    })
+    .then(() => {
+      console.log('all synced!');
+      res.status(200).send({message: 'Finished syncing'});
+    })
+    .catch(err => {
+      res.status(500).send(err);
+    });
+}
+
+/** Creates autocomplete suggestions for email addresses */
+function autocomplete(req, res) {
+  Email.autocomplete(req.user._id)
+    .then(suggestions => {
+      res.status(200).send(suggestions);
+    })
+    .catch(err => {
+      res.status(500).send(err);
+    });
 }
 
 export default {
-  syncMails,
   addBox,
   delBox,
   renameBox,
   append,
   move,
-  copy,
   sendEmail,
   addFlags,
   delFlags,
-  setFlags,
-  getInitialImapStatus,
-  getPaginatedEmailsForBox,
-  searchPaginatedEmails,
-  getSingleMail
+  searchMails,
+  getSingleMail,
+  getBoxes,
+  syncIMAP
 };

@@ -4,19 +4,14 @@ import httpStatus from 'http-status';
 import APIError from '../core/error/APIError';
 import bcrypt from 'bcrypt';
 import mongoosePaginate from 'mongoose-paginate';
+import GmailConnector from '../core/mail/GmailConnector';
+import SMTPConnector from '../core/mail/SMTPConnector';
+import ExchangeConnector from '../core/mail/ExchangeConnector';
 
 const UserSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true
-  },
-  email: {
-    type: String,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
+  username: {type: String, required: true, index: true},
+  email: String,
+  password: {type: String, required: true},
   provider: {
     name: String,
     user: String,
@@ -42,11 +37,7 @@ const UserSchema = new mongoose.Schema({
     password: String
   },
   displayName: String,
-  boxList: mongoose.Schema.Types.Mixed, // issue https://github.com/Automattic/mongoose/issues/4064 with node version, mongoose and express validation
-  lastSync: {
-    type: Date,
-    default: null
-  }
+  lastSync: {type: Date, default: null}
 }, {
   timestamps: true
 });
@@ -76,6 +67,34 @@ UserSchema.method({
         return cb(err);
       }
       cb(null, isMatch);
+    });
+  },
+  createIMAPConnector: function() {
+    const imapOptions = {
+      user: this.provider.user,
+      password: this.provider.password,
+      host: this.provider.host,
+      port: this.provider.port,
+      tls: true,
+      mailbox: 'INBOX'
+    };
+    switch (this.provider.name) {
+      case 'gmail': return new GmailConnector(imapOptions, this); break;
+      case 'exchange': return new ExchangeConnector(imapOptions, this); break;
+      default: return new GmailConnector(imapOptions, this);
+    }
+  },
+  createSMTPConnector: function(){
+    return new SMTPConnector({
+      host: this.provider.smtpHost,
+      port: this.provider.smtpPort,
+      secure: true,
+      domains: this.provider.smtpDomains,
+      auth: {
+        user: this.provider.user,
+        pass: this.provider.password
+      },
+      currentUser: this
     });
   }
 });

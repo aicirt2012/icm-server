@@ -15,62 +15,59 @@ class GmailConnector extends ImapConnector {
   fetchBoxes(storeEmail, boxes = []) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       let highestmodseq = [];
-      if (boxes.length < 1) {
-        boxes = this.user.boxList.filter((box) => box.total != 0).map((box) => box.name);
-      }
       Promise.each(boxes, (box) => {
         return this.fetchEmails(storeEmail, box).then((hms) => {
           highestmodseq.push(hms);
         });
       }).then(() => {
         this.user.highestmodseq = this.user.highestmodseq && parseInt(this.user.highestmodseq) > parseInt(highestmodseq[0]) ? this.user.highestmodseq : highestmodseq[0];
-        this.user.lastSync = new Date();
+        //this.user.lastSync = new Date();
         this.user.save().then(() => {
           this.end().then(() => {
             resolve();
           });
         });
       }).catch(reject)
-    })) 
+    }))
   }
 
-  fetchEmails(storeEmail, boxName) {
-    return this.openBox(boxName).then((box) => {
-        return new Promise((resolve, reject) => {
-          let options = {
-            bodies: '',
-            struct: true,
-            markSeen: false,
-            extensions: ['X-GM-LABELS']
+  fetchEmails(storeEmail, newBox) {
+    return this.openBox(newBox.name).then((box) => {
+      return new Promise((resolve, reject) => {
+        let options = {
+          bodies: '',
+          struct: true,
+          markSeen: false,
+          extensions: ['X-GM-LABELS']
+        };
+
+        if (this.user.highestmodseq) {
+          options.modifiers = {
+            changedsince: this.user.highestmodseq
           };
+        }
 
-          if (this.user.highestmodseq) {
-            options.modifiers = {
-              changedsince: this.user.highestmodseq
-            };
-          }
+        const f = this.imap.seq.fetch('1:*', options);
 
-          const f = this.imap.seq.fetch('1:*', options);
+        let promises = [];
 
-          let promises = [];
+        f.on('message', (mail, seqno) => {
+          promises.push(this.parseDataFromEmail(mail, newBox, storeEmail));
+        });
 
-          f.on('message', (mail, seqno) => {
-            promises.push(this.parseDataFromEmail(mail, boxName, storeEmail));
-          });
+        f.once('error', (err) => {
+          console.log('Fetch error: ', err);
+          this.end().then(reject);
+        });
 
-          f.once('error', (err) => {
-            console.log('Fetch error: ', err);
-            this.end().then(reject);
-          });
-
-          f.once('end', () => {
-            console.log('Done fetching all messages!');
-            Promise.all(promises).then(() => {
-              resolve(box.highestmodseq);
-            });
+        f.once('end', () => {
+          console.log('Done fetching all messages!');
+          Promise.all(promises).then(() => {
+            resolve(box.highestmodseq);
           });
         });
-      })
+      });
+    })
       .catch((error) => {
         console.error('Error: ', error.message);
       });
@@ -97,8 +94,8 @@ class GmailConnector extends ImapConnector {
           uid: attributes.uid,
           attrs: attributes,
           thrid: attributes['x-gm-thrid'],
-          box: this.user.boxList.find((b) => box === b.name),
-          user: this.user
+          box: box._id,
+          user: this.user._id
         };
         storeEmail(email).then((msg) => {
           resolve(msg);

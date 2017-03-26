@@ -39,13 +39,12 @@ class LingueeConnector {
       //TODO implement multiple language support, see language variable (low priority)
       return new Promise((resolve, reject) => {
         request('http://www.linguee.com/english-german/search?source=auto&query='+word, function (err, res, body) {
-
           if (!err && res.statusCode == 200) {
             const $ = cheerio.load(body);
             const translation = [];
 
-            /** Select result block */
-            $('#dictionary .isForeignTerm .exact .lemma.featured').map(function () {
+            /** Select result block .isMainTerm*/
+            $('#dictionary  .exact .lemma.featured').map(function () {
 
               /** A word Block represents one word with different explanations
                *   source = word of search term or variations
@@ -59,13 +58,12 @@ class LingueeConnector {
               });
               translation.push(wordBlock);
             });
-            console.log(translation);
             resolve(translation);
 
           }else{
             reject(err);
           }
-        }).get();
+        });
       });
     }
 

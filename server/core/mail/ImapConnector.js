@@ -1,6 +1,17 @@
 import Imap from 'imap';
 import Promise from 'bluebird';
 
+/** 
+ * Usefull documentation sources:
+ * https://github.com/mscdex/node-imap
+ * https://tools.ietf.org/html/rfc4549
+ * https://tools.ietf.org/html/rfc4551#page-6 
+ * https://www.skytale.net/blog/archives/23-Manual-IMAP.html
+ * http://stackoverflow.com/questions/9956324/imap-synchronization 
+ * http://www.imapwiki.org/ClientImplementation/Synchronization
+ * http://stackoverflow.com/questions/10076690/ruby-imap-changes-since-last-check
+*/
+
 class ImapConnector {
 
   excludedBoxes = ['[Gmail]', '[Google Mail]', 'Important', 'All Mail', 'Alle Nachrichten', 'Wichtig'];
@@ -8,9 +19,9 @@ class ImapConnector {
   constructor(options, user) {
     this.user = user;
     this.options = options;
-    this.options.debug = (err) => {
+  /*  this.options.debug = (err) => {
       console.log(err)
-    };
+    };*/
     this.options.connTimeout = 30000;
     this.options.authTimeout = 30000;
     this.options.keepAlive = false;
@@ -73,6 +84,7 @@ class ImapConnector {
     });
   }
 
+  /** returns boxes in array sorted, that the parent is before the child */
   getBoxes(details = false) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       this.imap.getBoxes((err, boxes) => {
@@ -90,21 +102,17 @@ class ImapConnector {
               promises.push(new Promise((yay, nay) => {
                 this.statusBoxAsync(box.name, false).then((res) => {
                   boxListDetails.push({
-                    id: index,
-                    name: res.name,
+                    name: res.name, // unique name used as id
                     shortName: res.name.substr(res.name.lastIndexOf('/') + 1, res.name.length),
-                    total: res.messages.total,
-                    new: res.messages.new,
-                    unseen: res.messages.unseen,
+                    total: res.messages.total, 
                     parent: box.parent,
-                    level: box.level
+                    uidvalidity: res.uidvalidity, // currently not used
                   });
                   yay(res);
                 })
               }));
             });
             Promise.all(promises).then((results) => {
-              this._populateFamilyTree(boxListDetails);
               this.end().then(() => {
                 resolve(boxListDetails);
               });
@@ -236,20 +244,7 @@ class ImapConnector {
     }));
   }
 
-  setFlags(msgId, flags, box) {
-    return this.openBoxAndConnect(box).then((box) => new Promise((resolve, reject) => {
-      this.imap.setFlags(msgId, flags, (err) => {
-        this.end().then(() => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(msgId);
-          }
-        });
-      })
-    }));
-  }
-
+  // TODO fetchAttachment
   /*fetchAttachment(mail) {
     return this.imap.collectEmailAsync(mail)
       .then((msg) => {
@@ -265,9 +260,9 @@ class ImapConnector {
 
   createRfcMessage(from, to, subject, msgData) {
     return `From: ${from}
-To: ${to}
-Subject: ${subject}
-${msgData}`;
+      To: ${to}
+      Subject: ${subject}
+      ${msgData}`;
   }
 
   _generateBoxList(boxes, parentPath, arr, parent) {
@@ -278,8 +273,7 @@ ${msgData}`;
         box = {
           name: path,
           shortName: path.substr(path.lastIndexOf('/') + 1, path.length),
-          parent: parent,
-          level: parent ? parent.level + 1 : 0
+          parent: parent ? parent.name : null,
         };
         arr.push(box);
       }
@@ -289,14 +283,6 @@ ${msgData}`;
     })
   }
 
-  _populateFamilyTree(boxes) {
-    boxes.forEach((box, index) => {
-      if (box.parent != null) {
-        let parent = boxes.find((b) => b.name == box.parent.name);
-        box.parent = parent;
-      }
-    });
-  }
 
 }
 

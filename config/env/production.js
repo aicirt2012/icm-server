@@ -53,7 +53,8 @@ export default {
     }
   },
   db: 'mongodb://localhost:27017/emailapp',
-  port: 8082,
+  port: 4000,
+  socketPort: 4001,
   domain: 'http://server.icm.in.tum.de',
   frontend: 'http://icm.in.tum.de'
 };
