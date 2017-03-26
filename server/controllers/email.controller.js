@@ -64,7 +64,7 @@ function delBox(req, res) {
 
 // TODO refactor. req.user.boxList not used anymore
 function renameBox(req, res) {
-  const emailConnector = user.createIMAPConnector();
+  const emailConnector = req.user.createIMAPConnector();
   emailConnector.renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
     let box = req.user.boxList.find((el) => el.name == req.body.oldBoxName);
     box.name = req.body.newBoxName;
@@ -79,7 +79,7 @@ function renameBox(req, res) {
 }
 
 function append(req, res) {
-  const emailConnector = user.createIMAPConnector();
+  const emailConnector = req.user.createIMAPConnector();
   Box.findOne({name: req.body.box, user: req.user})
     .then(box => {
       return [box, emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData)]
@@ -97,7 +97,7 @@ function append(req, res) {
 }
 
 function move(req, res) {
-  const emailConnector = user.createIMAPConnector();
+  const emailConnector = req.user.createIMAPConnector();
   Email.findOne({_id: req.body.emailId}).populate('box')
     .then(email => {
       return [email, Box.findOne({_id: req.body.newBoxId, user: req.user})]
@@ -140,7 +140,7 @@ function addFlags(req, res) {
 }
 
 function delFlags(req, res) {
-  const emailConnector = user.createIMAPConnector();
+  const emailConnector = req.user.createIMAPConnector();
   Box.findOne({_id: req.body.boxId, user: req.user})
     .then(box => {
       return [box, emailConnector.delFlags(req.body.msgId, req.body.flags, box.name)]
