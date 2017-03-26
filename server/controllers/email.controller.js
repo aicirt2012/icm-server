@@ -256,20 +256,23 @@ function syncIMAPBoxes(user, emailConnector) {
       .then(boxes => {
         console.log(boxes);
         return Promise.each(boxes, (box) => {
-          return Box.updateAndGetOldAndUpdated(box, user);
-        })
-          .spread((oldBox, updatedBox) => {
-            //TODO create batch push socket push mechanism
-            //Socket.pushBoxUpdateToClient(oldBox, updatedBox);
-            resolve()
-          })
-          .catch(err => {
-            reject(err);
-          });
+          return new Promise((resolve, reject)=>{
+            Box.updateAndGetOldAndUpdated(box, user)
+              .spread((oldBox, updatedBox) => {
+                console.log('boxes updated');
+                //TODO create batch push socket push mechanism
+                //Socket.pushBoxUpdateToClient(oldBox, updatedBox);
+                resolve()
+              })
+              .catch(err => {
+                reject(err);
+              });
+          });           
+        });         
       })
       .then(()=>{
         //TODO delete boxes
-
+        resolve();
       })
       .catch(err => {
         reject(err);
