@@ -9,7 +9,7 @@ import SMTPConnector from '../core/mail/SMTPConnector';
 import ExchangeConnector from '../core/mail/ExchangeConnector';
 
 const UserSchema = new mongoose.Schema({
-  username: {type: String, required: true},
+  username: {type: String, required: true, index: true},
   email: String,
   password: {type: String, required: true},
   provider: {

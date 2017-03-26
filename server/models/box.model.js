@@ -6,7 +6,7 @@ mongoose.Promise = Promise;
 
 const BoxSchema = new mongoose.Schema({
   boxId: Number,
-  name: String,
+  name: {type: String, index: true},
   shortName: String,
   parent: {type: ObjectId, ref: 'Box'},
   user: {type: ObjectId, ref: 'User'},
