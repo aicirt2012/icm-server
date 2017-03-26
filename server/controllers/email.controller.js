@@ -327,6 +327,7 @@ function syncIMAPBoxes(user, details = false, emailConnector) {
     emailConnector
       .getBoxes(details)
       .then(boxes => {
+        console.log(boxes);
         return Promise.each(boxes, (box) => {
           return Box.updateAndGetOldAndUpdated(box, user);
         })
@@ -338,6 +339,10 @@ function syncIMAPBoxes(user, details = false, emailConnector) {
           .catch(err => {
             reject(err);
           });
+      })
+      .then(()=>{
+        //TODO delete boxes
+
       })
       .catch(err => {
         reject(err);
@@ -367,10 +372,18 @@ function syncIMAPMails(user, emailConnector) {
 
 /** Syncronizes the boxes and emails of the user via IMAP */
 function syncIMAP(req, res) {
+  Box.getChildBoxesById("58cd4ba918a0b92bcfec12a1")
+  .then(boxIds=>{
+    console.log('nested boxids-------------------');
+    console.log(boxIds);
+  })
+  .catch(err=>{
+    console.log(err);
+  })
   console.log('-> syncIMAP');
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  syncIMAPBoxes(user, true, emailConnector)
+  syncIMAPBoxes(user, false, emailConnector)
     .then(() => {
       return syncIMAPMails(user, emailConnector);
     })

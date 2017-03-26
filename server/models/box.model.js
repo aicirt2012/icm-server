@@ -53,35 +53,78 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
   });
 }
 
-// BoxSchema.statics.deleteBoxById
+
+BoxSchema.statics.deleteBoxById = (boxId)=>{
+  return new Promise((resolve, reject)=>{
+    Box.remove({_id: boxId})
+      .then(()=>{
+        return Email.remove({box: boxId});
+      }) 
+      .then(()=>{
+        resolve()
+      })
+      .catch(err=>{
+        reject(err);
+      });
+  });
+}
+
+BoxSchema.statics.getChildBoxesById = (boxId)=>{
+  return new Promise((resolve, reject)=>{
+    Box.find({parent: {$ne:null}},{_id:1,parent:1})
+      .then(boxes=>{
+        const map = new Map();
+        boxes.forEach(box=>{
+          if(map.has(box.parent+''))
+            map.get(box.parent+'').push(box._id+'');
+          else
+            map.set(box.parent+'', [box._id+'']);          
+        });        
+        resolve(calcChilds(boxId, map));
+      })
+      .catch(err=>{
+        reject(err);
+      })
+  })  
+
+  function calcChilds(boxId, map){    
+    let childIds = [];
+    if(map.has(boxId))
+      map.get(boxId).forEach(childId=>{
+        childIds.push(childId);
+        calcChilds(childId, map).forEach(cchildId=>{
+          childIds.push(childId);
+        });
+      });   
+    return childIds;
+  }
+}
+
+BoxSchema.statics.getChildBoxesById2 = (boxId)=>{
+  return new Promise((resolve, reject)=>{
+    Box.find({parent:ObjectId(boxId)})
+      .then(boxes=>{
+        const childBoxIds = [];
+        console.log('boxxxxxxxxxxxxxxxxxxes');
+        Promise.each(boxes, box=>{
+          childBoxIds.push(box._id);
+          return Box.getChildBoxesById(box._id)
+            .then(Ids=>{
+              childBoxIds.concat(ids);
+            });
+        })
+        .then(()=>{
+          resolve(childBoxIds);
+        });
+      })
+      .catch(err=>{
+        reject(err);
+      })
+  })  
+}
 // move all emails to box trash and then delete box and then return promise
 
 
-BoxSchema.statics.sortByLevel = (boxes, user) => {
-  /*
-  //TODO implement map approach
-  const map = new Map();
-  boxes.forEach(box=>{
-    if(map.has(box.level))
-      map.get(box.level).push(box);
-    else
-      map.set(box.level, [box]);
-  })
-  // get keys -> sort keys -> iterate ove key values and concat
-  */
-
-  const levels = [...new Set(boxes.map(box => box.level))];
-  let boxesByLevel = [];
-
-  levels.forEach((level) => {
-    const boxesInLevel = boxes.filter(a => {
-      return a.level == level
-    });
-    boxesByLevel = boxesByLevel.concat(boxesInLevel);
-  });
-
-  return boxesByLevel;
-}
 
 
 BoxSchema.statics.findWithUnseenCountById = (boxId)=>{

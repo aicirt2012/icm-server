@@ -9,6 +9,7 @@ import Promise from 'bluebird';
  * https://www.skytale.net/blog/archives/23-Manual-IMAP.html
  * http://stackoverflow.com/questions/9956324/imap-synchronization 
  * http://www.imapwiki.org/ClientImplementation/Synchronization
+ * http://stackoverflow.com/questions/10076690/ruby-imap-changes-since-last-check
 */
 
 class ImapConnector {
