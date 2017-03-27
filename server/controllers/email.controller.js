@@ -33,7 +33,7 @@ function addBox(req, res) {
       return syncIMAPBoxes(user, emailConnector);
     })
     .then(() => {
-      res.status(200).send();
+      res.status(200).send({message: 'Box added'});
     })
     .catch((err) => {
       res.status(400).send(err);
@@ -50,7 +50,7 @@ function delBox(req, res) {
       return syncIMAPBoxes(user, emailConnector);
     })
     .then(() => {
-      res.status(200).send();
+      res.status(200).send({message: 'Box deleted'});
     })
     .catch((err) => {
       res.status(400).send(err);
