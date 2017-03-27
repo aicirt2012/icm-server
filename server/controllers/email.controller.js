@@ -71,9 +71,7 @@ function renameBox(req, res) {
     })
     .then(box=>{
       Socket.updateBox(user._id, box);
-      res.status(200).send({
-        message: `Renamed box: ${box.name}`
-      });
+      res.status(200).send({message: `Renamed box: ${box.name}`});
     }).catch((err) => {
       res.status(400).send(err);
     });
