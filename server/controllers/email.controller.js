@@ -93,7 +93,7 @@ function append(req, res) {
 
 function move(req, res) {
   const emailConnector = req.user.createIMAPConnector();
-  Email.findOne({_id: req.body.emailId})
+  Email.findOne({_id: req.body.emailId}).populate('box')
     .then(email => {
       return [email, Box.findOne({_id: req.body.newBoxId, user: req.user})]
     })
@@ -174,7 +174,7 @@ function getSingleMail(req, res) {
 }
 
 
-/** Stores an email in the database and 
+/** Stores an email in the database and
  *  pushs upates via socket to the client */
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
@@ -203,9 +203,9 @@ function searchMails(req, res) {
     search: req.query.search,
     lastEmailDate: new Date(req.query.lastEmailDate)
   };
- 
+
   Email.search(req.user._id, options)
-    .then(emails => {      
+    .then(emails => {
       res.status(200).send(emails);
     })
     .catch(err => {
@@ -241,11 +241,11 @@ function syncIMAPBoxes(user, emailConnector) {
               .catch(err => {
                 reject(err);
               });
-          });           
-        });         
+          });
+        });
       })
       .then(()=>{
-        return Box.deleteUpdatedAtOlderThan(user._id, user.lastSync);        
+        return Box.deleteUpdatedAtOlderThan(user._id, user.lastSync);
       })
       .then(delBoxes=>{
         delBoxes.forEach(box=>{
@@ -286,7 +286,7 @@ function syncIMAP(req, res) {
   const emailConnector = user.createIMAPConnector();
   user.lastSync = new Date();
   user.save()
-    .then(()=>{  
+    .then(()=>{
       return syncIMAPBoxes(user, emailConnector)
     })
     .then(() => {
