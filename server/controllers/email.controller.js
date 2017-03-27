@@ -30,6 +30,10 @@ function addBox(req, res) {
   const emailConnector = user.createIMAPConnector();
   emailConnector.addBox(req.body.boxName)
     .then(() => {
+      user.lastSync = new Date();
+      return user.save();
+    })
+    .then(() => {
       return syncIMAPBoxes(user, emailConnector);
     })
     .then(() => {
@@ -46,8 +50,11 @@ function delBox(req, res) {
   const emailConnector = user.createIMAPConnector();
   emailConnector.delBox(req.body.boxName)
     .then(() => {
-      // TODO emailConnector.delBox working but syncBoxes does not delete box id DB
-      return syncIMAPBoxes(user, emailConnector);
+      user.lastSync = new Date();
+      return user.save();
+    })
+    .then(() => {
+      return syncIMAPBoxes(user, emailConnector)
     })
     .then(() => {
       res.status(200).send({message: 'Box deleted'});
@@ -232,7 +239,7 @@ function syncIMAPBoxes(user, emailConnector) {
       .then(boxes => {
         console.log(boxes);
         return Promise.each(boxes, (box) => {
-          return new Promise((resolve, reject)=>{
+          return new Promise((resolve, reject) => {
             Box.updateAndGetOldAndUpdated(box, user)
               .spread((oldBox, updatedBox) => {
                 Socket.pushBoxUpdateToClient(oldBox, updatedBox);
@@ -244,11 +251,11 @@ function syncIMAPBoxes(user, emailConnector) {
           });
         });
       })
-      .then(()=>{
+      .then(() => {
         return Box.deleteUpdatedAtOlderThan(user._id, user.lastSync);
       })
-      .then(delBoxes=>{
-        delBoxes.forEach(box=>{
+      .then(delBoxes => {
+        delBoxes.forEach(box => {
           Socket.pushBoxUpdateToClient(box, null);
         });
         resolve();
@@ -286,7 +293,7 @@ function syncIMAP(req, res) {
   const emailConnector = user.createIMAPConnector();
   user.lastSync = new Date();
   user.save()
-    .then(()=>{
+    .then(() => {
       return syncIMAPBoxes(user, emailConnector)
     })
     .then(() => {
