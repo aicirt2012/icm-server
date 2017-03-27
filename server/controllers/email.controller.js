@@ -48,11 +48,13 @@ function delBox(req, res) {
     .then(() => {
       return Box.findOne({name: req.body.boxName, user: user});
     })
-    .then((box) => {
+    .then(box => {
       return Box.cascadeDeleteBoxById(box._id, user, false);
-      // TODO send updated boxList via sockets
     })
-    .then(() => {
+    .then(delBoxIds => {
+      delBoxIds.forEach(boxId=>{
+        Socket.pushBoxUpdateToClient({_id:boxId, user: user._id}, null);
+      });
       res.status(200).send({message: 'Box deleted'});
     })
     .catch((err) => {

@@ -88,6 +88,7 @@ BoxSchema.statics.deleteUpdatedAtOlderThan = (userId, updateDate) => {
  * boxes with all related emails by boxId
  * @param boxId box to deleted
  * @param delEmail if true then delete it otherwise move to trash
+ * @return deleted boxIds
  */
 BoxSchema.statics.cascadeDeleteBoxById = (boxId, userId, delEmails) => {
   return new Promise((resolve, reject) => {
@@ -97,9 +98,9 @@ BoxSchema.statics.cascadeDeleteBoxById = (boxId, userId, delEmails) => {
         Promise.each(boxIds, boxId => {
           return Box.deleteBoxById(boxId, userId, delEmails);
         })
-          .then(() => {
-            resolve();
-          });
+        .then(() => {
+          resolve(boxIds);
+        });
       })
       .catch(err => {
         reject(err);
