@@ -57,6 +57,33 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
   });
 }
 
+/** 
+ * Renames a box and returns the renamed box
+ * @param userId
+ * @oldName of Box
+ * @newName of Box
+ * @return renamed box object with unseen count
+ */
+BoxSchema.statics.rename = (userId, oldName, newName) => {
+  return new Promise((resolve, reject)=>{
+    Box.fineOne({user:userId, name:oldName})
+      .then(box=>{
+        box.name = newName;
+        box.shortName = box.name.substr(box.name.lastIndexOf('/') + 1, box.name.length);
+        return box.save();
+      })
+      .then(box=>{
+        return Box.findWithUnseenCountById(box._id);        
+      })
+      .then(box=>{
+        resolve(box);
+      })
+      .catch(err=>{
+        reject(box);
+      });
+  });
+}
+
 /**
  * Casecade deletes all boxes with child boxes that
  * have no later update than a certain date
