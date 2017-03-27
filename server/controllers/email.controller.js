@@ -30,10 +30,6 @@ function addBox(req, res) {
   const emailConnector = user.createIMAPConnector();
   emailConnector.addBox(req.body.boxName)
     .then(() => {
-      user.lastSync = new Date();
-      return user.save();
-    })
-    .then(() => {
       return syncIMAPBoxes(user, emailConnector);
     })
     .then(() => {
@@ -50,11 +46,11 @@ function delBox(req, res) {
   const emailConnector = user.createIMAPConnector();
   emailConnector.delBox(req.body.boxName)
     .then(() => {
-      user.lastSync = new Date();
-      return user.save();
+      return Box.findOne({name: req.body.boxName, user: user});
     })
-    .then(() => {
-      return syncIMAPBoxes(user, emailConnector)
+    .then((box) => {
+      return Box.cascadeDeleteBoxById(box._id, user, false);
+      // TODO send updated boxList via sockets
     })
     .then(() => {
       res.status(200).send({message: 'Box deleted'});
