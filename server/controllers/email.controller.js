@@ -48,8 +48,11 @@ function delBox(req, res) {
     .then(() => {
       return Box.findOne({name: req.body.boxName, user: user._id});
     })
-    .then(box => {
-      return Box.cascadeDeleteBoxById(box._id, user._id, false);
+    .then(boxDeleted => {
+      return [boxDeleted, Box.cascadeDeleteBoxById(boxDeleted._id, user._id, false)]
+    })
+    .spread((boxDeleted, msg) => {
+      Socket.deleteBox(user._id, boxDeleted);
     })
     .then(delBoxIds => {
       delBoxIds.forEach(boxId=>{
