@@ -46,11 +46,13 @@ function delBox(req, res) {
   const emailConnector = user.createIMAPConnector();
   emailConnector.delBox(req.body.boxName)
     .then(() => {
-      return Box.findOne({name: req.body.boxName, user: user});
+      return Box.findOne({name: req.body.boxName, user: user._id});
     })
-    .then((box) => {
-      return Box.cascadeDeleteBoxById(box._id, user, false);
-      // TODO send updated boxList via sockets
+    .then((boxDeleted) => {
+      return [boxDeleted, Box.cascadeDeleteBoxById(boxDeleted._id, user._id, false)]
+    })
+    .spread((boxDeleted, msg) => {
+      Socket.deleteBox(user._id, boxDeleted);
     })
     .then(() => {
       res.status(200).send({message: 'Box deleted'});
