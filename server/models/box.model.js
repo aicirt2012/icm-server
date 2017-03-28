@@ -57,29 +57,28 @@ BoxSchema.statics.updateAndGetOldAndUpdated = (box, user) => {
   });
 }
 
-/** 
+/**
  * Renames a box and returns the renamed box
- * @param userId
- * @oldName of Box
+ * @param boxId
  * @newName of Box
  * @return renamed box object with unseen count
  */
-BoxSchema.statics.rename = (userId, oldName, newName) => {
-  return new Promise((resolve, reject)=>{
-    Box.fineOne({user:userId, name:oldName})
-      .then(box=>{
+BoxSchema.statics.rename = (boxId, newName) => {
+  return new Promise((resolve, reject) => {
+    Box.findOne({_id: boxId})
+      .then(box => {
         box.name = newName;
         box.shortName = box.name.substr(box.name.lastIndexOf('/') + 1, box.name.length);
         return box.save();
       })
-      .then(box=>{
-        return Box.findWithUnseenCountById(box._id);        
+      .then(box => {
+        return Box.findWithUnseenCountById(box._id);
       })
-      .then(box=>{
+      .then(box => {
         resolve(box);
       })
-      .catch(err=>{
-        reject(box);
+      .catch(err => {
+        reject(err);
       });
   });
 }
@@ -114,6 +113,7 @@ BoxSchema.statics.deleteUpdatedAtOlderThan = (userId, updateDate) => {
  * Cascade deletes a box including the child
  * boxes with all related emails by boxId
  * @param boxId box to deleted
+ * @param userId
  * @param delEmail if true then delete it otherwise move to trash
  * @return deleted boxIds
  */
@@ -125,9 +125,9 @@ BoxSchema.statics.cascadeDeleteBoxById = (boxId, userId, delEmails) => {
         Promise.each(boxIds, boxId => {
           return Box.deleteBoxById(boxId, userId, delEmails);
         })
-        .then(() => {
-          resolve(boxIds);
-        });
+          .then(() => {
+            resolve(boxIds);
+          });
       })
       .catch(err => {
         reject(err);
@@ -137,7 +137,9 @@ BoxSchema.statics.cascadeDeleteBoxById = (boxId, userId, delEmails) => {
 
 /**
  * Deletes a box with all related emails by boxId
+ * @param userId
  * @param boxId box to deleted
+ * @param delEmail if true then delete it otherwise move to trash
  */
 BoxSchema.statics.deleteBoxById = (boxId, userId, delEmails) => {
   return new Promise((resolve, reject) => {
@@ -196,9 +198,6 @@ BoxSchema.statics.getChildBoxesById = (boxId) => {
     return childIds;
   }
 }
-
-// move all emails to box trash and then delete box and then return promise
-
 
 BoxSchema.statics.findWithUnseenCountById = (boxId) => {
   return Box.findWithUnseen({_id: boxId});

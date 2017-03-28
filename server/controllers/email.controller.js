@@ -44,7 +44,7 @@ function addBox(req, res) {
 function delBox(req, res) {
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  emailConnector.delBox(req.body.boxName) 
+  emailConnector.delBox(req.body.boxName)
     .then(() => {
       return Box.findOne({name: req.body.boxName, user: user._id});
     })
@@ -55,8 +55,8 @@ function delBox(req, res) {
       Socket.deleteBox(user._id, boxDeleted);
     })
     .then(delBoxIds => {
-      delBoxIds.forEach(boxId=>{
-        Socket.deleteBox(user._id, {_id:boxId});
+      delBoxIds.forEach(boxId => {
+        Socket.deleteBox(user._id, {_id: boxId});
       });
       res.status(200).send({message: 'Box deleted'});
     })
@@ -65,17 +65,23 @@ function delBox(req, res) {
     });
 }
 
-// TODO chek if working
 function renameBox(req, res) {
-  const emailConnector = req.user.createIMAPConnector();
-  emailConnector.renameBox(req.body.oldBoxName, req.body.newBoxName)
-    .then((boxName) => {
-      return Box.rename(req.user._id, req.body.oldBoxName, req.body.newBoxName);
+  const user = req.user;
+  const emailConnector = user.createIMAPConnector();
+  Box.findOne({_id: req.body.oldBoxId}).populate('parent')
+    .then(oldBox => {
+      const shortName = req.body.newBoxShortName;
+      const newBoxName = oldBox.parent != null ? oldBox.parent.name + '/' + shortName : shortName;
+      return [oldBox, emailConnector.renameBox(oldBox.name, newBoxName)]
     })
-    .then(box=>{
+    .spread((oldBox, newBoxName) => {
+      return Box.rename(oldBox._id, newBoxName);
+    })
+    .then(box => {
       Socket.updateBox(user._id, box);
       res.status(200).send({message: `Renamed box: ${box.name}`});
-    }).catch((err) => {
+    })
+    .catch((err) => {
       res.status(400).send(err);
     });
 }
