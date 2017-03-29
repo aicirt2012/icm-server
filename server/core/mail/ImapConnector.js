@@ -169,10 +169,8 @@ class ImapConnector {
     }))
   }
 
-  append(box, args, to, from, subject, msgData) {
-    let options = args;
-    options.mailbox = box;
-
+  append(boxName, from, to, subject, msgData) {
+    let options = {mailbox: boxName};
     const msg = this.createRfcMessage(from, to, subject, msgData);
 
     return this.connect().then(() => new Promise((resolve, reject) => {

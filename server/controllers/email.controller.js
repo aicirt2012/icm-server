@@ -89,10 +89,11 @@ function renameBox(req, res) {
 }
 
 function append(req, res) {
-  const emailConnector = req.user.createIMAPConnector();
-  Box.findOne({name: req.body.box, user: req.user})
-    .then(box => {
-      return [box, emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData)]
+  const user = req.user;
+  const emailConnector = user.createIMAPConnector();
+  Box.findOne({name: config.gmail.draft, user: user})
+    .then(boxDrafts => {
+      return [boxDrafts, emailConnector.append(boxDrafts.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
     })
     .spread((box, msgData) => {
       return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
