@@ -258,11 +258,9 @@ class ImapConnector {
       });
   }*/
 
+  // IMPORTANT: preserve RFC line break \r\n
   createRfcMessage(from, to, subject, msgData) {
-    return `From: ${from}
-      To: ${to}
-      Subject: ${subject}
-      ${msgData}`;
+    return `From: ${from}\r\nTo: ${to}\r\nSubject: ${subject}\r\n${msgData}`;
   }
 
   _generateBoxList(boxes, parentPath, arr, parent) {
