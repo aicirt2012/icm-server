@@ -28,7 +28,12 @@ function sendEmail(req, res) {
 function addBox(req, res) {
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  emailConnector.addBox(req.body.boxName)
+  const parentBoxId = req.body.parentBoxId != 'NONE' ? req.body.parentBoxId : null;
+  Box.findOne({_id: parentBoxId})
+    .then((parentBox) => {
+      const newBoxName = parentBox ? parentBox.name + '/' + req.body.boxName : req.body.boxName;
+      return emailConnector.addBox(newBoxName);
+    })
     .then(() => {
       return syncIMAPBoxes(user, emailConnector);
     })
