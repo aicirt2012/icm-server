@@ -76,25 +76,25 @@ EmailSchema.statics.isUnseen = (email)=>{
 }
 
 EmailSchema.statics.isSeenUnseenChanged = (emailOld, emailNew)=>{
-  return emailOld.flags != null && emailNew.flags != null 
+  return emailOld.flags != null && emailNew.flags != null
     && Email.isUnseen(emailOld) != Email.isUnseen(emailNew);
 }
 
 
 
 /**
- * Updates or creates an email and 
+ * Updates or creates an email and
  * returns the old- and updated email
- * @param email 
+ * @param email
  * @return Promise resolve([oldMail, oldBox, updatedMail, , updatedBox])
  */
 EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
   return new Promise((resolve, reject) => {
     const res = [];
     Email.findOne({messageId: mail.messageId})
-      .then(emailOld => {  
+      .then(emailOld => {
         res.push(emailOld);
-        return emailOld!=null ? Box.findWithUnseenCountById(emailOld.box) : Promise.resolve(null);
+        return emailOld!=null ? Box.findWithUnseenCountById(emailOld.box) : Box.findOne({_id: mail.box});
       })
       .then(boxOld =>{
         res.push(boxOld);
@@ -106,19 +106,19 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
           setDefaultsOnInsert: true
         });
       })
-      .then(emailUpdated =>{     
+      .then(emailUpdated =>{
         res.push(emailUpdated);
-        return emailUpdated!=null ? Box.findWithUnseenCountById(emailUpdated.box) : Promise.resolve(null);  
+        return emailUpdated!=null ? Box.findWithUnseenCountById(emailUpdated.box) : Promise.resolve(null);
       })
       .then(boxUpdated =>{
         res.push(boxUpdated);
-        resolve(res);  
-      })   
+        resolve(res);
+      })
       .catch(err=>{
         reject(err);
       });
   });
-} 
+}
 
 
 /**
@@ -130,7 +130,7 @@ EmailSchema.statics.autocomplete = (userId)=>{
     {$match: {user: userId}},
     {$project: {address: {$setUnion: [ "$from", "$to", "$cc", "$bcc"]}}},
     {$unwind: '$address'},
-    {$group: {_id: {address:{$toLower:'$address.address'}, name:'$address.name'}}},    
+    {$group: {_id: {address:{$toLower:'$address.address'}, name:'$address.name'}}},
     {$project: {_id: 0, address: '$_id.address', name: '$_id.name'}},
     //{$match: {$or:[{address: /+search+/},{address: /fe/}]}} //TODO add vars
  ]);
@@ -138,7 +138,7 @@ EmailSchema.statics.autocomplete = (userId)=>{
 
 /**
  * Returns the searched email, this is meant to return also a simple mail list for every box
- * @param userId 
+ * @param userId
  * @param opt.sort fild that will be used to sort e.g. ASC or DESC
  * @param opt.boxId
  * @param opt.search string to searchs
@@ -147,7 +147,7 @@ EmailSchema.statics.autocomplete = (userId)=>{
 EmailSchema.statics.search = (userId, opt) => {
 
   const boxId = opt.boxId;
-  const sort = opt.sort; 
+  const sort = opt.sort;
   const search = opt.search;
   const lastEmailDate = opt.lastEmailDate;
 
