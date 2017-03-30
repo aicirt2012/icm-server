@@ -70,16 +70,14 @@ EmailSchema.index({
 });
 
 
-
-EmailSchema.statics.isUnseen = (email)=>{
+EmailSchema.statics.isUnseen = (email) => {
   return email.flags.indexOf("\\Seen") == -1;
 }
 
-EmailSchema.statics.isSeenUnseenChanged = (emailOld, emailNew)=>{
+EmailSchema.statics.isSeenUnseenChanged = (emailOld, emailNew) => {
   return emailOld.flags != null && emailNew.flags != null
     && Email.isUnseen(emailOld) != Email.isUnseen(emailNew);
 }
-
 
 
 /**
@@ -88,15 +86,15 @@ EmailSchema.statics.isSeenUnseenChanged = (emailOld, emailNew)=>{
  * @param email
  * @return Promise resolve([oldMail, oldBox, updatedMail, , updatedBox])
  */
-EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
+EmailSchema.statics.updateAndGetOldAndUpdated = (mail) => {
   return new Promise((resolve, reject) => {
     const res = [];
     Email.findOne({messageId: mail.messageId})
       .then(emailOld => {
         res.push(emailOld);
-        return emailOld!=null ? Box.findWithUnseenCountById(emailOld.box) : Box.findOne({_id: mail.box});
+        return emailOld != null ? Box.findWithUnseenCountById(emailOld.box) : Box.findOne({_id: mail.box});
       })
-      .then(boxOld =>{
+      .then(boxOld => {
         res.push(boxOld);
         return Email.findOneAndUpdate({
           messageId: mail.messageId
@@ -106,15 +104,15 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
           setDefaultsOnInsert: true
         });
       })
-      .then(emailUpdated =>{
+      .then(emailUpdated => {
         res.push(emailUpdated);
-        return emailUpdated!=null ? Box.findWithUnseenCountById(emailUpdated.box) : Promise.resolve(null);
+        return emailUpdated != null ? Box.findWithUnseenCountById(emailUpdated.box) : Promise.resolve(null);
       })
-      .then(boxUpdated =>{
+      .then(boxUpdated => {
         res.push(boxUpdated);
         resolve(res);
       })
-      .catch(err=>{
+      .catch(err => {
         reject(err);
       });
   });
@@ -125,15 +123,15 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail)=>{
  * Returns autocomplete suggestions for email addresses
  * @param userId only consider emails of this user
  */
-EmailSchema.statics.autocomplete = (userId)=>{
+EmailSchema.statics.autocomplete = (userId) => {
   return Email.getCollection('emails').aggregate([
     {$match: {user: userId}},
-    {$project: {address: {$setUnion: [ "$from", "$to", "$cc", "$bcc"]}}},
+    {$project: {address: {$setUnion: ["$from", "$to", "$cc", "$bcc"]}}},
     {$unwind: '$address'},
-    {$group: {_id: {address:{$toLower:'$address.address'}, name:'$address.name'}}},
+    {$group: {_id: {address: {$toLower: '$address.address'}, name: '$address.name'}}},
     {$project: {_id: 0, address: '$_id.address', name: '$_id.name'}},
     //{$match: {$or:[{address: /+search+/},{address: /fe/}]}} //TODO add vars
- ]);
+  ]);
 }
 
 /**
@@ -145,67 +143,49 @@ EmailSchema.statics.autocomplete = (userId)=>{
  * @param opt.lastEmailDate
  */
 EmailSchema.statics.search = (userId, opt) => {
-
   const boxId = opt.boxId;
   const sort = opt.sort;
   const search = opt.search;
   const lastEmailDate = opt.lastEmailDate;
-
-  /* default params */
-  const query = {
-    user: userId,
-    date: {$lt: lastEmailDate}
-  };
+  const query = {user: userId, date: {$lt: lastEmailDate}};
   const select = {}; // only necessary
-  const options = {
-    limit: 15,
-    sort: {
-      date: sort == 'DESC' ? -1 : 1
-    },
-  };
+  const options = {limit: 15, sort: {date: sort == 'DESC' ? -1 : 1}};
 
   if (boxId != 'NONE') {
-    //console.log('boxId: ' + boxId);
     query.box = boxId;
   }
 
   if (search != null && search != '') {
-    const fromSearch = search.match(/from: ?"([a-zA-Z0-9 ]*)"([a-zA-Z0-9 ]*)/);
-    //console.log('from search');
-    //console.log(fromSearch);
-    const from = fromSearch != null ? fromSearch[1] : null;
-    const searchTerm = fromSearch != null ? fromSearch[2] : null;
+    // von:"mySubject" searchTerm
+    // von: "mySubject" searchTerm
+    // from:"mySubject" searchTerm
+    // from: "mySubject" searchTerm
+    // an:"mySubject" searchTerm
+    // an: "mySubject" searchTerm
+    // to:"mySubject" searchTerm
+    // to: "mySubject" searchTerm
+    const parsedSearch = search.match(/(\bfrom\b|\bvon\b|\bto\b|\ban\b): ?"([a-zA-Z\u00C0-\u017F0-9 ]*)"([a-zA-Z\u00C0-\u017F0-9 ]*)/);
+    console.log('this is my search..');
+    console.log(parsedSearch);
 
-    //console.log(from);
-    //console.log(searchTerm);
+    if (parsedSearch != null) {
+      const from = (parsedSearch[1] == 'from' || parsedSearch[1] == 'von') ? parsedSearch[2] : null;
+      const to = (parsedSearch[1] == 'to' || parsedSearch[1] == 'an') ? parsedSearch[2] : null;
+      const searchTerm = parsedSearch[3];
 
-    if (from != null) {
-      query['from.name'] = new RegExp('.*' + from + '.*', "i")
-    }
-
-    if (searchTerm != null && searchTerm != ' ' && searchTerm != '') {
-      query.$text = {$search: searchTerm};
+      if (from != null) {
+        query['from.name'] = new RegExp('.*' + from + '.*', "i")
+      }
+      if (to != null) {
+        query['to.name'] = new RegExp('.*' + to + '.*', "i")
+      }
+      if (searchTerm != null && searchTerm != ' ' && searchTerm != '') {
+        query.$text = {$search: searchTerm};
+      }
+    } else {
+      query.$text = {$search: search};
     }
   }
-
-  // von:max mysubject -> max
-  // von: max mysubject -> max
-  // from:max mysubject -> max
-  // from: max mysubject -> max
-  /*
-   if (search.includes('von:')) {
-   search.splice(' ')
-   query.from =
-   }
-   */
-
-  // an:max mysubject -> max
-  // an: max mysubject -> max
-  // to:max mysubject -> max
-
-  //console.log('final query');
-  //console.log(query);
-
   return Email.find(query, select, options)
 }
 
