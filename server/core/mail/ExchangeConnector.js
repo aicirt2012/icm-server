@@ -12,12 +12,12 @@ class ExchangeConnector extends ImapConnector {
   }
 
   fetchBoxes(storeEmail, boxes = []) {
+    console.log('inside fetchBoxes Exchange...');
     return this.connect().then(() => new Promise((resolve, reject) => {
       let highestmodseq = [];
-      if (boxes.length < 1) {
-        boxes = this.user.boxList.filter((box) => box.total != 0).map((box) => box.name);
-      }
       Promise.each(boxes, (box) => {
+        console.log('inside the promise');
+        console.log(box);
         return this.fetchEmails(storeEmail, box).then((hms) => {
           highestmodseq.push(hms);
         });
@@ -33,8 +33,10 @@ class ExchangeConnector extends ImapConnector {
     })) 
   }
 
-  fetchEmails(storeEmail, boxName) {
-    return this.openBox(boxName).then((box) => {
+  fetchEmails(storeEmail, newBox) {
+    console.log('inside fetchEmails');
+    console.log
+    return this.openBox(newBox.name).then((box) => {
         return new Promise((resolve, reject) => {
           let options = {
             bodies: '',
@@ -53,7 +55,7 @@ class ExchangeConnector extends ImapConnector {
           let promises = [];
 
           f.on('message', (mail, seqno) => {
-            promises.push(this.parseDataFromEmail(mail, boxName, storeEmail));
+            promises.push(this.parseDataFromEmail(mail, newBox, storeEmail));
           });
 
           f.once('error', (err) => {
@@ -80,11 +82,13 @@ class ExchangeConnector extends ImapConnector {
       let attributes;
 
       mailParser.on('end', (mailObject) => {
+        console.log('inside parseDataFromEmail');
+        console.log(mailObject);
         mailObject.html = mailObject.html && mailObject.html.includes('<body') ? mailObject.html.substring(mailObject.html.indexOf('<body')) : mailObject.html;
 
         const email = {
           messageId: mailObject.messageId,
-          attrs: mailObject,
+          //attrs: mailObject,
           thrid: mailObject.headers['thread-index'],
           from: mailObject.from,
           to: mailObject.to,
@@ -92,7 +96,6 @@ class ExchangeConnector extends ImapConnector {
           html: mailObject.html,
           text: mailObject.text,
           date: mailObject.headers.date,
-          box: this.user.boxList.find((b) => box === b.name),
           user: this.user
         };
         storeEmail(email).then((msg) => {
