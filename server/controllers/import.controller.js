@@ -288,14 +288,12 @@ class EnronDataSet{
   }
 
   importAccounts(filter){
-    let result = Promise.resolve();
-    this.getDirectoriesSync(this.basePath).forEach((account)=>{
-      if(account.startsWith(filter))
-        result = result.then(() => {
-          return this.importAccount(account);
-        });
+    return Promise.each(this.getDirectoriesSync(this.basePath), account=>{
+      if(account.startsWith(filter))   
+        return this.importAccount(account);
+      else
+        return Promise.resolve();
     });
-    return result;
   }
 
   importAccount(accountName){
@@ -335,18 +333,14 @@ class EnronDataSet{
    */
   importMails(path, userId, labels){
     //console.log('EnronMail Import: '+path.replace(this.basePath,''));
-    let result = Promise.resolve();
-    fs.readdirSync(path).forEach((fileName)=>{
-      result = result.then(() => {
-        if(fs.statSync(path+"/"+fileName).isDirectory()) {
-          labels.push(fileName.replace(/_/g,' '));
-          return this.importMails(path+fileName+'/', userId, labels);
-        }else{
-          return this.createEmail(path+fileName, userId, labels);
-        }
-      });
+    return Promise.each(fs.readdirSync(path), fileName=>{      
+      if(fs.statSync(path+"/"+fileName).isDirectory()) {
+        labels.push(fileName.replace(/_/g,' '));
+        return this.importMails(path+fileName+'/', userId, labels);
+      }else{
+        return this.createEmail(path+fileName, userId, labels);
+      }      
     });
-    return result;
   }
 
   createEmail(file, userId, labels){
@@ -355,16 +349,15 @@ class EnronDataSet{
         const e = new Email(new EnronMail(file).analyze());
         e.user = ObjectId(userId);
         e.labels = labels;
-        return e.save((err)=>{
-          if (err)
-            console.log(err);
-          else{
-            this.mailThreats.addSubject(e.subject, e._id);
-            this.mailCount++
-            this.debugInfo();
-          }
-        });
-      });
+        return e.save()
+      }).then(e=>{
+        this.mailThreats.addSubject(e.subject, e._id);
+        this.mailCount++
+        this.debugInfo();
+      })
+      .catch(err=>{
+        console.log(err);
+      });     
   }
 
   readFile(filePath){
