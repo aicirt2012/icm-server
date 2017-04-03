@@ -4,6 +4,7 @@ import User from '../models/user.model';
 import moment from 'moment';
 import mongoose from 'mongoose';
 import request from 'request';
+import Promise from 'bluebird';
 var ObjectId = mongoose.Types.ObjectId;
 
 
@@ -22,21 +23,18 @@ function importEnronData(req, res){
 }
 
 function importEnronDataAll(req, res){
-  const accounts = ['allen-p','arnold-j','arora-h','badeer-r','bailey-s','bass-e','baughman-d','beck-s','benson-r','blair-l','brawner-s','buy-r','campbell-l','carson-m','cash-m','causholli-m','corman-s','crandell-s','cuilla-m','dasovich-j','davis-d','dean-c','delainey-d','derrick-j','dickson-s','donoho-l','donohoe-t','dorland-c','ermis-f','farmer-d','fischer-m','forney-j','fossum-d','gang-l','gay-r','geaccone-t','germany-c','gilbertsmith-d','giron-d','griffith-j','grigsby-m','guzman-m','haedicke-m','hain-m','harris-s','hayslett-r','heard-m','hendrickson-s','hernandez-j','hodge-j','holst-k','horton-s','hyatt-k','hyvl-d','jones-t','kaminski-v','kean-s','keavey-p','keiser-k','king-j','kitchen-l','kuykendall-t','lavorato-j','lay-k','lenhart-m','lewis-a','linder-e','lokay-m','lokey-t','love-p','lucci-p','maggi-m','mann-k','martin-t','may-l','mccarty-d','mcconnell-m','mckay-b','mckay-j','mclaughlin-e','merriss-s','meyers-a','mims-thurston-p','motley-m','neal-s','nemec-g','panus-s','parks-j','pereira-s','perlingiere-d','phanis-s','pimenov-v','platter-p', 'presto-k','quenet-j','quigley-d','rapp-b','reitmeyer-j','richey-c','ring-a','ring-r','rodrique-r','rogers-b','ruscitti-k','sager-e','saibi-e','salisbury-h','sanchez-m','sanders-r','scholtes-d','schoolcraft-d','schwieger-j','scott-s','semperger-c','shackleton-s','shankman-j','shapiro-r','shively-h','skilling-j','slinger-r','smith-m','solberg-g','south-s','staab-t','stclair-c','steffes-j','stepenovitch-j','stokley-c','storey-g','sturm-f','swerzbin-m','symes-k','taylor-m','tholt-j','thomas-p','townsend-j','tycholiz-b', 'ward-k','watson-k','weldon-c','whalley-g','whalley-l','white-s','whitt-m','williams-j','williams-w3','wolfe-j','ybarbo-p','zipper-a','zufferli-j'];
-  let result = Promise.resolve();
-  accounts.forEach(a=>{
-    result = result.then(() => {
-      return new Promise((resolve, reject)=>{
-        request.post('http://localhost:4000/api/import/enron',{form:{filter:a}}, function (err, resp) {
-          if (!err && resp.statusCode == 200)
-            resolve();
-          else
-            reject(err);
-        });
+  const accounts = ['allen-p'];
+  Promise.each(accounts,a=>{   
+    return new Promise((resolve, reject)=>{
+      request.post('http://localhost:4000/api/import/enron',{form:{filter:a}}, function (err, resp) {
+        if (!err && resp.statusCode == 200)
+          resolve();
+        else
+          reject(err);
       });
     });
-  });
-  result.then(()=>{
+  })
+  .then(()=>{
     res.status(200).send();
   });
 }
@@ -290,14 +288,12 @@ class EnronDataSet{
   }
 
   importAccounts(filter){
-    let result = Promise.resolve();
-    this.getDirectoriesSync(this.basePath).forEach((account)=>{
-      if(account.startsWith(filter))
-        result = result.then(() => {
-          return this.importAccount(account);
-        });
+    return Promise.each(this.getDirectoriesSync(this.basePath), account=>{
+      if(account.startsWith(filter))   
+        return this.importAccount(account);
+      else
+        return Promise.resolve();
     });
-    return result;
   }
 
   importAccount(accountName){
@@ -337,18 +333,14 @@ class EnronDataSet{
    */
   importMails(path, userId, labels){
     //console.log('EnronMail Import: '+path.replace(this.basePath,''));
-    let result = Promise.resolve();
-    fs.readdirSync(path).forEach((fileName)=>{
-      result = result.then(() => {
-        if(fs.statSync(path+"/"+fileName).isDirectory()) {
-          labels.push(fileName.replace(/_/g,' '));
-          return this.importMails(path+fileName+'/', userId, labels);
-        }else{
-          return this.createEmail(path+fileName, userId, labels);
-        }
-      });
+    return Promise.each(fs.readdirSync(path), fileName=>{      
+      if(fs.statSync(path+"/"+fileName).isDirectory()) {
+        labels.push(fileName.replace(/_/g,' '));
+        return this.importMails(path+fileName+'/', userId, labels);
+      }else{
+        return this.createEmail(path+fileName, userId, labels);
+      }      
     });
-    return result;
   }
 
   createEmail(file, userId, labels){
@@ -357,16 +349,15 @@ class EnronDataSet{
         const e = new Email(new EnronMail(file).analyze());
         e.user = ObjectId(userId);
         e.labels = labels;
-        return e.save((err)=>{
-          if (err)
-            console.log(err);
-          else{
-            this.mailThreats.addSubject(e.subject, e._id);
-            this.mailCount++
-            this.debugInfo();
-          }
-        });
-      });
+        return e.save()
+      }).then(e=>{
+        this.mailThreats.addSubject(e.subject, e._id);
+        this.mailCount++
+        this.debugInfo();
+      })
+      .catch(err=>{
+        console.log(err);
+      });     
   }
 
   readFile(filePath){

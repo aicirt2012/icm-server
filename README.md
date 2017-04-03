@@ -1,10 +1,10 @@
-# EmailAppServer Web Application Lab
+# Intelligent Contextual Mail Server
 
 Based on [Express & mongoose REST API Boilerplate in ES6 with Code Coverage](https://github.com/KunalKapadia/express-mongoose-es6-rest-api).
 
 ## Overview
 
-The underlying boilerplate follows [Airbnb's Javascript style guide](https://github.com/airbnb/javascript).
+The underlying project follows [Airbnb's Javascript style guide](https://github.com/airbnb/javascript).
 
 #### File/Folder Structure
 ```

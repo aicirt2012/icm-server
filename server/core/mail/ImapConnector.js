@@ -1,13 +1,13 @@
 import Imap from 'imap';
 import Promise from 'bluebird';
 
-/** 
+/**
  * Usefull documentation sources:
  * https://github.com/mscdex/node-imap
  * https://tools.ietf.org/html/rfc4549
- * https://tools.ietf.org/html/rfc4551#page-6 
+ * https://tools.ietf.org/html/rfc4551#page-6
  * https://www.skytale.net/blog/archives/23-Manual-IMAP.html
- * http://stackoverflow.com/questions/9956324/imap-synchronization 
+ * http://stackoverflow.com/questions/9956324/imap-synchronization
  * http://www.imapwiki.org/ClientImplementation/Synchronization
  * http://stackoverflow.com/questions/10076690/ruby-imap-changes-since-last-check
 */
@@ -104,7 +104,7 @@ class ImapConnector {
                   boxListDetails.push({
                     name: res.name, // unique name used as id
                     shortName: res.name.substr(res.name.lastIndexOf('/') + 1, res.name.length),
-                    total: res.messages.total, 
+                    total: res.messages.total,
                     parent: box.parent,
                     uidvalidity: res.uidvalidity, // currently not used
                   });
@@ -157,22 +157,20 @@ class ImapConnector {
 
   renameBox(oldBoxName, newBoxName) {
     return this.connect().then(() => new Promise((resolve, reject) => {
-      this.imap.renameBox(oldBoxName, newBoxName, (err, box) => {
+      this.imap.renameBox(oldBoxName, newBoxName, (err) => {
         this.end().then(() => {
           if (err) {
             reject(err);
           } else {
-            resolve(box);
+            resolve(newBoxName);
           }
         });
       })
     }))
   }
 
-  append(box, args, to, from, subject, msgData) {
-    let options = args;
-    options.mailbox = box;
-
+  append(boxName, from, to, subject, msgData) {
+    let options = {mailbox: boxName};
     const msg = this.createRfcMessage(from, to, subject, msgData);
 
     return this.connect().then(() => new Promise((resolve, reject) => {
@@ -258,11 +256,9 @@ class ImapConnector {
       });
   }*/
 
+  // IMPORTANT: preserve RFC line break \r\n
   createRfcMessage(from, to, subject, msgData) {
-    return `From: ${from}
-      To: ${to}
-      Subject: ${subject}
-      ${msgData}`;
+    return `From: ${from}\r\nTo: ${to}\r\nSubject: ${subject}\r\n${msgData}`;
   }
 
   _generateBoxList(boxes, parentPath, arr, parent) {

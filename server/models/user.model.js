@@ -79,8 +79,8 @@ UserSchema.method({
       mailbox: 'INBOX'
     };
     switch (this.provider.name) {
-      case 'gmail': return new GmailConnector(imapOptions, this); break;
-      case 'exchange': return new ExchangeConnector(imapOptions, this); break;
+      case 'Gmail': return new GmailConnector(imapOptions, this); break;
+      case 'Exchange': return new ExchangeConnector(imapOptions, this); break;
       default: return new GmailConnector(imapOptions, this);
     }
   },

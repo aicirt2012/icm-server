@@ -24,65 +24,76 @@ function sendEmail(req, res) {
     });
 }
 
+/** Adds a box and updates the client via socket */
 function addBox(req, res) {
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  emailConnector.addBox(req.body.boxName)
-    .then(() => {
-      return syncBoxes(user, true, emailConnector);
+  const parentBoxId = req.body.parentBoxId != 'NONE' ? req.body.parentBoxId : null;
+  Box.findOne({_id: parentBoxId})
+    .then((parentBox) => {
+      const newBoxName = parentBox ? parentBox.name + '/' + req.body.boxName : req.body.boxName;
+      return emailConnector.addBox(newBoxName);
     })
     .then(() => {
-      return Box.getBoxesByUserId(user._id);
+      return syncIMAPBoxes(user, emailConnector);
     })
-    .then(boxes => {
-      res.status(200).send(boxes);
+    .then(() => {
+      res.status(200).send({message: 'Box added'});
     })
     .catch((err) => {
-      console.log(err);
       res.status(400).send(err);
     });
 }
 
+/** Deletes a box and updates the client via Socket */
 function delBox(req, res) {
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  emailConnector.delBox(req.body.boxName)
-    .then(() => {
-      // TODO emailConnector.delBox working but syncBoxes does not delete box id DB
-      return syncBoxes(user, true, emailConnector);
+  Box.findOne({_id: req.body.boxId}).populate('parent')
+    .then(boxToDelete => {
+      return [boxToDelete, emailConnector.delBox(boxToDelete.name)]
+    })
+    .spread(boxToDelete => {
+      return [boxToDelete, Box.cascadeDeleteBoxById(boxToDelete._id, user._id, false)]
+    })
+    .spread((boxDeleted, msg) => {
+      Socket.deleteBox(user._id, boxDeleted);
     })
     .then(() => {
-      return Box.getBoxesByUserId(user._id);
-    })
-    .then(boxes => {
-      res.status(200).send(boxes);
+      res.status(200).send({message: 'Box deleted'});
     })
     .catch((err) => {
       res.status(400).send(err);
     });
 }
 
-// TODO refactor. req.user.boxList not used anymore
 function renameBox(req, res) {
+  const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  emailConnector.renameBox(req.body.oldBoxName, req.body.newBoxName).then((boxName) => {
-    let box = req.user.boxList.find((el) => el.name == req.body.oldBoxName);
-    box.name = req.body.newBoxName;
-    box.shortName = box.name.substr(box.name.lastIndexOf('/') + 1, box.name.length);
-    res.status(200).send({
-      message: `Renamed box: ${boxName}`,
-      boxList: req.user.boxList
+  Box.findOne({_id: req.body.oldBoxId}).populate('parent')
+    .then(oldBox => {
+      const shortName = req.body.newBoxShortName;
+      const newBoxName = oldBox.parent != null ? oldBox.parent.name + '/' + shortName : shortName;
+      return [oldBox, emailConnector.renameBox(oldBox.name, newBoxName)]
+    })
+    .spread((oldBox, newBoxName) => {
+      return Box.rename(oldBox._id, newBoxName);
+    })
+    .then(box => {
+      Socket.updateBox(user._id, box);
+      res.status(200).send({message: `Renamed box: ${box.name}`});
+    })
+    .catch((err) => {
+      res.status(400).send(err);
     });
-  }).catch((err) => {
-    res.status(400).send(err);
-  });
 }
 
 function append(req, res) {
+  const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  Box.findOne({name: req.body.box, user: req.user})
-    .then(box => {
-      return [box, emailConnector.append(req.body.box, req.body.args, req.body.to, req.body.from, req.body.subject, req.body.msgData)]
+  Box.findOne({name: config.gmail.draft, user: user})
+    .then(boxDrafts => {
+      return [boxDrafts, emailConnector.append(boxDrafts.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
     })
     .spread((box, msgData) => {
       return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
@@ -97,7 +108,7 @@ function append(req, res) {
 }
 
 function move(req, res) {
-  const emailConnector = user.createIMAPConnector();
+  const emailConnector = req.user.createIMAPConnector();
   Email.findOne({_id: req.body.emailId}).populate('box')
     .then(email => {
       return [email, Box.findOne({_id: req.body.newBoxId, user: req.user})]
@@ -119,7 +130,7 @@ function move(req, res) {
 }
 
 function addFlags(req, res) {
-  const emailConnector = user.createIMAPConnector();
+  const emailConnector = req.user.createIMAPConnector();
   Box.findOne({_id: req.body.boxId, user: req.user})
     .then(box => {
       return [box, emailConnector.addFlags(req.body.msgId, req.body.flags, box.name)]
@@ -140,7 +151,7 @@ function addFlags(req, res) {
 }
 
 function delFlags(req, res) {
-  const emailConnector = user.createIMAPConnector();
+  const emailConnector = req.user.createIMAPConnector();
   Box.findOne({_id: req.body.boxId, user: req.user})
     .then(box => {
       return [box, emailConnector.delFlags(req.body.msgId, req.body.flags, box.name)]
@@ -179,7 +190,7 @@ function getSingleMail(req, res) {
 }
 
 
-/** Stores an email in the database and 
+/** Stores an email in the database and
  *  pushs upates via socket to the client */
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
@@ -208,9 +219,9 @@ function searchMails(req, res) {
     search: req.query.search,
     lastEmailDate: new Date(req.query.lastEmailDate)
   };
- 
+
   Email.search(req.user._id, options)
-    .then(emails => {      
+    .then(emails => {
       res.status(200).send(emails);
     })
     .catch(err => {
@@ -237,7 +248,7 @@ function syncIMAPBoxes(user, emailConnector) {
       .then(boxes => {
         console.log(boxes);
         return Promise.each(boxes, (box) => {
-          return new Promise((resolve, reject)=>{
+          return new Promise((resolve, reject) => {
             Box.updateAndGetOldAndUpdated(box, user)
               .spread((oldBox, updatedBox) => {
                 Socket.pushBoxUpdateToClient(oldBox, updatedBox);
@@ -246,14 +257,14 @@ function syncIMAPBoxes(user, emailConnector) {
               .catch(err => {
                 reject(err);
               });
-          });           
-        });         
+          });
+        });
       })
-      .then(()=>{
-        return Box.deleteUpdatedAtOlderThan(user._id, user.lastSync);        
+      .then(() => {
+        return Box.deleteUpdatedAtOlderThan(user._id, user.lastSync);
       })
-      .then(delBoxes=>{
-        delBoxes.forEach(box=>{
+      .then(delBoxes => {
+        delBoxes.forEach(box => {
           Socket.pushBoxUpdateToClient(box, null);
         });
         resolve();
@@ -291,7 +302,7 @@ function syncIMAP(req, res) {
   const emailConnector = user.createIMAPConnector();
   user.lastSync = new Date();
   user.save()
-    .then(()=>{  
+    .then(() => {
       return syncIMAPBoxes(user, emailConnector)
     })
     .then(() => {
