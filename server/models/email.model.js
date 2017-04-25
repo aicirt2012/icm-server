@@ -151,7 +151,7 @@ EmailSchema.statics.search = (userId, opt) => {
   const select = {}; // only necessary
   const options = {limit: 15, sort: {date: sort == 'DESC' ? -1 : 1}};
 
-  if (boxId != 'NONE') {
+  if (boxId != 'NONE' && boxId != 0) {
     query.box = boxId;
   }
 
