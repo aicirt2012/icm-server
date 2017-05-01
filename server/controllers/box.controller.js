@@ -10,6 +10,7 @@ import Socket from '../routes/socket';
 function addBox(req, res) {
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
+  console.log(req.body.parentBoxId, req.body.boxName);
   const parentBoxId = req.body.parentBoxId != 'NONE' ? req.body.parentBoxId : null;
   Box.findOne({_id: parentBoxId})
     .then((parentBox) => {
@@ -51,11 +52,12 @@ function delBox(req, res) {
 
 function renameBox(req, res) {
   const user = req.user;
+  const boxId = req.params.id;
+  const newShortName = req.body.newBoxShortName;
   const emailConnector = user.createIMAPConnector();
-  Box.findOne({_id: req.body.oldBoxId}).populate('parent')
-    .then(oldBox => {
-      const shortName = req.body.newBoxShortName;
-      const newBoxName = oldBox.parent != null ? oldBox.parent.name + '/' + shortName : shortName;
+  Box.findOne({_id: boxId}).populate('parent')
+    .then(oldBox => {      
+      const newBoxName = oldBox.parent != null ? oldBox.parent.name + '/' + newShortName : newShortName;
       return [oldBox, emailConnector.renameBox(oldBox.name, newBoxName)]
     })
     .spread((oldBox, newBoxName) => {
