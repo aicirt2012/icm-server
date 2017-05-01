@@ -76,13 +76,9 @@ function addFlags(req, res) {
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
 
-  Email.findById(emailId)
-    .then(mail=>{
-      email = mail;
-      return Box.findById(email.boxId);
-    }) 
-    .then(box => {
-      return emailConnector.addFlags(email.uid, flags, box.name);
+  Email.findById(emailId).populate('box')
+    .then(email => {
+      return emailConnector.addFlags(email.uid, flags, email.box.name);
     })
     .then(() => {
       email.flags = email.flags.concat(flags);
@@ -102,13 +98,9 @@ function delFlags(req, res) {
   const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
-  Email.findById(emailId)
-    .then(mail=>{
-      email = mail;
-      return Box.findById(email.boxId);
-    }) 
-    .then(box => {
-      return emailConnector.delFlags(email.uid, flags, box.name);
+  Email.findById(emailId).populate('box')
+    .then(email => {
+      return emailConnector.delFlags(email.uid, flags, email.box.name);
     })
     .then(() => {
       flags.forEach(f => {
