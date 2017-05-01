@@ -117,7 +117,8 @@ function delFlags(req, res) {
 
 /** Returns one single mail with all details */
 function getSingleMail(req, res) {
-  Email.findOne({_id: req.params.id}).lean()
+  const emailId = req.params.emailId;
+  Email.findOne({_id: emailId}).lean()
     .then((mail) => {
       return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
     })
