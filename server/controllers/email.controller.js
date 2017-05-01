@@ -91,16 +91,22 @@ function addFlags(req, res) {
 }
 
 function delFlags(req, res) {
+  const emailId = req.params.emailId;
+  const flags = req.body.flags;
+  const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
-  Box.findOne({_id: req.body.boxId, user: req.user})
+  const email = null;
+
+  Email.findById(emailId)
+    .then(mail=>{
+      email = mail;
+      return Box.findOne({_id: email.boxId, user: user});
+    }) 
     .then(box => {
-      return [box, emailConnector.delFlags(req.body.msgId, req.body.flags, box.name)]
+      return emailConnector.delFlags(email.uid, flags, box.name);
     })
-    .spread((box, msgId) => {
-      return Email.findOne({uid: req.body.msgId, box: box})
-    })
-    .then((email) => {
-      req.body.flags.forEach((f) => {
+    .then(() => {
+      flags.forEach(f => {
         const index = email.flags.indexOf(f);
         if (index > -1)
           email.flags.splice(index, 1);

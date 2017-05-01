@@ -21,17 +21,16 @@ function routeProvider(passport) {
   router.route('/addFlags')
     .post(emailCtrl.addFlags);
 
-  router.route('/delFlags')
-    .post(emailCtrl.delFlags);
+  router.route('/:emailId/flags')
+    .delete(emailCtrl.delFlags);
 
-  /* MongoDB API Endpoints */
   router.route('/search')
     .get(emailCtrl.searchMails);
 
   router.route('/:emailId')
     .get(emailCtrl.getSingleMail);
-    
-  router.route('/syncAll') // boxes
+
+  router.route('/syncAll')
     .get(emailCtrl.syncIMAP);
 
   return router;
