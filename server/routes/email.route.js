@@ -8,16 +8,7 @@ function routeProvider(passport) {
     session: false
   });
   router.use(mw);
-  /* IMAP API Endpoints */
-  router.route('/addBox')
-    .post(emailCtrl.addBox);
-
-  router.route('/delBox')
-    .post(emailCtrl.delBox);
-
-  router.route('/renameBox')
-    .post(emailCtrl.renameBox);
-
+  /* IMAP API Endpoints */ 
   router.route('/append')
     .post(emailCtrl.append);
 
@@ -38,8 +29,6 @@ function routeProvider(passport) {
     .get(emailCtrl.searchMails);
   router.route('/single/:id')
     .get(emailCtrl.getSingleMail);
-  router.route('/box')
-    .get(emailCtrl.getBoxes);
   router.route('/syncAll') // boxes
     .get(emailCtrl.syncIMAP);
 

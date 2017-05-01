@@ -2,6 +2,7 @@ import express from 'express';
 import userRoutes from './user.route';
 import authRoutes from './auth.route';
 import emailRoutes from './email.route';
+import boxRoutes from './box.route';
 import taskRoutes from './task.route';
 import wikiRoutes from './wiki.route';
 import translateRoutes from './translate.route';
@@ -14,6 +15,7 @@ function routeProvider(passport) {
     router.use('/users', userRoutes(passport));
     router.use('/auth', authRoutes(passport));
     router.use('/email', emailRoutes(passport));
+    router.use('/box', boxRoutes(passport));
     router.use('/task', taskRoutes(passport));
     router.use('/wiki', wikiRoutes(passport));
     router.use('/translate', translateRoutes(passport));
