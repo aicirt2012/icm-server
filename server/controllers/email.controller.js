@@ -95,8 +95,7 @@ function delFlags(req, res) {
   const flags = req.body.flags;
   const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
-  const email = null;
-
+  let email = null;
   Email.findById(emailId)
     .then(mail=>{
       email = mail;
