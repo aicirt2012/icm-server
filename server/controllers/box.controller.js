@@ -30,9 +30,10 @@ function addBox(req, res) {
 
 /** Deletes a box and updates the client via Socket */
 function delBox(req, res) {
-  const user = req.user;
+  const user = req.user;  
+  const boxId = req.params.boxId;
   const emailConnector = user.createIMAPConnector();
-  Box.findOne({_id: req.body.boxId}).populate('parent')
+  Box.findOne({_id: boxId}).populate('parent')
     .then(boxToDelete => {
       return [boxToDelete, emailConnector.delBox(boxToDelete.name)]
     })
@@ -52,7 +53,7 @@ function delBox(req, res) {
 
 function renameBox(req, res) {
   const user = req.user;
-  const boxId = req.params.id;
+  const boxId = req.params.boxId;
   const newShortName = req.body.newBoxShortName;
   const emailConnector = user.createIMAPConnector();
   Box.findOne({_id: boxId}).populate('parent')

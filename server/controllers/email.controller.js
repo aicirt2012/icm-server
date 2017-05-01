@@ -44,10 +44,14 @@ function append(req, res) {
 }
 
 function move(req, res) {
-  const emailConnector = req.user.createIMAPConnector();
-  Email.findOne({_id: req.body.emailId}).populate('box')
+  const emailId = req.params.emailId;
+  const newBoxId = req.boy.newBoxId;
+  const user = req.user;
+
+  const emailConnector = user.createIMAPConnector();
+  Email.findOne({_id: emailId}).populate('box')
     .then(email => {
-      return [email, Box.findOne({_id: req.body.newBoxId, user: req.user})]
+      return [email, Box.findOne({_id: newBoxId, user: user})]
     })
     .spread((email, destBox) => {
       const srcBox = email.box;

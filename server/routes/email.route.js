@@ -12,7 +12,7 @@ function routeProvider(passport) {
   router.route('/append')
     .post(emailCtrl.append);
 
-  router.route('/move')
+  router.route('/:emailId/move')
     .post(emailCtrl.move);
 
   router.route('/send')
