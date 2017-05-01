@@ -30,9 +30,6 @@ function routeProvider(passport) {
   router.route('/:emailId')
     .get(emailCtrl.getSingleMail);
 
-  router.route('/syncAll')
-    .get(emailCtrl.syncIMAP);
-
   return router;
 }
 

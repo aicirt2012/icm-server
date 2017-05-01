@@ -173,83 +173,6 @@ function searchMails(req, res) {
     });
 }
 
-/** Syncronizes the boxes of the user via IMAP */
-function syncIMAPBoxes(user, emailConnector) {
-  return new Promise((resolve, reject) => {
-    emailConnector
-      .getBoxes(false)
-      .then(boxes => {
-        console.log(boxes);
-        return Promise.each(boxes, (box) => {
-          return new Promise((resolve, reject) => {
-            Box.updateAndGetOldAndUpdated(box, user)
-              .spread((oldBox, updatedBox) => {
-                Socket.pushBoxUpdateToClient(oldBox, updatedBox);
-                resolve()
-              })
-              .catch(err => {
-                reject(err);
-              });
-          });
-        });
-      })
-      .then(() => {
-        return Box.deleteUpdatedAtOlderThan(user._id, user.lastSync);
-      })
-      .then(delBoxes => {
-        delBoxes.forEach(box => {
-          Socket.pushBoxUpdateToClient(box, null);
-        });
-        resolve();
-      })
-      .catch(err => {
-        reject(err);
-      });
-  })
-}
-
-/** Syncronizes the emails of the user via IMAP */
-function syncIMAPMails(user, emailConnector) {
-  const before = new Date();
-  console.log('--> syncIMAPMails');
-  return new Promise((resolve, reject) => {
-    Box.find({user: user})
-      .then(boxes => {
-        return emailConnector.fetchBoxes(storeEmail, boxes)
-      })
-      .then(() => {
-        console.log('Time for fetching: ', new Date() - before);
-        resolve();
-      })
-      .catch(err => {
-        reject(err)
-      });
-  })
-}
-
-
-/** Syncronizes the boxes and emails of the user via IMAP */
-function syncIMAP(req, res) {
-  console.log('-> syncIMAP');
-  const user = req.user;
-  const emailConnector = user.createIMAPConnector();
-  user.lastSync = new Date();
-  user.save()
-    .then(() => {
-      return syncIMAPBoxes(user, emailConnector)
-    })
-    .then(() => {
-      return syncIMAPMails(user, emailConnector);
-    })
-    .then(() => {
-      console.log('all synced!');
-      res.status(200).send({message: 'Finished syncing'});
-    })
-    .catch(err => {
-      res.status(500).send(err);
-    });
-}
-
 /** Creates autocomplete suggestions for email addresses */
 function autocomplete(req, res) {
   Email.autocomplete(req.user._id)
@@ -268,6 +191,5 @@ export default {
   addFlags,
   delFlags,
   searchMails,
-  getSingleMail,
-  syncIMAP
+  getSingleMail
 };

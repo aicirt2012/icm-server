@@ -13,6 +13,7 @@ function routeProvider(passport) {
   router.route('/').post(boxCtrl.addBox);
   router.route('/:boxId').delete(boxCtrl.delBox);
   router.route('/:boxId/rename').post(boxCtrl.renameBox);  
+  router.route('/syncAll').get(boxCtrl.syncIMAP);
 
   return router;
 }
