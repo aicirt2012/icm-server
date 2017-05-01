@@ -18,7 +18,7 @@ function routeProvider(passport) {
   router.route('/send')
     .post(emailCtrl.sendEmail);
 
-  router.route('/addFlags')
+  router.route('/:emailId/flags')
     .post(emailCtrl.addFlags);
 
   router.route('/:emailId/flags')

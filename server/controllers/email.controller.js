@@ -70,16 +70,22 @@ function move(req, res) {
 }
 
 function addFlags(req, res) {
+  const emailId = req.params.emailId;
+  const flags = req.body.flags;
+  const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
-  Box.findOne({_id: req.body.boxId, user: req.user})
+  let email = null;
+
+  Email.findById(emailId)
+    .then(mail=>{
+      email = mail;
+      return Box.findById(email.boxId);
+    }) 
     .then(box => {
-      return [box, emailConnector.addFlags(req.body.msgId, req.body.flags, box.name)]
+      return emailConnector.addFlags(email.uid, flags, box.name);
     })
-    .spread((box, msgId) => {
-      return Email.findOne({uid: req.body.msgId, box: box})
-    })
-    .then((email) => {
-      email.flags = email.flags.concat(req.body.flags);
+    .then(() => {
+      email.flags = email.flags.concat(flags);
       return email.save();
     })
     .then(() => {
@@ -99,7 +105,7 @@ function delFlags(req, res) {
   Email.findById(emailId)
     .then(mail=>{
       email = mail;
-      return Box.findOne({_id: email.boxId, user: user});
+      return Box.findById(email.boxId);
     }) 
     .then(box => {
       return emailConnector.delFlags(email.uid, flags, box.name);
