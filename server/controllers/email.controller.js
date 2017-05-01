@@ -45,7 +45,7 @@ function append(req, res) {
 
 function move(req, res) {
   const emailId = req.params.emailId;
-  const newBoxId = req.boy.newBoxId;
+  const newBoxId = req.body.newBoxId;
   const user = req.user;
 
   const emailConnector = user.createIMAPConnector();
