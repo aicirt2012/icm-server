@@ -9,17 +9,10 @@ function routeProvider(passport) {
   });
   router.use(mw);
 
-  router.route('/addBox')
-    .post(boxCtrl.addBox);
-
-  router.route('/delBox')
-    .post(boxCtrl.delBox);
-
-  router.route('/renameBox')
-    .post(boxCtrl.renameBox);
-
-  router.route('/box')
-    .get(boxCtrl.getBoxes);
+  router.route('/').get(boxCtrl.getBoxes);
+  router.route('/').post(boxCtrl.addBox);
+  router.route('/:boxId').delete(boxCtrl.delBox);
+  router.route('/:boxId/rename').post(boxCtrl.renameBox);  
 
   return router;
 }
