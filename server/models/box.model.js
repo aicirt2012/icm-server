@@ -232,7 +232,7 @@ BoxSchema.statics.getBoxesByUserId = (userId) => {
   return new Promise((resolve, reject) => {
     /*<boxId, box>*/
     const boxMap = new Map();
-    Box.find({user: userId}, {_id: 1, name: 1, shortName: 1, parent: 1}) //TODO remove name projection after refactoring
+    Box.find({user: userId}, {_id: 1, shortName: 1, parent: 1}) //TODO remove name projection after refactoring
       .lean()
       .then(boxes => {
         boxes.forEach(box => {
