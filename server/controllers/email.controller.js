@@ -193,5 +193,6 @@ export default {
   addFlags,
   delFlags,
   searchMails,
-  getSingleMail
+  getSingleMail,
+  storeEmail
 };

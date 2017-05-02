@@ -5,6 +5,7 @@ import config from '../../config/env';
 import User from '../models/user.model';
 import fs from 'fs';
 import Socket from '../routes/socket';
+import EmailController from './email.controller';
 
 /** Adds a box and updates the client via socket */
 function addBox(req, res) {
@@ -30,7 +31,7 @@ function addBox(req, res) {
 
 /** Deletes a box and updates the client via Socket */
 function delBox(req, res) {
-  const user = req.user;  
+  const user = req.user;
   const boxId = req.params.boxId;
   const emailConnector = user.createIMAPConnector();
   Box.findOne({_id: boxId}).populate('parent')
@@ -57,7 +58,7 @@ function renameBox(req, res) {
   const newShortName = req.body.newBoxShortName;
   const emailConnector = user.createIMAPConnector();
   Box.findOne({_id: boxId}).populate('parent')
-    .then(oldBox => {      
+    .then(oldBox => {
       const newBoxName = oldBox.parent != null ? oldBox.parent.name + '/' + newShortName : newShortName;
       return [oldBox, emailConnector.renameBox(oldBox.name, newBoxName)]
     })
@@ -127,7 +128,7 @@ function syncIMAPMails(user, emailConnector) {
   return new Promise((resolve, reject) => {
     Box.find({user: user})
       .then(boxes => {
-        return emailConnector.fetchBoxes(storeEmail, boxes)
+        return emailConnector.fetchBoxes(EmailController.storeEmail, boxes)
       })
       .then(() => {
         console.log('Time for fetching: ', new Date() - before);
@@ -164,7 +165,7 @@ function syncIMAP(req, res) {
 export default {
   addBox,
   delBox,
-  renameBox,  
+  renameBox,
   getBoxes,
   syncIMAP
 };
