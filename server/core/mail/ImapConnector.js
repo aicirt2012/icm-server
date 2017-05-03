@@ -19,9 +19,9 @@ class ImapConnector {
   constructor(options, user) {
     this.user = user;
     this.options = options;
-  /*  this.options.debug = (err) => {
+    this.options.debug = (err) => {
       console.log(err)
-    };*/
+    };
     this.options.connTimeout = 30000;
     this.options.authTimeout = 30000;
     this.options.keepAlive = false;

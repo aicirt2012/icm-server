@@ -8,6 +8,20 @@ import ImapConnector from './ImapConnector';
 class ExchangeConnector extends ImapConnector {
 
   // create exclude array
+  isBoxEnabled = {
+    'INBOX': false,
+    'Drafts': false,
+    'Journal': false,
+    'Junk Email': false,
+    'Notes': false,
+    'Outbox': false,
+    'Sent Items': true,
+    'Tasks': false,
+    'Calendar': false,
+    'Contacts': false,
+    'Deleted Items': false
+  }
+
 
   constructor(options, user) {
     super(options, user);
@@ -22,7 +36,7 @@ class ExchangeConnector extends ImapConnector {
         console.log(box);
         const boxName = box.name;
         console.log(boxName);
-        if (boxName == 'INBOX') {
+        if (this.isBoxEnabled[boxName]) {
           return this.fetchEmails(storeEmail, box).then((hms) => {
             highestmodseq.push(hms);
           });
@@ -47,7 +61,6 @@ class ExchangeConnector extends ImapConnector {
 
   fetchEmails(storeEmail, newBox) {
     console.log('inside fetchEmails');
-    console.log
     return this.openBox(newBox.name).then((box) => {
       return new Promise((resolve, reject) => {
         let options = {
