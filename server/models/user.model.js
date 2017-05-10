@@ -7,6 +7,7 @@ import mongoosePaginate from 'mongoose-paginate';
 import GmailConnector from '../core/mail/GmailConnector';
 import SMTPConnector from '../core/mail/SMTPConnector';
 import ExchangeConnector from '../core/mail/ExchangeConnector';
+import EWSConnector from '../core/mail/EWSConnector';
 
 const UserSchema = new mongoose.Schema({
   username: {type: String, required: true, index: true},
@@ -80,7 +81,8 @@ UserSchema.method({
     };
     switch (this.provider.name) {
       case 'Gmail': return new GmailConnector(imapOptions, this); break;
-      case 'Exchange': return new ExchangeConnector(imapOptions, this); break;
+      //case 'Exchange': return new ExchangeConnector(imapOptions, this); break;
+      case 'Exchange': return new EWSConnector(imapOptions, this); break;
       default: return new GmailConnector(imapOptions, this);
     }
   },
