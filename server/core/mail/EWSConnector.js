@@ -153,8 +153,8 @@ class EWSConnector {
 
       this.ews.run(ewsFunction, ewsArgs)
         .then(result => {
-
-          console.log('SyncFolderHierarchy'); console.log(JSON.stringify(result));
+          console.log('SyncFolderHierarchy');
+          //console.log(JSON.stringify(result));
           const boxes = this._getOnlyEmailBoxes(result);
           console.log('here the boxes');
           console.log(boxes);
@@ -191,17 +191,20 @@ class EWSConnector {
 
   _relateParentChildren(parentIdx, emailBoxes) {
     parentIdx.forEach(idx => {
-      console.log('Hi Parent');
-      console.log(emailBoxes[idx]);
-      // TODO traverse emailBoxes locating those with ParentFolderId;
+      emailBoxes[idx].children = [];
+      const parentId = emailBoxes[idx].FolderId.attributes.Id;
+
+      emailBoxes.forEach(box => {
+        if (box.ParentFolderId.attributes.Id == parentId) {
+          emailBoxes[idx].children.push(box);
+        }
+      })
     })
     return emailBoxes;
   }
 
   _generateBoxList(boxes, parentPath, arr, parent) {
-
     Object.keys(boxes).forEach((key, i) => {
-      console.log(boxes[key].DisplayName);
       const path = parentPath ? `${parentPath}/${boxes[key].DisplayName}` : boxes[key].DisplayName;
       let box = null;
       if (this.excludedBoxes.indexOf(boxes[key].DisplayName) < 0) {
@@ -212,14 +215,9 @@ class EWSConnector {
         };
         arr.push(box);
       }
-      console.log('Children: ' + boxes[key].ChildFolderCount);
-
-      // TODO recursively create children
-      /*
       if (boxes[key].ChildFolderCount > 0) {
         this._generateBoxList(boxes[key].children, path, arr, box);
       }
-      */
     })
   }
 
