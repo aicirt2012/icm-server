@@ -163,8 +163,7 @@ class EWSConnector {
           this._generateBoxList(boxes, null, boxList, null);
           console.log('here the boxList');
           console.log(boxList);
-
-          resolve();
+          resolve(boxList);
         })
         .catch(err => {
           console.log(err);
@@ -190,16 +189,28 @@ class EWSConnector {
   }
 
   _relateParentChildren(parentIdx, emailBoxes) {
+    let childrenIdx = [];
+
+    // push children into parent
     parentIdx.forEach(idx => {
       emailBoxes[idx].children = [];
       const parentId = emailBoxes[idx].FolderId.attributes.Id;
 
-      emailBoxes.forEach(box => {
+      emailBoxes.forEach((box, i) => {
         if (box.ParentFolderId.attributes.Id == parentId) {
           emailBoxes[idx].children.push(box);
+          childrenIdx.push(i);
         }
       })
     })
+
+    // remove children from emailBoxes
+    // they are now contained in the parent
+    childrenIdx.reverse();
+    childrenIdx.forEach(idx => {
+      emailBoxes.splice(idx, 1);
+    })
+
     return emailBoxes;
   }
 
