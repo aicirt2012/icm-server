@@ -7,6 +7,8 @@ mongoose.Promise = Promise;
 
 const BoxSchema = new mongoose.Schema({
   boxId: Number,
+  ewsId: {type: String, index: true},
+  ewsSyncState: String,
   name: {type: String, index: true},
   shortName: String,
   parent: {type: ObjectId, ref: 'Box'},

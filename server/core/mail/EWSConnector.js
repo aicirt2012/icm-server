@@ -2,7 +2,7 @@ import EWS from 'node-ews';
 
 class EWSConnector {
 
-  excludedBoxes = ['Calendar', 'Contacts', 'Companies'];
+  excludedBoxes = ['Conversation Action Settings'];
 
   constructor(options, user) {
 
@@ -63,29 +63,10 @@ class EWSConnector {
   syncFolderItems(syncState) {
     return new Promise((resolve, reject) => {
 
-      console.log('--- Get ongoing list of folders');
-
       /// ----- Get the initial list of items (messages)
       // ewsFunction = 'SyncFolderHierarchy';
       // ewsFunction = 'GetFolder';
-      const ewsFunction = 'SyncFolderItems';
 
-      const ewsArgs = {
-        "ItemShape": {
-          "BaseShape": "AllProperties"
-        },
-        "SyncFolderId": {
-          "DistinguishedFolderId": {
-            "attributes": {
-              "Id": "sentitems"
-            }
-          }
-        },
-        //"SyncState": "H4sIAAAAAAAEAGNgYGcAAotqE0tHE2NTA0ddZ3NHC10TR2djXSdnJ2ddNyMnC2cnczdLU1OD2vBgveDKvOTgksSSVOfEvMSiSgYr0nW65eekpBZ5pjBYkq43LLWoODM/j8GaaK3+QMuKS4JSk1Mzy1JTQjJzU0nwrU9icYlnXnFJYl5yqncqKb71zS9K9SxJzS32zwtOLSpLLSLByXDfhgNxUW5iUTYklrgYGISA0tDwAxkOUskgCJQyAGI9kBrHjZvehIbEe+5fJrXqbVrtc0YG26WX7OcuYXHrzYgNaD2TmApSxcgDxAx8DMwgDjeD7ZdztjemXfFgEAKK8gIx0DodRgYGX8cAT19HP5AiBjdTtzCQ8gAgVmVAgPVAbIXEL0Xjw8BLIDZH4idZpJqnGFta6hpZGhnpmpgbGuhaWBqb6yabGBubW1iYAYkUDLczMTCwcK45O4eFd/KzN8yy7pVBtnYBjK7MPav7mOcw1Qcw+4rwBPkHBQRg17mWTYiFd4ouD1DnwaCAQLDO70uZ5wQ0g3QWBx0/hUUnI0MQOMgYr15IVwxguBfCvlutnsN3sv6/qrlKP/aygX3DyGDIwNAAAEwxjyFOAwAA",
-        "SyncState": "H4sIAAAAAAAEAJWRX0gUURTG73QXtSQh6anCB2FNitFt/82M2x9mVpa22vZ6d9VCIsadW0ntLMyOgoVUD4lC0kPQQ6FYVkJUpND6YGoIvZhBrLlkD1b4UFAhFEFRSGdWKcGM9sJv4Mw5Z777fYNQPoIjnnFLstvlcci8X5BF3i37XbziV/x8wKmIfkUISB6Po60+UhFp1WMRUzWZX9VVoxVV5b4ZSJzSmBHUkJT7bh0zkk0JHfn+ezUMYkmTshhramFatCnOcnB7QE2aQT1pqnqM7We5uA0lDBY0WTwZ1iPMaGFGDlf+7bYeMOKqcXLxL61DqBjaS/lZH7cm0QZoOYAKa0YeGPxYGz0aHLu96c6nY23vOLTrVnpP901boOvEEXJhUmXWFLcWQEUIW0UhevPz88WZKy/2omJ4ux4AucNrEArJJBiSD1pDKOAJ1FnjBLCjP6eXQ6hkWT0K9SW08jQD3mV1o8gEzSVJvFNyOnm3sMPBi5JL4GNul0sQRS88tBV3p9lVDnHTz+OFaDaaP1x2tiB0uXLhdHfpt5G8pa7XR/D2GQedyhDb7n19Oq5+P0nt5QTXNqg0XENww70RKisEH/9QQNs7CE4uxKi9jODUxqvK9c2EkBXCIIlsgze0p3hitIeWbyM4Pfda6TvE3SW2+e+VDYTjcOmwlwo7QXq2k7Z3gnRNHoer55upWwDpxil6/wFIP9To2GOQ/lJFX74i2Mwbp6khkC7pUWyrSGddc1nPZFXT/47q7356r/XTiUf9Y8A4Tr89r3QVgZ2vAxmwQ0tTQS/goxDlFJDJZkkhSztQTiHMMFBDIU0ZUCjE2Q50UMjTDpQtBuojtmdb5rbS6Sc/0kAGPMoInfsFpL51H3sEAAA=",
-        "MaxChangesReturned": "40",
-        "SyncScope": "NormalItems"
-      };
 
       /*
        ewsArgs = {
@@ -105,9 +86,6 @@ class EWSConnector {
 
       /*
        ewsArgs = {
-       "Mailbox": {
-       'Address' : 'ws01.sebis@tum.de'
-       },
        "FolderShape": {
        "BaseShape": "Default"
        },
@@ -121,22 +99,10 @@ class EWSConnector {
        }
        */
 
-      // query EWS and print resulting JSON to console
-      this.ews.run(ewsFunction, ewsArgs)
-        .then(result => {
-          console.log('Get Changes since last sync');
-          console.log(JSON.stringify(result));
-          resolve();
-        })
-        .catch(err => {
-          console.log(err.message);
-        });
-
     });
   }
 
   getBoxes(details = false) {
-    console.log('inside getBoxes from EWS connector');
     return new Promise((resolve, reject) => {
 
       const ewsFunction = 'SyncFolderHierarchy';
@@ -153,16 +119,9 @@ class EWSConnector {
 
       this.ews.run(ewsFunction, ewsArgs)
         .then(result => {
-          console.log('SyncFolderHierarchy');
-          //console.log(JSON.stringify(result));
           const boxes = this._getOnlyEmailBoxes(result);
-          console.log('here the boxes');
-          console.log(boxes);
-
           let boxList = [];
-          this._generateBoxList(boxes, null, boxList, null);
-          console.log('here the boxList');
-          console.log(boxList);
+          this._generateBoxList(boxes, boxList);
           resolve(boxList);
         })
         .catch(err => {
@@ -174,61 +133,94 @@ class EWSConnector {
 
   _getOnlyEmailBoxes(result) {
     const allBoxes = result.ResponseMessages.SyncFolderHierarchyResponseMessage.Changes.Create;
-    let emailBoxes = [];
-    let parentIdx = [];
+    let emailBoxNames = new Map();
+    let emailBoxes = new Map();
     allBoxes.forEach(box => {
       if (box.Folder) {
-        emailBoxes.push(box.Folder);
-        if (box.Folder.ChildFolderCount > 0) {
-          parentIdx.push(emailBoxes.length - 1);
-        }
+        const folderId = box.Folder.FolderId.attributes.Id;
+        const parentId = box.Folder.ParentFolderId.attributes.Id;
+
+        emailBoxNames.set(folderId, box.Folder.DisplayName);
+        box.Folder.ParentFolderId.attributes.Name = emailBoxNames.get(parentId) || null;
+
+        let boxArray = emailBoxes.get(parentId) ? emailBoxes.get(parentId) : [];
+        boxArray.push(box.Folder);
+        emailBoxes.set(parentId, boxArray);
       }
     })
-    emailBoxes = this._relateParentChildren(parentIdx, emailBoxes);
     return emailBoxes;
   }
 
-  _relateParentChildren(parentIdx, emailBoxes) {
-    let childrenIdx = [];
-
-    // push children into parent
-    parentIdx.forEach(idx => {
-      emailBoxes[idx].children = [];
-      const parentId = emailBoxes[idx].FolderId.attributes.Id;
-
-      emailBoxes.forEach((box, i) => {
-        if (box.ParentFolderId.attributes.Id == parentId) {
-          emailBoxes[idx].children.push(box);
-          childrenIdx.push(i);
+  _generateBoxList(boxes, arr) {
+    boxes.forEach(children => {
+      children.forEach(child => {
+        if (this.excludedBoxes.indexOf(child.DisplayName) < 0) {
+          let box = {
+            ewsId: child.FolderId.attributes.Id,
+            name: child.ParentFolderId.attributes.Name ? child.ParentFolderId.attributes.Name  + '/' + child.DisplayName : child.DisplayName,
+            shortName: child.DisplayName,
+            parent: child.ParentFolderId.attributes.Name,
+          };
+          arr.push(box);
         }
       })
     })
-
-    // remove children from emailBoxes
-    // they are now contained in the parent
-    childrenIdx.reverse();
-    childrenIdx.forEach(idx => {
-      emailBoxes.splice(idx, 1);
-    })
-
-    return emailBoxes;
   }
 
-  _generateBoxList(boxes, parentPath, arr, parent) {
-    Object.keys(boxes).forEach((key, i) => {
-      const path = parentPath ? `${parentPath}/${boxes[key].DisplayName}` : boxes[key].DisplayName;
-      let box = null;
-      if (this.excludedBoxes.indexOf(boxes[key].DisplayName) < 0) {
-        box = {
-          name: path,
-          shortName: path.substr(path.lastIndexOf('/') + 1, path.length),
-          parent: parent ? parent.name : null,
-        };
-        arr.push(box);
-      }
-      if (boxes[key].ChildFolderCount > 0) {
-        this._generateBoxList(boxes[key].children, path, arr, box);
-      }
+  fetchBoxes(storeEmail, boxes = []) {
+    console.log('fetchBoxes from the EWSConnector...');
+    return new Promise((resolve, reject) => {
+      let highestmodseq = [];
+      Promise.each(boxes, (box) => {
+        console.log(box);
+        // TODO: change highestmodseq name to SyncState (EWS standard)
+        return this.fetchEmails(storeEmail, box).then(hms => {
+          highestmodseq.push(hms)
+        })
+      }).then(() => {
+        this.user.highestmodseq = this.user.highestmodseq && parseInt(this.user.highestmodseq) > parseInt(highestmodseq[0]) ? this.user.highestmodseq : highestmodseq[0];
+        this.user.save().then(() => {
+          resolve();
+        });
+      }).catch(err => {
+        console.log(err);
+        reject();
+      });
+    });
+  }
+
+  fetchEmails(storeEmail, box) {
+    return new Promise((resolve, reject) => {
+      const ewsFunction = 'SyncFolderItems';
+      const ewsArgs = {
+        "ItemShape": {
+          "BaseShape": "AllProperties"
+        },
+        "SyncFolderId": {
+          "FolderId": {
+            "attributes": {
+              "Id": box.ewsId
+            }
+          }
+        },
+        "SyncState": box.ewsSyncState,
+        "MaxChangesReturned": "10",
+        "SyncScope": "NormalItems"
+      };
+
+      console.log(ewsArgs)
+
+      // query EWS and print resulting JSON to console
+      this.ews.run(ewsFunction, ewsArgs)
+        .then(result => {
+          console.log('Fetching Emails...');
+          console.log(JSON.stringify(result));
+          resolve();
+        })
+        .catch(err => {
+          console.log(err);
+          reject();
+        });
     })
   }
 
