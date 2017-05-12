@@ -120,8 +120,7 @@ class EWSConnector {
       this.ews.run(ewsFunction, ewsArgs)
         .then(result => {
           const boxes = this._getOnlyEmailBoxes(result);
-          let boxList = [];
-          this._generateBoxList(boxes, boxList);
+          const boxList = this._generateBoxList(boxes);
           resolve(boxList);
         })
         .catch(err => {
@@ -151,7 +150,8 @@ class EWSConnector {
     return emailBoxes;
   }
 
-  _generateBoxList(boxes, arr) {
+  _generateBoxList(boxes) {
+    let boxList = []
     boxes.forEach(children => {
       children.forEach(child => {
         if (this.excludedBoxes.indexOf(child.DisplayName) < 0) {
@@ -161,10 +161,11 @@ class EWSConnector {
             shortName: child.DisplayName,
             parent: child.ParentFolderId.attributes.Name,
           };
-          arr.push(box);
+          boxList.push(box);
         }
       })
-    })
+    });
+    return boxList;
   }
 
   fetchBoxes(storeEmail, boxes = []) {
