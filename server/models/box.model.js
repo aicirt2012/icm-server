@@ -260,6 +260,21 @@ BoxSchema.statics.getBoxesByUserId = (userId) => {
   });
 }
 
+BoxSchema.statics._updateBox = (box) => {
+  return new Promise((resolve, reject) => {
+    Box.findByIdAndUpdate(box._id, box)
+      .lean()
+      .then(box => {
+        console.log('updated box');
+        console.log(box);
+        resolve();
+      })
+      .catch(err => {
+        reject(err);
+      })
+  });
+}
+
 
 let Box = mongoose.model('Box', BoxSchema)
 export default Box;
