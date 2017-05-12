@@ -264,9 +264,7 @@ BoxSchema.statics._updateBox = (box) => {
   return new Promise((resolve, reject) => {
     Box.findByIdAndUpdate(box._id, box)
       .lean()
-      .then(box => {
-        console.log('updated box');
-        console.log(box);
+      .then(() => {
         resolve();
       })
       .catch(err => {

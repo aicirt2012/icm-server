@@ -1,6 +1,13 @@
 import EWS from 'node-ews';
 import Box from '../../models/box.model';
 
+/*
+ https://msdn.microsoft.com/en-us/library/office/dn440952(v=exchg.150).aspx
+ https://msdn.microsoft.com/en-us/library/aa563967(v=exchg.150).aspx
+ https://msdn.microsoft.com/en-us/library/office/aa566013(v=exchg.150).aspx
+ https://blogs.msdn.microsoft.com/exchangedev/2010/03/16/loading-properties-for-multiple-items-with-one-call-to-exchange-web-services/
+ */
+
 class EWSConnector {
 
   excludedBoxes = ['Conversation Action Settings'];
@@ -98,11 +105,11 @@ class EWSConnector {
       Promise.each(boxes, (box) => {
         return this.fetchEmails(storeEmail, box).then(syncState => {
           box.ewsSyncState = syncState;
-          console.log('here the box..');
           console.log(box);
           return Box._updateBox(box);
         })
       }).then(() => {
+        console.log('Box up to date!');
         resolve();
       }).catch(err => {
         console.log(err);
@@ -113,11 +120,12 @@ class EWSConnector {
 
   fetchEmails(storeEmail, box) {
     return new Promise((resolve, reject) => {
-      const MAX_CHANGES_RETURNED = '30';
+      let syncState = box.ewsSyncState;
+      const MAX_CHANGES_RETURNED = '10';
       const ewsFunction = 'SyncFolderItems';
       const ewsArgs = {
         "ItemShape": {
-          "BaseShape": "AllProperties"
+          "BaseShape": "IdOnly"
         },
         "SyncFolderId": {
           "FolderId": {
@@ -126,18 +134,20 @@ class EWSConnector {
             }
           }
         },
-        "SyncState": box.ewsSyncState,
+        "SyncState": syncState,
         "MaxChangesReturned": MAX_CHANGES_RETURNED,
         "SyncScope": "NormalItems"
       };
-
-      console.log(ewsArgs)
 
       this.ews.run(ewsFunction, ewsArgs)
         .then(result => {
           console.log('Fetching Emails...');
           console.log(JSON.stringify(result));
-          const syncState = this._getBoxSyncState(result);
+          syncState = this._getBoxSyncState(result);
+          return this._parseAndStoreEmails(result, box, storeEmail);
+        })
+        .then(() => {
+          console.log('now update box SyncState');
           resolve(syncState);
         })
         .catch(err => {
@@ -151,24 +161,63 @@ class EWSConnector {
     return result.ResponseMessages.SyncFolderItemsResponseMessage.SyncState;
   }
 
-  _getEmails(result) {
-    const allBoxes = result.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Create;
-    let emailBoxNames = new Map();
-    let emailBoxes = new Map();
-    allBoxes.forEach(box => {
-      if (box.Folder) {
-        const folderId = box.Folder.FolderId.attributes.Id;
-        const parentId = box.Folder.ParentFolderId.attributes.Id;
+  // SyncFolderItems is similar to the FindItem operation in that it cannot return properties like Body or Attachments.
+  // so it is necessary to call GetItem :(
+  _parseAndStoreEmails(result, box, storeEmail) {
+    return new Promise((resolve, reject) => {
+      const items = result.ResponseMessages.SyncFolderItemsResponseMessage.Changes ? result.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Create : [];
+      Promise.each(items, (item) => {
+        return this._getAndParseEmail(item);
+      }).then(email => {
+        // TODO store email
+        resolve();
+      }).catch(err => {
+        console.log(err);
+        reject();
+      });
+    });
+  }
 
-        emailBoxNames.set(folderId, box.Folder.DisplayName);
-        box.Folder.ParentFolderId.attributes.Name = emailBoxNames.get(parentId) || null;
+  // TODO this will be slow
+  // Find an alternative for batches
+  // https://blogs.msdn.microsoft.com/exchangedev/2010/03/16/loading-properties-for-multiple-items-with-one-call-to-exchange-web-services/
+  _getAndParseEmail(item) {
+    console.log('calling Email EWS...');
+    return new Promise((resolve, reject) => {
+      const ewsFunction = 'GetItem';
+      const ewsArgs = {
+        "ItemShape": {
+          "BaseShape": "Default"
+        },
+        "ItemIds": {
+          "ItemId": {
+            "attributes": {
+              "Id": item.Message.ItemId.attributes.Id,
+              "ChangeKey": item.Message.ItemId.attributes.ChangeKey
+            }
+          }
+        }
+      };
 
-        let boxArray = emailBoxes.get(parentId) ? emailBoxes.get(parentId) : [];
-        boxArray.push(box.Folder);
-        emailBoxes.set(parentId, boxArray);
-      }
-    })
-    return emailBoxes;
+      this.ews.run(ewsFunction, ewsArgs)
+        .then(rawEmail => {
+          console.log('Raw Email...');
+          console.log(JSON.stringify(rawEmail));
+          //TODO parse raw Email for email.model
+          // const email = _parseEmail(rawEmail);
+          // resolve(email)
+          resolve();
+        })
+        .catch(err => {
+          console.log(err);
+          reject();
+        });
+
+    });
+  }
+
+  _parseEmail(rawEmail) {
+    //TODO
   }
 
 }
