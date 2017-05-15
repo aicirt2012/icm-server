@@ -1,3 +1,5 @@
+import Promise from 'bluebird';
+import moment from 'moment';
 import EWS from 'node-ews';
 import Box from '../../models/box.model';
 
@@ -13,6 +15,8 @@ class EWSConnector {
   excludedBoxes = ['Conversation Action Settings', 'Files'];
 
   constructor(options, user) {
+
+    this.user = user;
 
     console.log('Hallo EWSConnector');
     console.log(options);
@@ -140,11 +144,11 @@ class EWSConnector {
       };
 
       this.ews.run(ewsFunction, ewsArgs)
-        .then(result => {
+        .then(changes => {
           console.log('Fetching Emails...');
-          console.log(JSON.stringify(result));
-          syncState = this._getBoxSyncState(result);
-          return this._parseAndStoreEmails(result, box, storeEmail);
+          console.log(JSON.stringify(changes));
+          syncState = this._getBoxSyncState(changes);
+          return this._processChangesAndStoreEmails(changes, box, storeEmail);
         })
         .then(() => {
           console.log('now update box SyncState');
@@ -163,10 +167,10 @@ class EWSConnector {
 
   // SyncFolderItems is similar to the FindItem operation in that it cannot return properties like Body or Attachments.
   // so it is necessary to call GetItem :(
-  _parseAndStoreEmails(result, box, storeEmail) {
+  _processChangesAndStoreEmails(result, box, storeEmail) {
     return new Promise((resolve, reject) => {
       const items = result.ResponseMessages.SyncFolderItemsResponseMessage.Changes ? result.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Create : [];
-      this._getAndParseEmails(items)
+      this._getParseAndStoreEmails(items, box, storeEmail)
         .then(emails => {
           // TODO store emails
           console.log(emails);
@@ -178,9 +182,8 @@ class EWSConnector {
     });
   }
 
-  _getAndParseEmails(items) {
+  _getParseAndStoreEmails(items, box, storeEmail) {
     console.log('calling Email EWS GetItem batch...');
-    console.log(items);
     return new Promise((resolve, reject) => {
 
       if (items.length == 0) {
@@ -202,11 +205,9 @@ class EWSConnector {
       console.log(JSON.stringify(ewsArgs));
 
       this.ews.run(ewsFunction, ewsArgs)
-        .then(rawEmails => {
-          console.log('Raw Emails...');
-          //console.log(JSON.stringify(rawEmails));
-          //TODO parse raw Email for email.model
-          // const email = _parseEmail(rawEmail);
+        .then(result => {
+          console.log(' ---- > Raw Emails...');
+          const email = this._parseAndStoreEmails(result, box, storeEmail);
           // resolve(email)
           resolve();
         })
@@ -233,8 +234,36 @@ class EWSConnector {
     return itemIds;
   }
 
-  _parseEmails(rawEmail) {
-    //TODO
+  _parseAndStoreEmails(result, box, storeEmail) {
+    console.log('inside parseEmails');
+    console.log(result);
+    const rawEmails = result.ResponseMessages.GetItemResponseMessage || [];
+    console.log(rawEmails);
+    let emails = [];
+    rawEmails.forEach(rawEmail => {
+      const message = rawEmail.Items.Message;
+      console.log(message);
+      const email = {
+        messageId: message.ItemId.attributes.Id,
+        // ewsChangeKey: message.ItemId.attributes.ChangeKey,
+        from: message.From.Mailbox, // this._formatMessageFromOrTo(message.From.Mailbox),
+        to: message.ToRecipients ? message.ToRecipients.Mailbox : [], // this._formatMessageFromOrTo(message.From.Mailbox),
+        subject: message.Subject,
+        text: message.TextBody || '',
+        html: message.Body['$value'],
+        date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
+        flags: [message.isRead],
+        box: box._id,
+        user: this.user._id
+      }
+      console.log('parsedEmail');
+      console.log(email);
+    });
+    return emails;
+  }
+
+  _formatMessageFromOrTo(mailbox) {
+    // TODO
   }
 
 }
