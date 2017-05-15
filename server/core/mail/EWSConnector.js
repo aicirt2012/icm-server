@@ -146,7 +146,7 @@ class EWSConnector {
       this.ews.run(ewsFunction, ewsArgs)
         .then(changes => {
           console.log('Fetching Emails...');
-          console.log(JSON.stringify(changes));
+          //console.log(JSON.stringify(changes));
           syncState = this._getBoxSyncState(changes);
           return this._processChangesAndStoreEmails(changes, box, storeEmail);
         })
@@ -167,9 +167,10 @@ class EWSConnector {
 
   // SyncFolderItems is similar to the FindItem operation in that it cannot return properties like Body or Attachments.
   // so it is necessary to call GetItem :(
-  _processChangesAndStoreEmails(result, box, storeEmail) {
+  _processChangesAndStoreEmails(changes, box, storeEmail) {
     return new Promise((resolve, reject) => {
-      const items = result.ResponseMessages.SyncFolderItemsResponseMessage.Changes ? result.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Create : [];
+      const items = changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes ? changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Create : [];
+      //TODO Changes.UPDATE - Changes.DELETE ...
       this._getParseAndStoreEmails(items, box, storeEmail)
         .then(emails => {
           // TODO store emails
@@ -201,13 +202,10 @@ class EWSConnector {
         }
       };
 
-      console.log('ewsARgs');
-      console.log(JSON.stringify(ewsArgs));
-
       this.ews.run(ewsFunction, ewsArgs)
         .then(result => {
           console.log(' ---- > Raw Emails...');
-          const email = this._parseAndStoreEmails(result, box, storeEmail);
+          this._parseAndStoreEmails(result, box, storeEmail);
           // resolve(email)
           resolve();
         })
@@ -236,36 +234,55 @@ class EWSConnector {
 
   _parseAndStoreEmails(result, box, storeEmail) {
     console.log('inside parseEmails');
-    console.log(result);
-    const rawEmails = result.ResponseMessages.GetItemResponseMessage || [];
-    console.log(rawEmails);
-    let emails = [];
-    rawEmails.forEach(rawEmail => {
-      const message = rawEmail.Items.Message;
-      console.log(message);
-      const email = {
-        messageId: message.ItemId.attributes.Id,
-        // ewsChangeKey: message.ItemId.attributes.ChangeKey,
-        from: message.From.Mailbox, // this._formatMessageFromOrTo(message.From.Mailbox),
-        to: message.ToRecipients ? message.ToRecipients.Mailbox : [], // this._formatMessageFromOrTo(message.From.Mailbox),
-        subject: message.Subject,
-        text: message.TextBody || '',
-        html: message.Body['$value'],
-        date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
-        flags: [message.isRead],
-        box: box._id,
-        user: this.user._id
-      }
-      console.log('parsedEmail');
-      console.log(email);
+    return new Promise((resolve, reject) => {
+
+      const rawEmails = result.ResponseMessages.GetItemResponseMessage || [];
+      let emails = [];
+
+      rawEmails.forEach(rawEmail => {
+        const message = rawEmail.Items.Message;
+        const email = {
+          messageId: message.ItemId.attributes.Id,
+          // ewsChangeKey: message.ItemId.attributes.ChangeKey,
+          from: this._formatReceiversOrRecipients(message.From.Mailbox),
+          to: this._formatReceiversOrRecipients(message.ToRecipients ? message.ToRecipients.Mailbox : null),
+          subject: message.Subject,
+          text: message.TextBody || '', //TODO is possible to obtain only text from emails?
+          html: message.Body['$value'],
+          date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
+          flags: [message.IsRead == 'false' ? '' : '\\Seen'],
+          box: box._id,
+          user: this.user._id
+        }
+        emails.push(email);
+        //TODO store
+      });
+      console.log('parsedEmails');
+      console.log(emails);
+
+      resolve();
     });
-    return emails;
   }
 
-  _formatMessageFromOrTo(mailbox) {
-    // TODO
+  _formatReceiversOrRecipients(mailbox) {
+    let contacts = [];
+    if (mailbox) {
+      if (mailbox instanceof Array) {
+        mailbox.forEach(item => {
+          contacts.push({
+            address: item.EmailAddress,
+            name: item.Name
+          })
+        })
+      } else {
+        contacts.push({
+          address: mailbox.EmailAddress,
+          name: mailbox.Name
+        });
+      }
+    }
+    return contacts;
   }
-
 }
 
 export default EWSConnector;
