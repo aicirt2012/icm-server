@@ -10,7 +10,7 @@ import Box from '../../models/box.model';
 
 class EWSConnector {
 
-  excludedBoxes = ['Conversation Action Settings'];
+  excludedBoxes = ['Conversation Action Settings', 'Files'];
 
   constructor(options, user) {
 
@@ -166,43 +166,45 @@ class EWSConnector {
   _parseAndStoreEmails(result, box, storeEmail) {
     return new Promise((resolve, reject) => {
       const items = result.ResponseMessages.SyncFolderItemsResponseMessage.Changes ? result.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Create : [];
-      Promise.each(items, (item) => {
-        return this._getAndParseEmail(item);
-      }).then(email => {
-        // TODO store email
-        resolve();
-      }).catch(err => {
+      this._getAndParseEmails(items)
+        .then(emails => {
+          // TODO store emails
+          console.log(emails);
+          resolve();
+        }).catch(err => {
         console.log(err);
         reject();
       });
     });
   }
 
-  // TODO this will be slow
-  // Find an alternative for batches
-  // https://blogs.msdn.microsoft.com/exchangedev/2010/03/16/loading-properties-for-multiple-items-with-one-call-to-exchange-web-services/
-  _getAndParseEmail(item) {
-    console.log('calling Email EWS...');
+  _getAndParseEmails(items) {
+    console.log('calling Email EWS GetItem batch...');
+    console.log(items);
     return new Promise((resolve, reject) => {
+
+      if (items.length == 0) {
+        resolve();
+        return;
+      }
+
       const ewsFunction = 'GetItem';
       const ewsArgs = {
         "ItemShape": {
           "BaseShape": "Default"
         },
         "ItemIds": {
-          "ItemId": {
-            "attributes": {
-              "Id": item.Message.ItemId.attributes.Id,
-              "ChangeKey": item.Message.ItemId.attributes.ChangeKey
-            }
-          }
+          "ItemId": this._structureItemIds(items)
         }
       };
 
+      console.log('ewsARgs');
+      console.log(JSON.stringify(ewsArgs));
+
       this.ews.run(ewsFunction, ewsArgs)
-        .then(rawEmail => {
-          console.log('Raw Email...');
-          console.log(JSON.stringify(rawEmail));
+        .then(rawEmails => {
+          console.log('Raw Emails...');
+          //console.log(JSON.stringify(rawEmails));
           //TODO parse raw Email for email.model
           // const email = _parseEmail(rawEmail);
           // resolve(email)
@@ -216,7 +218,22 @@ class EWSConnector {
     });
   }
 
-  _parseEmail(rawEmail) {
+  _structureItemIds(items) {
+    let itemIds = []
+    items.forEach(item => {
+      itemIds.push(
+        {
+          "attributes": {
+            "Id": item.Message.ItemId.attributes.Id,
+            "ChangeKey": item.Message.ItemId.attributes.ChangeKey
+          }
+        }
+      )
+    });
+    return itemIds;
+  }
+
+  _parseEmails(rawEmail) {
     //TODO
   }
 
