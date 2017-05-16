@@ -16,11 +16,9 @@ class EWSConnector {
 
   constructor(options, user) {
 
-    this.user = user;
-
     console.log('Hallo EWSConnector');
-    console.log(options);
-    console.log(user);
+
+    this.user = user;
 
     // exchange server connection info
     this.ewsConfig = {
@@ -32,10 +30,6 @@ class EWSConnector {
 
     // initialize node-ews
     this.ews = new EWS(this.ewsConfig);
-
-    console.log(this.ews);
-    console.log(this.ewsConfig);
-
   }
 
   getBoxes(details = false) {
@@ -104,7 +98,6 @@ class EWSConnector {
   }
 
   fetchBoxes(storeEmail, boxes = []) {
-    console.log('fetchBoxes from the EWSConnector...');
     return new Promise((resolve, reject) => {
       Promise.each(boxes, (box) => {
         return this.fetchEmails(storeEmail, box).then(syncState => {
@@ -145,12 +138,10 @@ class EWSConnector {
 
       this.ews.run(ewsFunction, ewsArgs)
         .then(changes => {
-          console.log('Fetching Emails...');
           syncState = this._getBoxSyncState(changes);
           return this._processChangesAndStoreEmails(changes, box, storeEmail);
         })
         .then(() => {
-          console.log('now update box SyncState');
           resolve(syncState);
         })
         .catch(err => {
@@ -164,21 +155,22 @@ class EWSConnector {
     return result.ResponseMessages.SyncFolderItemsResponseMessage.SyncState;
   }
 
-  // SyncFolderItems is similar to the FindItem operation in that it cannot return properties like Body or Attachments.
-  // so it is necessary to call GetItem :(
   _processChangesAndStoreEmails(changes, box, storeEmail) {
     return new Promise((resolve, reject) => {
       const items = this._getChangeItems(changes);
       this._getEmailsFromItems(items, box, storeEmail)
         .then(emails => {
-          console.log('inside processChangesAndStoreEmails...');
-          console.log('emails to store');
-          console.log(emails);
+          return Promise.each(emails, (email) => {
+            return storeEmail(email);
+          });
+        })
+        .then(() => {
           resolve();
-        }).catch(err => {
-        console.log(err);
-        reject();
-      });
+        })
+        .catch(err => {
+          console.log(err);
+          reject();
+        });
     });
   }
 
@@ -195,7 +187,6 @@ class EWSConnector {
   }
 
   _getEmailsFromItems(items, box) {
-    console.log('calling Email EWS GetItem batch...');
     return new Promise((resolve, reject) => {
 
       if (items.length == 0) {
@@ -215,7 +206,6 @@ class EWSConnector {
 
       this.ews.run(ewsFunction, ewsArgs)
         .then(result => {
-          console.log(' ---- > Raw Emails...');
           const emails = this._parseEmails(result, box);
           resolve(emails);
         })
@@ -243,7 +233,6 @@ class EWSConnector {
   }
 
   _parseEmails(result, box) {
-    console.log('inside parseEmails');
     return new Promise((resolve, reject) => {
 
       const rawEmails = result.ResponseMessages.GetItemResponseMessage || [];
