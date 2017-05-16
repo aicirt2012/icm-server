@@ -146,7 +146,6 @@ class EWSConnector {
       this.ews.run(ewsFunction, ewsArgs)
         .then(changes => {
           console.log('Fetching Emails...');
-          //console.log(JSON.stringify(changes));
           syncState = this._getBoxSyncState(changes);
           return this._processChangesAndStoreEmails(changes, box, storeEmail);
         })
@@ -169,11 +168,11 @@ class EWSConnector {
   // so it is necessary to call GetItem :(
   _processChangesAndStoreEmails(changes, box, storeEmail) {
     return new Promise((resolve, reject) => {
-      const items = changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes ? changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Create : [];
-      //TODO Changes.UPDATE - Changes.DELETE ...
-      this._getParseAndStoreEmails(items, box, storeEmail)
+      const items = this._getChangeItems(changes);
+      this._getEmailsFromItems(items, box, storeEmail)
         .then(emails => {
-          // TODO store emails
+          console.log('inside processChangesAndStoreEmails...');
+          console.log('emails to store');
           console.log(emails);
           resolve();
         }).catch(err => {
@@ -183,12 +182,24 @@ class EWSConnector {
     });
   }
 
-  _getParseAndStoreEmails(items, box, storeEmail) {
+  _getChangeItems(changes) {
+    let items = [];
+    if (changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes) {
+      items = items.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Create || []);
+      items = items.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Update || []);
+      // TODO Delete items: The current algorithm won't work. Only Ids are returned
+      // items = items.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Delete || []);
+      // https://msdn.microsoft.com/en-us/library/office/aa580800(v=exchg.150).aspx
+    }
+    return items;
+  }
+
+  _getEmailsFromItems(items, box) {
     console.log('calling Email EWS GetItem batch...');
     return new Promise((resolve, reject) => {
 
       if (items.length == 0) {
-        resolve();
+        resolve([]);
         return;
       }
 
@@ -205,9 +216,8 @@ class EWSConnector {
       this.ews.run(ewsFunction, ewsArgs)
         .then(result => {
           console.log(' ---- > Raw Emails...');
-          this._parseAndStoreEmails(result, box, storeEmail);
-          // resolve(email)
-          resolve();
+          const emails = this._parseEmails(result, box);
+          resolve(emails);
         })
         .catch(err => {
           console.log(err);
@@ -232,7 +242,7 @@ class EWSConnector {
     return itemIds;
   }
 
-  _parseAndStoreEmails(result, box, storeEmail) {
+  _parseEmails(result, box) {
     console.log('inside parseEmails');
     return new Promise((resolve, reject) => {
 
@@ -244,8 +254,8 @@ class EWSConnector {
         const email = {
           messageId: message.ItemId.attributes.Id,
           // ewsChangeKey: message.ItemId.attributes.ChangeKey,
-          from: this._formatReceiversOrRecipients(message.From.Mailbox),
-          to: this._formatReceiversOrRecipients(message.ToRecipients ? message.ToRecipients.Mailbox : null),
+          from: this._formatContacts(message.From.Mailbox),
+          to: this._formatContacts(message.ToRecipients ? message.ToRecipients.Mailbox : null),
           subject: message.Subject,
           text: message.TextBody || '', //TODO is possible to obtain only text from emails?
           html: message.Body['$value'],
@@ -255,16 +265,13 @@ class EWSConnector {
           user: this.user._id
         }
         emails.push(email);
-        //TODO store
       });
-      console.log('parsedEmails');
-      console.log(emails);
 
-      resolve();
+      resolve(emails);
     });
   }
 
-  _formatReceiversOrRecipients(mailbox) {
+  _formatContacts(mailbox) {
     let contacts = [];
     if (mailbox) {
       if (mailbox instanceof Array) {
