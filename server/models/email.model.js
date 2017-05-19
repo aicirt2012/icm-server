@@ -36,6 +36,7 @@ const EmailSchema = new mongoose.Schema({
      }]*/
     'x-gm-labels': [String]
   },
+  // TODO review why you got _id here
   from: [{
     address: String,
     name: String
@@ -153,7 +154,7 @@ EmailSchema.statics.search = (userId, opt) => {
 
   if (boxId != 'NONE' && boxId != 0)
     query.box = boxId;
-  
+
 
   if (search != null && search != '') {
     // von:"mySubject" searchTerm
@@ -171,11 +172,11 @@ EmailSchema.statics.search = (userId, opt) => {
       const to = (parsedSearch[1] == 'to' || parsedSearch[1] == 'an') ? parsedSearch[2] : null;
       const searchTerm = parsedSearch[3];
 
-      if (from != null) 
+      if (from != null)
         query['from.name'] = new RegExp('.*' + from + '.*', "i")
-      if (to != null) 
+      if (to != null)
         query['to.name'] = new RegExp('.*' + to + '.*', "i")
-      if (searchTerm != null && searchTerm != ' ' && searchTerm != '') 
+      if (searchTerm != null && searchTerm != ' ' && searchTerm != '')
         query.$text = {$search: searchTerm};
     } else {
       query.$text = {$search: search};

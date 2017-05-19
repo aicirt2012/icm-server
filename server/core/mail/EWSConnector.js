@@ -2,12 +2,15 @@ import Promise from 'bluebird';
 import moment from 'moment';
 import EWS from 'node-ews';
 import Box from '../../models/box.model';
+import base64 from 'base-64';
+import utf8 from 'utf8';
 
 /*
  https://msdn.microsoft.com/en-us/library/office/dn440952(v=exchg.150).aspx
  https://msdn.microsoft.com/en-us/library/aa563967(v=exchg.150).aspx
  https://msdn.microsoft.com/en-us/library/office/aa566013(v=exchg.150).aspx
  https://blogs.msdn.microsoft.com/exchangedev/2010/03/16/loading-properties-for-multiple-items-with-one-call-to-exchange-web-services/
+ https://msdn.microsoft.com/en-us/library/microsoft.exchange.webservices.data.textbody(v=exchg.80).aspx
  */
 
 class EWSConnector {
@@ -197,7 +200,26 @@ class EWSConnector {
       const ewsFunction = 'GetItem';
       const ewsArgs = {
         "ItemShape": {
-          "BaseShape": "Default"
+          "BaseShape": "Default",
+          "AdditionalProperties": {
+            "FieldURI": [
+              {
+                "attributes": {
+                  "FieldURI": "item:HasAttachments"
+                }
+              },
+              {
+                "attributes": {
+                  "FieldURI": "item:TextBody"
+                }
+              },
+              {
+                "attributes": {
+                  "FieldURI": "item:MimeContent"
+                }
+              }
+            ]
+          }
         },
         "ItemIds": {
           "ItemId": this._structureItemIds(items)
@@ -246,10 +268,10 @@ class EWSConnector {
           from: this._formatContacts(message.From.Mailbox),
           to: this._formatContacts(message.ToRecipients ? message.ToRecipients.Mailbox : null),
           subject: message.Subject,
-          text: message.TextBody || '', //TODO is possible to obtain only text from emails?
+          text: message.TextBody || this._getTextFromMimeContent(message.MimeContent),
           html: message.Body['$value'],
           date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
-          flags: [message.IsRead == 'false' ? '' : '\\Seen'],
+          flags: message.IsRead == 'false' ? [] : ['\\Seen'],
           box: box._id,
           user: this.user._id
         }
@@ -278,6 +300,13 @@ class EWSConnector {
       }
     }
     return contacts;
+  }
+
+  _getTextFromMimeContent(mimeContent) {
+    console.log(mimeContent);
+    const bytes = base64.decode(mimeContent['$value']);
+    const text = utf8.decode(bytes);
+    return text;
   }
 }
 

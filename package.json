@@ -31,6 +31,7 @@
     "boilerplate"
   ],
   "dependencies": {
+    "base-64": "0.1.0",
     "bcrypt": "0.8.7",
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "3.4.6",
@@ -71,6 +72,7 @@
     "socket.io": "1.7.2",
     "striptags": "2.1.1",
     "url": "0.11.0",
+    "utf8": "2.1.2",
     "winston": "2.2.0"
   },
   "devDependencies": {

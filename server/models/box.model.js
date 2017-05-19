@@ -106,6 +106,7 @@ BoxSchema.statics.deleteUpdatedAtOlderThan = (userId, updateDate) => {
         resolve(blist);
       })
       .catch(err => {
+        console.log('now update box SyncState');
         reject(err);
       })
   });
