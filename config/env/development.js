@@ -30,6 +30,11 @@ export default {
     draft: '[Gmail]/Drafts',
     deleted: '[Gmail]/Trash'
   },
+  exchange: {
+    inbox: 'Inbox',
+    send: 'Sent Items',
+    draft: 'Drafts'
+  },
   smtp: {
     host: 'smtp.gmail.com',
     port: 465,

@@ -35,6 +35,68 @@ class EWSConnector {
     this.ews = new EWS(this.ewsConfig);
   }
 
+
+  /**
+   * @param emailObject - {
+    "to" : ["sebisng2@gmail.com", ...],
+    "subject" : "Important Meeting",
+    "text" : "some random text",
+  * }
+  **/
+  sendMail(emailObject) {
+    return new Promise((resolve, reject) => {
+
+      const ewsFunction = 'CreateItem';
+      const ewsArgs = {
+        attributes: {
+          MessageDisposition: 'SendAndSaveCopy'
+        },
+        SavedItemFolderId: {
+          DistinguishedFolderId: {
+            attributes: {
+              Id: 'sentitems'
+            }
+          }
+        },
+        Items: {
+          Message: {
+            ItemClass: 'IPM.Note',
+            Subject: emailObject.subject,
+            Body: {
+              '$value': emailObject.text,
+              attributes: {
+                BodyType: 'Text'
+              }
+            },
+            ToRecipients: {
+              Mailbox: this._formatRecipients(emailObject.to)
+            },
+            IsRead: 'false'
+          }
+        }
+      };
+
+      this.ews.run(ewsFunction, ewsArgs)
+        .then(result => {
+          console.log('email sent...');
+          resolve(JSON.stringify(result));
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  }
+
+  _formatRecipients(rawRecipients) {
+    let recipients = [];
+    rawRecipients.forEach((recipient) => {
+      recipients.push({
+        EmailAddress: recipient
+      })
+    });
+    return recipients;
+  }
+
   getBoxes(details = false) {
     return new Promise((resolve, reject) => {
       const ewsFunction = 'SyncFolderHierarchy';

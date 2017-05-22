@@ -8,20 +8,43 @@ import fs from 'fs';
 import Socket from '../routes/socket';
 
 function sendEmail(req, res) {
-  req.user.createSMTPConnector().sendMail(req.body)
-    .then(result => {
-      return Box.findOne({name: config.gmail.send, user: req.user});
-    })
-    .then(box => {
-      return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
-    })
-    .then(() => {
-      res.status(200).send({message: 'Finished fetching'});
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).send(err);
-    });
+
+  if (req.user.provider.name == 'Exchange') {
+
+    const emailConnector = req.user.createIMAPConnector();
+    emailConnector.sendMail(req.body)
+      .then(result => {
+        return Box.findOne({name: config.exchange.send, user: req.user});
+      })
+      .then(box => {
+        return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
+      })
+      .then(() => {
+        res.status(200).send({message: 'Finished fetching'});
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+
+  } else {
+
+    req.user.createSMTPConnector().sendMail(req.body)
+      .then(result => {
+        return Box.findOne({name: config.gmail.send, user: req.user});
+      })
+      .then(box => {
+        return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
+      })
+      .then(() => {
+        res.status(200).send({message: 'Finished fetching'});
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+
+  }
 }
 
 function append(req, res) {
