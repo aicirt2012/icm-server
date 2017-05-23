@@ -42,7 +42,7 @@ class EWSConnector {
     "subject" : "Important Meeting",
     "text" : "some random text",
   * }
-  **/
+   **/
   sendMail(emailObject) {
     return new Promise((resolve, reject) => {
 
@@ -95,6 +95,115 @@ class EWSConnector {
       })
     });
     return recipients;
+  }
+
+
+  addFlags(mail, flags) {
+    return new Promise((resolve, reject) => {
+
+      console.log('Inside addFlags');
+      // TODO: process flags. Now only working for SEEN
+      console.log(flags);
+
+      const ewsFunction = 'UpdateItem';
+      const ewsArgs = {
+        attributes: {
+          MessageDisposition: 'SaveOnly',
+          ConflictResolution: 'AutoResolve'
+        },
+        ItemChanges: {
+          ItemChange: {
+            ItemId: {
+              attributes: {
+                Id: mail.messageId,
+                ChangeKey: mail.ewsChangeKey
+              }
+            },
+            Updates: {
+              SetItemField: {
+                FieldURI: {
+                  attributes: {
+                    FieldURI: "message:IsRead"
+                  }
+                },
+                Message: {
+                  IsRead: 'true'
+                }
+              }
+            }
+          }
+        }
+      };
+
+      console.log(JSON.stringify(ewsArgs));
+
+      this.ews.run(ewsFunction, ewsArgs)
+        .then(result => {
+          console.log('email flags...');
+          console.log(result);
+          resolve(JSON.stringify(result));
+        })
+        .catch(err => {
+          console.log(err);
+          reject(err);
+        });
+
+    });
+  }
+
+  delFlags(mail, flags) {
+
+    return new Promise((resolve, reject) => {
+
+      console.log('Inside delFlags');
+      // TODO: process flags. Now only working for SEEN
+      console.log(flags);
+
+      const ewsFunction = 'UpdateItem';
+      const ewsArgs = {
+        attributes: {
+          MessageDisposition: 'SaveOnly',
+          ConflictResolution: 'AutoResolve'
+        },
+        ItemChanges: {
+          ItemChange: {
+            ItemId: {
+              attributes: {
+                Id: mail.messageId,
+                ChangeKey: mail.ewsChangeKey
+              }
+            },
+            Updates: {
+              SetItemField: {
+                FieldURI: {
+                  attributes: {
+                    FieldURI: "message:IsRead"
+                  }
+                },
+                Message: {
+                  IsRead: 'false'
+                }
+              }
+            }
+          }
+        }
+      };
+
+      console.log(JSON.stringify(ewsArgs));
+
+      this.ews.run(ewsFunction, ewsArgs)
+        .then(result => {
+          console.log('email flags...');
+          console.log(result);
+          resolve(JSON.stringify(result));
+        })
+        .catch(err => {
+          console.log(err);
+          reject(err);
+        });
+
+    });
+
   }
 
   getBoxes(details = false) {
@@ -319,14 +428,15 @@ class EWSConnector {
   _parseEmails(result, box) {
     return new Promise((resolve, reject) => {
 
-      const rawEmails = result.ResponseMessages.GetItemResponseMessage || [];
+      const rawResponse = result.ResponseMessages.GetItemResponseMessage || [];
+      const rawEmails = Array.isArray(rawResponse) ? rawResponse : [rawResponse]; // Hack! if single message
       let emails = [];
 
       rawEmails.forEach(rawEmail => {
         const message = rawEmail.Items.Message;
         const email = {
           messageId: message.ItemId.attributes.Id,
-          // ewsChangeKey: message.ItemId.attributes.ChangeKey,
+          ewsChangeKey: message.ItemId.attributes.ChangeKey,
           from: this._formatContacts(message.From.Mailbox),
           to: this._formatContacts(message.ToRecipients ? message.ToRecipients.Mailbox : null),
           subject: message.Subject,
@@ -365,7 +475,6 @@ class EWSConnector {
   }
 
   _getTextFromMimeContent(mimeContent) {
-    console.log(mimeContent);
     const bytes = base64.decode(mimeContent['$value']);
     const text = utf8.decode(bytes);
     return text;

@@ -99,21 +99,42 @@ function addFlags(req, res) {
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
 
-  Email.findById(emailId).populate('box')
-    .then(mail => {
-      email = mail;
-      return emailConnector.addFlags(mail.uid, flags, email.box.name);
-    })
-    .then(() => {
-      email.flags = email.flags.concat(flags);
-      return email.save();
-    })
-    .then(() => {
-      res.status(200).send({message: 'Successfully added Flags'});
-    })
-    .catch(err => {
-      res.status(400).send(err);
-    });
+  if (req.user.provider.name == 'Exchange') {
+
+    Email.findById(emailId).populate('box')
+      .then(mail => {
+        email = mail;
+        return emailConnector.addFlags(mail, flags);
+      })
+      .then(() => {
+        email.flags = email.flags.concat(flags);
+        return email.save();
+      })
+      .then(() => {
+        res.status(200).send({message: 'Successfully added Flags'});
+      })
+      .catch(err => {
+        res.status(400).send(err);
+      });
+
+  } else {
+
+    Email.findById(emailId).populate('box')
+      .then(mail => {
+        email = mail;
+        return emailConnector.addFlags(mail.uid, flags, email.box.name);
+      })
+      .then(() => {
+        email.flags = email.flags.concat(flags);
+        return email.save();
+      })
+      .then(() => {
+        res.status(200).send({message: 'Successfully added Flags'});
+      })
+      .catch(err => {
+        res.status(400).send(err);
+      });
+  }
 }
 
 function delFlags(req, res) {
@@ -122,25 +143,52 @@ function delFlags(req, res) {
   const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
-  Email.findById(emailId).populate('box')
-    .then(mail => {
-      email = mail;
-      return emailConnector.delFlags(mail.uid, flags, mail.box.name);
-    })
-    .then(() => {
-      flags.forEach(f => {
-        const index = email.flags.indexOf(f);
-        if (index > -1)
-          email.flags.splice(index, 1);
+
+  if (req.user.provider.name == 'Exchange') {
+
+    Email.findById(emailId).populate('box')
+      .then(mail => {
+        email = mail;
+        return emailConnector.delFlags(mail, flags);
+      })
+      .then(() => {
+        flags.forEach(f => {
+          const index = email.flags.indexOf(f);
+          if (index > -1)
+            email.flags.splice(index, 1);
+        });
+        return email.save()
+      })
+      .then(() => {
+        res.status(200).send({message: 'Successfully deleted Flags'});
+      })
+      .catch((err) => {
+        res.status(400).send(err);
       });
-      return email.save()
-    })
-    .then(() => {
-      res.status(200).send({message: 'Successfully deleted Flags'});
-    })
-    .catch((err) => {
-      res.status(400).send(err);
-    });
+
+  } else {
+
+    Email.findById(emailId).populate('box')
+      .then(mail => {
+        email = mail;
+        return emailConnector.delFlags(mail.uid, flags, mail.box.name);
+      })
+      .then(() => {
+        flags.forEach(f => {
+          const index = email.flags.indexOf(f);
+          if (index > -1)
+            email.flags.splice(index, 1);
+        });
+        return email.save()
+      })
+      .then(() => {
+        res.status(200).send({message: 'Successfully deleted Flags'});
+      })
+      .catch((err) => {
+        res.status(400).send(err);
+      });
+
+  }
 }
 
 /** Returns one single mail with all details */
