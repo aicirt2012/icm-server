@@ -149,6 +149,64 @@ class EWSConnector {
     });
   }
 
+  /*
+  * https://stackoverflow.com/questions/43890358/not-able-to-move-a-message-to-a-specific-folder-in-outlook-addin
+  * */
+  move(email, boxEwsId) {
+    return new Promise((resolve, reject) => {
+
+      const ewsFunction = 'MoveItem';
+      const ewsArgs = {
+        ToFolderId: {
+          /*
+          FolderId: {
+            attributes: {
+              Id: boxEwsId
+            }
+          }
+          */
+          DistinguishedFolderId: {
+            attributes: {
+              Id: 'drafts'
+            }
+          }
+        },
+        ItemIds: {
+          ItemId: {
+            attributes: {
+              Id: email.messageId,
+              ChangeKey: email.ewsChangeKey
+            }
+          }
+        }
+      };
+
+      var ewsSoapHeader = {
+        't:RequestServerVersion': {
+          attributes: {
+            Version: "Exchange2013",
+            xmlns: "http://schemas.microsoft.com/exchange/services/2006/t‌​ypes"
+          }
+        }
+      };
+
+      console.log('moveItem');
+      console.log(boxEwsId);
+      console.log(email.messageId);
+      console.log(email.ewsChangeKey);
+      console.log(JSON.stringify(ewsArgs));
+
+      this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
+        .then(result => {
+          console.log('email moved...');
+          resolve(result);
+        })
+        .catch(err => {
+          reject(err);
+        });
+
+    });
+  }
 
   addFlags(mail, flags) {
     return new Promise((resolve, reject) => {
@@ -156,6 +214,8 @@ class EWSConnector {
       console.log('Inside addFlags');
       // TODO: process flags. Now only working for SEEN
       console.log(flags);
+      console.log(mail.messageId);
+      console.log(mail.ewsChangeKey);
 
       const ewsFunction = 'UpdateItem';
       const ewsArgs = {

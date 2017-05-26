@@ -94,24 +94,50 @@ function move(req, res) {
   const user = req.user;
 
   const emailConnector = user.createIMAPConnector();
-  Email.findOne({_id: emailId}).populate('box')
-    .then(email => {
-      return [email, Box.findOne({_id: newBoxId, user: user})]
-    })
-    .spread((email, destBox) => {
-      const srcBox = email.box;
-      return [srcBox, destBox, emailConnector.move(email.uid, srcBox.name, destBox.name)]
-    })
-    .spread((srcBox, destBox, msgId) => {
-      return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
-    })
-    .then((messages) => {
-      res.status(200).send({messages: messages});
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(400).send(err);
-    });
+
+  if (req.user.provider.name == 'Exchange') {
+
+    Email.findOne({_id: emailId}).populate('box')
+      .then(email => {
+        return [email, Box.findOne({_id: newBoxId, user: user})]
+      })
+      .spread((email, destBox) => {
+        console.log(destBox);
+        const srcBox = email.box;
+        return [srcBox, destBox, emailConnector.move(email, destBox.ewsId)]
+      })
+      .spread((srcBox, destBox, msgId) => {
+        return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
+      })
+      .then((messages) => {
+        res.status(200).send({messages: messages});
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+
+  } else {
+
+    Email.findOne({_id: emailId}).populate('box')
+      .then(email => {
+        return [email, Box.findOne({_id: newBoxId, user: user})]
+      })
+      .spread((email, destBox) => {
+        const srcBox = email.box;
+        return [srcBox, destBox, emailConnector.move(email.uid, srcBox.name, destBox.name)]
+      })
+      .spread((srcBox, destBox, msgId) => {
+        return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
+      })
+      .then((messages) => {
+        res.status(200).send({messages: messages});
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+  }
 }
 
 function addFlags(req, res) {
