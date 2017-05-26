@@ -97,6 +97,58 @@ class EWSConnector {
     return recipients;
   }
 
+  /**
+   * @param emailObject - {
+    "to" : ["sebisng2@gmail.com", ...],
+    "subject" : "Important Meeting",
+    "msgData" : "some random text",
+  * }
+   **/
+  append(emailObject) {
+    return new Promise((resolve, reject) => {
+
+      const ewsFunction = 'CreateItem';
+      const ewsArgs = {
+        attributes: {
+          MessageDisposition: 'SaveOnly'
+        },
+        SavedItemFolderId: {
+          DistinguishedFolderId: {
+            attributes: {
+              Id: 'drafts'
+            }
+          }
+        },
+        Items: {
+          Message: {
+            ItemClass: 'IPM.Note',
+            Subject: emailObject.subject,
+            Body: {
+              '$value': emailObject.msgData,
+              attributes: {
+                BodyType: 'Text'
+              }
+            },
+            ToRecipients: {
+              Mailbox: this._formatRecipients(emailObject.to)
+            },
+            IsRead: 'false'
+          }
+        }
+      };
+
+      this.ews.run(ewsFunction, ewsArgs)
+        .then(result => {
+          console.log('email draft...');
+          resolve(result);
+        })
+        .catch(err => {
+          reject(err);
+        });
+
+    });
+  }
+
 
   addFlags(mail, flags) {
     return new Promise((resolve, reject) => {
@@ -135,12 +187,9 @@ class EWSConnector {
         }
       };
 
-      console.log(JSON.stringify(ewsArgs));
-
       this.ews.run(ewsFunction, ewsArgs)
         .then(result => {
           console.log('email flags...');
-          console.log(result);
           resolve(JSON.stringify(result));
         })
         .catch(err => {
@@ -189,12 +238,9 @@ class EWSConnector {
         }
       };
 
-      console.log(JSON.stringify(ewsArgs));
-
       this.ews.run(ewsFunction, ewsArgs)
         .then(result => {
           console.log('email flags...');
-          console.log(result);
           resolve(JSON.stringify(result));
         })
         .catch(err => {
@@ -437,7 +483,7 @@ class EWSConnector {
         const email = {
           messageId: message.ItemId.attributes.Id,
           ewsChangeKey: message.ItemId.attributes.ChangeKey,
-          from: this._formatContacts(message.From.Mailbox),
+          from: this._formatContacts(message.From ? message.From.Mailbox : null),
           to: this._formatContacts(message.ToRecipients ? message.ToRecipients.Mailbox : null),
           subject: message.Subject,
           text: message.TextBody || this._getTextFromMimeContent(message.MimeContent),

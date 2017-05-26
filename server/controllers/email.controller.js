@@ -50,20 +50,42 @@ function sendEmail(req, res) {
 function append(req, res) {
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  Box.findOne({name: config.gmail.draft, user: user})
-    .then(boxDrafts => {
-      return [boxDrafts, emailConnector.append(boxDrafts.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
-    })
-    .spread((box, msgData) => {
-      return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
-    })
-    .spread((msgData, result) => {
-      res.status(200).send({msgData: msgData});
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).send(err);
-    });
+
+  if (req.user.provider.name == 'Exchange') {
+
+    Box.findOne({name: config.exchange.draft, user: user})
+      .then(boxDrafts => {
+        return [boxDrafts, emailConnector.append(req.body)]
+      })
+      .spread((box, msgData) => {
+        return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
+      })
+      .spread((msgData, result) => {
+        res.status(200).send({msgData: msgData});
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+
+  } else {
+
+    Box.findOne({name: config.gmail.draft, user: user})
+      .then(boxDrafts => {
+        return [boxDrafts, emailConnector.append(boxDrafts.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
+      })
+      .spread((box, msgData) => {
+        return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
+      })
+      .spread((msgData, result) => {
+        res.status(200).send({msgData: msgData});
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+
+  }
 }
 
 function move(req, res) {

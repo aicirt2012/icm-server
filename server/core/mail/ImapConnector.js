@@ -171,6 +171,8 @@ class ImapConnector {
 
   append(boxName, from, to, subject, msgData) {
     let options = {mailbox: boxName};
+
+    //TODO to must be an array of recipients
     const msg = this.createRfcMessage(from, to, subject, msgData);
 
     return this.connect().then(() => new Promise((resolve, reject) => {
@@ -257,6 +259,7 @@ class ImapConnector {
   }*/
 
   // IMPORTANT: preserve RFC line break \r\n
+  // TODO to must be an array of recipients
   createRfcMessage(from, to, subject, msgData) {
     return `From: ${from}\r\nTo: ${to}\r\nSubject: ${subject}\r\n${msgData}`;
   }
