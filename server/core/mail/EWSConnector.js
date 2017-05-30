@@ -150,32 +150,93 @@ class EWSConnector {
   }
 
   /*
-  * https://stackoverflow.com/questions/43890358/not-able-to-move-a-message-to-a-specific-folder-in-outlook-addin
-  * */
+   * https://stackoverflow.com/questions/43890358/not-able-to-move-a-message-to-a-specific-folder-in-outlook-addin
+   * */
   move(email, boxEwsId) {
     return new Promise((resolve, reject) => {
 
-      const ewsFunction = 'MoveItem';
+      let alternativeBoxId;
+
+      this._convertId(boxEwsId).then(boxId => {
+
+        alternativeBoxId = boxId;
+
+        this._convertId(email.messageId).then(alternativeEmailId => {
+
+
+          const ewsFunction = 'MoveItem';
+          const ewsArgs = {
+            ToFolderId: {
+              /*
+              FolderId: {
+                attributes: {
+                  Id: alternativeBoxId
+                }
+              }
+              */
+              DistinguishedFolderId: {
+                attributes: {
+                  Id: 'drafts'
+                }
+              }
+            },
+            ItemIds: {
+              ItemId: {
+                attributes: {
+                  Id: alternativeEmailId
+                }
+              }
+            }
+          };
+
+          var ewsSoapHeader = {
+            't:RequestServerVersion': {
+              attributes: {
+                Version: "Exchange2007_SP1",
+                xmlns: "http://schemas.microsoft.com/exchange/services/2006/t‌​ypes"
+              }
+            }
+          };
+
+          console.log('moveItem');
+          console.log(boxEwsId);
+          console.log(email.messageId);
+          console.log(email.ewsChangeKey);
+          console.log(JSON.stringify(ewsArgs));
+
+          this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
+            .then(result => {
+              console.log('email moved...');
+              resolve(result);
+            })
+            .catch(err => {
+              reject(err);
+            });
+
+
+        });
+
+
+      });
+
+
+    });
+  };
+
+  _convertId(messageId) {
+    return new Promise((resolve, reject) => {
+
+      const ewsFunction = 'ConvertId';
       const ewsArgs = {
-        ToFolderId: {
-          /*
-          FolderId: {
-            attributes: {
-              Id: boxEwsId
-            }
-          }
-          */
-          DistinguishedFolderId: {
-            attributes: {
-              Id: 'drafts'
-            }
-          }
+        attributes: {
+          DestinationFormat: 'EwsLegacyId'
         },
-        ItemIds: {
-          ItemId: {
+        SourceIds: {
+          AlternateId: {
             attributes: {
-              Id: email.messageId,
-              ChangeKey: email.ewsChangeKey
+              Format: 'EwsId',
+              Id: messageId,
+              Mailbox: 'ga47wap@tum.de'
             }
           }
         }
@@ -190,16 +251,14 @@ class EWSConnector {
         }
       };
 
-      console.log('moveItem');
-      console.log(boxEwsId);
-      console.log(email.messageId);
-      console.log(email.ewsChangeKey);
+      console.log('ConvertId');
       console.log(JSON.stringify(ewsArgs));
 
       this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
         .then(result => {
-          console.log('email moved...');
-          resolve(result);
+          console.log('converted Id...');
+          console.log(JSON.stringify(result.ResponseMessages.ConvertIdResponseMessage.AlternateId.attributes.Id));
+          resolve(result.ResponseMessages.ConvertIdResponseMessage.AlternateId.attributes.Id);
         })
         .catch(err => {
           reject(err);
@@ -247,9 +306,19 @@ class EWSConnector {
         }
       };
 
-      this.ews.run(ewsFunction, ewsArgs)
+      var ewsSoapHeader = {
+        't:RequestServerVersion': {
+          attributes: {
+            Version: "Exchange2013",
+            xmlns: "http://schemas.microsoft.com/exchange/services/2006/t‌​ypes"
+          }
+        }
+      };
+
+      this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
         .then(result => {
           console.log('email flags...');
+          console.log(JSON.stringify(result));
           resolve(JSON.stringify(result));
         })
         .catch(err => {
@@ -298,9 +367,19 @@ class EWSConnector {
         }
       };
 
-      this.ews.run(ewsFunction, ewsArgs)
+      var ewsSoapHeader = {
+        't:RequestServerVersion': {
+          attributes: {
+            Version: "Exchange2013",
+            xmlns: "http://schemas.microsoft.com/exchange/services/2006/t‌​ypes"
+          }
+        }
+      };
+
+      this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
         .then(result => {
           console.log('email flags...');
+          console.log(JSON.stringify(result));
           resolve(JSON.stringify(result));
         })
         .catch(err => {
@@ -326,7 +405,16 @@ class EWSConnector {
         }
       };
 
-      this.ews.run(ewsFunction, ewsArgs)
+      const ewsSoapHeader = {
+        't:RequestServerVersion': {
+          attributes: {
+            Version: "Exchange2013",
+            xmlns: "http://schemas.microsoft.com/exchange/services/2006/t‌​ypes"
+          }
+        }
+      };
+
+      this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
         .then(result => {
           const boxes = this._getOnlyEmailBoxes(result);
           const boxList = this._generateBoxList(boxes);
@@ -416,7 +504,16 @@ class EWSConnector {
         "SyncScope": "NormalItems"
       };
 
-      this.ews.run(ewsFunction, ewsArgs)
+      const ewsSoapHeader = {
+        't:RequestServerVersion': {
+          attributes: {
+            Version: "Exchange2013",
+            xmlns: "http://schemas.microsoft.com/exchange/services/2006/t‌​ypes"
+          }
+        }
+      };
+
+      this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
         .then(changes => {
           syncState = this._getBoxSyncState(changes);
           return this._processChangesAndStoreEmails(changes, box, storeEmail);
@@ -438,7 +535,7 @@ class EWSConnector {
   _processChangesAndStoreEmails(changes, box, storeEmail) {
     return new Promise((resolve, reject) => {
       const items = this._getChangeItems(changes);
-      this._getEmailsFromItems(items, box, storeEmail)
+      this._getEmailsFromItems(items, box)
         .then(emails => {
           return Promise.each(emails, (email) => {
             return storeEmail(email);
@@ -503,7 +600,19 @@ class EWSConnector {
         }
       };
 
-      this.ews.run(ewsFunction, ewsArgs)
+      const ewsSoapHeader = {
+        't:RequestServerVersion': {
+          attributes: {
+            Version: "Exchange2013",
+            xmlns: "http://schemas.microsoft.com/exchange/services/2006/t‌​ypes"
+          }
+        }
+      };
+
+      console.log('ews pure arguments');
+      console.log(JSON.stringify(ewsArgs));
+
+      this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
         .then(result => {
           const emails = this._parseEmails(result, box);
           resolve(emails);
@@ -546,7 +655,7 @@ class EWSConnector {
           from: this._formatContacts(message.From ? message.From.Mailbox : null),
           to: this._formatContacts(message.ToRecipients ? message.ToRecipients.Mailbox : null),
           subject: message.Subject,
-          text: message.TextBody || this._getTextFromMimeContent(message.MimeContent),
+          text: message.TextBody['$value'] || this._getTextFromMimeContent(message.MimeContent),
           html: message.Body['$value'],
           date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
           flags: message.IsRead == 'false' ? [] : ['\\Seen'],
