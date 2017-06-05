@@ -102,7 +102,6 @@ function move(req, res) {
         return [email, Box.findOne({_id: newBoxId, user: user})]
       })
       .spread((email, destBox) => {
-        console.log(destBox);
         const srcBox = email.box;
         return [srcBox, destBox, emailConnector.move(email, destBox.ewsId)]
       })

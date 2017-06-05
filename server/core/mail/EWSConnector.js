@@ -4,26 +4,6 @@ import EWS from 'node-ews';
 import Box from '../../models/box.model';
 import base64 from 'base-64';
 import utf8 from 'utf8';
-import {
-  ExchangeService,
-  AutodiscoverService,
-  Item,
-  ItemId,
-  EmailMessage,
-  BodyType,
-  MessageBody,
-  ExchangeCredentials,
-  ExchangeVersion,
-  Uri,
-  Folder,
-  PropertySet,
-  BasePropertySet,
-  EmailMessageSchema,
-  WellKnownFolderName,
-  FolderId,
-  ServiceId
-} from 'ews-javascript-api';
-import {ntlmAuthXhrApi} from 'ews-javascript-api-auth';
 
 /*
  https://msdn.microsoft.com/en-us/library/office/dn440952(v=exchg.150).aspx
@@ -54,11 +34,6 @@ class EWSConnector {
     // initialize node-ews
     this.ews = new EWS(this.ewsConfig);
 
-    // ews javascript api
-    this.exch = new ExchangeService(ExchangeVersion.Exchange2013_SP1);
-    this.exch.Credentials = new ExchangeCredentials('ga47wap', options.password);
-    this.exch.Url = new Uri("https://xmail.mwn.de/EWS/Exchange.asmx");
-    this.exch.XHRApi = new ntlmAuthXhrApi(options.user, options.password);
   }
 
 
@@ -177,44 +152,9 @@ class EWSConnector {
 
   move(email, boxEwsId) {
     return new Promise((resolve, reject) => {
-
-
-      /*
-       this.exch.MoveItem(new ItemId(email.messageId), new FolderId(WellKnownFolderName.DeletedItems))
-       //this.exch.MoveItem(new ItemId(email.messageId), new ServiceId(boxEwsId))
-       .then(() => {
-       console.log("Yes------------");
-       }, (ei) => {
-       console.log(ei);
-       console.log("No------------");
-       });
-
-
-       let email = new EmailMessage(this.exch);
-       email.ToRecipients.Add("paul.gualotuna.dev@gmail.com");
-       email.Subject = 'hola';
-       email.Body = new MessageBody('First email');
-       email.Body.BodyType = BodyType.HTML;
-
-       email.Send().then(() => {
-       console.log("------------");
-       }, (ei) => {
-       console.log(ei.stack, ei.stack.split("\n"));
-       console.log("No------------");
-       });
-       */
-
-
       const ewsFunction = 'MoveItem';
       const ewsArgs = {
         'ToFolderId': {
-          /*
-           't:DistinguishedFolderId': {
-           attributes: {
-           Id: 'deleteditems'
-           }
-           }
-           */
           't:FolderId': {
             attributes: {
               Id: boxEwsId
@@ -238,69 +178,18 @@ class EWSConnector {
         }
       };
 
-      console.log('moveItem');
-      console.log(email.messageId);
-      console.log(email.ewsChangeKey);
-      console.log(JSON.stringify(ewsArgs));
-
       this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
         .then(result => {
           console.log('email moved...');
+          console.log(JSON.stringify(result));
           resolve(result);
         })
         .catch(err => {
           reject(err);
         });
 
-
     });
-
-
   };
-
-  _convertId(messageId) {
-    return new Promise((resolve, reject) => {
-
-      const ewsFunction = 'ConvertId';
-      const ewsArgs = {
-        attributes: {
-          DestinationFormat: 'EwsLegacyId'
-        },
-        SourceIds: {
-          AlternateId: {
-            attributes: {
-              Format: 'EwsId',
-              Id: messageId,
-              Mailbox: 'ga47wap@tum.de'
-            }
-          }
-        }
-      };
-
-      var ewsSoapHeader = {
-        't:RequestServerVersion': {
-          attributes: {
-            Version: "Exchange2013",
-            xmlns: "http://schemas.microsoft.com/exchange/services/2006/t‌​ypes"
-          }
-        }
-      };
-
-      console.log('ConvertId');
-      console.log(JSON.stringify(ewsArgs));
-
-      this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
-        .then(result => {
-          console.log('converted Id...');
-          console.log(JSON.stringify(result.ResponseMessages.ConvertIdResponseMessage.AlternateId.attributes.Id));
-          resolve(result.ResponseMessages.ConvertIdResponseMessage.AlternateId.attributes.Id);
-        })
-        .catch(err => {
-          reject(err);
-        });
-
-    });
-  }
 
   addFlags(mail, flags) {
     return new Promise((resolve, reject) => {
@@ -550,6 +439,8 @@ class EWSConnector {
 
       this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
         .then(changes => {
+          console.log('there are the changes');
+          console.log(JSON.stringify(changes));
           syncState = this._getBoxSyncState(changes);
           return this._processChangesAndStoreEmails(changes, box, storeEmail);
         })
@@ -644,9 +535,6 @@ class EWSConnector {
         }
       };
 
-      console.log('ews pure arguments');
-      console.log(JSON.stringify(ewsArgs));
-
       this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
         .then(result => {
           const emails = this._parseEmails(result, box);
@@ -663,14 +551,16 @@ class EWSConnector {
   _structureItemIds(items) {
     let itemIds = []
     items.forEach(item => {
-      itemIds.push(
-        {
-          "attributes": {
-            "Id": item.Message.ItemId.attributes.Id,
-            "ChangeKey": item.Message.ItemId.attributes.ChangeKey
+      if(item.Message) { // only allow messages not MeetingRequest etc
+        itemIds.push(
+          {
+            "attributes": {
+              "Id": item.Message.ItemId.attributes.Id,
+              "ChangeKey": item.Message.ItemId.attributes.ChangeKey
+            }
           }
-        }
-      )
+        )
+      }
     });
     return itemIds;
   }
