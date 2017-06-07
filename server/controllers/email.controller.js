@@ -262,8 +262,6 @@ function storeEmail(mail) {
       .spread((emailOld, boxOld, emailUpdated, boxUpdated) => {
         // TODO new box numbers do not work properly
         console.log('inside storeEmail...');
-        console.log(JSON.stringify(boxOld));
-        console.log(JSON.stringify(boxUpdated));
         Socket.pushEmailUpdateToClient(emailOld, boxOld, emailUpdated, boxUpdated);
         resolve(emailUpdated);
       })

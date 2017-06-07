@@ -4,6 +4,8 @@ import EWS from 'node-ews';
 import Box from '../../models/box.model';
 import base64 from 'base-64';
 import utf8 from 'utf8';
+import {MailParser} from 'mailparser';
+import {Readable} from 'stream';
 
 /*
  https://msdn.microsoft.com/en-us/library/office/dn440952(v=exchg.150).aspx
@@ -410,7 +412,7 @@ class EWSConnector {
   fetchEmails(storeEmail, box) {
     return new Promise((resolve, reject) => {
       let syncState = box.ewsSyncState;
-      const MAX_CHANGES_RETURNED = '10';
+      const MAX_CHANGES_RETURNED = '5';
       const ewsFunction = 'SyncFolderItems';
       const ewsArgs = {
         "ItemShape": {
@@ -439,8 +441,8 @@ class EWSConnector {
 
       this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
         .then(changes => {
-          console.log('there are the changes');
-          console.log(JSON.stringify(changes));
+          // console.log('these are the changes');
+          // console.log(JSON.stringify(changes));
           syncState = this._getBoxSyncState(changes);
           return this._processChangesAndStoreEmails(changes, box, storeEmail);
         })
@@ -551,7 +553,8 @@ class EWSConnector {
   _structureItemIds(items) {
     let itemIds = []
     items.forEach(item => {
-      if(item.Message) { // only allow messages not MeetingRequest etc
+      // TODO
+      if (item.Message) { // only allow messages not MeetingRequest etc
         itemIds.push(
           {
             "attributes": {
@@ -572,25 +575,39 @@ class EWSConnector {
       const rawEmails = Array.isArray(rawResponse) ? rawResponse : [rawResponse]; // Hack! if single message
       let emails = [];
 
-      rawEmails.forEach(rawEmail => {
+      Promise.each(rawEmails, (rawEmail) => {
         const message = rawEmail.Items.Message;
-        const email = {
-          messageId: message.ItemId.attributes.Id,
-          ewsChangeKey: message.ItemId.attributes.ChangeKey,
-          from: this._formatContacts(message.From ? message.From.Mailbox : null),
-          to: this._formatContacts(message.ToRecipients ? message.ToRecipients.Mailbox : null),
-          subject: message.Subject,
-          text: message.TextBody['$value'] || this._getTextFromMimeContent(message.MimeContent),
-          html: message.Body['$value'],
-          date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
-          flags: message.IsRead == 'false' ? [] : ['\\Seen'],
-          box: box._id,
-          user: this.user._id
-        }
-        emails.push(email);
-      });
+        return this._getTextFromMimeContent(message.MimeContent['$value']).then(text => {
 
-      resolve(emails);
+          const email = {
+            messageId: message.ItemId.attributes.Id,
+            ewsChangeKey: message.ItemId.attributes.ChangeKey,
+            from: this._formatContacts(message.From ? message.From.Mailbox : null),
+            to: this._formatContacts(message.ToRecipients ? message.ToRecipients.Mailbox : null),
+            subject: message.Subject,
+            // text: message.HasAttachments == 'false' ? message.TextBody['$value'] : this.truncateAttachments(message.MimeContent),
+            // text: this._getTextFromMimeContent(message.MimeContent),
+            // text: message.TextBody['$value'],
+            text: text,
+            html: message.Body['$value'],
+            date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
+            flags: message.IsRead == 'false' ? [] : ['\\Seen'],
+            box: box._id,
+            user: this.user._id
+          }
+
+          console.log('an email');
+          console.log(email);
+          emails.push(email);
+        })
+      }).then(() => {
+        console.log('all emails here ....');
+        console.log(emails);
+        resolve(emails);
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      });
     });
   }
 
@@ -614,10 +631,37 @@ class EWSConnector {
     return contacts;
   }
 
-  _getTextFromMimeContent(mimeContent) {
-    const bytes = base64.decode(mimeContent['$value']);
+  truncateAttachments(mimeContent) {
+    const bytes = base64.decode(mimeContent);
     const text = utf8.decode(bytes);
     return text;
+  }
+
+
+  _getTextFromMimeContent(mimeContent) {
+    return new Promise((resolve, reject) => {
+
+      const bytes = base64.decode(mimeContent);
+      const text = utf8.decode(bytes);
+      const mailParser = new MailParser();
+
+      let s = new Readable();
+      s._read = function noop() {
+      };
+      s.push(text);
+      s.push(null);
+
+      s.pipe(mailParser);
+
+      mailParser.on('end', (mailObject) => {
+        console.log('inside parseDataFromEmail');
+        resolve(mailObject.text);
+      }).on('error', (err) => {
+        console.log(err);
+        reject(err);
+      });
+
+    })
   }
 }
 
