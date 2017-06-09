@@ -5,7 +5,10 @@ import Box from '../../models/box.model';
 import base64 from 'base-64';
 import utf8 from 'utf8';
 import {MailParser} from 'mailparser';
-import {Readable} from 'stream';
+import {Readable, Stream, PassThrough} from 'stream';
+import Buffer from 'buffer';
+import Attachment from '../../models/attachment.model';
+import fs from 'fs';
 
 /*
  https://msdn.microsoft.com/en-us/library/office/dn440952(v=exchg.150).aspx
@@ -596,8 +599,6 @@ class EWSConnector {
             user: this.user._id
           }
 
-          console.log('an email');
-          console.log(email);
           emails.push(email);
         })
       }).then(() => {
@@ -644,6 +645,7 @@ class EWSConnector {
       const bytes = base64.decode(mimeContent);
       const text = utf8.decode(bytes);
       const mailParser = new MailParser();
+      let attachments = [];
 
       let s = new Readable();
       s._read = function noop() {
@@ -655,11 +657,77 @@ class EWSConnector {
 
       mailParser.on('end', (mailObject) => {
         console.log('inside parseDataFromEmail');
+
+        if (mailObject.attachments) {
+          mailObject.attachments.forEach(m => {
+
+            // TODO Real attachments into FileSystem
+            // embedded content in DB
+            console.log(m.fileName);
+
+            let readStream = new PassThrough();
+            readStream.end(m.content);
+
+            Attachment.create(m.fileName, m.contentType,
+              readStream)
+              .then(attachment => {
+                console.log('attachment created');
+              })
+              .catch(err => {
+                console.log(err);
+              })
+
+          });
+
+        }
+
+
         resolve(mailObject.text);
       }).on('error', (err) => {
         console.log(err);
         reject(err);
       });
+
+      /*
+       mailParser.on('data', data => {
+       if (data.type === 'text') {
+       Object.keys(data).forEach(key => {
+       console.log(key);
+       console.log('----');
+       console.log(data[key]);
+       });
+       }
+
+       if (data.type === 'attachment') {
+       attachments.push(data);
+       data.chunks = [];
+       data.chunklen = 0;
+       let size = 0;
+       Object.keys(data).forEach(key => {
+       if (typeof data[key] !== 'object' && typeof data[key] !== 'function') {
+       console.log('%s: %s', key, JSON.stringify(data[key]));
+       }
+       });
+       data.content.on('readable', () => {
+       let chunk;
+       while ((chunk = data.content.read()) !== null) {
+       size += chunk.length;
+       data.chunks.push(chunk);
+       data.chunklen += chunk.length;
+       }
+       });
+
+       data.content.on('end', () => {
+       data.buf = Buffer.concat(data.chunks, data.chunklen);
+       console.log('%s: %s B', 'size', size);
+       // attachment needs to be released before next chunk of
+       // message data can be processed
+       data.release();
+       });
+       }
+       });
+       */
+
 
     })
   }

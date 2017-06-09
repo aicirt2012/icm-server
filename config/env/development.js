@@ -57,6 +57,7 @@ export default {
       callbackURL: 'http://localhost:4000/api/auth/trello/callback'
     }
   },
+  attachmentsPath: './Attachments/',
   db: 'mongodb://localhost:27017/emailapp',
   port: 4000,
   socketPort: 4001,

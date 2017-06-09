@@ -59,7 +59,11 @@ const EmailSchema = new mongoose.Schema({
   text: String,
   date: {type: Date, index: true},
   flags: [String],
-  labels: [String]
+  labels: [String],
+  attachments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Attachment'
+  }]
 }, {
   timestamps: true
 });
