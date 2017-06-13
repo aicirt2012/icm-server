@@ -580,7 +580,7 @@ class EWSConnector {
 
       Promise.each(rawEmails, (rawEmail) => {
         const message = rawEmail.Items.Message;
-        return this._getTextFromMimeContent(message.MimeContent['$value']).then(text => {
+        return this._getTextAndAttachmentsFromMimeContent(message.MimeContent['$value']).then(textAndAttachments => {
 
           const email = {
             messageId: message.ItemId.attributes.Id,
@@ -588,22 +588,18 @@ class EWSConnector {
             from: this._formatContacts(message.From ? message.From.Mailbox : null),
             to: this._formatContacts(message.ToRecipients ? message.ToRecipients.Mailbox : null),
             subject: message.Subject,
-            // text: message.HasAttachments == 'false' ? message.TextBody['$value'] : this.truncateAttachments(message.MimeContent),
-            // text: this._getTextFromMimeContent(message.MimeContent),
-            // text: message.TextBody['$value'],
-            text: text,
+            text: textAndAttachments[0],
             html: message.Body['$value'],
             date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
             flags: message.IsRead == 'false' ? [] : ['\\Seen'],
             box: box._id,
-            user: this.user._id
+            user: this.user._id,
+            attachments: textAndAttachments[1]
           }
 
           emails.push(email);
         })
       }).then(() => {
-        console.log('all emails here ....');
-        console.log(emails);
         resolve(emails);
       }).catch(err => {
         console.log(err);
@@ -639,7 +635,7 @@ class EWSConnector {
   }
 
 
-  _getTextFromMimeContent(mimeContent) {
+  _getTextAndAttachmentsFromMimeContent(mimeContent) {
     return new Promise((resolve, reject) => {
 
       const bytes = base64.decode(mimeContent);
@@ -663,15 +659,18 @@ class EWSConnector {
 
             // TODO Real attachments into FileSystem
             // embedded content in DB
-            console.log(m.fileName);
+            console.log('attachment structure');
+            console.log(m);
 
             let readStream = new PassThrough();
             readStream.end(m.content);
 
-            Attachment.create(m.fileName, m.contentType,
+            Attachment.create(m.fileName, m.contentId, m.contentType,
+              m.contentDisposition == 'inline' ? true : false,
               readStream)
               .then(attachment => {
                 console.log('attachment created');
+                attachments.push(attachment._id);
               })
               .catch(err => {
                 console.log(err);
@@ -682,7 +681,7 @@ class EWSConnector {
         }
 
 
-        resolve(mailObject.text);
+        resolve([mailObject.text, attachments]);
       }).on('error', (err) => {
         console.log(err);
         reject(err);

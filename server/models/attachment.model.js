@@ -4,7 +4,9 @@ import config from '../../config/env';
 
 const AttachmentSchema = new mongoose.Schema({
   filename: String,
-  contentType: String
+  contentType: String,
+  contentId: String,
+  contentDispositionInline: Boolean
 });
 
 const AttachmentModel = mongoose.model('Attachment', AttachmentSchema);
@@ -12,11 +14,13 @@ const AttachmentModel = mongoose.model('Attachment', AttachmentSchema);
 
 class Attachment {
 
-  static create(filename, contentType, readStream){
+  static create(filename, contentId, contentType, contentDispositionInline, readStream){
     return new Promise((resolve, reject)=>{
       new AttachmentModel({
         filename: filename,
-        contentType: contentType
+        contentId: contentId,
+        contentType: contentType,
+        contentDispositionInline: contentDispositionInline
       }).save((err, attachment)=>{
         const writeStream = fs.createWriteStream(config.attachmentsPath+attachment._id);
         readStream.pipe(writeStream);

@@ -241,8 +241,12 @@ function delFlags(req, res) {
 /** Returns one single mail with all details */
 function getSingleMail(req, res) {
   const emailId = req.params.emailId;
-  Email.findOne({_id: emailId}).lean()
+  Email.findOne({_id: emailId}).populate('attachments')
+    .lean()
     .then((mail) => {
+      console.log('retrieving email id...');
+      console.log(mail);
+      mail = replaceInlineAttachmentsSrc(mail, req);
       return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
     })
     .then(email => {
@@ -251,6 +255,17 @@ function getSingleMail(req, res) {
     .catch((err) => {
       res.status(400).send(err);
     });
+}
+
+function replaceInlineAttachmentsSrc(email, token) {
+  console.log(token);
+  email.attachments.forEach((a) => {
+    if(a.contentDispositionInline) {
+      email.html = email.html.replace(a.contentId, `${a._id}?token`)
+    }
+  })
+
+  return email;
 }
 
 
