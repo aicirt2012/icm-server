@@ -6,6 +6,7 @@ import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
 import fs from 'fs';
 import Socket from '../routes/socket';
+import authCtrl from './auth.controller';
 
 function sendEmail(req, res) {
 
@@ -246,7 +247,7 @@ function getSingleMail(req, res) {
     .then((mail) => {
       console.log('retrieving email id...');
       console.log(mail);
-      mail = replaceInlineAttachmentsSrc(mail, req);
+      mail = replaceInlineAttachmentsSrc(mail, req.user);
       return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
     })
     .then(email => {
@@ -257,11 +258,12 @@ function getSingleMail(req, res) {
     });
 }
 
-function replaceInlineAttachmentsSrc(email, token) {
-  console.log(token);
+function replaceInlineAttachmentsSrc(email, user) {
+  const URL = `${config.domain}:${config.port}/api/attachment/`
+  const token = authCtrl.createToken(user);
   email.attachments.forEach((a) => {
     if(a.contentDispositionInline) {
-      email.html = email.html.replace(a.contentId, `${a._id}?token`)
+      email.html = email.html.replace(`cid:${a.contentId}`, `${URL}${a._id}?token=${token}`);
     }
   })
 
