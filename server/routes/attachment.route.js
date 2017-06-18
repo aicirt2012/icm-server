@@ -4,7 +4,6 @@ import attachmentCtrl from '../controllers/attachment.controller';
 
 function routeProvider(passport) {
   const router = express.Router();
-  // TODO hack this
   const mw = passport.authenticate('jwt', {
     session: false
   });
@@ -12,6 +11,9 @@ function routeProvider(passport) {
 
   router.route('/:attachmentId')
     .get(attachmentCtrl.getAttachment);
+
+  router.route('/:attachmentId/download')
+    .get(attachmentCtrl.downloadAttachment);
 
   return router;
 }
