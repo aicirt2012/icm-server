@@ -6,41 +6,87 @@ import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
 import fs from 'fs';
 import Socket from '../routes/socket';
+import authCtrl from './auth.controller';
 
 function sendEmail(req, res) {
-  req.user.createSMTPConnector().sendMail(req.body)
-    .then(result => {
-      return Box.findOne({name: config.gmail.send, user: req.user});
-    })
-    .then(box => {
-      return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
-    })
-    .then(() => {
-      res.status(200).send({message: 'Finished fetching'});
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).send(err);
-    });
+
+  if (req.user.provider.name == 'Exchange') {
+
+    const emailConnector = req.user.createIMAPConnector();
+    emailConnector.sendMail(req.body)
+      .then(result => {
+        return Box.findOne({name: config.exchange.send, user: req.user});
+      })
+      .then(box => {
+        return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
+      })
+      .then(() => {
+        res.status(200).send({message: 'Finished fetching'});
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+
+  } else {
+
+    req.user.createSMTPConnector().sendMail(req.body)
+      .then(result => {
+        return Box.findOne({name: config.gmail.send, user: req.user});
+      })
+      .then(box => {
+        return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
+      })
+      .then(() => {
+        res.status(200).send({message: 'Finished fetching'});
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+
+  }
 }
 
 function append(req, res) {
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
-  Box.findOne({name: config.gmail.draft, user: user})
-    .then(boxDrafts => {
-      return [boxDrafts, emailConnector.append(boxDrafts.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
-    })
-    .spread((box, msgData) => {
-      return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
-    })
-    .spread((msgData, result) => {
-      res.status(200).send({msgData: msgData});
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).send(err);
-    });
+
+  if (req.user.provider.name == 'Exchange') {
+
+    Box.findOne({name: config.exchange.draft, user: user})
+      .then(boxDrafts => {
+        return [boxDrafts, emailConnector.append(req.body)]
+      })
+      .spread((box, msgData) => {
+        return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
+      })
+      .spread((msgData, result) => {
+        res.status(200).send({msgData: msgData});
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+
+  } else {
+
+    Box.findOne({name: config.gmail.draft, user: user})
+      .then(boxDrafts => {
+        return [boxDrafts, emailConnector.append(boxDrafts.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
+      })
+      .spread((box, msgData) => {
+        return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
+      })
+      .spread((msgData, result) => {
+        res.status(200).send({msgData: msgData});
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+
+  }
 }
 
 function move(req, res) {
@@ -49,24 +95,49 @@ function move(req, res) {
   const user = req.user;
 
   const emailConnector = user.createIMAPConnector();
-  Email.findOne({_id: emailId}).populate('box')
-    .then(email => {
-      return [email, Box.findOne({_id: newBoxId, user: user})]
-    })
-    .spread((email, destBox) => {
-      const srcBox = email.box;
-      return [srcBox, destBox, emailConnector.move(email.uid, srcBox.name, destBox.name)]
-    })
-    .spread((srcBox, destBox, msgId) => {
-      return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
-    })
-    .then((messages) => {
-      res.status(200).send({messages: messages});
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(400).send(err);
-    });
+
+  if (req.user.provider.name == 'Exchange') {
+
+    Email.findOne({_id: emailId}).populate('box')
+      .then(email => {
+        return [email, Box.findOne({_id: newBoxId, user: user})]
+      })
+      .spread((email, destBox) => {
+        const srcBox = email.box;
+        return [srcBox, destBox, emailConnector.move(email, destBox.ewsId)]
+      })
+      .spread((srcBox, destBox, msgId) => {
+        return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
+      })
+      .then((messages) => {
+        res.status(200).send({messages: messages});
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+
+  } else {
+
+    Email.findOne({_id: emailId}).populate('box')
+      .then(email => {
+        return [email, Box.findOne({_id: newBoxId, user: user})]
+      })
+      .spread((email, destBox) => {
+        const srcBox = email.box;
+        return [srcBox, destBox, emailConnector.move(email.uid, srcBox.name, destBox.name)]
+      })
+      .spread((srcBox, destBox, msgId) => {
+        return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
+      })
+      .then((messages) => {
+        res.status(200).send({messages: messages});
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(400).send(err);
+      });
+  }
 }
 
 function addFlags(req, res) {
@@ -76,21 +147,42 @@ function addFlags(req, res) {
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
 
-  Email.findById(emailId).populate('box')
-    .then(mail => {
-      email = mail;
-      return emailConnector.addFlags(mail.uid, flags, email.box.name);
-    })
-    .then(() => {
-      email.flags = email.flags.concat(flags);
-      return email.save();
-    })
-    .then(() => {
-      res.status(200).send({message: 'Successfully added Flags'});
-    })
-    .catch(err => {
-      res.status(400).send(err);
-    });
+  if (req.user.provider.name == 'Exchange') {
+
+    Email.findById(emailId).populate('box')
+      .then(mail => {
+        email = mail;
+        return emailConnector.addFlags(mail, flags);
+      })
+      .then(() => {
+        email.flags = email.flags.concat(flags);
+        return email.save();
+      })
+      .then(() => {
+        res.status(200).send({message: 'Successfully added Flags'});
+      })
+      .catch(err => {
+        res.status(400).send(err);
+      });
+
+  } else {
+
+    Email.findById(emailId).populate('box')
+      .then(mail => {
+        email = mail;
+        return emailConnector.addFlags(mail.uid, flags, email.box.name);
+      })
+      .then(() => {
+        email.flags = email.flags.concat(flags);
+        return email.save();
+      })
+      .then(() => {
+        res.status(200).send({message: 'Successfully added Flags'});
+      })
+      .catch(err => {
+        res.status(400).send(err);
+      });
+  }
 }
 
 function delFlags(req, res) {
@@ -99,32 +191,63 @@ function delFlags(req, res) {
   const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
-  Email.findById(emailId).populate('box')
-    .then(mail => {
-      email = mail;
-      return emailConnector.delFlags(mail.uid, flags, mail.box.name);
-    })
-    .then(() => {
-      flags.forEach(f => {
-        const index = email.flags.indexOf(f);
-        if (index > -1)
-          email.flags.splice(index, 1);
+
+  if (req.user.provider.name == 'Exchange') {
+
+    Email.findById(emailId).populate('box')
+      .then(mail => {
+        email = mail;
+        return emailConnector.delFlags(mail, flags);
+      })
+      .then(() => {
+        flags.forEach(f => {
+          const index = email.flags.indexOf(f);
+          if (index > -1)
+            email.flags.splice(index, 1);
+        });
+        return email.save()
+      })
+      .then(() => {
+        res.status(200).send({message: 'Successfully deleted Flags'});
+      })
+      .catch((err) => {
+        res.status(400).send(err);
       });
-      return email.save()
-    })
-    .then(() => {
-      res.status(200).send({message: 'Successfully deleted Flags'});
-    })
-    .catch((err) => {
-      res.status(400).send(err);
-    });
+
+  } else {
+
+    Email.findById(emailId).populate('box')
+      .then(mail => {
+        email = mail;
+        return emailConnector.delFlags(mail.uid, flags, mail.box.name);
+      })
+      .then(() => {
+        flags.forEach(f => {
+          const index = email.flags.indexOf(f);
+          if (index > -1)
+            email.flags.splice(index, 1);
+        });
+        return email.save()
+      })
+      .then(() => {
+        res.status(200).send({message: 'Successfully deleted Flags'});
+      })
+      .catch((err) => {
+        res.status(400).send(err);
+      });
+
+  }
 }
 
 /** Returns one single mail with all details */
 function getSingleMail(req, res) {
   const emailId = req.params.emailId;
-  Email.findOne({_id: emailId}).lean()
+  Email.findOne({_id: emailId}).populate('attachments')
+    .lean()
     .then((mail) => {
+      console.log('retrieving email id...');
+      console.log(mail);
+      mail = replaceInlineAttachmentsSrc(mail, req.user);
       return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
     })
     .then(email => {
@@ -133,6 +256,18 @@ function getSingleMail(req, res) {
     .catch((err) => {
       res.status(400).send(err);
     });
+}
+
+function replaceInlineAttachmentsSrc(email, user) {
+  const URL = `${config.domain}:${config.port}/api/attachment/`
+  const token = authCtrl.createToken(user);
+  email.attachments.forEach((a) => {
+    if(a.contentDispositionInline) {
+      email.html = email.html.replace(`cid:${a.contentId}`, `${URL}${a._id}?token=${token}`);
+    }
+  })
+
+  return email;
 }
 
 
@@ -144,8 +279,6 @@ function storeEmail(mail) {
       .spread((emailOld, boxOld, emailUpdated, boxUpdated) => {
         // TODO new box numbers do not work properly
         console.log('inside storeEmail...');
-        console.log(JSON.stringify(boxOld));
-        console.log(JSON.stringify(boxUpdated));
         Socket.pushEmailUpdateToClient(emailOld, boxOld, emailUpdated, boxUpdated);
         resolve(emailUpdated);
       })

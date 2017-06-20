@@ -30,6 +30,11 @@ export default {
     draft: '[Gmail]/Drafts',
     deleted: '[Gmail]/Trash'
   },
+  exchange: {
+    inbox: 'Inbox',
+    send: 'Sent Items',
+    draft: 'Drafts'
+  },
   smtp: {
     host: 'smtp.gmail.com',
     port: 465,
@@ -52,6 +57,7 @@ export default {
       callbackURL: 'http://localhost:4000/api/auth/trello/callback'
     }
   },
+  attachmentsPath: './Attachments/',
   db: 'mongodb://localhost:27017/emailapp',
   port: 4000,
   socketPort: 4001,

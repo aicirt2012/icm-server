@@ -7,6 +7,8 @@ mongoose.Promise = Promise;
 
 const BoxSchema = new mongoose.Schema({
   boxId: Number,
+  ewsId: {type: String, index: true},
+  ewsSyncState: String,
   name: {type: String, index: true},
   shortName: String,
   parent: {type: ObjectId, ref: 'Box'},
@@ -104,6 +106,7 @@ BoxSchema.statics.deleteUpdatedAtOlderThan = (userId, updateDate) => {
         resolve(blist);
       })
       .catch(err => {
+        console.log('now update box SyncState');
         reject(err);
       })
   });
@@ -251,6 +254,19 @@ BoxSchema.statics.getBoxesByUserId = (userId) => {
             boxMap.get(box._id + '').unseen = box.unseen;
         });
         resolve(Array.from(boxMap.values()));
+      })
+      .catch(err => {
+        reject(err);
+      })
+  });
+}
+
+BoxSchema.statics._updateBox = (box) => {
+  return new Promise((resolve, reject) => {
+    Box.findByIdAndUpdate(box._id, box)
+      .lean()
+      .then(() => {
+        resolve();
       })
       .catch(err => {
         reject(err);

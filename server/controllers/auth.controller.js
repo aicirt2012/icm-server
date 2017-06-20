@@ -25,6 +25,7 @@ function login(req, res) {
       if (!isMatch || err) {
         res.status(401).send('Wrong password');
       } else {
+        // TODO only user._id
         const token = jwt.sign({
           user: {
             _id: user._id,
@@ -45,6 +46,20 @@ function login(req, res) {
   });
 }
 
+function createToken(user) {
+  return jwt.sign({
+    user: {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      google: user.google ? true : false,
+      exchange: user.exchange ? true : false
+    }
+  }, config.jwt.secret, {
+    expiresIn: config.jwt.expiresInSeconds
+  });
+}
+
 function oauthCallback(req, res) {
   const token = jwt.sign({
     user: {
@@ -61,5 +76,6 @@ function oauthCallback(req, res) {
 
 export default {
   login,
+  createToken,
   oauthCallback
 };
