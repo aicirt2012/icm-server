@@ -52,6 +52,8 @@ class EWSConnector {
   sendMail(emailObject) {
     return new Promise((resolve, reject) => {
 
+      console.log(emailObject);
+
       const ewsFunction = 'CreateItem';
       const ewsArgs = {
         attributes: {
@@ -93,12 +95,21 @@ class EWSConnector {
     });
   }
 
+  // TODO unify email from/to format
+  // now it is ["email", "email"];
+  // or [{name, address, _id}, {...}]
   _formatRecipients(rawRecipients) {
     let recipients = [];
     rawRecipients.forEach((recipient) => {
+      let emailAddress = '';
+      if (typeof recipient === 'string' || recipient instanceof String) {
+        emailAddress = recipient;
+      } else {
+        emailAddress = recipient.address;
+      };
       recipients.push({
-        EmailAddress: recipient
-      })
+        EmailAddress: emailAddress
+      });
     });
     return recipients;
   }
