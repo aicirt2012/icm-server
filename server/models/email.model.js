@@ -11,6 +11,7 @@ const EmailSchema = new mongoose.Schema({
   messageId: {type: String, index: true},
   ewsChangeKey: {type: String, index: true},
   uid: Number,
+  // TODO array of boxes
   box: {type: ObjectId, ref: 'Box'},
   thrid: String,
   attrs: {

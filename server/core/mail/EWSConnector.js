@@ -121,7 +121,7 @@ class EWSConnector {
     "msgData" : "some random text",
   * }
    **/
-  append(emailObject) {
+  append(emailObject, boxEwsId) {
     return new Promise((resolve, reject) => {
 
       const ewsFunction = 'CreateItem';
@@ -130,9 +130,16 @@ class EWSConnector {
           MessageDisposition: 'SaveOnly'
         },
         SavedItemFolderId: {
+          /*
           DistinguishedFolderId: {
             attributes: {
               Id: 'drafts'
+            }
+          }
+          */
+          FolderId: {
+            attributes: {
+              Id: boxEwsId
             }
           }
         },
@@ -154,7 +161,16 @@ class EWSConnector {
         }
       };
 
-      this.ews.run(ewsFunction, ewsArgs)
+      var ewsSoapHeader = {
+        't:RequestServerVersion': {
+          attributes: {
+            Version: "Exchange2013",
+            xmlns: "http://schemas.microsoft.com/exchange/services/2006/t‌​ypes"
+          }
+        }
+      };
+
+      this.ews.run(ewsFunction, ewsArgs, ewsSoapHeader)
         .then(result => {
           console.log('email draft...');
           resolve(result);

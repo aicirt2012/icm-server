@@ -50,13 +50,15 @@ function sendEmail(req, res) {
 
 function append(req, res) {
   const user = req.user;
+  const boxId = req.body.boxId;
   const emailConnector = user.createIMAPConnector();
 
   if (req.user.provider.name == 'Exchange') {
 
-    Box.findOne({name: config.exchange.draft, user: user})
-      .then(boxDrafts => {
-        return [boxDrafts, emailConnector.append(req.body)]
+    // Box.findOne({name: config.exchange.draft, user: user})
+    Box.findOne({_id: boxId, user: user})
+      .then(box => {
+        return [box, emailConnector.append(req.body, box.ewsId)]
       })
       .spread((box, msgData) => {
         return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
@@ -71,9 +73,10 @@ function append(req, res) {
 
   } else {
 
-    Box.findOne({name: config.gmail.draft, user: user})
-      .then(boxDrafts => {
-        return [boxDrafts, emailConnector.append(boxDrafts.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
+    // Box.findOne({name: config.gmail.draft, user: user})
+    Box.findOne({_id: boxId, user: user})
+      .then(box=> {
+        return [box, emailConnector.append(box.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
       })
       .spread((box, msgData) => {
         return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
@@ -262,7 +265,7 @@ function replaceInlineAttachmentsSrc(email, user) {
   const URL = `${config.domain}:${config.port}/api/attachment/`
   const token = authCtrl.createToken(user);
   email.attachments.forEach((a) => {
-    if(a.contentDispositionInline) {
+    if (a.contentDispositionInline) {
       email.html = email.html.replace(`cid:${a.contentId}`, `${URL}${a._id}?token=${token}`);
     }
   })
