@@ -8,12 +8,15 @@ function routeProvider(passport) {
     session: false
   });
   router.use(mw);
-  /* IMAP API Endpoints */ 
+  /* IMAP API Endpoints */
   router.route('/append')
     .post(emailCtrl.append);
 
   router.route('/:emailId/move')
     .post(emailCtrl.move);
+
+  router.route('/:emailId/trash')
+    .post(emailCtrl.trash);
 
   router.route('/send')
     .post(emailCtrl.sendEmail);

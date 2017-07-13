@@ -33,7 +33,8 @@ export default {
   exchange: {
     inbox: 'Inbox',
     send: 'Sent Items',
-    draft: 'Drafts'
+    draft: 'Drafts',
+    deleted: 'Deleted Items'
   },
   smtp: {
     host: 'smtp.gmail.com',

@@ -75,7 +75,7 @@ function append(req, res) {
 
     // Box.findOne({name: config.gmail.draft, user: user})
     Box.findOne({_id: boxId, user: user})
-      .then(box=> {
+      .then(box => {
         return [box, emailConnector.append(box.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
       })
       .spread((box, msgData) => {
@@ -139,6 +139,24 @@ function move(req, res) {
       .catch(err => {
         console.log(err);
         res.status(400).send(err);
+      });
+  }
+}
+
+function trash(req, res) {
+  const userProvider = req.user.provider.name;
+
+  if (userProvider === 'Exchange') {
+    Box.findOne({name: config.exchange.deleted, user: req.user})
+      .then(box => {
+        req.body.newBoxId = box._id;
+        move(req, res);
+      });
+  } else if (userProvider === 'Gmail') {
+    Box.findOne({name: config.gmail.deleted, user: req.user})
+      .then(box => {
+        req.body.newBoxId = box._id;
+        move(req, res);
       });
   }
 }
@@ -325,6 +343,7 @@ function autocomplete(req, res) {
 export default {
   append,
   move,
+  trash,
   sendEmail,
   addFlags,
   delFlags,
