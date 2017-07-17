@@ -294,6 +294,7 @@ function replaceInlineAttachmentsSrc(email, user) {
 
 /** Stores an email in the database and
  *  pushs upates via socket to the client */
+// TODO
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
     Email.updateAndGetOldAndUpdated(mail)
