@@ -59,8 +59,6 @@ class EWSConnector {
   sendMail(emailObject) {
     return new Promise((resolve, reject) => {
 
-      console.log(emailObject);
-
       const ewsFunction = 'CreateItem';
       const ewsArgs = {
         attributes: {
@@ -165,7 +163,6 @@ class EWSConnector {
 
       this.ews.run(ewsFunction, ewsArgs, this.ewsSoapHeader)
         .then(result => {
-          console.log('email draft...');
           resolve(result);
         })
         .catch(err => {
@@ -206,14 +203,9 @@ class EWSConnector {
     });
   };
 
+  // TODO: process more flags. Now only working for SEEN
   addFlags(mail, flags) {
     return new Promise((resolve, reject) => {
-
-      console.log('Inside addFlags');
-      // TODO: process flags. Now only working for SEEN
-      console.log(flags);
-      console.log(mail.messageId);
-      console.log(mail.ewsChangeKey);
 
       const ewsFunction = 'UpdateItem';
       const ewsArgs = {
@@ -247,8 +239,6 @@ class EWSConnector {
 
       this.ews.run(ewsFunction, ewsArgs, this.ewsSoapHeader)
         .then(result => {
-          console.log('email flags...');
-          console.log(JSON.stringify(result));
           resolve(JSON.stringify(result));
         })
         .catch(err => {
@@ -259,10 +249,10 @@ class EWSConnector {
     });
   }
 
+  // TODO: process more flags. Now only working for SEEN
   delFlags(mail, flags) {
 
     return new Promise((resolve, reject) => {
-      // TODO: process flags. Now only working for SEEN
 
       const ewsFunction = 'UpdateItem';
       const ewsArgs = {
@@ -296,8 +286,6 @@ class EWSConnector {
 
       this.ews.run(ewsFunction, ewsArgs, this.ewsSoapHeader)
         .then(result => {
-          console.log('email flags...');
-          console.log(JSON.stringify(result));
           resolve(JSON.stringify(result));
         })
         .catch(err => {
@@ -381,11 +369,9 @@ class EWSConnector {
       Promise.each(boxes, (box) => {
         return this.fetchEmails(storeEmail, box).then(syncState => {
           box.ewsSyncState = syncState;
-          console.log(box);
           return Box._updateBox(box);
         });
       }).then(() => {
-        console.log('Box up to date!');
         resolve();
       }).catch(err => {
         console.log(err);
@@ -398,7 +384,6 @@ class EWSConnector {
     return new Promise((resolve, reject) => {
       let syncState = box.ewsSyncState;
       const MAX_CHANGES_RETURNED = '5';
-
       const ewsFunction = 'SyncFolderItems';
       const ewsArgs = {
         ItemShape: {
@@ -609,13 +594,9 @@ class EWSConnector {
       s.pipe(mailParser);
 
       mailParser.on('end', (mailObject) => {
-        console.log('inside parseDataFromEmail');
 
         if (mailObject.attachments) {
           mailObject.attachments.forEach(m => {
-
-            console.log('attachment structure');
-            console.log(m);
 
             let readStream = new PassThrough();
             readStream.end(m.content);
@@ -630,9 +611,7 @@ class EWSConnector {
               .catch(err => {
                 console.log(err);
               })
-
           });
-
         }
 
         resolve([mailObject.text, attachments]);
