@@ -14,6 +14,7 @@ import Attachment from '../../models/attachment.model';
  https://msdn.microsoft.com/en-us/library/office/aa566013(v=exchg.150).aspx
  https://blogs.msdn.microsoft.com/exchangedev/2010/03/16/loading-properties-for-multiple-items-with-one-call-to-exchange-web-services/
  https://msdn.microsoft.com/en-us/library/microsoft.exchange.webservices.data.textbody(v=exchg.80).aspx
+ https://msdn.microsoft.com/en-us/library/office/aa580800(v=exchg.150).aspx
  */
 
 class EWSConnector {
@@ -423,7 +424,7 @@ class EWSConnector {
   _processChangesAndStoreEmails(changes, box, storeEmail) {
     return new Promise((resolve, reject) => {
       const items = this._getChangeItems(changes);
-      this._getEmailsFromItems(items, box)
+      this._getEmailsFromItems(items.createUpdate, box)
         .then(emails => {
           return Promise.each(emails, (email) => {
             return storeEmail(email);
@@ -440,14 +441,17 @@ class EWSConnector {
   }
 
   _getChangeItems(changes) {
-    let items = [];
+    let items = {
+      createUpdate: [],
+      delete: []
+    };
     if (changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes) {
-      items = items.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Create || []);
-      items = items.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Update || []);
-      // TODO Delete items: The current algorithm won't work. Only Ids are returned
-      // items = items.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Delete || []);
-      // https://msdn.microsoft.com/en-us/library/office/aa580800(v=exchg.150).aspx
+      items.createUpdate = items.createUpdate.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Create || []);
+      items.createUpdate = items.createUpdate.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Update || []);
+      items.delete = items.delete.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Delete || []);
     }
+    console.log('changed items');
+    console.log(JSON.stringify(items));
     return items;
   }
 
