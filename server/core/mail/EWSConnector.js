@@ -106,7 +106,8 @@ class EWSConnector {
         emailAddress = recipient;
       } else {
         emailAddress = recipient.address;
-      };
+      }
+
       recipients.push({
         EmailAddress: emailAddress
       });
@@ -130,13 +131,6 @@ class EWSConnector {
           MessageDisposition: 'SaveOnly'
         },
         SavedItemFolderId: {
-          /*
-          DistinguishedFolderId: {
-            attributes: {
-              Id: 'drafts'
-            }
-          }
-          */
           FolderId: {
             attributes: {
               Id: boxEwsId
@@ -607,25 +601,27 @@ class EWSConnector {
 
       Promise.each(rawEmails, (rawEmail) => {
         const message = rawEmail.Items.Message;
-        return this._getTextAndAttachmentsFromMimeContent(message.MimeContent['$value']).then(textAndAttachments => {
+        const mimeContent = message.MimeContent['$value'];
+        return this._getTextAndAttachmentsFromMimeContent(mimeContent)
+          .then(textAndAttachments => {
 
-          const email = {
-            messageId: message.ItemId.attributes.Id,
-            ewsChangeKey: message.ItemId.attributes.ChangeKey,
-            from: this._formatContacts(message.From ? message.From.Mailbox : null),
-            to: this._formatContacts(message.ToRecipients ? message.ToRecipients.Mailbox : null),
-            subject: message.Subject,
-            text: textAndAttachments[0],
-            html: message.Body['$value'],
-            date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
-            flags: message.IsRead == 'false' ? [] : ['\\Seen'],
-            box: box._id,
-            user: this.user._id,
-            attachments: textAndAttachments[1]
-          }
+            const email = {
+              messageId: message.ItemId.attributes.Id,
+              ewsChangeKey: message.ItemId.attributes.ChangeKey,
+              from: this._formatContacts(message.From ? message.From.Mailbox : null),
+              to: this._formatContacts(message.ToRecipients ? message.ToRecipients.Mailbox : null),
+              subject: message.Subject,
+              text: textAndAttachments[0],
+              html: message.Body['$value'],
+              date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
+              flags: message.IsRead == 'false' ? [] : ['\\Seen'],
+              box: box._id,
+              user: this.user._id,
+              attachments: textAndAttachments[1]
+            }
 
-          emails.push(email);
-        })
+            emails.push(email);
+          });
       }).then(() => {
         resolve(emails);
       }).catch(err => {
@@ -655,13 +651,6 @@ class EWSConnector {
     return contacts;
   }
 
-  truncateAttachments(mimeContent) {
-    const bytes = base64.decode(mimeContent);
-    const text = utf8.decode(bytes);
-    return text;
-  }
-
-
   _getTextAndAttachmentsFromMimeContent(mimeContent) {
     return new Promise((resolve, reject) => {
 
@@ -684,8 +673,6 @@ class EWSConnector {
         if (mailObject.attachments) {
           mailObject.attachments.forEach(m => {
 
-            // TODO Real attachments into FileSystem
-            // embedded content in DB
             console.log('attachment structure');
             console.log(m);
 
@@ -707,53 +694,11 @@ class EWSConnector {
 
         }
 
-
         resolve([mailObject.text, attachments]);
       }).on('error', (err) => {
         console.log(err);
         reject(err);
       });
-
-      /*
-       mailParser.on('data', data => {
-       if (data.type === 'text') {
-       Object.keys(data).forEach(key => {
-       console.log(key);
-       console.log('----');
-       console.log(data[key]);
-       });
-       }
-
-       if (data.type === 'attachment') {
-       attachments.push(data);
-       data.chunks = [];
-       data.chunklen = 0;
-       let size = 0;
-       Object.keys(data).forEach(key => {
-       if (typeof data[key] !== 'object' && typeof data[key] !== 'function') {
-       console.log('%s: %s', key, JSON.stringify(data[key]));
-       }
-       });
-       data.content.on('readable', () => {
-       let chunk;
-       while ((chunk = data.content.read()) !== null) {
-       size += chunk.length;
-       data.chunks.push(chunk);
-       data.chunklen += chunk.length;
-       }
-       });
-
-       data.content.on('end', () => {
-       data.buf = Buffer.concat(data.chunks, data.chunklen);
-       console.log('%s: %s B', 'size', size);
-       // attachment needs to be released before next chunk of
-       // message data can be processed
-       data.release();
-       });
-       }
-       });
-       */
-
 
     })
   }
