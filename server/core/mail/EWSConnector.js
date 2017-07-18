@@ -15,6 +15,8 @@ import Attachment from '../../models/attachment.model';
  https://blogs.msdn.microsoft.com/exchangedev/2010/03/16/loading-properties-for-multiple-items-with-one-call-to-exchange-web-services/
  https://msdn.microsoft.com/en-us/library/microsoft.exchange.webservices.data.textbody(v=exchg.80).aspx
  https://msdn.microsoft.com/en-us/library/office/aa580800(v=exchg.150).aspx
+ https://msdn.microsoft.com/en-us/library/office/dn600291(v=exchg.150).aspx#bk_moveews
+ https://msdn.microsoft.com/en-us/library/office/aa563789(v=exchg.150).aspx
  */
 
 class EWSConnector {
@@ -187,7 +189,7 @@ class EWSConnector {
         'ItemIds': {
           't:ItemId': { // hack for bug. Use 't:ItemId'
             attributes: {
-              Id: email.messageId
+              Id: email.ewsItemId
             }
           }
         }
@@ -218,7 +220,7 @@ class EWSConnector {
           ItemChange: {
             ItemId: {
               attributes: {
-                Id: mail.messageId,
+                Id: mail.ewsItemId,
                 ChangeKey: mail.ewsChangeKey
               }
             },
@@ -265,7 +267,7 @@ class EWSConnector {
           ItemChange: {
             ItemId: {
               attributes: {
-                Id: mail.messageId,
+                Id: mail.ewsItemId,
                 ChangeKey: mail.ewsChangeKey
               }
             },
@@ -384,7 +386,7 @@ class EWSConnector {
   fetchEmails(storeEmail, box) {
     return new Promise((resolve, reject) => {
       let syncState = box.ewsSyncState;
-      const MAX_CHANGES_RETURNED = '5';
+      const MAX_CHANGES_RETURNED = '20';
       const ewsFunction = 'SyncFolderItems';
       const ewsArgs = {
         ItemShape: {
@@ -448,10 +450,9 @@ class EWSConnector {
     if (changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes) {
       items.createUpdate = items.createUpdate.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Create || []);
       items.createUpdate = items.createUpdate.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Update || []);
+      items.createUpdate = items.createUpdate.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.ReadFlagChange || []);
       items.delete = items.delete.concat(changes.ResponseMessages.SyncFolderItemsResponseMessage.Changes.Delete || []);
     }
-    console.log('changed items');
-    console.log(JSON.stringify(items));
     return items;
   }
 
@@ -517,6 +518,15 @@ class EWSConnector {
             }
           }
         )
+      } else if (item.ItemId) { // hack for ReadFlagChange object
+        itemIds.push(
+          {
+            attributes: {
+              Id: item.ItemId.attributes.Id,
+              ChangeKey: item.ItemId.attributes.ChangeKey
+            }
+          }
+        )
       }
     });
     return itemIds;
@@ -533,21 +543,22 @@ class EWSConnector {
         const message = rawEmail.Items.Message;
         const mimeContent = message.MimeContent['$value'];
         return this._getTextAndAttachmentsFromMimeContent(mimeContent)
-          .then(textAndAttachments => {
+          .then(messageIdAndtextAndAttachments => {
 
             const email = {
-              messageId: message.ItemId.attributes.Id,
+              messageId: messageIdAndtextAndAttachments[0],
+              ewsItemId: message.ItemId.attributes.Id,
               ewsChangeKey: message.ItemId.attributes.ChangeKey,
               from: this._formatContacts(message.From ? message.From.Mailbox : null),
               to: this._formatContacts(message.ToRecipients ? message.ToRecipients.Mailbox : null),
               subject: message.Subject,
-              text: textAndAttachments[0],
+              text: messageIdAndtextAndAttachments[1],
               html: message.Body['$value'],
               date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
               flags: message.IsRead == 'false' ? [] : ['\\Seen'],
               box: box._id,
               user: this.user._id,
-              attachments: textAndAttachments[1]
+              attachments: messageIdAndtextAndAttachments[2]
             }
 
             emails.push(email);
@@ -618,7 +629,7 @@ class EWSConnector {
           });
         }
 
-        resolve([mailObject.text, attachments]);
+        resolve([mailObject.messageId, mailObject.text, attachments]);
       }).on('error', (err) => {
         console.log(err);
         reject(err);

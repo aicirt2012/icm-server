@@ -9,6 +9,7 @@ const Mixed = mongoose.Schema.Types.Mixed;
 const EmailSchema = new mongoose.Schema({
   user: {type: ObjectId, ref: 'User'},
   messageId: {type: String, index: true},
+  ewsItemId: {type: String, index: true},
   ewsChangeKey: {type: String, index: true},
   uid: Number,
   // TODO array of boxes
