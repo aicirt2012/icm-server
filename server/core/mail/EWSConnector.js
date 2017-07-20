@@ -2,8 +2,6 @@ import Promise from 'bluebird';
 import moment from 'moment';
 import EWS from 'node-ews';
 import Box from '../../models/box.model';
-import base64 from 'base-64';
-import utf8 from 'utf8';
 import {MailParser} from 'mailparser';
 import {Readable, Stream, PassThrough} from 'stream';
 import Attachment from '../../models/attachment.model';
@@ -595,15 +593,11 @@ class EWSConnector {
   _getTextAndAttachmentsFromMimeContent(mimeContent) {
     return new Promise((resolve, reject) => {
 
-      const bytes = base64.decode(mimeContent);
-      const text = utf8.decode(bytes);
       const mailParser = new MailParser();
       let attachments = [];
 
       let s = new Readable();
-      s._read = function noop() {
-      };
-      s.push(text);
+      s.push(mimeContent, 'base64');
       s.push(null);
 
       s.pipe(mailParser);
