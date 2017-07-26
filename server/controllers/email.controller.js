@@ -64,7 +64,7 @@ function append(req, res) {
         return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
       })
       .spread((msgData, result) => {
-        res.status(200).send({msgData: msgData});
+        res.status(200).send({msgData: 'ok'});
       })
       .catch((err) => {
         console.log(err);
@@ -341,8 +341,68 @@ function autocomplete(req, res) {
     });
 }
 
+function appendEnron(req, res) {
+
+  const emailConnector = req.user.createIMAPConnector();
+
+  // find enron user e.g Allen
+  User.findOne({username: 'allen-p'})
+    .then((user) => {
+      console.log('this is the user');
+      console.log(user);
+
+      // get all emails for this user;
+      Email.find({user: user}).limit(3)
+        .then((emails) => {
+
+          // in which box to store these emails?
+          Box.findOne({name: config.exchange.inbox, user: req.user})
+            .then(box => {
+
+              // filter emails without ewsItemId (exchange)
+              const emailsToAppend = emails.filter(email => !email.ewsItemId);
+              //console.log(emailsToAppend);
+
+              Promise.each(emails, (email) => {
+
+                req.body.boxId = box._id;
+                req.body.subject = email.subject;
+                req.body.msgData = email.text;
+                req.body.to = email.to;
+
+                return emailConnector.append(req.body, box.ewsId)
+                  .then(result => {
+                    // Pair ewsItemId to the Enron email, already in DB
+                    console.log('resultado...');
+                    console.log(JSON.stringify(result));
+
+                    email.box = box._id;
+                    email.ewsItemId = result.Id;
+                    email.ewsChangeKey = result.ChangeKey;
+                  })
+                  .then(() => {
+                    return storeEmail(email);
+                  });
+              })
+                .then(() => {
+                  res.status(200).send({msgData: 'ok'});
+                })
+                .catch((err) => {
+                  console.log(err);
+                  res.status(400).send(err);
+                });
+
+            });
+
+        });
+
+    });
+
+}
+
 export default {
   append,
+  appendEnron,
   move,
   trash,
   sendEmail,

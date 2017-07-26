@@ -14,7 +14,9 @@ var ObjectId = mongoose.Types.ObjectId;
 
 function importEnronData(req, res){
   /** hardcoded to local disc */
-  const path = __dirname + '/../../../../enron_mail_20150507/maildir/';
+  // const path = __dirname + '/../../../../enron_mail_20150507/maildir/';
+  console.log('inside import enron');
+  const path = './../enron_mail_20150507/maildir/';
   new EnronDataSet(path)
     .importAccounts(req.body.filter)
     .then(()=>{
@@ -23,8 +25,8 @@ function importEnronData(req, res){
 }
 
 function importEnronDataAll(req, res){
-  const accounts = ['allen-p'];
-  Promise.each(accounts,a=>{   
+  const accounts = ['allen-p']; // wildcards
+  Promise.each(accounts,a=>{
     return new Promise((resolve, reject)=>{
       request.post('http://localhost:4000/api/import/enron',{form:{filter:a}}, function (err, resp) {
         if (!err && resp.statusCode == 200)
@@ -289,7 +291,7 @@ class EnronDataSet{
 
   importAccounts(filter){
     return Promise.each(this.getDirectoriesSync(this.basePath), account=>{
-      if(account.startsWith(filter))   
+      if(account.startsWith(filter))
         return this.importAccount(account);
       else
         return Promise.resolve();
@@ -333,13 +335,13 @@ class EnronDataSet{
    */
   importMails(path, userId, labels){
     //console.log('EnronMail Import: '+path.replace(this.basePath,''));
-    return Promise.each(fs.readdirSync(path), fileName=>{      
+    return Promise.each(fs.readdirSync(path), fileName=>{
       if(fs.statSync(path+"/"+fileName).isDirectory()) {
         labels.push(fileName.replace(/_/g,' '));
         return this.importMails(path+fileName+'/', userId, labels);
       }else{
         return this.createEmail(path+fileName, userId, labels);
-      }      
+      }
     });
   }
 
@@ -357,7 +359,7 @@ class EnronDataSet{
       })
       .catch(err=>{
         console.log(err);
-      });     
+      });
   }
 
   readFile(filePath){

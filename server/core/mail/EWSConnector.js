@@ -164,7 +164,7 @@ class EWSConnector {
 
       this.ews.run(ewsFunction, ewsArgs, this.ewsSoapHeader)
         .then(result => {
-          resolve(result);
+          resolve(result.ResponseMessages.CreateItemResponseMessage.Items.Message.ItemId.attributes);
         })
         .catch(err => {
           reject(err);

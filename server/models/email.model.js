@@ -131,7 +131,7 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail) => {
  * Returns autocomplete suggestions for email addresses
  * @param userId only consider emails of this user
  */
-EmailSchema.statics.autocomplete = (userId) => {
+EmailSchema.statics.autocomplete = (userId) => {div
   return Email.getCollection('emails').aggregate([
     {$match: {user: userId}},
     {$project: {address: {$setUnion: ["$from", "$to", "$cc", "$bcc"]}}},

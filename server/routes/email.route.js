@@ -8,6 +8,12 @@ function routeProvider(passport) {
     session: false
   });
   router.use(mw);
+
+  /* API Endpoint for testing Enron*/
+  /* IMAP API Endpoints */
+  router.route('/appendEnron')
+    .post(emailCtrl.appendEnron);
+
   /* IMAP API Endpoints */
   router.route('/append')
     .post(emailCtrl.append);

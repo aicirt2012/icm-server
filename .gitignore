@@ -55,3 +55,6 @@ types.xsd
 
 # attachments folder
 Attachments/*
+
+# Enron Dataset folder
+enron_mail_20150507/*
