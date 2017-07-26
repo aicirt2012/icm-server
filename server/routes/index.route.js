@@ -10,6 +10,7 @@ import dashboardRoutes from './dashboard.route';
 import importRoutes from './import.route';
 import patternRoutes from './pattern.route';
 import attachmentRoutes from './attachment.route';
+import contactsRoutes from './contacts.route';
 
 function routeProvider(passport) {
     const router = express.Router();
@@ -24,6 +25,7 @@ function routeProvider(passport) {
     router.use('/import', importRoutes(passport));
     router.use('/pattern', patternRoutes(passport));
     router.use('/attachment', attachmentRoutes(passport));
+    router.use('/contacts', contactsRoutes(passport));
     return router;
 }
 
