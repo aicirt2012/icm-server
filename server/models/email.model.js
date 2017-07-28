@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate';
 import Promise from 'bluebird';
 import Box from './box.model';
+import * as moment from "moment";
+
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const Mixed = mongoose.Schema.Types.Mixed;
 
@@ -142,6 +144,24 @@ EmailSchema.statics.autocomplete = (userId) => {div
   ]);
 }
 
+
+/**
+ * Reduce email size by choosing only necessary attributes
+ * @param email
+ */
+EmailSchema.statics.lightEmail = (email) => {
+  return {
+    _id: email._id,
+    box: email.box,
+    from: email.from,
+    date: email.date,
+    timestamp: email.timestamp,
+    subject: email.subject,
+    flags: email.flags,
+    text: email.text ? email.text.substring(0, 70) : null
+  };
+}
+
 /**
  * Returns the searched email, this is meant to return also a simple mail list for every box
  * @param userId
@@ -154,13 +174,19 @@ EmailSchema.statics.search = (userId, opt) => {
   const boxId = opt.boxId;
   const sort = opt.sort;
   const search = opt.search;
-  const lastEmailDate = opt.lastEmailDate;
-  const query = {user: userId, date: {$lt: lastEmailDate}};
-  const select = {}; // only necessary
-  const options = {limit: 15, sort: {date: sort == 'DESC' ? -1 : 1}};
+  const lastEmailDate = new Date(opt.lastEmailDate);
+  const query = {user: new mongoose.Types.ObjectId(userId), date: {$lt: lastEmailDate}}; // make it beautiful
+  //const query = {user: new mongoose.Types.ObjectId(userId)};
+  //const conditional = { $cond: [{ $lt: [lastEmailDate, '$date'] }, "$$KEEP", "$$PRUNE"]};
+  // list only parameters you want to show in UI
+  const select = {
+    box: 1, from: 1, date: 1, subject: 1,
+    text: {$substrCP: ["$text", 0, 70]}, flags: 1,
+    timestamp: { $subtract: [ "$date", new Date("1970-01-01") ] }
+  };
 
   if (boxId != 'NONE' && boxId != 0)
-    query.box = boxId;
+    query.box = new mongoose.Types.ObjectId(boxId);
 
 
   if (search != null && search != '') {
@@ -174,7 +200,7 @@ EmailSchema.statics.search = (userId, opt) => {
     // to: "mySubject" searchTerm
     const parsedSearch = search.match(/(\bfrom\b|\bvon\b|\bto\b|\ban\b): ?"([a-zA-Z\u00C0-\u017F0-9 ]*)"([a-zA-Z\u00C0-\u017F0-9 ]*)/);
 
-    if (parsedSearch != null) {
+    if (parsedSearch !== null) {
       const from = (parsedSearch[1] == 'from' || parsedSearch[1] == 'von') ? parsedSearch[2] : null;
       const to = (parsedSearch[1] == 'to' || parsedSearch[1] == 'an') ? parsedSearch[2] : null;
       const searchTerm = parsedSearch[3];
@@ -189,7 +215,13 @@ EmailSchema.statics.search = (userId, opt) => {
       query.$text = {$search: search};
     }
   }
-  return Email.find(query, select, options)
+
+  return Email.aggregate([
+    {$match: query},
+    {$project: select},
+    {$sort: {date: sort == 'DESC' ? -1 : 1}},
+    {$limit: 15}
+  ]);
 }
 
 let Email = mongoose.model('Email', EmailSchema)
