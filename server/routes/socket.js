@@ -1,10 +1,10 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import config from '../../config/env';
-import emailCtrl from '../controllers/email.controller';
 import http from 'http';
 import socketIo from 'socket.io';
 import Email from './../models/email.model';
+import Box from './../models/box.model';
 import _ from 'lodash';
 
 
@@ -96,27 +96,27 @@ class Socket{
   }
 
   createEmail(userId, email){
-    this.emitToUser(userId, 'create_email', email);
+    this.emitToUser(userId, 'create_email', Email.lightEmail(email));
   }
 
   updateEmail(userId, email){
-    this.emitToUser(userId, 'update_email', email);
+    this.emitToUser(userId, 'update_email', Email.lightEmail(email));
   }
 
   deleteEmail(userId, email){
-    this.emitToUser(userId, 'delete_email', email);
+    this.emitToUser(userId, 'delete_email', Email.lightEmail(email));
   }
 
   createBox(userId, box){
-    this.emitToUser(userId, 'create_box', box);
+    this.emitToUser(userId, 'create_box', Box.lightBox(box));
   }
 
   updateBox(userId, box){
-    this.emitToUser(userId, 'update_box', box);
+    this.emitToUser(userId, 'update_box', Box.lightBox(box));
   }
 
   deleteBox(userId, box){
-    this.emitToUser(userId, 'delete_box', box);
+    this.emitToUser(userId, 'delete_box', Box.lightBox(box));
   }
 
   emitToUser(userId, msgType, msgContent){

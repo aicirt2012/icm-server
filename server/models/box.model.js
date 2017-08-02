@@ -6,7 +6,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 mongoose.Promise = Promise;
 
 const BoxSchema = new mongoose.Schema({
-  boxId: Number,
+  boxId: Number, // TODO check if this is necessary or delete
   ewsId: {type: String, index: true},
   ewsSyncState: String,
   name: {type: String, index: true},
@@ -224,6 +224,19 @@ BoxSchema.statics.findWithUnseen = (query) => {
         reject(err);
       })
   });
+}
+
+/**
+ * Reduce box size by choosing only necessary attributes
+ * @param box
+ */
+BoxSchema.statics.lightBox = (box) => {
+  return {
+    _id: box._id,
+    name: box.name,
+    shortName: box.shortName,
+    parent: box.parent
+  };
 }
 
 /**

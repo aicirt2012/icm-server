@@ -356,6 +356,9 @@ function appendEnron(req, res) {
         .then((emails) => {
 
           // in which box to store these emails?
+
+          // agregate boxes according to the folder names
+
           Box.findOne({name: config.exchange.inbox, user: req.user})
             .then(box => {
 
