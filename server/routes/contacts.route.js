@@ -1,7 +1,7 @@
 import express from 'express';
 import validate from 'express-validation';
 import paramValidation from '../../config/param-validation';
-import userCtrl from '../controllers/user.controller';
+import contactsCtrl from '../controllers/contacts.controller';
 
 function routeProvider(passport) {
 
@@ -10,7 +10,7 @@ function routeProvider(passport) {
   router.route('/')
     .get(passport.authenticate('jwt', {
       session: false
-    }), userCtrl.list)
+    }), contactsCtrl.list)
 
   return router;
 }

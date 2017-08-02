@@ -16,6 +16,8 @@ const ContactSchema = new mongoose.Schema({
   email: {type: String, index: true},
   phone: {type: String, index: true},
   mobile: {type: String, index: true},
+  provider: {type: String, index: true},
+  providerId: {type: String, index: true},
   user: {type: ObjectId, ref: 'User'},
 }, {timestamps: true});
 

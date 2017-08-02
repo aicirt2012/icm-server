@@ -10,6 +10,10 @@ function list(req, res, next) {
     });
 }
 
+function sync(req, res, next) {  
+  req.user.sociocortex
+}
+
 export default {
   list
 };
