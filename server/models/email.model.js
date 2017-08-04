@@ -72,13 +72,16 @@ const EmailSchema = new mongoose.Schema({
   timestamps: true
 });
 
+EmailSchema.virtual('timestamp').get(function () {
+  return this.date !== null ? this.date.getTime() : null;
+});
+
 EmailSchema.plugin(mongoosePaginate);
 
 EmailSchema.index({
   text: 'text',
   subject: 'text'
 });
-
 
 EmailSchema.statics.isUnseen = (email) => {
   return email.flags.indexOf("\\Seen") == -1;
@@ -133,7 +136,7 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail) => {
  * Returns autocomplete suggestions for email addresses
  * @param userId only consider emails of this user
  */
-EmailSchema.statics.autocomplete = (userId) => {div
+EmailSchema.statics.autocomplete = (userId) => {
   return Email.getCollection('emails').aggregate([
     {$match: {user: userId}},
     {$project: {address: {$setUnion: ["$from", "$to", "$cc", "$bcc"]}}},
@@ -182,7 +185,7 @@ EmailSchema.statics.search = (userId, opt) => {
   const select = {
     box: 1, from: 1, date: 1, subject: 1,
     text: {$substrCP: ["$text", 0, 70]}, flags: 1,
-    timestamp: { $subtract: [ "$date", new Date("1970-01-01") ] }
+    timestamp: {$subtract: ["$date", new Date("1970-01-01")]}
   };
 
   if (boxId != 'NONE' && boxId != 0)
