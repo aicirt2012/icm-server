@@ -14,8 +14,9 @@ const EmailSchema = new mongoose.Schema({
   ewsItemId: {type: String, index: true},
   ewsChangeKey: {type: String, index: true},
   uid: Number,
-  // TODO array of boxes
+  // TODO Delete box, use array of Boxes
   box: {type: ObjectId, ref: 'Box'},
+  boxes: [{type: ObjectId, ref: 'Box'}],
   thrid: String,
   attrs: {
     'x-gm-thrid': String,
@@ -65,7 +66,7 @@ const EmailSchema = new mongoose.Schema({
   flags: [String],
   labels: [String],
   attachments: [{
-    type: mongoose.Schema.Types.ObjectId,
+    type: ObjectId,
     ref: 'Attachment'
   }]
 }, {
@@ -105,7 +106,7 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail) => {
     Email.findOne({messageId: mail.messageId})
       .then(emailOld => {
         res.push(emailOld);
-        return emailOld != null ? Box.findWithUnseenCountById(emailOld.box) : Box.findOne({_id: mail.box});
+        return emailOld != null ? Box.findWithUnseenCountById(emailOld.boxes[0]) : Box.findOne({_id: mail.boxes[0]});
       })
       .then(boxOld => {
         res.push(boxOld);
@@ -119,7 +120,7 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail) => {
       })
       .then(emailUpdated => {
         res.push(emailUpdated);
-        return emailUpdated != null ? Box.findWithUnseenCountById(emailUpdated.box) : Promise.resolve(null);
+        return emailUpdated != null ? Box.findWithUnseenCountById(emailUpdated.boxes[0]) : Promise.resolve(null);
       })
       .then(boxUpdated => {
         res.push(boxUpdated);
@@ -156,6 +157,7 @@ EmailSchema.statics.lightEmail = (email) => {
   return {
     _id: email._id,
     box: email.box,
+    boxes: email.boxes,
     from: email.from,
     date: email.date,
     timestamp: email.timestamp,
@@ -188,9 +190,9 @@ EmailSchema.statics.search = (userId, opt) => {
     timestamp: {$subtract: ["$date", new Date("1970-01-01")]}
   };
 
-  if (boxId != 'NONE' && boxId != 0)
-    query.box = new mongoose.Types.ObjectId(boxId);
-
+  if (boxId != 'NONE' && boxId != 0) {
+    query.boxes = {$in: [new mongoose.Types.ObjectId(boxId)]};
+  }
 
   if (search != null && search != '') {
     // von:"mySubject" searchTerm

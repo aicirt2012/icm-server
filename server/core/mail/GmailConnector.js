@@ -5,6 +5,7 @@ import {
 } from 'mailparser';
 import ImapConnector from './ImapConnector';
 import User from '../../models/user.model';
+import Box from '../../models/box.model';
 
 class GmailConnector extends ImapConnector {
 
@@ -73,35 +74,55 @@ class GmailConnector extends ImapConnector {
       });
   }
 
+  // TODO multiple boxes
+  //
   parseDataFromEmail(mail, box, storeEmail) {
     return new Promise((resolve, reject) => {
       const mailParser = new MailParser();
       let attributes;
 
       mailParser.on('end', (mailObject) => {
+
+        console.log('Gmail mailObject');
+        console.log(mailObject);
+
         mailObject.html = mailObject.html && mailObject.html.includes('<body') ? mailObject.html.substring(mailObject.html.indexOf('<body')) : mailObject.html;
 
-        const email = {
-          messageId: mailObject.messageId,
-          from: mailObject.from,
-          to: mailObject.to,
-          subject: mailObject.subject,
-          text: mailObject.text,
-          html: mailObject.html,
-          date: moment(mailObject.date).format('YYYY-MM-DD HH:mm:ss'),
-          flags: attributes.flags,
-          labels: attributes['x-gm-labels'],
-          uid: attributes.uid,
-          attrs: attributes,
-          thrid: attributes['x-gm-thrid'],
-          box: box._id,
-          user: this.user._id
-        };
-        storeEmail(email).then((msg) => {
-          resolve(msg);
-        }).catch((err) => {
-          reject(err);
-        });
+        Box.findByNames(attributes['x-gm-labels'])
+          .then(moreBoxes => {
+
+            let boxesId = [box._id]; // current original box
+
+            moreBoxes.forEach(box => { // more boxes
+              boxesId.push(box._id);
+            })
+
+            const email = {
+              messageId: mailObject.messageId,
+              from: mailObject.from,
+              to: mailObject.to,
+              subject: mailObject.subject,
+              text: mailObject.text,
+              html: mailObject.html,
+              date: moment(mailObject.date).format('YYYY-MM-DD HH:mm:ss'),
+              flags: attributes.flags,
+              labels: attributes['x-gm-labels'],
+              uid: attributes.uid,
+              attrs: attributes,
+              thrid: attributes['x-gm-thrid'],
+              // TODO Delete box, we are using boxes
+              box: box._id,
+              boxes: boxesId,
+              user: this.user._id
+            };
+            storeEmail(email).then((msg) => {
+              resolve(msg);
+            }).catch((err) => {
+              reject(err);
+            });
+
+          });
+
       });
       mail.on('body', (stream, info) => {
         let buffer = '';

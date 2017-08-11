@@ -170,7 +170,8 @@ function markLinkedTasksInCards(cards) {
           taskId: c.id
         }).populate({
           path: 'email',
-          select: 'box'
+          select: 'box',
+          // select: 'boxes'
         }).then((task) => {
           if (task && task.email) {
             c.isLinked = true;

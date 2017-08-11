@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Promise from 'bluebird';
 import Email from './email.model';
 import config from '../../config/env';
+
 const ObjectId = mongoose.Schema.Types.ObjectId;
 mongoose.Promise = Promise;
 
@@ -13,6 +14,7 @@ const BoxSchema = new mongoose.Schema({
   shortName: String,
   parent: {type: ObjectId, ref: 'Box'},
   user: {type: ObjectId, ref: 'User'},
+  //TODO default: boolean//e.g inbox, spam
 }, {
   timestamps: true
 });
@@ -287,6 +289,42 @@ BoxSchema.statics._updateBox = (box) => {
   });
 }
 
+BoxSchema.statics.findByNames = (names) => {
+  return new Promise((resolve, reject) => {
+
+    console.log('inside findByNames');
+    console.log(names);
+
+    // TODO: find the remaining special box names, e.g spam, starred, etc...
+    const boxNames = names.map(n => {
+      let name = n;
+      if (n === '\\Inbox') {
+        name = 'INBOX';
+      } else if (n === '\\Trash') {
+        name = '[Gmail]/Trash';
+      }
+      return {name: name}
+    });
+
+    console.log(boxNames);
+
+    if (boxNames.length === 0) {
+      resolve([]);
+    } else {
+
+      Box.find({$or: boxNames})
+        .then((boxes) => {
+          console.log('boxes found by names...');
+          console.log(boxes);
+          resolve(boxes);
+        })
+        .catch(err => {
+          reject(err);
+        })
+    }
+
+  });
+}
 
 let Box = mongoose.model('Box', BoxSchema)
 export default Box;

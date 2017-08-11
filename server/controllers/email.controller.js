@@ -101,12 +101,12 @@ function move(req, res) {
 
   if (req.user.provider.name == 'Exchange') {
 
-    Email.findOne({_id: emailId}).populate('box')
+    Email.findOne({_id: emailId}).populate('boxes')
       .then(email => {
         return [email, Box.findOne({_id: newBoxId, user: user})]
       })
       .spread((email, destBox) => {
-        const srcBox = email.box;
+        const srcBox = email.boxes[0];
         return [srcBox, destBox, emailConnector.move(email, destBox.ewsId)]
       })
       .spread((srcBox, destBox, msgId) => {
@@ -122,12 +122,13 @@ function move(req, res) {
 
   } else {
 
-    Email.findOne({_id: emailId}).populate('box')
+    Email.findOne({_id: emailId}).populate('boxes')
       .then(email => {
         return [email, Box.findOne({_id: newBoxId, user: user})]
       })
+      // TODO boxId from parameter
       .spread((email, destBox) => {
-        const srcBox = email.box;
+        const srcBox = email.boxes[0];
         return [srcBox, destBox, emailConnector.move(email.uid, srcBox.name, destBox.name)]
       })
       .spread((srcBox, destBox, msgId) => {
@@ -170,7 +171,7 @@ function addFlags(req, res) {
 
   if (req.user.provider.name == 'Exchange') {
 
-    Email.findById(emailId).populate('box')
+    Email.findById(emailId)//.populate('box')
       .then(mail => {
         email = mail;
         return emailConnector.addFlags(mail, flags);
@@ -188,10 +189,10 @@ function addFlags(req, res) {
 
   } else {
 
-    Email.findById(emailId).populate('box')
+    Email.findById(emailId).populate('boxes')
       .then(mail => {
         email = mail;
-        return emailConnector.addFlags(mail.uid, flags, email.box.name);
+        return emailConnector.addFlags(mail.uid, flags, email.boxes[0].name);
       })
       .then(() => {
         email.flags = email.flags.concat(flags);
@@ -215,7 +216,7 @@ function delFlags(req, res) {
 
   if (req.user.provider.name == 'Exchange') {
 
-    Email.findById(emailId).populate('box')
+    Email.findById(emailId)//.populate('box')
       .then(mail => {
         email = mail;
         return emailConnector.delFlags(mail, flags);
@@ -237,10 +238,10 @@ function delFlags(req, res) {
 
   } else {
 
-    Email.findById(emailId).populate('box')
+    Email.findById(emailId).populate('boxes')
       .then(mail => {
         email = mail;
-        return emailConnector.delFlags(mail.uid, flags, mail.box.name);
+        return emailConnector.delFlags(mail.uid, flags, mail.boxes[0].name);
       })
       .then(() => {
         flags.forEach(f => {
@@ -380,6 +381,7 @@ function appendEnron(req, res) {
                     console.log(JSON.stringify(result));
 
                     email.box = box._id;
+                    email.boxes = [box._id];
                     email.ewsItemId = result.Id;
                     email.ewsChangeKey = result.ChangeKey;
                   })

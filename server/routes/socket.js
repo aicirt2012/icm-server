@@ -71,7 +71,7 @@ class Socket{
 
   isEmailUpdated(emailOld, emailNew){
     return !_.isEqual(emailOld.labels, emailNew.labels) ||
-      !_.isEqual(emailOld.box, emailNew.box) ||
+      !_.isEqual(emailOld.boxes[0], emailNew.boxes[0]) ||
       !_.isEqual(emailOld.attrs, emailNew.attrs) ||
       !_.isEqual(emailOld.flags, emailNew.flags);
   }

@@ -1,12 +1,8 @@
-import Promise from 'bluebird';
 import mongoose from 'mongoose';
-import httpStatus from 'http-status';
-import APIError from '../core/error/APIError';
 import bcrypt from 'bcrypt';
 import mongoosePaginate from 'mongoose-paginate';
 import GmailConnector from '../core/mail/GmailConnector';
 import SMTPConnector from '../core/mail/SMTPConnector';
-import ExchangeConnector from '../core/mail/ExchangeConnector';
 import EWSConnector from '../core/mail/EWSConnector';
 
 const UserSchema = new mongoose.Schema({
@@ -81,7 +77,6 @@ UserSchema.method({
     };
     switch (this.provider.name) {
       case 'Gmail': return new GmailConnector(imapOptions, this); break;
-      //case 'Exchange': return new ExchangeConnector(imapOptions, this); break;
       case 'Exchange': return new EWSConnector(imapOptions, this); break;
       default: return new GmailConnector(imapOptions, this);
     }

@@ -554,7 +554,9 @@ class EWSConnector {
               html: message.Body['$value'],
               date: moment(message.DateTimeSent).format('YYYY-MM-DD HH:mm:ss'),
               flags: message.IsRead == 'false' ? [] : ['\\Seen'],
+              // TODO Delete box, we are using boxes
               box: box._id,
+              boxes: [box._id],
               user: this.user._id,
               attachments: messageIdAndtextAndAttachments[2]
             }
