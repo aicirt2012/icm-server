@@ -8,36 +8,36 @@ import Box from './../models/box.model';
 import _ from 'lodash';
 
 
-class Socket{
+class Socket {
 
   /** maps the userId to the related open socket */
   userSockets = new Map(); //<userId, socketId>
-  server  = http.createServer(express);
+  server = http.createServer(express);
   io = socketIo(this.server);
 
   constructor() {
 
-      this.server.listen(config.socketPort);
+    this.server.listen(config.socketPort);
 
-      this.io.use((socket, next)=>{
-        const token = socket.request._query['token'];
-        if(jwt.verify(token, config.jwt.secret)){
-          socket.userId = jwt.decode(token).user._id;
-          next();
-        }else{
-          console.log('Not Authenticated!');
-        }
+    this.io.use((socket, next) => {
+      const token = socket.request._query['token'];
+      if (jwt.verify(token, config.jwt.secret)) {
+        socket.userId = jwt.decode(token).user._id;
+        next();
+      } else {
+        console.log('Not Authenticated!');
+      }
+    });
+
+    this.io.on('connection', (socket) => {
+      console.log('new socket ' + socket.id + ' for user ' + socket.userId);
+      this.userSockets.set(socket.userId.toString(), socket.id);
+
+      socket.on('disconnect', (socket) => {
+        console.log('socket closed');
+        this.userSockets.delete(socket.userId);
       });
-
-      this.io.on('connection', (socket)=>{
-        console.log('new socket '+socket.id + ' for user '+socket.userId);
-        this.userSockets.set(socket.userId.toString(), socket.id);
-
-        socket.on('disconnect', (socket)=>{
-          console.log('socket closed');
-          this.userSockets.delete(socket.userId);
-        });
-      });
+    });
 
   }
 
@@ -61,71 +61,91 @@ class Socket{
   }
 
 
-  isEmailDeleted(boxOld, boxlNew){
+  isEmailDeleted(boxOld, boxlNew) {
     return boxOld != null && boxlNew == null;
   }
 
-  isEmailCreated(emailOld, emailNew){
+  isEmailCreated(emailOld, emailNew) {
     return emailOld == null && emailNew != null;
   }
 
-  isEmailUpdated(emailOld, emailNew){
+  isEmailUpdated(emailOld, emailNew) {
     return !_.isEqual(emailOld.labels, emailNew.labels) ||
       !_.isEqual(emailOld.boxes[0], emailNew.boxes[0]) ||
       !_.isEqual(emailOld.attrs, emailNew.attrs) ||
       !_.isEqual(emailOld.flags, emailNew.flags);
   }
 
-  isEmailDeleted(emailOld, emailNew){
+  isEmailDeleted(emailOld, emailNew) {
     return emailOld != null && emailNew == null;
   }
 
-  isBoxCreated(boxOld, boxNew){
+  isBoxCreated(boxOld, boxNew) {
     return boxOld == null && boxNew != null;
   }
 
-  isBoxUpdated(boxOld, boxNew){
+  isBoxUpdated(boxOld, boxNew) {
     return boxOld != null && boxNew != null && (
       !_.isEqual(boxOld.unseen, boxNew.unseen) ||
       !_.isEqual(boxOld.name, boxNew.name) ||
       !_.isEqual(boxOld.parent, boxNew.parent))
   }
 
-  isBoxDeleted(boxOld, boxNew){
+  isBoxDeleted(boxOld, boxNew) {
     return boxOld != null && boxNew == null;
   }
 
-  createEmail(userId, email){
-    this.emitToUser(userId, 'create_email', Email.lightEmail(email));
+  createEmail(userId, email) {
+    Email.lightEmail(email)
+      .then(litEmail => {
+        console.log(litEmail);
+        this.emitToUser(userId, 'create_email', litEmail);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
-  updateEmail(userId, email){
-    this.emitToUser(userId, 'update_email', Email.lightEmail(email));
+  updateEmail(userId, email) {
+    Email.lightEmail(email)
+      .then(litEmail => {
+        console.log(litEmail);
+        this.emitToUser(userId, 'update_email', litEmail);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
-  deleteEmail(userId, email){
-    this.emitToUser(userId, 'delete_email', Email.lightEmail(email));
+  deleteEmail(userId, email) {
+    Email.lightEmail(email)
+      .then(litEmail => {
+        console.log(litEmail);
+        this.emitToUser(userId, 'delete_email', litEmail);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
-  createBox(userId, box){
+  createBox(userId, box) {
     this.emitToUser(userId, 'create_box', Box.lightBox(box));
   }
 
-  updateBox(userId, box){
+  updateBox(userId, box) {
     this.emitToUser(userId, 'update_box', Box.lightBox(box));
   }
 
-  deleteBox(userId, box){
+  deleteBox(userId, box) {
     this.emitToUser(userId, 'delete_box', Box.lightBox(box));
   }
 
-  emitToUser(userId, msgType, msgContent){
+  emitToUser(userId, msgType, msgContent) {
     userId = userId.toString();
-    if(this.userSockets.has(userId)){
+    if (this.userSockets.has(userId)) {
       const socketId = this.userSockets.get(userId);
-      // TODO error 'cannot read property emit of undefined' on first sync (fresh client);
       this.io.sockets.connected[socketId].emit(msgType, JSON.stringify(msgContent));
-      console.log('Emit Message: '+userId+' '+msgType+' '+ (msgContent.subject ? msgContent.subject : msgContent.name));
+      console.log('Emit Message: ' + userId + ' ' + msgType + ' ' + (msgContent.subject ? msgContent.subject : msgContent.name));
     }
   }
 

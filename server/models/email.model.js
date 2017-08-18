@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate';
 import Promise from 'bluebird';
 import Box from './box.model';
-import * as moment from "moment";
+import config from '../../config/env';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const Mixed = mongoose.Schema.Types.Mixed;
@@ -154,17 +154,31 @@ EmailSchema.statics.autocomplete = (userId) => {
  * @param email
  */
 EmailSchema.statics.lightEmail = (email) => {
-  return {
-    _id: email._id,
-    box: email.box,
-    boxes: email.boxes,
-    from: email.from,
-    date: email.date,
-    timestamp: email.timestamp,
-    subject: email.subject,
-    flags: email.flags,
-    text: email.text ? email.text.substring(0, 70) : null
-  };
+  return new Promise((resolve, reject) => {
+    Box.findOne({shortName: 'Trash', user: email.user})
+      .then((trashBox) => {
+
+        const onlyTrashBox = email.boxes.filter(boxId => boxId.toString() === trashBox._id.toString());
+
+        resolve(
+          {
+            _id: email._id,
+            box: email.box,
+            boxes: onlyTrashBox.length > 0 ? onlyTrashBox : email.boxes,
+            from: email.from,
+            date: email.date,
+            timestamp: email.timestamp,
+            subject: email.subject,
+            flags: email.flags,
+            text: email.text ? email.text.substring(0, 70) : null
+          }
+        );
+
+      })
+      .catch(err => {
+        reject(err);
+      });
+  })
 }
 
 /**

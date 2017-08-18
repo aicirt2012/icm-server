@@ -14,7 +14,7 @@ const BoxSchema = new mongoose.Schema({
   shortName: String,
   parent: {type: ObjectId, ref: 'Box'},
   user: {type: ObjectId, ref: 'User'},
-  //TODO default: boolean//e.g inbox, spam
+  static: Boolean // non-modifiable, non-deletable boxes. e.g Inbox, Spam...
 }, {
   timestamps: true
 });
@@ -153,6 +153,7 @@ BoxSchema.statics.deleteBoxById = (boxId, userId, delEmails) => {
         if (delEmails) {
           return Email.remove({box: boxId});
         } else {
+          // TODO: support for exchange
           Box.findOne({name: config.gmail.deleted, user: userId})
             .then((trashBox) => {
               return Email.update({box: boxId}, {$set: {box: trashBox}});
@@ -292,17 +293,25 @@ BoxSchema.statics._updateBox = (box) => {
 BoxSchema.statics.findByNames = (names) => {
   return new Promise((resolve, reject) => {
 
-    console.log('inside findByNames');
-    console.log(names);
-
-    // TODO: find the remaining special box names, e.g spam, starred, etc...
     const boxNames = names.map(n => {
       let name = n;
-      if (n === '\\Inbox') {
-        name = 'INBOX';
-      } else if (n === '\\Trash') {
-        name = '[Gmail]/Trash';
+
+      // TODO Check more box cases
+      switch (n) {
+        case '\\Inbox':
+          name = 'INBOX';
+          break;
+        case '\\Trash':
+          name = '[Gmail]/Trash';
+          break;
+        case '\\Spam':
+          name = '[Gmail]/Spam';
+          break;
+        case '\\Starred':
+          name = '[Gmail]/Starred';
+          break;
       }
+
       return {name: name}
     });
 
@@ -314,8 +323,6 @@ BoxSchema.statics.findByNames = (names) => {
 
       Box.find({$or: boxNames})
         .then((boxes) => {
-          console.log('boxes found by names...');
-          console.log(boxes);
           resolve(boxes);
         })
         .catch(err => {
