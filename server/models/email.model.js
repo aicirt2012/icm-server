@@ -3,6 +3,7 @@ import mongoosePaginate from 'mongoose-paginate';
 import Promise from 'bluebird';
 import Box from './box.model';
 import config from '../../config/env';
+import _ from 'lodash';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const Mixed = mongoose.Schema.Types.Mixed;
@@ -199,7 +200,7 @@ EmailSchema.statics.search = (userId, opt) => {
   //const conditional = { $cond: [{ $lt: [lastEmailDate, '$date'] }, "$$KEEP", "$$PRUNE"]};
   // list only parameters you want to show in UI
   const select = {
-    box: 1, from: 1, date: 1, subject: 1,
+    box: 1, boxes: 1, from: 1, date: 1, subject: 1,
     text: {$substrCP: ["$text", 0, 70]}, flags: 1,
     timestamp: {$subtract: ["$date", new Date("1970-01-01")]}
   };
@@ -241,6 +242,52 @@ EmailSchema.statics.search = (userId, opt) => {
     {$sort: {date: sort == 'DESC' ? -1 : 1}},
     {$limit: 15}
   ]);
+}
+
+EmailSchema.statics.filterNonTrash = (user, boxId, emails) => {
+  return new Promise((resolve, reject) => {
+
+    if (boxId !== 'NONE' && boxId !== 0) {
+
+      Box.findOne({_id: boxId})
+        .then((box) => {
+
+          if (box.shortName === 'Trash') {
+            resolve(emails)
+
+          } else {
+
+            Box.findOne({shortName: 'Trash', user: user})
+              .then((trashBox) => {
+
+                const filteredEmails = emails.filter(e => {
+
+                  const boxes = e.boxes.map(x => {
+                    return x.toString()
+                  });
+
+                  return !_.includes(boxes, trashBox._id.toString());
+                });
+
+                resolve(filteredEmails)
+
+              })
+              .catch(err => {
+                reject(err);
+              });
+
+          }
+
+        })
+        .catch(err => {
+          reject(err);
+        });
+
+    } else {
+      resolve(emails)
+    }
+
+  });
 }
 
 let Email = mongoose.model('Email', EmailSchema)

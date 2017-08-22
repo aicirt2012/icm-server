@@ -324,6 +324,9 @@ function searchMails(req, res) {
 
   Email.search(req.user._id, options)
     .then(emails => {
+      return Email.filterNonTrash(req.user, req.query.boxId, emails);
+    })
+    .then(emails => {
       res.status(200).send(emails);
     })
     .catch(err => {
