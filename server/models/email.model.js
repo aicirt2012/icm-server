@@ -69,10 +69,31 @@ const EmailSchema = new mongoose.Schema({
   attachments: [{
     type: ObjectId,
     ref: 'Attachment'
-  }]
+  }],
+  /// isInTrash: Boolean,
+  inTrashbox: {type: ObjectId, ref: 'Box'},
 }, {
   timestamps: true
 });
+
+
+EmailSchema.pre('findOneAndUpdate', function (next) {
+  Box.findOne({shortName: 'Trash', user: this._update.user})
+    .then((trashBox) => {
+
+      const onlyTrashBox = this._update.boxes.filter(boxId => boxId.toString() === trashBox._id.toString());
+      // this._update.isInTrash = onlyTrashBox.length > 0 ? true : false;
+      // NOTE: I need the trashbox ID when making the email light
+      this._update.inTrashbox = onlyTrashBox.length > 0 ? onlyTrashBox.pop() : null;
+
+      next();
+
+    })
+    .catch(err => {
+      reject(err);
+    });
+});
+
 
 EmailSchema.virtual('timestamp').get(function () {
   return this.date !== null ? this.date.getTime() : null;
@@ -155,31 +176,17 @@ EmailSchema.statics.autocomplete = (userId) => {
  * @param email
  */
 EmailSchema.statics.lightEmail = (email) => {
-  return new Promise((resolve, reject) => {
-    Box.findOne({shortName: 'Trash', user: email.user})
-      .then((trashBox) => {
-
-        const onlyTrashBox = email.boxes.filter(boxId => boxId.toString() === trashBox._id.toString());
-
-        resolve(
-          {
-            _id: email._id,
-            box: email.box,
-            boxes: onlyTrashBox.length > 0 ? onlyTrashBox : email.boxes,
-            from: email.from,
-            date: email.date,
-            timestamp: email.timestamp,
-            subject: email.subject,
-            flags: email.flags,
-            text: email.text ? email.text.substring(0, 70) : null
-          }
-        );
-
-      })
-      .catch(err => {
-        reject(err);
-      });
-  })
+  return {
+    _id: email._id,
+    box: email.box,
+    boxes: email.inTrashbox !== null ? [email.inTrashbox] : email.boxes,
+    from: email.from,
+    date: email.date,
+    timestamp: email.timestamp,
+    subject: email.subject,
+    flags: email.flags,
+    text: email.text ? email.text.substring(0, 70) : null
+  }
 }
 
 /**
@@ -195,9 +202,8 @@ EmailSchema.statics.search = (userId, opt) => {
   const sort = opt.sort;
   const search = opt.search;
   const lastEmailDate = new Date(opt.lastEmailDate);
-  const query = {user: new mongoose.Types.ObjectId(userId), date: {$lt: lastEmailDate}}; // make it beautiful
-  //const query = {user: new mongoose.Types.ObjectId(userId)};
-  //const conditional = { $cond: [{ $lt: [lastEmailDate, '$date'] }, "$$KEEP", "$$PRUNE"]};
+  const query = {user: new mongoose.Types.ObjectId(userId), date: {$lt: lastEmailDate}};
+
   // list only parameters you want to show in UI
   const select = {
     box: 1, boxes: 1, from: 1, date: 1, subject: 1,

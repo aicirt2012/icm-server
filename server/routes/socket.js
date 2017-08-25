@@ -96,36 +96,15 @@ class Socket {
   }
 
   createEmail(userId, email) {
-    Email.lightEmail(email)
-      .then(litEmail => {
-        console.log(litEmail);
-        this.emitToUser(userId, 'create_email', litEmail);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    this.emitToUser(userId, 'create_email', Email.lightEmail(email));
   }
 
   updateEmail(userId, email) {
-    Email.lightEmail(email)
-      .then(litEmail => {
-        console.log(litEmail);
-        this.emitToUser(userId, 'update_email', litEmail);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    this.emitToUser(userId, 'update_email', Email.lightEmail(email));
   }
 
   deleteEmail(userId, email) {
-    Email.lightEmail(email)
-      .then(litEmail => {
-        console.log(litEmail);
-        this.emitToUser(userId, 'delete_email', litEmail);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    this.emitToUser(userId, 'delete_email', Email.lightEmail(email));
   }
 
   createBox(userId, box) {
