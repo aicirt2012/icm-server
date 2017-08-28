@@ -212,7 +212,7 @@ function testNer(){
   });
 }
 
-function getTimeline(req, res){
+exports.getTimeline = (req, res) => {
   let userId = req.user._id;
   const s = {};
   console.log(userId);
@@ -227,7 +227,7 @@ function getTimeline(req, res){
     });
 }
 
-function getNetwork(req, res){
+exports.getNetwork = (req, res) => {
   let userId = req.user._id;
   const s = {};
   getTopFrom(userId)
@@ -253,7 +253,7 @@ function getNetwork(req, res){
     });
 }
 
-function getStructure(req, res){
+exports.getStructure = (req, res) => {
   let userId = req.user._id;
   const s = {};
   getConversations(userId)
@@ -267,7 +267,7 @@ function getStructure(req, res){
     });
 }
 
-function getSummary(req, res) {
+exports.getSummary = (req, res) => {
 
   let userId = null;
   const s = {
@@ -316,10 +316,3 @@ function getSummary(req, res) {
       res.status(200).send(s);
     })
 }
-
-export default {
-  getSummary,
-  getTimeline,
-  getNetwork,
-  getStructure
-};

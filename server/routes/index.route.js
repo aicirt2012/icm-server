@@ -3,7 +3,6 @@ import userRoutes from './user.route';
 import authRoutes from './auth.route';
 import taskRoutes from './task.route';
 import wikiRoutes from './wiki.route';
-import dashboardRoutes from './dashboard.route';
 import importRoutes from './import.route';
 import patternRoutes from './pattern.route';
 import contactsRoutes from './contacts.route';
@@ -12,7 +11,7 @@ import emailCtrl from '../controllers/email.controller';
 import boxCtrl from '../controllers/box.controller';
 import attachmentCtrl from '../controllers/attachment.controller';
 import translationCtrl from '../controllers/translation.controller';
-
+import dashboardCtrl from '../controllers/dashboard.controller';
 
 function routeProvider(passport) {
     const router = express.Router();
@@ -46,7 +45,12 @@ function routeProvider(passport) {
     /** Translate Routes */
     router.route('/translate/').get(translationCtrl.translate);
 
-    router.use('/dashboard', dashboardRoutes(passport));
+    /** Dashboard Routes */
+    router.route('/dashboard/summary').get(dashboardCtrl.getSummary);
+    router.route('/dashboard/timeline').get(dashboardCtrl.getTimeline);
+    router.route('/dashboard/network').get(dashboardCtrl.getNetwork);
+    router.route('/dashboard/structure').get(dashboardCtrl.getStructure);
+
     router.use('/import', importRoutes(passport));
     router.use('/pattern', patternRoutes(passport));
 
