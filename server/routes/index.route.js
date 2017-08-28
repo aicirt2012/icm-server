@@ -4,7 +4,6 @@ import authRoutes from './auth.route';
 import taskRoutes from './task.route';
 import importRoutes from './import.route';
 import patternRoutes from './pattern.route';
-import contactsRoutes from './contacts.route';
 
 import emailCtrl from '../controllers/email.controller';
 import boxCtrl from '../controllers/box.controller';
@@ -12,6 +11,7 @@ import attachmentCtrl from '../controllers/attachment.controller';
 import wikiCtrl from '../controllers/wiki.controller';
 import translationCtrl from '../controllers/translation.controller';
 import dashboardCtrl from '../controllers/dashboard.controller';
+import contactsCtrl from '../controllers/contacts.controller';
 
 function routeProvider(passport) {
     const router = express.Router();
@@ -60,7 +60,9 @@ function routeProvider(passport) {
     router.route('/attachment/:attachmentId').get(attachmentCtrl.getAttachment);
     router.route('/attachment/:attachmentId/download').get(attachmentCtrl.downloadAttachment);
     
-    router.use('/contacts', contactsRoutes(passport));
+    /** Contact Routes */
+    router.route('/contacts/').get(contactsCtrl.list);
+
     return router;
 }
 
