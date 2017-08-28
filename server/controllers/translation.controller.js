@@ -1,6 +1,6 @@
 import LingueeConnector from '../core/translation/LingueeConnector';
 
-function translate(req, res) {
+exports.translate = (req, res) => {
   let word = req.query.word;
   if (word == undefined)
       res.status(400).send('Param word missing!');
@@ -14,8 +14,3 @@ function translate(req, res) {
       });
   }
 }
-
-
-export default {
-  translate
-};

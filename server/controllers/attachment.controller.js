@@ -1,6 +1,6 @@
 import Attachment from '../models/attachment.model'
 
-function getAttachment(req, res) {
+exports.getAttachment = (req, res) => {
   Attachment.findById(req.params.attachmentId, true)
     .then((data) => {
       res.writeHead(200, {'Content-Type': data.contentType});
@@ -11,7 +11,7 @@ function getAttachment(req, res) {
     });
 }
 
-function downloadAttachment(req, res) {
+exports.downloadAttachment = (req, res) => {
   Attachment.findById(req.params.attachmentId, true)
     .then((data) => {
       res.writeHead(200, {
@@ -24,8 +24,3 @@ function downloadAttachment(req, res) {
       res.status(400).send(err);
     });
 }
-
-export default {
-  getAttachment,
-  downloadAttachment
-};
