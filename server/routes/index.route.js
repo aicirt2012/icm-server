@@ -1,7 +1,6 @@
 import express from 'express';
 import userRoutes from './user.route';
 import authRoutes from './auth.route';
-import boxRoutes from './box.route';
 import taskRoutes from './task.route';
 import wikiRoutes from './wiki.route';
 import translateRoutes from './translate.route';
