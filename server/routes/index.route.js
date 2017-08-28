@@ -12,6 +12,7 @@ import attachmentRoutes from './attachment.route';
 import contactsRoutes from './contacts.route';
 
 import emailCtrl from '../controllers/email.controller';
+import boxCtrl from '../controllers/box.controller';
 
 
 function routeProvider(passport) {
@@ -35,7 +36,12 @@ function routeProvider(passport) {
     router.route('/email/search').get(emailCtrl.searchMails);
     router.route('/email/:emailId').get(emailCtrl.getSingleMail);
 
-    router.use('/box', boxRoutes(passport));
+    router.route('/box/').get(boxCtrl.getBoxes);
+    router.route('/box/').post(boxCtrl.addBox);
+    router.route('/box/:boxId').delete(boxCtrl.delBox);
+    router.route('/box/:boxId/rename').post(boxCtrl.renameBox);  
+    router.route('/box/syncAll').get(boxCtrl.syncIMAP);
+
     router.use('/task', taskRoutes(passport));
     router.use('/wiki', wikiRoutes(passport));
     router.use('/translate', translateRoutes(passport));

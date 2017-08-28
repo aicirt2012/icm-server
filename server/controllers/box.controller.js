@@ -7,8 +7,18 @@ import fs from 'fs';
 import Socket from '../routes/socket';
 import EmailController from './email.controller';
 
-/** Adds a box and updates the client via socket */
-function addBox(req, res) {
+
+/**
+ * @api {post} /box/ Add box
+ * @apiDescription Adds a box and updates the client via socket.
+ * @apiName AddBox
+ * @apiGroup Box
+ * @apiParam {String} [parentBoxId=null] Unique ID of parent box.
+ * @apiParam {String} boxName name of new box.
+ * @apiSuccessExample Success-Response:  
+ *    {message: 'Box added'}
+ */
+exports.addBox = (req, res) => {
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
   console.log(req.body.parentBoxId, req.body.boxName);
@@ -29,8 +39,16 @@ function addBox(req, res) {
     });
 }
 
-/** Deletes a box and updates the client via Socket */
-function delBox(req, res) {
+/**
+ * @api {delete} /box/:id Delete box
+ * @apiDescription Deletes a box and updates the client via Socket.
+ * @apiName DeleteBox
+ * @apiGroup Box
+ * @apiParam {String} id Box unique ID.
+ * @apiSuccessExample Success-Response:  
+ *    {message: 'Box deleted'}
+ */
+exports.delBox = (req, res) => {
   const user = req.user;
   const boxId = req.params.boxId;
   const emailConnector = user.createIMAPConnector();
@@ -52,7 +70,17 @@ function delBox(req, res) {
     });
 }
 
-function renameBox(req, res) {
+/**
+ * @api {post} /box/:id/rename Rename box
+ * @apiDescription Rename box.
+ * @apiName RenameBox
+ * @apiGroup Box
+ * @apiParam {String} id Box unique ID.
+ * @apiParam {String} newBoxShortName new short name of box.
+ * @apiSuccessExample Success-Response:  
+ *    {message: 'Renamed box: new box name'}
+ */
+exports.renameBox = (req, res) => {
   const user = req.user;
   const boxId = req.params.boxId;
   const newShortName = req.body.newBoxShortName;
@@ -75,8 +103,16 @@ function renameBox(req, res) {
 }
 
 
-/** Returns the current boxes from the database */
-function getBoxes(req, res) {
+/**
+ * @api {get} /box/ Get all boxes
+ * @apiDescription Returns all boxes of a user.
+ * @apiName GetBoxes
+ * @apiGroup Box
+ * @apiSuccessExample Success-Response:
+ * //TODO   
+ * {}
+ */
+exports.getBoxes = (req, res) => {
   Box.getBoxesByUserId(req.user._id)
     .then(boxes => {
       res.status(200).send(boxes);
@@ -140,8 +176,16 @@ function syncIMAPMails(user, emailConnector) {
   })
 }
 
-/** Syncronizes the boxes and emails of the user via IMAP */
-function syncIMAP(req, res) {
+
+/**
+ * @api {get} /box/syncAll Syncronize all boxes
+ * @apiDescription Syncronizes the boxes and emails of the user via IMAP.
+ * @apiName SyncBoxes
+ * @apiGroup Box
+ * @apiSuccessExample Success-Response:
+ *     {message: 'Finished syncing'}
+ */
+exports.syncIMAP = (req, res) => {
   console.log('-> syncIMAP');
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
@@ -161,11 +205,3 @@ function syncIMAP(req, res) {
       res.status(500).send(err);
     });
 }
-
-export default {
-  addBox,
-  delBox,
-  renameBox,
-  getBoxes,
-  syncIMAP
-};
