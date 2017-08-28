@@ -78,15 +78,22 @@ const EmailSchema = new mongoose.Schema({
 
 
 EmailSchema.pre('findOneAndUpdate', function (next) {
-  Box.findOne({shortName: 'Trash', user: this._update.user})
+  Box.findOne({name: config.gmail.deleted, user: this._update.user})
     .then((trashBox) => {
 
-      // if the trashbox is in the email's boxes filter it
-      const onlyTrashBox = this._update.boxes.filter(boxId => boxId.toString() === trashBox._id.toString());
-      // this._update.isInTrash = onlyTrashBox.length > 0 ? true : false;
+      if (trashBox) {
 
-      // NOTE: I need the trashbox ID when making the email light
-      this._update.inTrashbox = onlyTrashBox.length > 0 ? onlyTrashBox.pop() : null;
+        // if the trashbox is in the email's boxes filter it
+        const onlyTrashBox = this._update.boxes.filter(boxId => boxId.toString() === trashBox._id.toString());
+        // this._update.isInTrash = onlyTrashBox.length > 0 ? true : false;
+
+        // NOTE: I need the trashbox ID when making the email light
+        this._update.inTrashbox = onlyTrashBox.length > 0 ? onlyTrashBox.pop() : null;
+      } else {
+
+        // for exchange
+        this._update.inTrashbox = null;
+      }
 
       next();
 
