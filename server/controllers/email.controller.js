@@ -8,7 +8,8 @@ import fs from 'fs';
 import Socket from '../routes/socket';
 import authCtrl from './auth.controller';
 
-function sendEmail(req, res) {
+
+exports.sendEmail = (req, res)=> {
 
   if (req.user.provider.name == 'Exchange') {
 
@@ -48,7 +49,7 @@ function sendEmail(req, res) {
   }
 }
 
-function append(req, res) {
+exports.append = (req, res)=> {
   const user = req.user;
   const boxId = req.body.boxId;
   const emailConnector = user.createIMAPConnector();
@@ -92,7 +93,7 @@ function append(req, res) {
   }
 }
 
-function move(req, res) {
+exports.move = (req, res) =>{
   const emailId = req.params.emailId;
   const newBoxId = req.body.newBoxId;
   const user = req.user;
@@ -144,7 +145,7 @@ function move(req, res) {
   }
 }
 
-function trash(req, res) {
+exports.trash = (req, res) => {
   const userProvider = req.user.provider.name;
 
   if (userProvider === 'Exchange') {
@@ -162,7 +163,7 @@ function trash(req, res) {
   }
 }
 
-function addFlags(req, res) {
+exports.addFlags = (req, res) => {
   const emailId = req.params.emailId;
   const flags = req.body.flags;
   const user = req.user;
@@ -207,7 +208,7 @@ function addFlags(req, res) {
   }
 }
 
-function delFlags(req, res) {
+exports.delFlags = (req, res) => {
   const emailId = req.params.emailId;
   const flags = req.body.flags;
   const user = req.user;
@@ -262,7 +263,7 @@ function delFlags(req, res) {
 }
 
 /** Returns one single mail with all details */
-function getSingleMail(req, res) {
+exports.getSingleMail = (req, res)=> {
   const emailId = req.params.emailId;
   Email.findOne({_id: emailId}).populate('attachments')
     .lean()
@@ -310,10 +311,11 @@ function storeEmail(mail) {
       });
   });
 }
+exports.storeEmail = storeEmail;
 
 
 /** Search emails either for box or user serach */
-function searchMails(req, res) {
+exports.searchMails= (req, res)=> {
 
   const options = {
     boxId: req.query.boxId,
@@ -335,7 +337,7 @@ function searchMails(req, res) {
 }
 
 /** Creates autocomplete suggestions for email addresses */
-function autocomplete(req, res) {
+exports.autocomplete = (req, res) => {
   Email.autocomplete(req.user._id)
     .then(suggestions => {
       res.status(200).send(suggestions);
@@ -345,7 +347,7 @@ function autocomplete(req, res) {
     });
 }
 
-function appendEnron(req, res) {
+exports.appendEnron = (req, res) => {
 
   const emailConnector = req.user.createIMAPConnector();
 
@@ -408,15 +410,3 @@ function appendEnron(req, res) {
 
 }
 
-export default {
-  append,
-  appendEnron,
-  move,
-  trash,
-  sendEmail,
-  addFlags,
-  delFlags,
-  searchMails,
-  getSingleMail,
-  storeEmail
-};
