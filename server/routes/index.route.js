@@ -7,11 +7,12 @@ import translateRoutes from './translate.route';
 import dashboardRoutes from './dashboard.route';
 import importRoutes from './import.route';
 import patternRoutes from './pattern.route';
-import attachmentRoutes from './attachment.route';
 import contactsRoutes from './contacts.route';
 
 import emailCtrl from '../controllers/email.controller';
 import boxCtrl from '../controllers/box.controller';
+import attachmentCtrl from '../controllers/attachment.controller';
+
 
 
 function routeProvider(passport) {
@@ -47,7 +48,10 @@ function routeProvider(passport) {
     router.use('/dashboard', dashboardRoutes(passport));
     router.use('/import', importRoutes(passport));
     router.use('/pattern', patternRoutes(passport));
-    router.use('/attachment', attachmentRoutes(passport));
+
+    router.route('/attachment/:attachmentId').get(attachmentCtrl.getAttachment);
+    router.route('/attachment/:attachmentId/download').get(attachmentCtrl.downloadAttachment);
+    
     router.use('/contacts', contactsRoutes(passport));
     return router;
 }
