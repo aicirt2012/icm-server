@@ -163,6 +163,20 @@ exports.trash = (req, res) => {
   }
 }
 
+/**
+ * @api {post} /email/:id/flags Add Email Flags
+ * @apiDescription Add the specified flags to this email.
+ * @apiName AddEmailFlags
+ * @apiGroup Email
+ * @apiParam {String} id Email unique ID.
+ * @apiParam {String[]} flags Email flags.
+ * @apiSuccessExample Success-Response:
+ * //TODO
+ *     {
+ *       "firstname": "John",
+ *       "lastname": "Doe"
+ *     }
+ */
 exports.addFlags = (req, res) => {
   const emailId = req.params.emailId;
   const flags = req.body.flags;
@@ -208,6 +222,20 @@ exports.addFlags = (req, res) => {
   }
 }
 
+/**
+ * @api {delete} /email/:id/flags Remove Email Flags
+ * @apiDescription Removes the specified flags from this email.
+ * @apiName RemoveEmailFlags
+ * @apiGroup Email
+ * @apiParam {String} id Email unique ID.
+ * @apiParam {String[]} flags Email flags.
+ * @apiSuccessExample Success-Response:
+ * //TODO
+ *     {
+ *       "firstname": "John",
+ *       "lastname": "Doe"
+ *     }
+ */
 exports.delFlags = (req, res) => {
   const emailId = req.params.emailId;
   const flags = req.body.flags;
@@ -268,7 +296,7 @@ exports.delFlags = (req, res) => {
  * @apiDescription Returns one single mail with all details 
  * @apiName GetEmail
  * @apiGroup Email
- * @apiParam (optional) {String} [id] Email unique ID.
+ * @apiParam {String} id Email unique ID.
  * @apiSuccessExample Success-Response:
  * //TODO
  *     {
