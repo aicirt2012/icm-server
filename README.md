@@ -1,3 +1,7 @@
+# Generate API Doc
+```apidoc -i server/controllers/ -o apidoc/generated -t apidoc/template```
+
+
 # Intelligent Contextual Mail Server
 
 Based on [Express & mongoose REST API Boilerplate in ES6 with Code Coverage](https://github.com/KunalKapadia/express-mongoose-es6-rest-api).
