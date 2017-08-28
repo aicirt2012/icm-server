@@ -355,7 +355,22 @@ function storeEmail(mail) {
 exports.storeEmail = storeEmail;
 
 
-/** Search emails either for box or user serach */
+/**
+ * @api {get} /email/search Search Emails
+ * @apiDescription Search emails either for box or custom search 
+ * @apiName SearchEmail
+ * @apiGroup Email
+ * @apiParam {String} [boxId] Box unique ID.
+ * @apiParam {String{'ASC','DESC'}} [sort='ASC'] Result sort order.
+ * @apiParam {String} [search] Search string.
+ * @apiParam {String} [lastEmailDate] Date of last email loaded.
+ * @apiSuccessExample Success-Response:
+ * //TODO
+ *     {
+ *       "firstname": "John",
+ *       "lastname": "Doe"
+ *     }
+ */
 exports.searchMails= (req, res)=> {
 
   const options = {
