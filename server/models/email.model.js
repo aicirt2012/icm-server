@@ -81,8 +81,10 @@ EmailSchema.pre('findOneAndUpdate', function (next) {
   Box.findOne({shortName: 'Trash', user: this._update.user})
     .then((trashBox) => {
 
+      // if the trashbox is in the email's boxes filter it
       const onlyTrashBox = this._update.boxes.filter(boxId => boxId.toString() === trashBox._id.toString());
       // this._update.isInTrash = onlyTrashBox.length > 0 ? true : false;
+
       // NOTE: I need the trashbox ID when making the email light
       this._update.inTrashbox = onlyTrashBox.length > 0 ? onlyTrashBox.pop() : null;
 
@@ -90,7 +92,8 @@ EmailSchema.pre('findOneAndUpdate', function (next) {
 
     })
     .catch(err => {
-      reject(err);
+      console.log(err);
+      next();
     });
 });
 
@@ -208,10 +211,11 @@ EmailSchema.statics.search = (userId, opt) => {
   const select = {
     box: 1, boxes: 1, from: 1, date: 1, subject: 1,
     text: {$substrCP: ["$text", 0, 70]}, flags: 1,
+    inTrashbox: 1,
     timestamp: {$subtract: ["$date", new Date("1970-01-01")]}
   };
 
-  if (boxId != 'NONE' && boxId != 0) {
+  if (boxId !== 'NONE' && boxId !== '0') {
     query.boxes = {$in: [new mongoose.Types.ObjectId(boxId)]};
   }
 
@@ -253,35 +257,15 @@ EmailSchema.statics.search = (userId, opt) => {
 EmailSchema.statics.filterNonTrash = (user, boxId, emails) => {
   return new Promise((resolve, reject) => {
 
-    if (boxId !== 'NONE' && boxId !== 0) {
-
+    if (boxId !== 'NONE' && boxId !== '0') {
       Box.findOne({_id: boxId})
         .then((box) => {
 
+          // if it is the trashBox just send emails else filter the ones not with trash label
           if (box.shortName === 'Trash') {
-            resolve(emails)
-
+            resolve(emails);
           } else {
-
-            Box.findOne({shortName: 'Trash', user: user})
-              .then((trashBox) => {
-
-                const filteredEmails = emails.filter(e => {
-
-                  const boxes = e.boxes.map(x => {
-                    return x.toString()
-                  });
-
-                  return !_.includes(boxes, trashBox._id.toString());
-                });
-
-                resolve(filteredEmails)
-
-              })
-              .catch(err => {
-                reject(err);
-              });
-
+            resolve(emails.filter(e => e.inTrashbox === null));
           }
 
         })
@@ -289,7 +273,7 @@ EmailSchema.statics.filterNonTrash = (user, boxId, emails) => {
           reject(err);
         });
 
-    } else {
+    } else { // it is a search
       resolve(emails)
     }
 
