@@ -2,7 +2,6 @@ import express from 'express';
 import userRoutes from './user.route';
 import authRoutes from './auth.route';
 import taskRoutes from './task.route';
-import wikiRoutes from './wiki.route';
 import importRoutes from './import.route';
 import patternRoutes from './pattern.route';
 import contactsRoutes from './contacts.route';
@@ -10,6 +9,7 @@ import contactsRoutes from './contacts.route';
 import emailCtrl from '../controllers/email.controller';
 import boxCtrl from '../controllers/box.controller';
 import attachmentCtrl from '../controllers/attachment.controller';
+import wikiCtrl from '../controllers/wiki.controller';
 import translationCtrl from '../controllers/translation.controller';
 import dashboardCtrl from '../controllers/dashboard.controller';
 
@@ -40,7 +40,9 @@ function routeProvider(passport) {
     router.route('/box/syncAll').get(boxCtrl.syncIMAP);
 
     router.use('/task', taskRoutes(passport));
-    router.use('/wiki', wikiRoutes(passport));
+
+    /** Wiki Routes */
+    router.route('/wiki/search').get(wikiCtrl.search);
 
     /** Translate Routes */
     router.route('/translate/').get(translationCtrl.translate);
@@ -54,6 +56,7 @@ function routeProvider(passport) {
     router.use('/import', importRoutes(passport));
     router.use('/pattern', patternRoutes(passport));
 
+    /** Attachment Routs */
     router.route('/attachment/:attachmentId').get(attachmentCtrl.getAttachment);
     router.route('/attachment/:attachmentId/download').get(attachmentCtrl.downloadAttachment);
     

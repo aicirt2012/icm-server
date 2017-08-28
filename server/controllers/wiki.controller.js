@@ -1,7 +1,7 @@
 import WikipediaConnector from '../core/wiki/WikipediaConnector';
 
 
-function search(req, res) {
+exports.search = (req, res) => {
   let query = req.query.query;
   if(query == undefined)
       res.status(400).send('Query param missing!');
@@ -13,8 +13,3 @@ function search(req, res) {
           res.status(500).send(err);
       });
 }
-
-
-export default {
-  search
-};
