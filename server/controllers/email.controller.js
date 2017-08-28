@@ -262,7 +262,20 @@ exports.delFlags = (req, res) => {
   }
 }
 
-/** Returns one single mail with all details */
+
+/**
+ * @api {get} /email/:id Get Email
+ * @apiDescription Returns one single mail with all details 
+ * @apiName GetEmail
+ * @apiGroup Email
+ * @apiParam (optional) {String} [id] Email unique ID.
+ * @apiSuccessExample Success-Response:
+ * //TODO
+ *     {
+ *       "firstname": "John",
+ *       "lastname": "Doe"
+ *     }
+ */
 exports.getSingleMail = (req, res)=> {
   const emailId = req.params.emailId;
   Email.findOne({_id: emailId}).populate('attachments')
