@@ -1,5 +1,42 @@
 import User from '../models/user.model';
 
+
+/**
+ * @api {get} /user/:id Get User
+ * @apiDescription Get User Details
+ * @apiName GetUser
+ * @apiGroup User
+ * @apiParam {String} id User unique ID.
+ * @apiSuccessExample Success-Response:
+ * {
+ *     "_id": "5986e0ba96ff7909c86efbc0",
+ *     "updatedAt": "2017-08-28T21:16:07.934Z",
+ *     "createdAt": "2017-08-06T09:26:18.557Z",
+ *     "password": "$2a$10$6Fy6hahanouuo33LxtGUUunSI3DqhhrR5adUWyDTt0FTeC6f1O.K2",
+ *     "email": "felix.in.tum@gmail.com",
+ *     "username": "Felix Michel",
+ *     "__v": 0,
+ *     "highestmodseq": "15820",
+ *     "lastSync": "2017-08-28T21:16:02.235Z",
+ *     "google": {
+ *         "googleId": "110833890801655058669",
+ *         "googleAccessToken": "ya29.Gl2fBDqbAHTl16Ni3ViJEqTMQDNQ6dQH2wnpa7BuhqH0QmeDqgpKyLm6cgLTkpwahjZeHcEMIwj4xySCVR82NK_yA6gZoPhIkpSO5jooQ_NjWpaCCmyY9eRppl0Jk-0"
+ *     },
+ *     "provider": {
+ *         "name": "Gmail",
+ *         "user": "felix.in.tum@gmail.com",
+ *         "password": "hYW7qHj9sfBkvyzVt2jW",
+ *         "host": "imap.gmail.com",
+ *         "port": 993,
+ *         "smtpHost": "smtp.gmail.com",
+ *         "smtpPort": 465,
+ *         "smtpDomains": [
+ *             "gmail.com",
+ *             "googlemail.com"
+ *         ]
+ *     }
+ * }
+ */
 exports.get = (req, res, next) => {
   User.findOne({_id: req.params.id}).exec()
     .then(user => {
@@ -10,6 +47,17 @@ exports.get = (req, res, next) => {
     })
 }
 
+/**
+ * @api {post} /user Post User
+ * @apiDescription Create User
+ * @apiName CreateUser
+ * @apiGroup User
+ * @apiParam {String} username First- and lastname of user.
+ * @apiParam {String} email Email of user.
+ * @apiParam {String} password Password of user.
+ * @apiSuccessExample Success-Response:
+ * {}
+ */
 exports.create = (req, res, next) => {
   const user = new User({
     username: req.body.username,
@@ -33,23 +81,6 @@ exports.update = (req, res, next) => {
     });
 }
 
-exports.list = (req, res, next) => {
-  const options = {
-    page: req.query.page ? parseInt(req.query.page) : 1,
-    limit: req.query.limit ? parseInt(req.query.limit) : 10,
-    sort: {
-      createdAt: -1
-    }
-  };
-  const query = {};
-  User.paginate(query, options).then((users, err) => {
-    if (err) {
-      res.status(400).send(err);
-    } else {
-      res.status(200).send(users);
-    }
-  });
-}
 
 exports.remove = (req, res, next) => {
   //TODO remove all emails and all related stuff
