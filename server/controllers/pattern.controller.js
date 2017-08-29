@@ -2,7 +2,7 @@ import User from '../models/user.model';
 import Pattern from '../models/pattern.model';
 
 /* CREATE PATTERN */
-function createPattern(req, res) {
+exports.createPattern = (req, res) => {
   const pattern = new Pattern(req.body);
   pattern.isDefault = false;
   pattern.user = req.user;
@@ -14,7 +14,7 @@ function createPattern(req, res) {
 }
 
 /* GET SINGLE PATTERN */
-function getSinglePattern(req, res) {
+exports.getSinglePattern = (req, res) => {
   Pattern.findOne({
     $and: [{
       _id: req.params.patternId
@@ -29,7 +29,7 @@ function getSinglePattern(req, res) {
 }
 
 /* UPDATE PATTERN */
-function updatePattern(req, res) {
+exports.updatePattern = (req, res) => {
   Pattern.findOneAndUpdate({
     $and: [{
       _id: req.params.patternId
@@ -50,7 +50,7 @@ function updatePattern(req, res) {
 }
 
 /* DELETE PATTERN */
-function deletePattern(req, res) {
+exports.deletePattern = (req, res) => {
   Pattern.find({
     $and: [{
       _id: req.params.patternId
@@ -67,7 +67,7 @@ function deletePattern(req, res) {
 }
 
 /* GET ALL PATTERNS */
-function getAllPatterns(req, res) {
+exports.getAllPatterns = (req, res) => {
   Pattern.find({
     $or: [{
       isDefault: true
@@ -80,11 +80,3 @@ function getAllPatterns(req, res) {
     res.status(400).send(err);
   });
 }
-
-export default {
-  createPattern,
-  getSinglePattern,
-  updatePattern,
-  deletePattern,
-  getAllPatterns
-};

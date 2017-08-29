@@ -2,7 +2,6 @@ import express from 'express';
 import userRoutes from './user.route';
 import authRoutes from './auth.route';
 import taskRoutes from './task.route';
-import patternRoutes from './pattern.route';
 
 import importCtrl from '../controllers/import.controller';
 import emailCtrl from '../controllers/email.controller';
@@ -12,6 +11,7 @@ import wikiCtrl from '../controllers/wiki.controller';
 import translationCtrl from '../controllers/translation.controller';
 import dashboardCtrl from '../controllers/dashboard.controller';
 import contactsCtrl from '../controllers/contacts.controller';
+import patternCtrl from '../controllers/pattern.controller';
 
 function routeProvider(passport) {
     const router = express.Router();
@@ -57,7 +57,12 @@ function routeProvider(passport) {
     router.route('/import/enron').post(importCtrl.importEnronData);
     router.route('/import/enronall').post(importCtrl.importEnronDataAll);
 
-    router.use('/pattern', patternRoutes(passport));
+    /** Pattern Routes */
+    router.route('/pattern/:patternId').get(patternCtrl.getSinglePattern);
+    router.route('/pattern/:patternId').put(patternCtrl.updatePattern);
+    router.route('/pattern/:patternId').delete(patternCtrl.deletePattern);
+    router.route('/pattern/').post(patternCtrl.createPattern);
+    router.route('/pattern/').get(patternCtrl.getAllPatterns);
 
     /** Attachment Routs */
     router.route('/attachment/:attachmentId').get(attachmentCtrl.getAttachment);
