@@ -29,9 +29,7 @@ exports.login = (req, res) => {
         } else {
           const token = exports.createToken(req.user);
           res.cookie('email-oauth', token); // TODO: @Paul change this to header
-          res.status(200).json({
-            token
-          });
+          res.status(200).json({token});
         }
       })
     })
