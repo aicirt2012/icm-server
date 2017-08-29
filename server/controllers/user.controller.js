@@ -38,13 +38,16 @@ import User from '../models/user.model';
  * }
  */
 exports.get = (req, res, next) => {
-  User.findOne({_id: req.params.id}).exec()
-    .then(user => {
-      res.status(200).send(user);
-    })
-    .catch(err=>{
-      next(err);
-    })
+  if(req.user._id != req.params.id)
+    next(new Error('Can only get user of current JWT!'));
+  else
+    User.findOne({_id: req.params.id}).exec()
+      .then(user => {
+        res.status(200).send(user);
+      })
+      .catch(err=>{
+        next(err);
+      });
 }
 
 /**
