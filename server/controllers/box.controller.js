@@ -185,7 +185,7 @@ function syncIMAPMails(user, emailConnector) {
  * @apiSuccessExample Success-Response:
  *     {message: 'Finished syncing'}
  */
-exports.syncIMAP = (req, res) => {
+exports.syncIMAP = (req, res, next) => {
   console.log('-> syncIMAP');
   const user = req.user;
   const emailConnector = user.createIMAPConnector();
@@ -202,6 +202,6 @@ exports.syncIMAP = (req, res) => {
       res.status(200).send({message: 'Finished syncing'});
     })
     .catch(err => {
-      res.status(500).send(err);
+      next(err);
     });
 }

@@ -2,34 +2,34 @@ import User from '../models/user.model';
 import Pattern from '../models/pattern.model';
 
 /* CREATE PATTERN */
-exports.createPattern = (req, res) => {
+exports.createPattern = (req, res, next) => {
   const pattern = new Pattern(req.body);
   pattern.isDefault = false;
   pattern.user = req.user;
-  pattern.save().then((p) => {
+  pattern.save().then(p => {
     res.status(200).send(p);
-  }).catch((err) => {
-    res.status(400).send(err);
+  }).catch(err => {
+    next(err);
   })
 }
 
 /* GET SINGLE PATTERN */
-exports.getSinglePattern = (req, res) => {
+exports.getSinglePattern = (req, res, next) => {
   Pattern.findOne({
     $and: [{
       _id: req.params.patternId
     }, {
       user: req.user
     }]
-  }).then((data) => {
+  }).then(data => {
     res.status(200).send(data);
-  }).catch((err) => {
-    res.status(400).send(err);
+  }).catch(err => {
+    next(err);
   });
 }
 
 /* UPDATE PATTERN */
-exports.updatePattern = (req, res) => {
+exports.updatePattern = (req, res, next) => {
   Pattern.findOneAndUpdate({
     $and: [{
       _id: req.params.patternId
@@ -42,7 +42,7 @@ exports.updatePattern = (req, res) => {
     setDefaultsOnInsert: true
   }, (err, pattern) => {
     if (err) {
-      res.status(400).send(err);
+      next(err);
     } else {
       res.status(200).send(pattern);
     }
@@ -50,7 +50,7 @@ exports.updatePattern = (req, res) => {
 }
 
 /* DELETE PATTERN */
-exports.deletePattern = (req, res) => {
+exports.deletePattern = (req, res, next) => {
   Pattern.find({
     $and: [{
       _id: req.params.patternId
@@ -59,7 +59,7 @@ exports.deletePattern = (req, res) => {
     }]
   }).remove().exec((err, data) => {
     if (err) {
-      res.status(400).send(err);
+      next(err);
     } else {
       res.status(200).send(data);
     }
@@ -67,7 +67,7 @@ exports.deletePattern = (req, res) => {
 }
 
 /* GET ALL PATTERNS */
-exports.getAllPatterns = (req, res) => {
+exports.getAllPatterns = (req, res, next) => {
   Pattern.find({
     $or: [{
       isDefault: true
@@ -77,6 +77,6 @@ exports.getAllPatterns = (req, res) => {
   }).then((patterns) => {
     res.status(200).send(patterns);
   }).catch((err) => {
-    res.status(400).send(err);
+    next(err);
   });
 }
