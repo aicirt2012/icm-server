@@ -3,7 +3,18 @@ import User from '../models/user.model';
 import config from '../../config/env';
 
 /**
- * Returns jwt token if valid username and password is provided
+ * @api {post} /auth/login Login
+ * @apiDescription Returns jwt token if valid username and password is provided
+ * @apiName Login
+ * @apiGroup Authentication
+ * @apiParam {String} username unique username.
+ * @apiParam {String} password user password.
+ * @apiSuccessExample Success-Response:
+ * //TODO
+ *     {
+ *       "firstname": "John",
+ *       "lastname": "Doe"
+ *     }
  */
 exports.login = (req, res) => {
   User.findOne({
@@ -37,8 +48,8 @@ exports.createToken = (user) => {
       _id: user._id,
       username: user.username,
       email: user.email,
-      google: user.google ? true : false,
-      exchange: user.exchange ? true : false
+      //google: user.google ? true : false,
+      //exchange: user.exchange ? true : false
     }
   }, config.jwt.secret, {
     expiresIn: config.jwt.expiresInSeconds
