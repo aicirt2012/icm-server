@@ -23,5 +23,9 @@ const ContactSchema = new mongoose.Schema({
 
 
 
+ContactSchema.statics.removeByUserId = (userId) => {
+  return Contact.find({user:userId}).remove().exec();
+}
+
 let Contact = mongoose.model('Contact', ContactSchema)
 export default Contact;

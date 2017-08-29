@@ -1,12 +1,14 @@
 import fs from 'fs';
 import mongoose from 'mongoose';
 import config from '../../config/env';
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const AttachmentSchema = new mongoose.Schema({
   filename: String,
   contentType: String,
   contentId: String,
-  contentDispositionInline: Boolean
+  contentDispositionInline: Boolean,
+  user: { type: ObjectId, ref: 'User'}
 });
 
 const AttachmentModel = mongoose.model('Attachment', AttachmentSchema);
@@ -46,6 +48,17 @@ class Attachment {
           resolve();
         }
       });
+    });
+  }
+    
+  static removeByUserId(userId) {
+    return new Promise((resolve, reject) => {
+      AttachmentModel.find({user: userId})
+        .then(attachments => {
+          return Promise.map(attachments, attachment=>{
+            return Attachment.removeById(attachment._id);
+          });
+        });
     });
   }
 

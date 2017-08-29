@@ -292,45 +292,34 @@ BoxSchema.statics._updateBox = (box) => {
 
 BoxSchema.statics.findByNames = (names) => {
   return new Promise((resolve, reject) => {
-
     const boxNames = names.map(n => {
       let name = n;
-
       // TODO Check more box cases
       switch (n) {
-        case '\\Inbox':
-          name = 'INBOX';
-          break;
-        case '\\Trash':
-          name = '[Gmail]/Trash';
-          break;
-        case '\\Spam':
-          name = '[Gmail]/Spam';
-          break;
-        case '\\Starred':
-          name = '[Gmail]/Starred';
-          break;
+        case '\\Inbox': name = 'INBOX'; break;
+        case '\\Trash': name = '[Gmail]/Trash'; break;
+        case '\\Spam':  name = '[Gmail]/Spam'; break;
+        case '\\Starred': name = '[Gmail]/Starred'; break;
       }
-
       return {name: name}
     });
-
     console.log(boxNames);
-
     if (boxNames.length === 0) {
       resolve([]);
     } else {
-
       Box.find({$or: boxNames})
-        .then((boxes) => {
+        .then(boxes => {
           resolve(boxes);
         })
         .catch(err => {
           reject(err);
         })
     }
-
   });
+}
+
+BoxSchema.statics.removeByUserId = (userId) => {
+  return Box.find({user:userId}).remove().exec();
 }
 
 let Box = mongoose.model('Box', BoxSchema)

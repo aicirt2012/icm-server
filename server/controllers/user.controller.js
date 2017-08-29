@@ -96,14 +96,23 @@ exports.update = (req, res, next) => {
 }
 
 
+/**
+ * @api {delete} /user/:id Delete User
+ * @apiDescription Delete User
+ * @apiName DeleteUser
+ * @apiGroup User
+ * @apiSuccessExample Success-Response:
+ * {}
+ */
 exports.remove = (req, res, next) => {
-  //TODO remove all emails and all related stuff
-  User.findByIdAndRemove(req.params.id)
-    .then((user, err) => {
-      if (user) {
-        res.status(200).send(user);
-      } else {
-        res.status(404).send(err);
-      }
-    })
+  if(req.user._id != req.params.id)
+    next(new Error('Can only delete user of current JWT!'));
+  else  
+    User.removeById(req.params.id)
+      .then(user => {
+        res.status(200).send({message: 'User deleted successfully!'});
+      })
+      .catch(err=>{
+        next(err);
+      });
 }

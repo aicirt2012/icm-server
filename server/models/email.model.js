@@ -287,5 +287,9 @@ EmailSchema.statics.filterNonTrash = (user, boxId, emails) => {
   });
 }
 
-let Email = mongoose.model('Email', EmailSchema)
+EmailSchema.statics.removeByUserId = (userId) => {
+  return Email.find({user:userId}).remove().exec();
+}
+
+let Email = mongoose.model('Email', EmailSchema);
 export default Email;

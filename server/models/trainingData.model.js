@@ -1,24 +1,21 @@
 import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate';
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const TrainingDataSchema = new mongoose.Schema({
   text: String,
   label: Boolean,
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  email: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Email'
-  },
+  user: {type: ObjectId, ref: 'User'},
+  email: {type: ObjectId, ref: 'Email'},
   sentenceId: Number,
-  task: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Task'
-  }
+  task: {type: ObjectId, ref: 'Task'}
 }, {
   timestamps: true
 });
 
-export default mongoose.model('TrainingData', TrainingDataSchema);
+TrainingDataSchema.statics.removeByUserId = (userId) => {
+  return TrainingData.find({user:userId}).remove().exec();
+}
+
+let TrainingData = mongoose.model('TrainingData', TrainingDataSchema);
+export default TrainingData;

@@ -1,13 +1,12 @@
 import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate';
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const TaskSchema = new mongoose.Schema({
   taskId: String,
   provider: String,
-  email: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Email'
-  },
+  email: {type: ObjectId, ref: 'Email'},
+  user: { type: ObjectId, ref: 'User'}, //TODO populate this field
   thrid: String
 }, {
   timestamps: true
@@ -15,4 +14,9 @@ const TaskSchema = new mongoose.Schema({
 
 TaskSchema.method({});
 
-export default mongoose.model('Task', TaskSchema);
+TaskSchema.statics.removeByUserId = (userId) => {
+  return Task.find({user:userId}).remove().exec();
+}
+
+let Task = mongoose.model('Task', TaskSchema);
+export default Task;

@@ -4,6 +4,13 @@ import mongoosePaginate from 'mongoose-paginate';
 import GmailConnector from '../core/mail/GmailConnector';
 import SMTPConnector from '../core/mail/SMTPConnector';
 import EWSConnector from '../core/mail/EWSConnector';
+import Attachment from './attachment.model';
+import Box from './box.model';
+import Contact from './contact.model';
+import Email from './email.model';
+import Pattern from './pattern.model';
+import Task from './task.model';
+import TrainingData from './trainingData.model';
 
 const UserSchema = new mongoose.Schema({
   username: {type: String, required: true, index: true},
@@ -98,4 +105,27 @@ UserSchema.method({
 
 UserSchema.plugin(mongoosePaginate);
 
-export default mongoose.model('User', UserSchema);
+UserSchema.statics.removeById = (userId) => {
+  return Contact.removeByUserId(userId)
+    .then(()=>{
+      return Pattern.removeByUserId(userId);
+    })
+    .then(()=>{
+      return TrainingData.removeByUserId(userId);
+    })
+    .then(()=>{
+      return Task.removeByUserId(userId);
+    })
+    .then(()=>{
+      return Attachment.removeByUserId(userId);
+    })
+    .then(()=>{
+      return Email.removeByUserId(userId);
+    })
+    .then(()=>{
+      return Box.removeByUserId(userId);
+    });    
+}
+
+let User = mongoose.model('User', UserSchema);
+export default User;
