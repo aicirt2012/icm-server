@@ -66,10 +66,7 @@ const EmailSchema = new mongoose.Schema({
   date: {type: Date, index: true},
   flags: [String],
   labels: [String],
-  attachments: [{
-    type: ObjectId,
-    ref: 'Attachment'
-  }],
+  attachments: [{type: ObjectId, ref: 'Attachment'}],
   /// isInTrash: Boolean,
   inTrashbox: {type: ObjectId, ref: 'Box'},
 }, {

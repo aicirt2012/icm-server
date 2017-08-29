@@ -8,7 +8,7 @@ const AttachmentSchema = new mongoose.Schema({
   contentType: String,
   contentId: String,
   contentDispositionInline: Boolean,
-  user: { type: ObjectId, ref: 'User'}
+  user: { type: ObjectId, ref: 'User'} //TODO populate this field
 });
 
 const AttachmentModel = mongoose.model('Attachment', AttachmentSchema);

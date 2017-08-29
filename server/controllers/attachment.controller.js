@@ -11,9 +11,9 @@ import Attachment from '../models/attachment.model'
  */
 exports.getAttachment = (req, res) => {
   Attachment.findById(req.params.attachmentId, true)
-    .then((data) => {
-      res.writeHead(200, {'Content-Type': data.contentType});
-      data.rs.pipe(res);
+    .then(attachment => {
+      res.writeHead(200, {'Content-Type': attachment.contentType});
+      attachment.rs.pipe(res);
     })
     .catch((err) => {
       res.status(400).send(err);
@@ -31,12 +31,12 @@ exports.getAttachment = (req, res) => {
  */
 exports.downloadAttachment = (req, res) => {
   Attachment.findById(req.params.attachmentId, true)
-    .then((data) => {
+    .then(attachment => {
       res.writeHead(200, {
-        "Content-Type": data.contentType,
-        "Content-Disposition": "attachment; filename=" + data.filename
+        "Content-Type": attachment.contentType,
+        "Content-Disposition": "attachment; filename=" + attachment.filename
       });
-      data.rs.pipe(res);
+      attachment.rs.pipe(res);
     })
     .catch((err) => {
       res.status(400).send(err);
