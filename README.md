@@ -10,19 +10,6 @@ Based on [Express & mongoose REST API Boilerplate in ES6 with Code Coverage](htt
 
 The underlying project follows [Airbnb's Javascript style guide](https://github.com/airbnb/javascript).
 
-#### File/Folder Structure
-```
-config - Config for ENV, express, param-validation, logging
-coverage - Code coverage summary
-server - Server source files
-|- controllers: Controller functions for routes
-|- core: Util/Helper classes
-|- models: Mongoose schemas
-|- routes: Routes/API endpoints
-|- tests: Test cases
-index.js - Starting point for node server
-gulpfile.babel.js - Gulp tasks
-```
 
 ## Getting Started
 
