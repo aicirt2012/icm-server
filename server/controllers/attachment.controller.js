@@ -9,14 +9,14 @@ import Attachment from '../models/attachment.model'
  * @apiSuccessExample Success-Response:
  * {}
  */
-exports.getAttachment = (req, res) => {
+exports.getAttachment = (req, res, next) => {
   Attachment.findById(req.params.attachmentId, true)
     .then(attachment => {
       res.writeHead(200, {'Content-Type': attachment.contentType});
       attachment.rs.pipe(res);
     })
     .catch((err) => {
-      res.status(400).send(err);
+      next(err);
     });
 }
 
@@ -29,7 +29,7 @@ exports.getAttachment = (req, res) => {
  * @apiSuccessExample Success-Response:
  * {}
  */
-exports.downloadAttachment = (req, res) => {
+exports.downloadAttachment = (req, res, next) => {
   Attachment.findById(req.params.attachmentId, true)
     .then(attachment => {
       res.writeHead(200, {
@@ -38,7 +38,7 @@ exports.downloadAttachment = (req, res) => {
       });
       attachment.rs.pipe(res);
     })
-    .catch((err) => {
-      res.status(400).send(err);
+    .catch(err => {
+      next(err);
     });
 }
