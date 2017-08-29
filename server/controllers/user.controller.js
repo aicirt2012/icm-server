@@ -72,13 +72,24 @@ exports.create = (req, res, next) => {
     });
 }
 
+/**
+ * @api {put} /user/:id Update User
+ * @apiDescription Update User
+ * @apiName UpdateUser
+ * @apiGroup User
+ * @apiSuccessExample Success-Response:
+ * {}
+ */
 exports.update = (req, res, next) => {
-  User.findOneAndUpdate({_id: req.params.id}, req.body, {new: true}).exec()
-    .then(user => {
-      res.status(200).send(user);
-    }).catch(err=>{
-      next(err); 
-    });
+  if(req.user._id != req.params.id)
+    next(new Error('Can only update user of current JWT!'));
+  else
+    User.findOneAndUpdate({_id: req.params.id}, req.body, {new: true}).exec()
+      .then(user => {
+        res.status(200).send(user);
+      }).catch(err=>{
+        next(err); 
+      });
 }
 
 
