@@ -1,6 +1,7 @@
 import express from 'express';
-import authRoutes from './auth.route';
-
+import validate from 'express-validation';
+import paramValidation from '../../config/param-validation';
+import authCtrl from '../controllers/auth.controller';
 import userCtrl from '../controllers/user.controller';
 import importCtrl from '../controllers/import.controller';
 import emailCtrl from '../controllers/email.controller';
@@ -13,16 +14,31 @@ import dashboardCtrl from '../controllers/dashboard.controller';
 import contactsCtrl from '../controllers/contacts.controller';
 import patternCtrl from '../controllers/pattern.controller';
 
+
 function routeProvider(passport) {
     const router = express.Router();
 
-    router.use('/auth', authRoutes(passport));
+    //////////////////////////////////////////////////////////
+    ////// Unprotected Routes ////////////////////////////////
+    //////////////////////////////////////////////////////////
+
+    /** Authentication Routes unprotected */
+    router.route('/auth/login').post(validate(paramValidation.login), authCtrl.login);
+    router.route('/auth/google').get(passport.authenticate('google', {scope: ['email', 'profile']}));
+    router.route('/auth/google/callback').get(passport.authenticate('google', {failureRedirect: '/login'}), authCtrl.oauthCallback);
+    router.route('/auth/trello').get(passport.authenticate('trello', {session: false}));
+    router.route('/auth/trello/callback').get(passport.authenticate('trello', {failureRedirect: '/login', session: false}), authCtrl.oauthCallback);
 
     /** User Routes unprotected */
     router.route('/users/').post(userCtrl.create); 
 
     /** Route Protection - all routes below are protected */
     router.use(passport.authenticate('jwt', {session: false}));       
+
+
+    //////////////////////////////////////////////////////////
+    ////// Protected Routes //////////////////////////////////
+    //////////////////////////////////////////////////////////
 
     /** User Routes */
     router.route('/users/').get(userCtrl.list); //TODO check if needed otherwise remove
