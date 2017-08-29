@@ -1,44 +1,36 @@
 import User from '../models/user.model';
 
-exports.get = (req, res) => {
-  User.findOne({
-      _id: req.params.id
+exports.get = (req, res, next) => {
+  User.findOne({_id: req.params.id}).exec()
+    .then(user => {
+      res.status(200).send(user);
     })
-    .then((user, err) => {
-      if (user) {
-        res.status(200).send(user);
-      } else {
-        res.status(404).send(err);
-      }
+    .catch(err=>{
+      next(err);
     })
 }
 
-exports.create = (req, res) => {
+exports.create = (req, res, next) => {
   const user = new User({
     username: req.body.username,
     password: req.body.password,
     email: req.body.email
   });
   user.save()
-    .then((user) => {
+    .then(user => {
       res.status(200).send(user);
-    }).catch((err) => {
-      res.status(404).send(err);
+    }).catch(err => {
+      next(err);
     });
 }
 
-exports.update = (req, res) => {
-  User.findOneAndUpdate({
-    _id: req.params.id
-  }, req.body, {
-    new: true
-  }, (err, user) => {
-    if (err) {
-      res.status(400).send(err);
-    } else {
+exports.update = (req, res, next) => {
+  User.findOneAndUpdate({_id: req.params.id}, req.body, {new: true}).exec()
+    .then(user => {
       res.status(200).send(user);
-    }
-  });
+    }).catch(err=>{
+      next(err); 
+    });
 }
 
 exports.list = (req, res, next) => {
@@ -60,6 +52,7 @@ exports.list = (req, res, next) => {
 }
 
 exports.remove = (req, res, next) => {
+  //TODO remove all emails and all related stuff
   User.findByIdAndRemove(req.params.id)
     .then((user, err) => {
       if (user) {

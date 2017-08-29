@@ -1,5 +1,14 @@
 import Attachment from '../models/attachment.model'
 
+/**
+ * @api {get} /attachment/:id Get Attachment
+ * @apiDescription Pipes Attachment
+ * @apiName AttachmentPipe
+ * @apiGroup Attachment
+ * @apiParam {String} id Attachment unique ID.
+ * @apiSuccessExample Success-Response:
+ * {}
+ */
 exports.getAttachment = (req, res) => {
   Attachment.findById(req.params.attachmentId, true)
     .then((data) => {
@@ -11,6 +20,15 @@ exports.getAttachment = (req, res) => {
     });
 }
 
+/**
+ * @api {get} /attachment/:id/download Download Attachment
+ * @apiDescription Download Attachment
+ * @apiName AttachmentDownload
+ * @apiGroup Attachment
+ * @apiParam {String} id Attachment unique ID.
+ * @apiSuccessExample Success-Response:
+ * {}
+ */
 exports.downloadAttachment = (req, res) => {
   Attachment.findById(req.params.attachmentId, true)
     .then((data) => {
