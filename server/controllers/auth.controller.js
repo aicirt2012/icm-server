@@ -21,19 +21,8 @@ exports.login = (req, res) => {
       if (!isMatch || err) {
         res.status(401).send('Wrong password');
       } else {
-        // TODO only user._id
-        const token = jwt.sign({
-          user: {
-            _id: user._id,
-            username: user.username,
-            email: user.email,
-            google: user.google ? true : false,
-            exchange: user.exchange ? true : false
-          }
-        }, config.jwt.secret, {
-          expiresIn: config.jwt.expiresInSeconds
-        });
-        res.cookie('email-oauth', token); // TODO: change this to header
+        const token = exports.createToken(req.user);
+        res.cookie('email-oauth', token); // TODO: @Paul change this to header
         res.status(200).json({
           token
         });
@@ -42,16 +31,22 @@ exports.login = (req, res) => {
   });
 }
 
-exports.oauthCallback = (req, res) => {
-  const token = jwt.sign({
+exports.createToken = (user) => {
+  return jwt.sign({
     user: {
-      _id: req.user._id,
-      username: req.user.username,
-      email: req.user.email
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      google: user.google ? true : false,
+      exchange: user.exchange ? true : false
     }
   }, config.jwt.secret, {
     expiresIn: config.jwt.expiresInSeconds
   });
-  res.cookie('email-oauth', token); // TODO: change this to header
+}
+
+exports.oauthCallback = (req, res) => {
+  const token = exports.createToken(req.user);
+  res.cookie('email-oauth', token); // TODO: @Paul change this to header
   res.redirect(config.frontend + '?jwt=' + token);
 }
