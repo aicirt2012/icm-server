@@ -4,12 +4,8 @@ import config from '../../config/env';
 
 /**
  * Returns jwt token if valid username and password is provided
- * @param req
- * @param res
- * @param next
- * @returns {*}
  */
-function login(req, res) {
+exports.login = (req, res) => {
   User.findOne({
     username: req.body.username
   }, (err, user) => {
@@ -46,21 +42,7 @@ function login(req, res) {
   });
 }
 
-function createToken(user) {
-  return jwt.sign({
-    user: {
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      google: user.google ? true : false,
-      exchange: user.exchange ? true : false
-    }
-  }, config.jwt.secret, {
-    expiresIn: config.jwt.expiresInSeconds
-  });
-}
-
-function oauthCallback(req, res) {
+exports.oauthCallback = (req, res) => {
   const token = jwt.sign({
     user: {
       _id: req.user._id,
@@ -73,9 +55,3 @@ function oauthCallback(req, res) {
   res.cookie('email-oauth', token); // TODO: change this to header
   res.redirect(config.frontend + '?jwt=' + token);
 }
-
-export default {
-  login,
-  createToken,
-  oauthCallback
-};
