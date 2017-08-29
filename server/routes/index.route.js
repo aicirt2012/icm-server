@@ -1,7 +1,7 @@
 import express from 'express';
-import userRoutes from './user.route';
 import authRoutes from './auth.route';
 
+import userCtrl from '../controllers/user.controller';
 import importCtrl from '../controllers/import.controller';
 import emailCtrl from '../controllers/email.controller';
 import boxCtrl from '../controllers/box.controller';
@@ -15,11 +15,20 @@ import patternCtrl from '../controllers/pattern.controller';
 
 function routeProvider(passport) {
     const router = express.Router();
-    router.use('/users', userRoutes(passport));
+
     router.use('/auth', authRoutes(passport));
 
-    const mw = passport.authenticate('jwt', {session: false});
-    router.use(mw);       
+    /** User Routes unprotected */
+    router.route('/users/').post(userCtrl.create); 
+
+    /** Route Protection - all routes below are protected */
+    router.use(passport.authenticate('jwt', {session: false}));       
+
+    /** User Routes */
+    router.route('/users/').get(userCtrl.list); //TODO check if needed otherwise remove
+    router.route('/users/:id').get(userCtrl.get);
+    router.route('/users/:id').put(userCtrl.update);
+    router.route('/users/:id').delete(userCtrl.remove);
 
     /** Email Routes */
     router.route('/email/appendEnron').post(emailCtrl.appendEnron); /* API Endpoint for testing Enron*/

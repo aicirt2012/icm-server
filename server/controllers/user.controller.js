@@ -1,6 +1,6 @@
 import User from '../models/user.model';
 
-function get(req, res) {
+exports.get = (req, res) => {
   User.findOne({
       _id: req.params.id
     })
@@ -13,7 +13,7 @@ function get(req, res) {
     })
 }
 
-function create(req, res) {
+exports.create = (req, res) => {
   const user = new User({
     username: req.body.username,
     password: req.body.password,
@@ -27,7 +27,7 @@ function create(req, res) {
     });
 }
 
-function update(req, res) {
+exports.update = (req, res) => {
   User.findOneAndUpdate({
     _id: req.params.id
   }, req.body, {
@@ -41,7 +41,7 @@ function update(req, res) {
   });
 }
 
-function list(req, res, next) {
+exports.list = (req, res, next) => {
   const options = {
     page: req.query.page ? parseInt(req.query.page) : 1,
     limit: req.query.limit ? parseInt(req.query.limit) : 10,
@@ -59,7 +59,7 @@ function list(req, res, next) {
   });
 }
 
-function remove(req, res, next) {
+exports.remove = (req, res, next) => {
   User.findByIdAndRemove(req.params.id)
     .then((user, err) => {
       if (user) {
@@ -69,11 +69,3 @@ function remove(req, res, next) {
       }
     })
 }
-
-export default {
-  get,
-  create,
-  update,
-  list,
-  remove
-};
