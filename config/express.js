@@ -11,13 +11,11 @@ import expressValidation from 'express-validation';
 import session from 'express-session';
 import helmet from 'helmet';
 import winstonInstance from './winston';
-import routes from '../server/routes/index.route';
+import routes from '../server/routes/routes';
 import config from './env';
 import APIError from '../server/core/error/APIError';
 import passport from 'passport';
-import {
-  config as passportConfig
-} from './passport';
+import {config as passportConfig} from './passport';
 
 const app = express();
 

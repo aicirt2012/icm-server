@@ -38,9 +38,6 @@ if (!module.parent) {
 // init database with default entries
 Patterns.init();
 
-// open socket for coninious updates
-//const socket =  new Socket();
-
 process.on('uncaughtException', (err) => {
   console.log(err);
 })
