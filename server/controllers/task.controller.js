@@ -9,7 +9,7 @@ import TrainingData from '../models/trainingData.model';
  * CREATE TASK
  * BODY: {..., sentenceId, sentences}
  */
-function createTask(req, res) {
+exports.createTask = (req, res) => {
   createTaskConnector(req.query.provider, req.user).createTask(req.body).then((t) => {
     let task = new Task();
     task['taskId'] = t.id;
@@ -51,7 +51,7 @@ function createTask(req, res) {
 }
 
 /* GET SINGLE TASK */
-function getSingleTask(req, res) {
+exports.getSingleTask = (req, res) => {
   createTaskConnector(req.query.provider, req.user).getTask(req.params.taskId).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
@@ -60,7 +60,7 @@ function getSingleTask(req, res) {
 }
 
 /* UPDATE TASK */
-function updateTask(req, res) {
+exports.updateTask = (req, res) => {
   createTaskConnector(req.query.provider, req.user).updateTask(req.params.taskId, req.body).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
@@ -69,7 +69,7 @@ function updateTask(req, res) {
 }
 
 /* DELETE TASK */
-function deleteTask(req, res) {
+exports.deleteTask = (req, res) => {
   createTaskConnector(req.query.provider, req.user).deleteTask(req.params.taskId).then((data) => {
     Task.findOne({ taskId: req.params.taskId }).then((task) => {
       TrainingData.findOne({ task: task }).then((td) => {
@@ -89,7 +89,7 @@ function deleteTask(req, res) {
 }
 
 /* LINK TASK TO MAIL */
-function linkTaskToMail(req, res) {
+exports.linkTaskToMail = (req, res) => {
   let task = new Task();
   task['email'] = req.params.emailId;
   task['provider'] = req.query.provider || 'trello';
@@ -106,7 +106,7 @@ function linkTaskToMail(req, res) {
 }
 
 /* UNLINK TASK */
-function unlinkTask(req, res) {
+exports.unlinkTask = (req, res) => {
   Task.findOne({ taskId: req.params.taskId }).then((task) => {
     TrainingData.findOne({ task: task }).then((td) => {
       if (td) {
@@ -124,7 +124,7 @@ function unlinkTask(req, res) {
 }
 
 /* SEARCH TASKS */
-function searchTasks(req, res) {
+exports.searchTasks = (req, res) => {
   createTaskConnector(req.query.provider, req.user).search(req.query).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
@@ -133,7 +133,7 @@ function searchTasks(req, res) {
 }
 
 /* SEARCH MEMBERS */
-function searchMembers(req, res) {
+exports.searchMembers = (req, res) => {
   createTaskConnector(req.query.provider, req.user).searchMembers(req.query).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
@@ -143,7 +143,7 @@ function searchMembers(req, res) {
 
 
 /* GET ALL BOARDS (+ LISTS) FOR MEMBER */
-function getAllBoardsForMember(req, res) {
+exports.getAllBoardsForMember = (req, res) => {
   createTaskConnector(req.query.provider, req.user).getBoardsForMember(req.query).then((data) => {
     if (req.query.linkedTasks) {
       let promises = [];
@@ -187,7 +187,7 @@ function markLinkedTasksInCards(cards) {
 }
 
 /* GET ALL LISTS FOR BOARD */
-function getAllListsForBoard(req, res) {
+exports.getAllListsForBoard = (req, res) => {
   createTaskConnector(req.query.provider, req.user).getListsForBoard(req.params.boardId, req.query).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
@@ -196,7 +196,7 @@ function getAllListsForBoard(req, res) {
 }
 
 /* GET ALL CARDS FOR LIST */
-function getAllCardsForList(req, res) {
+exports.getAllCardsForList = (req, res) => {
   createTaskConnector(req.query.provider, req.user).getCardsForList(req.params.listId, req.query).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
@@ -205,7 +205,7 @@ function getAllCardsForList(req, res) {
 }
 
 /* GET CARDS FOR MEMBER */
-function searchCardsForMembers(req, res) {
+exports.searchCardsForMembers = (req, res) => {
   if (req.body.emailAddresses.length > 0) {
     const taskConnector = createTaskConnector(req.query.provider, req.user);
     let promises = [];
@@ -243,7 +243,7 @@ function searchCardsForMembers(req, res) {
 
 /* REGISTER NEW USER IN SOCIOCORTEX */
 // TODO: needs generalization ?
-function registerSociocortex(req, res) {
+exports.registerSociocortex = (req, res) => {
   const options = req.user.sociocortex || {};
   const scConnector = new SociocortexConnector(options);
   scConnector.register(req.user, req.body.scUsername, req.body.scEmail, req.body.scPassword).then((data) => {
@@ -255,7 +255,7 @@ function registerSociocortex(req, res) {
 
 /* LOG IN SOCIOCORTEX */
 // TODO: needs generalization ?
-function connectSociocortex(req, res) {
+exports.connectSociocortex = (req, res) => {
   const options = req.user.sociocortex || {};
   const scConnector = new SociocortexConnector(options);
   scConnector.connect(req.user, req.body.email, req.body.password).then((data) => {
@@ -264,20 +264,3 @@ function connectSociocortex(req, res) {
     res.status(400).send(err);
   });
 }
-
-export default {
-  createTask,
-  searchTasks,
-  searchMembers,
-  deleteTask,
-  linkTaskToMail,
-  unlinkTask,
-  updateTask,
-  getSingleTask,
-  getAllListsForBoard,
-  getAllBoardsForMember,
-  getAllCardsForList,
-  searchCardsForMembers,
-  registerSociocortex,
-  connectSociocortex
-};

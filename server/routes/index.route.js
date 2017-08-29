@@ -1,12 +1,12 @@
 import express from 'express';
 import userRoutes from './user.route';
 import authRoutes from './auth.route';
-import taskRoutes from './task.route';
 
 import importCtrl from '../controllers/import.controller';
 import emailCtrl from '../controllers/email.controller';
 import boxCtrl from '../controllers/box.controller';
 import attachmentCtrl from '../controllers/attachment.controller';
+import taskCtrl from '../controllers/task.controller';
 import wikiCtrl from '../controllers/wiki.controller';
 import translationCtrl from '../controllers/translation.controller';
 import dashboardCtrl from '../controllers/dashboard.controller';
@@ -39,7 +39,22 @@ function routeProvider(passport) {
     router.route('/box/:boxId/rename').post(boxCtrl.renameBox);  
     router.route('/box/syncAll').get(boxCtrl.syncIMAP);
 
-    router.use('/task', taskRoutes(passport));
+    /** Task Routes */
+    router.route('/task/search/members').get(taskCtrl.searchMembers);
+    router.route('/task/search').get(taskCtrl.searchTasks);
+    router.route('/task/cards').post(taskCtrl.searchCardsForMembers);
+    router.route('/task/boards').get(taskCtrl.getAllBoardsForMember);
+    router.route('/task/boards/:boardId/lists').get(taskCtrl.getAllListsForBoard);
+    router.route('/task/lists/:listId/cards').get(taskCtrl.getAllCardsForList);
+    router.route('/task/:taskId').get(taskCtrl.getSingleTask);
+    router.route('/task/:taskId').put(taskCtrl.updateTask);
+    router.route('/task/:taskId').delete(taskCtrl.deleteTask);
+    router.route('/task/:taskId/unlink').put(taskCtrl.unlinkTask);
+    router.route('/task/').post(taskCtrl.createTask);
+    router.route('/task/sociocortex/register').post(taskCtrl.registerSociocortex);
+    router.route('/task/sociocortex/connect').get(taskCtrl.connectSociocortex);
+    router.route('/task/email/:emailId/linkTask').post(taskCtrl.linkTaskToMail);
+    router.route('/task/email/:emailId/addTask').post(taskCtrl.createTask);
 
     /** Wiki Routes */
     router.route('/wiki/search').get(wikiCtrl.search);
