@@ -12,7 +12,7 @@ var ObjectId = mongoose.Types.ObjectId;
  * ENRON Mail Corpus to the mongoDB for analytic purpose
  * https://www.cs.cmu.edu/~./enron/ */
 
-function importEnronData(req, res){
+exports.importEnronData = (req, res) => {
   /** hardcoded to local disc */
   // const path = __dirname + '/../../../../enron_mail_20150507/maildir/';
   console.log('inside import enron');
@@ -24,7 +24,7 @@ function importEnronData(req, res){
   });
 }
 
-function importEnronDataAll(req, res){
+exports.importEnronDataAll = (req, res) => {
   const accounts = ['allen-p']; // wildcards
   Promise.each(accounts,a=>{
     return new Promise((resolve, reject)=>{
@@ -49,11 +49,6 @@ function importEnronDataAll(req, res){
 
 
 
-
-export default {
-  importEnronData,
-  importEnronDataAll
-};
 
 
 

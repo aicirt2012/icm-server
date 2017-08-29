@@ -2,9 +2,9 @@ import express from 'express';
 import userRoutes from './user.route';
 import authRoutes from './auth.route';
 import taskRoutes from './task.route';
-import importRoutes from './import.route';
 import patternRoutes from './pattern.route';
 
+import importCtrl from '../controllers/import.controller';
 import emailCtrl from '../controllers/email.controller';
 import boxCtrl from '../controllers/box.controller';
 import attachmentCtrl from '../controllers/attachment.controller';
@@ -53,7 +53,10 @@ function routeProvider(passport) {
     router.route('/dashboard/network').get(dashboardCtrl.getNetwork);
     router.route('/dashboard/structure').get(dashboardCtrl.getStructure);
 
-    router.use('/import', importRoutes(passport));
+    /** Import Routes - for testing */
+    router.route('/import/enron').post(importCtrl.importEnronData);
+    router.route('/import/enronall').post(importCtrl.importEnronDataAll);
+
     router.use('/pattern', patternRoutes(passport));
 
     /** Attachment Routs */
