@@ -107,8 +107,9 @@ function routeProvider(passport) {
     r.route('/attachments/:attachmentId').get(attachmentCtrl.getAttachment);
     r.route('/attachments/:attachmentId/download').get(attachmentCtrl.downloadAttachment);
     
-    /** Contact Routes */
-    r.route('/contacts/').get(contactsCtrl.list);
+    /** Contact Routes */    
+    r.route('/contacts/sync').get(contactsCtrl.sync);
+    r.route('/contacts').get(contactsCtrl.list);
 
     return r;
 }

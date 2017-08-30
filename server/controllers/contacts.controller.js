@@ -1,4 +1,5 @@
 import Contact from '../models/contact.model';
+import ContactConnector from '../core/contact/ContactConnector';
 
 exports.list = (req, res, next) => {  
   Contact.find({user:req.user._id})
@@ -6,10 +7,17 @@ exports.list = (req, res, next) => {
       res.status(200).send(contacts);
     })
     .catch(err=>{      
-      res.status(500).send(err);
+      next(err);
     });
 }
 
 exports.sync = (req, res, next) => {  
-  req.user.sociocortex
+  ContactConnector.getContacts()
+  .then(contacts=>{
+    res.send(contacts);
+  })
+  .catch(err=>{
+    console.log(err);
+    //next(err);
+  });
 }
