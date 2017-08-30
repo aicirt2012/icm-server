@@ -97,8 +97,8 @@ function routeProvider(passport) {
     r.route('/import/enronall').post(importCtrl.importEnronDataAll);
 
     /** Pattern Routes */
-    r.route('/patterns/:patternId').get(patternCtrl.getSinglePattern);
-    r.route('/patterns/:patternId').put(patternCtrl.updatePattern);
+    r.route('/patterns/:id').get(patternCtrl.getSinglePattern);
+    r.route('/patterns/:id').put(patternCtrl.updatePattern);
     r.route('/patterns/:patternId').delete(patternCtrl.deletePattern);
     r.route('/patterns').post(patternCtrl.createPattern);
     r.route('/patterns').get(patternCtrl.getAllPatterns);
