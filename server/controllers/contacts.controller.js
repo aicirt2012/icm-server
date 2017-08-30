@@ -1,5 +1,6 @@
 import Contact from '../models/contact.model';
 import ContactConnector from '../core/contact/ContactConnector';
+import fs from 'fs';
 
 exports.list = (req, res, next) => {  
   Contact.find({user:req.user._id})
@@ -13,14 +14,22 @@ exports.list = (req, res, next) => {
 }
 
 exports.sync = (req, res, next) => {  
+  /*
   ContactConnector.getContacts()
   .then(contacts=>{
     return Promise.each(contacts, contact=>{
       return syncContact(contact);
     });
   })
+  */
+  Promise.resolve()
   .then(()=>{
-    console.log('found contacts: '+contacts.length);
+    const contacts = JSON.parse(fs.readFileSync('./server/core/contact/sc.contact.stub.json'));
+    return Promise.each(contacts, contact=>{
+      return syncContact(req.user._id, contact);
+    });
+  })
+  .then(()=>{
     res.send({success:true});
   })
   .catch(err=>{
@@ -28,14 +37,20 @@ exports.sync = (req, res, next) => {
   });
 }
 
-function syncContact(contact){
-  return Promise.each(contact.attributes, attribute=>{
-    console.log(attribute.name);
-    console.log(map.get(attribute.name));
-    return new Promise.resolve();
-  });
+function syncContact(userId, contact){
+  Contact.findOne({user:userId, providerId: contact.id})
 }
 
+function convert2MongoObject(contact){
+  const c = {};
+  contact.attributes.forEach(attribute=>{
+    if(map.has(attribute.name) && map.get(attribute.name) !== ''){
+      c[map.get(attribute.name)] = attribute.values.pop();
+    }
+  });
+  console.log(c);
+  return c;
+}
 
 const map = new Map();
 map.set('Home City', 'city');
