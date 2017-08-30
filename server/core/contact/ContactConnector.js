@@ -6,7 +6,7 @@ export default class ContactConnector extends SocioCortex{
 
   static getContacts(){
     console.log('get contacts');
-    return super.get('entityTypes/11rs7h6n9ioej/entities');
+    return super.get('entityTypes/11rs7h6n9ioej/entities?attributes=*',{attributes:'*'});
   }
 
 

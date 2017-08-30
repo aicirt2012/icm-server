@@ -14,10 +14,10 @@ exports.list = (req, res, next) => {
 exports.sync = (req, res, next) => {  
   ContactConnector.getContacts()
   .then(contacts=>{
+    console.log('found contacts: '+contacts.length);
     res.send(contacts);
   })
   .catch(err=>{
-    console.log(err);
-    //next(err);
+    next(err);
   });
 }
