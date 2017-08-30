@@ -94,7 +94,7 @@ exports.append = (req, res)=> {
 }
 
 exports.move = (req, res) =>{
-  const emailId = req.params.emailId;
+  const emailId = req.params.id;
   const newBoxId = req.body.newBoxId;
   const user = req.user;
 
@@ -152,13 +152,13 @@ exports.trash = (req, res) => {
     Box.findOne({name: config.exchange.deleted, user: req.user})
       .then(box => {
         req.body.newBoxId = box._id;
-        move(req, res);
+        exports.move(req, res);
       });
   } else if (userProvider === 'Gmail') {
     Box.findOne({name: config.gmail.deleted, user: req.user})
       .then(box => {
         req.body.newBoxId = box._id;
-        move(req, res);
+        exports.move(req, res);
       });
   }
 }
@@ -178,7 +178,7 @@ exports.trash = (req, res) => {
  *     }
  */
 exports.addFlags = (req, res) => {
-  const emailId = req.params.emailId;
+  const emailId = req.params.id;
   const flags = req.body.flags;
   const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
@@ -237,7 +237,7 @@ exports.addFlags = (req, res) => {
  *     }
  */
 exports.delFlags = (req, res) => {
-  const emailId = req.params.emailId;
+  const emailId = req.params.id;
   const flags = req.body.flags;
   const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
@@ -305,7 +305,7 @@ exports.delFlags = (req, res) => {
  *     }
  */
 exports.getSingleMail = (req, res)=> {
-  const emailId = req.params.emailId;
+  const emailId = req.params.id;
   Email.findOne({_id: emailId}).populate('attachments')
     .lean()
     .then((mail) => {
