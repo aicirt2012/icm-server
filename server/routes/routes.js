@@ -57,11 +57,11 @@ function routeProvider(passport) {
     r.route('/emails/:id').get(emailCtrl.getSingleMail);
 
     /** Box Routes */
-    r.route('/box/').get(boxCtrl.getBoxes);
-    r.route('/box/').post(boxCtrl.addBox);
-    r.route('/box/:boxId').delete(boxCtrl.delBox);
-    r.route('/box/:boxId/rename').post(boxCtrl.renameBox);  
-    r.route('/box/syncAll').get(boxCtrl.syncIMAP);
+    r.route('/boxes/').get(boxCtrl.getBoxes);
+    r.route('/boxes/').post(boxCtrl.addBox);
+    r.route('/boxes/:id').delete(boxCtrl.delBox);
+    r.route('/boxes/:id/rename').post(boxCtrl.renameBox);  
+    r.route('/boxes/syncAll').get(boxCtrl.syncIMAP);
 
     /** Task Routes */
     r.route('/task/search/members').get(taskCtrl.searchMembers);
@@ -81,16 +81,16 @@ function routeProvider(passport) {
     r.route('/task/email/:emailId/addTask').post(taskCtrl.createTask);
 
     /** Wiki Routes */
-    r.route('/wiki/search').get(wikiCtrl.search);
+    r.route('/wikis/search').get(wikiCtrl.search);
 
     /** Translate Routes */
     r.route('/translate/').get(translationCtrl.translate);
 
     /** Dashboard Routes */
-    r.route('/dashboard/summary').get(dashboardCtrl.getSummary);
-    r.route('/dashboard/timeline').get(dashboardCtrl.getTimeline);
-    r.route('/dashboard/network').get(dashboardCtrl.getNetwork);
-    r.route('/dashboard/structure').get(dashboardCtrl.getStructure);
+    r.route('/dashboards/summary').get(dashboardCtrl.getSummary);
+    r.route('/dashboards/timeline').get(dashboardCtrl.getTimeline);
+    r.route('/dashboards/network').get(dashboardCtrl.getNetwork);
+    r.route('/dashboards/structure').get(dashboardCtrl.getStructure);
 
     /** Import Routes - for testing */
     r.route('/import/enron').post(importCtrl.importEnronData);

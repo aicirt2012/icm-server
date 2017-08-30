@@ -50,7 +50,7 @@ exports.addBox = (req, res) => {
  */
 exports.delBox = (req, res) => {
   const user = req.user;
-  const boxId = req.params.boxId;
+  const boxId = req.params.id;
   const emailConnector = user.createIMAPConnector();
   Box.findOne({_id: boxId}).populate('parent')
     .then(boxToDelete => {
@@ -82,7 +82,7 @@ exports.delBox = (req, res) => {
  */
 exports.renameBox = (req, res) => {
   const user = req.user;
-  const boxId = req.params.boxId;
+  const boxId = req.params.id;
   const newShortName = req.body.newBoxShortName;
   const emailConnector = user.createIMAPConnector();
   Box.findOne({_id: boxId}).populate('parent')
