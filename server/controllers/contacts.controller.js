@@ -38,11 +38,25 @@ exports.sync = (req, res, next) => {
 }
 
 function syncContact(userId, contact){
-  Contact.findOne({user:userId, providerId: contact.id})
+  console.log({user:userId, providerId: contact.id});
+  return Contact.findOne({user:userId, providerId: contact.id}).exec()
+    .then(persistedContact=>{
+      if(persistedContact !== null){
+        console.log('exists');
+        return Promise.resolve();
+      }else{
+        console.log('doesnt exist');
+        const newContact = new Contact(convert2MongoObject(contact, userId));
+        return newContact.save();
+      }      
+    })
 }
 
-function convert2MongoObject(contact){
-  const c = {};
+function convert2MongoObject(contact, userId){
+  const c = {
+    providerId: contact.id,
+    user: userId
+  };
   contact.attributes.forEach(attribute=>{
     if(map.has(attribute.name) && map.get(attribute.name) !== ''){
       c[map.get(attribute.name)] = attribute.values.pop();
