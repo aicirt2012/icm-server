@@ -145,7 +145,7 @@ exports.move = (req, res) =>{
   }
 }
 
-exports.trash = (req, res) => {
+exports.moveToTrash = (req, res) => {
   const userProvider = req.user.provider.name;
 
   if (userProvider === 'Exchange') {
@@ -371,7 +371,7 @@ exports.storeEmail = storeEmail;
  *       "lastname": "Doe"
  *     }
  */
-exports.searchMails= (req, res)=> {
+exports.searchEmails= (req, res)=> {
 
   const options = {
     boxId: req.query.boxId,

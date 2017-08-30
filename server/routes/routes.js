@@ -46,15 +46,15 @@ function routeProvider(passport) {
     r.route('/users/:id').delete(userCtrl.remove);
 
     /** Email Routes */
-    r.route('/email/appendEnron').post(emailCtrl.appendEnron); /* API Endpoint for testing Enron*/
-    r.route('/email/append').post(emailCtrl.append); /* IMAP API Endpoints */
-    r.route('/email/send').post(emailCtrl.sendEmail);
-    r.route('/email/search').get(emailCtrl.searchMails);
-    r.route('/email/:id/move').post(emailCtrl.move);
-    r.route('/email/:id/trash').post(emailCtrl.trash);
-    r.route('/email/:id/flags').post(emailCtrl.addFlags);
-    r.route('/email/:id/flags').delete(emailCtrl.delFlags);
-    r.route('/email/:id').get(emailCtrl.getSingleMail);
+    r.route('/emails/appendEnron').post(emailCtrl.appendEnron); /* API Endpoint for testing Enron*/
+    r.route('/emails/append').post(emailCtrl.append); /* IMAP API Endpoints */
+    r.route('/emails/send').post(emailCtrl.sendEmail);
+    r.route('/emails/search').get(emailCtrl.searchEmails);
+    r.route('/emails/:id/move').post(emailCtrl.move);
+    r.route('/emails/:id/trash').post(emailCtrl.moveToTrash);
+    r.route('/emails/:id/flags').post(emailCtrl.addFlags);
+    r.route('/emails/:id/flags').delete(emailCtrl.delFlags);
+    r.route('/emails/:id').get(emailCtrl.getSingleMail);
 
     /** Box Routes */
     r.route('/box/').get(boxCtrl.getBoxes);
