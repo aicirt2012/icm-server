@@ -64,21 +64,21 @@ function routeProvider(passport) {
     r.route('/boxes/syncAll').get(boxCtrl.syncIMAP);
 
     /** Task Routes */
-    r.route('/task/search/members').get(taskCtrl.searchMembers);
-    r.route('/task/search').get(taskCtrl.searchTasks);
-    r.route('/task/cards').post(taskCtrl.searchCardsForMembers);
-    r.route('/task/boards').get(taskCtrl.getAllBoardsForMember);
-    r.route('/task/boards/:boardId/lists').get(taskCtrl.getAllListsForBoard);
-    r.route('/task/lists/:listId/cards').get(taskCtrl.getAllCardsForList);
-    r.route('/task/:taskId').get(taskCtrl.getSingleTask);
-    r.route('/task/:taskId').put(taskCtrl.updateTask);
-    r.route('/task/:taskId').delete(taskCtrl.deleteTask);
-    r.route('/task/:taskId/unlink').put(taskCtrl.unlinkTask);
-    r.route('/task/').post(taskCtrl.createTask);
-    r.route('/task/sociocortex/register').post(taskCtrl.registerSociocortex);
-    r.route('/task/sociocortex/connect').get(taskCtrl.connectSociocortex);
-    r.route('/task/email/:emailId/linkTask').post(taskCtrl.linkTaskToMail);
-    r.route('/task/email/:emailId/addTask').post(taskCtrl.createTask);
+    r.route('/tasks/search/members').get(taskCtrl.searchMembers);
+    r.route('/tasks/search').get(taskCtrl.searchTasks);
+    r.route('/tasks/cards').post(taskCtrl.searchCardsForMembers);
+    r.route('/tasks/boards').get(taskCtrl.getAllBoardsForMember);
+    r.route('/tasks/boards/:boardId/lists').get(taskCtrl.getAllListsForBoard);
+    r.route('/tasks/lists/:listId/cards').get(taskCtrl.getAllCardsForList);
+    r.route('/tasks/:taskId').get(taskCtrl.getSingleTask);
+    r.route('/tasks/:taskId').put(taskCtrl.updateTask);
+    r.route('/tasks/:taskId').delete(taskCtrl.deleteTask);
+    r.route('/tasks/:taskId/unlink').put(taskCtrl.unlinkTask);
+    r.route('/tasks/').post(taskCtrl.createTask);
+    r.route('/tasks/sociocortex/register').post(taskCtrl.registerSociocortex);
+    r.route('/tasks/sociocortex/connect').get(taskCtrl.connectSociocortex);
+    r.route('/tasks/email/:emailId/linkTask').post(taskCtrl.linkTaskToMail);
+    r.route('/tasks/email/:emailId/addTask').post(taskCtrl.createTask);
 
     /** Wiki Routes */
     r.route('/wikis/search').get(wikiCtrl.search);
@@ -99,7 +99,7 @@ function routeProvider(passport) {
     /** Pattern Routes */
     r.route('/patterns/:id').get(patternCtrl.getSinglePattern);
     r.route('/patterns/:id').put(patternCtrl.updatePattern);
-    r.route('/patterns/:patternId').delete(patternCtrl.deletePattern);
+    r.route('/patterns/:id').delete(patternCtrl.deletePattern);
     r.route('/patterns').post(patternCtrl.createPattern);
     r.route('/patterns').get(patternCtrl.getAllPatterns);
 
