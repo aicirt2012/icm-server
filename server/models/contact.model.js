@@ -19,6 +19,8 @@ const ContactSchema = new mongoose.Schema({
   provider: {type: String, index: true},
   providerId: {type: String, index: true},
   user: {type: ObjectId, ref: 'User'},
+  syncDate: Date,
+  modificationDate: Date
 }, {timestamps: true});
 
 

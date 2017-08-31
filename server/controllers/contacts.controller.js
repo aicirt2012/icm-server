@@ -13,7 +13,8 @@ exports.list = (req, res, next) => {
     });
 }
 
-exports.sync = (req, res, next) => {  
+exports.sync = (req, res, next) => { 
+  const syncDate = new Date(); 
   /*
   ContactConnector.getContacts()
   .then(contacts=>{
@@ -26,7 +27,7 @@ exports.sync = (req, res, next) => {
   .then(()=>{
     const contacts = JSON.parse(fs.readFileSync('./server/core/contact/sc.contact.stub.json'));
     return Promise.each(contacts, contact=>{
-      return syncContact(req.user._id, contact);
+      return syncContact(req.user._id, contact, syncDate);
     });
   })
   .then(()=>{
@@ -37,64 +38,70 @@ exports.sync = (req, res, next) => {
   });
 }
 
-function syncContact(userId, contact){
-  console.log({user:userId, providerId: contact.id});
+function syncContact(userId, contact, syncDate){  
   return Contact.findOne({user:userId, providerId: contact.id}).exec()
     .then(persistedContact=>{
+      const providerContact = convert2MongoObject(contact, userId)
       if(persistedContact !== null){
-        console.log('exists');
-        return Promise.resolve();
+        const keys = Object.keys(providerContact);
+        for(let i=0; i<keys.length; i++){
+          persistedContact[keys[i]] = providerContact[keys[i]];
+        }      
       }else{
-        console.log('doesnt exist');
-        const newContact = new Contact(convert2MongoObject(contact, userId));
-        return newContact.save();
-      }      
-    })
+        persistedContact = providerContact;
+      }
+      const newContact = new Contact(persistedContact);
+      newContact.syncDate = syncDate;
+      return newContact.save();  
+    });
 }
 
+
 function convert2MongoObject(contact, userId){
-  const c = {
+
+  const map = new Map();
+  map.set('Home City', 'city');
+  map.set('First Name', 'firstname');
+  map.set('Last Name', 'lastname');
+  map.set('Home Country', '');
+  map.set('Telephone Home', '');
+  map.set('Home Street', '');
+  map.set('Business Zip Code', '');
+  map.set('Url', '');
+  map.set('Telephone Assistant', '');
+  map.set('Telephone Mobile', '');
+  map.set('Title', 'title');
+  map.set('Fax Business', '');
+  map.set('Salutation', '');
+  map.set('Web Page', '');
+  map.set('Birthday', '');
+  map.set('Business Country', '');
+  map.set('Telephone Business', '');
+  map.set('Company', 'company');
+  map.set('E-Mail', 'email');
+  map.set('Home State', '');
+  map.set('Fax Home', '');
+  map.set('Home Zip Code', '');
+  map.set('E-Mail 2', '');
+  map.set('Business City', '');
+  map.set('Groups', '');
+  map.set('LinkedIn URL', '');
+  map.set('Business Street', '');
+  map.set('Department', '');
+  map.set('Business State', '');
+  map.set('Job Title', '');
+
+  const json = {
     providerId: contact.id,
     user: userId
   };
   contact.attributes.forEach(attribute=>{
-    if(map.has(attribute.name) && map.get(attribute.name) !== ''){
-      c[map.get(attribute.name)] = attribute.values.pop();
-    }
+    if(map.has(attribute.name) && map.get(attribute.name) !== '')
+      json[map.get(attribute.name)] = attribute.values.pop();
   });
-  console.log(c);
-  return c;
+  console.log(json);
+  return json;
 }
 
-const map = new Map();
-map.set('Home City', 'city');
-map.set('First Name', 'firstname');
-map.set('Last Name', 'lastname');
-map.set('Home Country', '');
-map.set('Telephone Home', '');
-map.set('Home Street', '');
-map.set('Business Zip Code', '');
-map.set('Url', '');
-map.set('Telephone Assistant', '');
-map.set('Telephone Mobile', '');
-map.set('Title', 'title');
-map.set('Fax Business', '');
-map.set('Salutation', '');
-map.set('Web Page', '');
-map.set('Birthday', '');
-map.set('Business Country', '');
-map.set('Telephone Business', '');
-map.set('Company', 'company');
-map.set('E-Mail', 'email');
-map.set('Home State', '');
-map.set('Fax Home', '');
-map.set('Home Zip Code', '');
-map.set('E-Mail 2', '');
-map.set('Business City', '');
-map.set('Groups', '');
-map.set('LinkedIn URL', '');
-map.set('Business Street', '');
-map.set('Department', '');
-map.set('Business State', '');
-map.set('Job Title', '');
+
 
