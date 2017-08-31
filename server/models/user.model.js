@@ -40,6 +40,14 @@ const UserSchema = new mongoose.Schema({
     email: String,
     password: String
   },
+  contactProvider:{
+    socioCortex:{
+      isEnabled: {type: Boolean, default: false},
+      email: String,
+      password: String,
+      baseURL: String
+    }
+  },
   displayName: String,
   lastSync: {type: Date, default: null}
 }, {
