@@ -80,12 +80,18 @@ EmailSchema.pre('findOneAndUpdate', function (next) {
 
       if (trashBox) {
 
-        // if the trashbox is in the email's boxes filter it
-        const onlyTrashBox = this._update.boxes.filter(boxId => boxId.toString() === trashBox._id.toString());
-        // this._update.isInTrash = onlyTrashBox.length > 0 ? true : false;
+        let trashBoxId = null;
+
+        // if the trashbox is in the email's boxes, filter it
+        for (let i = 0, n = this._update.boxes.length; i < n; i++) {
+          if (this._update.boxes[i].toString() === trashBox._id.toString()) {
+            trashBoxId = trashBox._id;
+            break;
+          }
+        }
 
         // NOTE: I need the trashbox ID when making the email light
-        this._update.inTrashbox = onlyTrashBox.length > 0 ? onlyTrashBox.pop() : null;
+        this._update.inTrashbox = trashBoxId;
       } else {
 
         // for exchange
