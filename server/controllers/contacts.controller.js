@@ -65,6 +65,14 @@ exports.search = (req, res, next) => {
     });
 }
 
+/**
+ * @api {post} /contacts/sync Sync Contacts
+ * @apiDescription Syncs all contacts
+ * @apiName SyncContact
+ * @apiGroup Contacts
+ * @apiSuccessExample Success-Response:  
+ * {}
+ */
 exports.sync = (req, res, next) => { 
   const syncedAt = new Date(); 
   //TODO add check if provider is configured
