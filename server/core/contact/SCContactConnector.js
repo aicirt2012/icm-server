@@ -2,7 +2,7 @@ import config from '../../../config/env';
 import SocioCortex from './SocioCortex';
 
 
-export default class ContactConnector extends SocioCortex{
+export default class SCContactConnector extends SocioCortex{
 
   static getContacts(){
     console.log('get contacts');

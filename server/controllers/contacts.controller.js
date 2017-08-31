@@ -1,5 +1,5 @@
 import Contact from '../models/contact.model';
-import ContactConnector from '../core/contact/ContactConnector';
+import SCContactConnector from '../core/contact/SCContactConnector';
 import fs from 'fs';
 
 exports.list = (req, res, next) => {  
@@ -16,7 +16,7 @@ exports.list = (req, res, next) => {
 exports.sync = (req, res, next) => { 
   const syncDate = new Date(); 
   
-  ContactConnector.getContacts()
+  SCContactConnector.getContacts()
   .then(contacts=>{
     return Promise.each(contacts, contact=>{
       return syncContact(req.user._id, contact, syncDate);
@@ -40,7 +40,6 @@ exports.sync = (req, res, next) => {
 }
 
 function syncContact(userId, contact, syncDate){  
-  console.log(contact)
   return Contact.findOne({user:userId, providerId: contact.id}).exec()
     .then(persistedContact=>{
       const providerContact = convert2MongoObject(contact, userId)
@@ -62,38 +61,43 @@ function syncContact(userId, contact, syncDate){
 function convert2MongoObject(contact, userId){
 
   const map = new Map();
-  map.set('Home City', 'city');
-  map.set('First Name', 'firstname');
-  map.set('Last Name', 'lastname');
-  map.set('Home Country', '');
-  map.set('Telephone Home', '');
-  map.set('Home Street', '');
-  map.set('Business Zip Code', '');
-  map.set('Url', '');
-  map.set('Telephone Assistant', '');
-  map.set('Telephone Mobile', '');
+
   map.set('Title', 'title');
-  map.set('Fax Business', '');
   map.set('Salutation', '');
-  map.set('Web Page', '');
-  map.set('Birthday', '');
-  map.set('Business Country', '');
-  map.set('Telephone Business', '');
-  map.set('Company', 'company');
+  map.set('First Name', 'firstName');
+  map.set('Last Name', 'lastName');
+  map.set('Birthday', 'birthday');
   map.set('E-Mail', 'email');
-  map.set('Home State', '');
-  map.set('Fax Home', '');
-  map.set('Home Zip Code', '');
-  map.set('E-Mail 2', '');
-  map.set('Business City', '');
+  map.set('E-Mail 2', 'email2');
+  map.set('Url', 'url');
+  map.set('Web Page', 'www');
+  map.set('LinkedIn URL', 'linkedInUrl');
+
+  map.set('Home Country', 'homeCountry');
+  map.set('Home State', 'homeState');
+  map.set('Home Street', 'homeStreet');
+  map.set('Home Zip Code', 'homeZip');
+  map.set('Home City', 'homeCity');
+  map.set('Telephone Home', 'homePhone');
+  map.set('Telephone Mobile', 'homeMobile');
+  map.set('Fax Home', 'homeFax');
+
+  map.set('Company', 'businessCompany');
+  map.set('Business Country', 'businessCountry');
+  map.set('Business State', 'businessState');
+  map.set('Business Zip Code', 'businessZip');
+  map.set('Business City', 'businessCity');
+  map.set('Business Street', 'businessStreet');
+  map.set('Telephone Business', 'businessPhone');
+  map.set('Telephone Assistant', 'businessPhoneAssistant');
+  map.set('Fax Business', 'businessFax');
+  map.set('Department', 'businessDepartment');
+  map.set('Job Title', 'businessJobTitle');
+
   map.set('Groups', '');
-  map.set('LinkedIn URL', '');
-  map.set('Business Street', '');
-  map.set('Department', '');
-  map.set('Business State', '');
-  map.set('Job Title', '');
 
   const json = {
+    provider: "SC",
     providerId: contact.id,
     user: userId,
     lastModifiedAt: new Date(contact.lastModifiedAt)
