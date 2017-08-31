@@ -15,21 +15,22 @@ exports.list = (req, res, next) => {
 
 exports.sync = (req, res, next) => { 
   const syncDate = new Date(); 
-  /*
+  
   ContactConnector.getContacts()
   .then(contacts=>{
     return Promise.each(contacts, contact=>{
-      return syncContact(contact);
+      return syncContact(req.user._id, contact, syncDate);
     });
   })
-  */
+
+  /*
   Promise.resolve()
   .then(()=>{
     const contacts = JSON.parse(fs.readFileSync('./server/core/contact/sc.contact.stub.json'));
     return Promise.each(contacts, contact=>{
       return syncContact(req.user._id, contact, syncDate);
     });
-  })
+  })*/
   .then(()=>{
     res.send({success:true});
   })
@@ -39,6 +40,7 @@ exports.sync = (req, res, next) => {
 }
 
 function syncContact(userId, contact, syncDate){  
+  console.log(contact)
   return Contact.findOne({user:userId, providerId: contact.id}).exec()
     .then(persistedContact=>{
       const providerContact = convert2MongoObject(contact, userId)
@@ -51,7 +53,7 @@ function syncContact(userId, contact, syncDate){
         persistedContact = providerContact;
       }
       const newContact = new Contact(persistedContact);
-      newContact.syncDate = syncDate;
+      newContact.syncAt = syncDate;
       return newContact.save();  
     });
 }
@@ -93,7 +95,8 @@ function convert2MongoObject(contact, userId){
 
   const json = {
     providerId: contact.id,
-    user: userId
+    user: userId,
+    lastModifiedAt: new Date(contact.lastModifiedAt)
   };
   contact.attributes.forEach(attribute=>{
     if(map.has(attribute.name) && map.get(attribute.name) !== '')

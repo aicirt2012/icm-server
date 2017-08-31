@@ -20,7 +20,7 @@ const ContactSchema = new mongoose.Schema({
   providerId: {type: String, index: true},
   user: {type: ObjectId, ref: 'User'},
   syncDate: Date,
-  modificationDate: Date
+  lastModifiedDate: Date
 }, {timestamps: true});
 
 
