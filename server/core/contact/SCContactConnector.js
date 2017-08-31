@@ -13,7 +13,6 @@ export default class SCContactConnector extends SocioCortex{
   getContacts(){
     return this.get('entityTypes/11rs7h6n9ioej/entities?attributes=*&meta=lastModifiedAt')
       .then(providerContacts=>{
-        console.log('get success')
         const contacts = [];
         providerContacts.forEach(providerContact=>{
           contacts.push(this.convert2MongoObject(providerContact))
@@ -22,6 +21,7 @@ export default class SCContactConnector extends SocioCortex{
       });
   }
 
+  //TODO Remove when impl is finished!
   getContactsStub(){
     const providerContacts = JSON.parse(fs.readFileSync('./server/core/contact/sc.contact.stub.json'));
     const contacts = [];
@@ -75,7 +75,6 @@ export default class SCContactConnector extends SocioCortex{
       if(map.has(attribute.name) && map.get(attribute.name) !== '')
         json[map.get(attribute.name)] = attribute.values.pop();
     });
-    console.log(json);
     return json;
   }
     

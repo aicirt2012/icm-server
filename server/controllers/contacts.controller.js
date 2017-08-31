@@ -20,7 +20,7 @@ exports.sync = (req, res, next) => {
     .then(providerContacts=>{
       return Promise.map(providerContacts, providerContact=>{
         return syncContact(providerContact, syncedAt);
-      },{concurrency: 20});
+      },{concurrency: 10});
     })
     .then(()=>{
       res.send({success:true});
