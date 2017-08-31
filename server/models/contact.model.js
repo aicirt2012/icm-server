@@ -40,7 +40,7 @@ const ContactSchema = new mongoose.Schema({
   lastModifiedAt: Date
 }, {timestamps: true});
 
-
+ContactSchema.index({'$**': 'text'});
 
 ContactSchema.statics.removeByUserId = (userId) => {
   return Contact.find({user:userId}).remove().exec();

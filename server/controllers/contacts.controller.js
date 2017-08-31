@@ -2,7 +2,18 @@ import Contact from '../models/contact.model';
 import SCContactConnector from '../core/contact/SCContactConnector';
 
 exports.list = (req, res, next) => {  
-  Contact.find({user:req.user._id})
+  Contact.find({user:req.user._id}, {firstName:1, lastName:1}).limit(100).exec()
+    .then(contacts => { 
+      res.status(200).send(contacts);
+    })
+    .catch(err=>{      
+      next(err);
+    });
+}
+
+exports.search = (req, res, next) => {  
+  const query = req.query.query;
+  Contact.find({user:req.user._id, $text: {$search: query}}, {firstName:1, lastName:1}).exec()
     .then(contacts => { 
       res.status(200).send(contacts);
     })
