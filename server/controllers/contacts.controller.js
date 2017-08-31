@@ -11,9 +11,12 @@ exports.list = (req, res, next) => {
     });
 }
 
+/**
+ * https://code.tutsplus.com/tutorials/full-text-search-in-mongodb--cms-24835
+ */
 exports.search = (req, res, next) => {  
   const query = req.query.query;
-  Contact.find({user:req.user._id, $text: {$search: query}}, {firstName:1, lastName:1}).exec()
+  Contact.find({user:req.user._id, $text: {$search: query}}, {score: {$meta: "textScore"}, firstName:1, lastName:1}).sort({score: {$meta: "textScore"}}).exec()
     .then(contacts => { 
       res.status(200).send(contacts);
     })
