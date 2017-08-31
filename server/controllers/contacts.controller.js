@@ -18,9 +18,9 @@ exports.sync = (req, res, next) => {
   
   SCContactConnector.getContacts()
   .then(contacts=>{
-    return Promise.each(contacts, contact=>{
+    return Promise.map(contacts, contact=>{
       return syncContact(req.user._id, contact, syncDate);
-    });
+    },{concurrency: 20});
   })
 
   /*
