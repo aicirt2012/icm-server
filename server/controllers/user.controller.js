@@ -84,6 +84,7 @@ exports.create = (req, res, next) => {
  * {}
  */
 exports.update = (req, res, next) => {
+  console.log(req.boy);
   if(req.user._id != req.params.id)
     next(new Error('Can only update user of current JWT!'));
   else

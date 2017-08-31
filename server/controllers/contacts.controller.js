@@ -13,7 +13,9 @@ exports.list = (req, res, next) => {
 
 exports.sync = (req, res, next) => { 
   const syncedAt = new Date(); 
-  new SCContactConnector(req.user._id, null, null, null)
+  //if(req.user.contactProvider.socioCortex.isEnabled)
+  const p = req.user.contactProvider.socioCortex;
+  new SCContactConnector(req.user._id, p.baseURL, p.email, p.password)
     .getContacts()
     .then(providerContacts=>{
       return Promise.map(providerContacts, providerContact=>{

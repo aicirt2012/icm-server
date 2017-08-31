@@ -10,47 +10,32 @@ export default class SocioCortex {
   }
 
   get(url, params, body){
-    console.log('get')
     return this.generateRequest('GET', url, params, body);
   }
 
-  /*
   post(url, params, body){
-    return this.generateRequest('POST', url, params, body);
+    //return this.generateRequest('POST', url, params, body);
   }
 
   put(url, params, body){
-    return this.generateRequest('PUT', url, params, body);
+    //return this.generateRequest('PUT', url, params, body);
   }
 
   delete(url, params, body){
-    return this.generateRequest('DELETE', url, params, body);
+    //return this.generateRequest('DELETE', url, params, body);
   }
-*/
 
   generateRequest(method, url, params, body) {
-    console.log('generate reuest')
-    let baseURL = 'https://wwwmatthes.in.tum.de/api/v1/';
-    let email = '';
-    let password = '';
-
-    url = baseURL+url;
     const options = {
       method: method,
      // body: JSON.stringify(body),
-      headers: this.generateHeader(email, password)
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': 'Basic '+new Buffer(this.email+':'+this.password).toString('base64')
+      }
     };
-    console.log('gen request2')
-    console.log(url,options)
-    return fetch(url, options).then(res => res.json());
-  }
-
-  generateHeader(email, password){
-    console.log('generate header')
-    return {
-      'content-type': 'application/json',
-      'Authorization': 'Basic '+new Buffer(email+':'+password).toString('base64')
-    };
+    return fetch(this.baseURL+url, options)
+      .then(res => res.json());
   }
 
 }
