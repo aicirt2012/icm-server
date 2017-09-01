@@ -3,49 +3,39 @@ import fetch from 'node-fetch';
 
 export default class SocioCortex {
 
-
-  static get(url, params, body){
-    console.log('get')
-    return SocioCortex.generateRequest('GET', url, params, body);
+  constructor(baseURL, email, password) {
+    this.baseURL = baseURL;
+    this.email = email;
+    this.password = password;
   }
 
-  /*
+  get(url, params, body){
+    return this.generateRequest('GET', url, params, body);
+  }
+
   post(url, params, body){
-    return generateRequest('POST', url, params, body);
+    //return this.generateRequest('POST', url, params, body);
   }
 
   put(url, params, body){
-    return generateRequest('PUT', url, params, body);
+    //return this.generateRequest('PUT', url, params, body);
   }
 
   delete(url, params, body){
-    return generateRequest('DELETE', url, params, body);
+    //return this.generateRequest('DELETE', url, params, body);
   }
-*/
 
-  static generateRequest(method, url, params, body) {
-    console.log('generate reuest')
-    let baseURL = 'https://wwwmatthes.in.tum.de/api/v1/';
-    let email = '';
-    let password = '';
-
-    url = baseURL+url;
+  generateRequest(method, url, params, body) {
     const options = {
       method: method,
      // body: JSON.stringify(body),
-      headers: SocioCortex.generateHeader(email, password)
+      headers: {
+        'content-type': 'application/json',
+        'Authorization': 'Basic '+new Buffer(this.email+':'+this.password).toString('base64')
+      }
     };
-    console.log('gen request2')
-    console.log(url,options)
-    return fetch(url, options).then(res => res.json());
-  }
-
-  static generateHeader(email, password){
-    console.log('generate header')
-    return {
-      'content-type': 'application/json',
-      'Authorization': 'Basic '+new Buffer(email+':'+password).toString('base64')
-    };
+    return fetch(this.baseURL+url, options)
+      .then(res => res.json());
   }
 
 }

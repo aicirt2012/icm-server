@@ -109,6 +109,7 @@ function routeProvider(passport) {
     
     /** Contact Routes */    
     r.route('/contacts/sync').get(contactsCtrl.sync);
+    r.route('/contacts/search').get(contactsCtrl.search);
     r.route('/contacts').get(contactsCtrl.list);
 
     return r;
