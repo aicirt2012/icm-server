@@ -16,7 +16,8 @@ import config from '../../../config/env'
 class ImapConnector {
 
   excludedBoxes = ['[Gmail]', '[Google Mail]', 'Important', 'All Mail', 'Alle Nachrichten', 'Wichtig'];
-  staticBoxes = [config.gmail.allMessages, config.gmail.inbox, config.gmail.send, config.gmail.draft, config.gmail.deleted];
+  // staticBoxes = [config.gmail.allMessages, config.gmail.inbox, config.gmail.send, config.gmail.draft, config.gmail.deleted];
+  staticBoxes = ['INBOX', 'Sent Mail', 'Drafts', 'Sent Mail', 'Starred', 'Trash', 'Spam'];
 
   constructor(options, user) {
     this.user = user;
@@ -110,6 +111,7 @@ class ImapConnector {
                     total: res.messages.total, // TODO: are we using this?
                     parent: box.parent,
                     uidvalidity: res.uidvalidity, // currently not used
+                    static: this.staticBoxes.indexOf(key) > -1
                   });
                   yay(res);
                 })
