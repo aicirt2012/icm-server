@@ -16,17 +16,9 @@ install_dependencies:
   stage: install_dependencies
   script:
     - npm install
-  artifacts:
-    paths:
-      - node_modules/
-
-build:
-  stage: build
-  script:
     - npm install gulp -g
     - gulp
   artifacts:
     paths:
-      - dist/
       - node_modules/
-
+      - dist/
