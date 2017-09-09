@@ -5,7 +5,7 @@ cache:
     - node_modules/
 
 variables:
-  repo_registry: 'registry.gitlab.com/fluxrankinggroup/fr-core'
+  repo_registry: 'registry.gitlab.com/tum.icm/icm-server'
 
 stages:
   - install_dependencies
