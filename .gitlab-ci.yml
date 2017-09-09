@@ -9,16 +9,30 @@ variables:
 
 stages:
   - install_dependencies
-  - build
+  - dockerbuild
 
 
 install_dependencies:
   stage: install_dependencies
   script:
     - npm install
-    - npm install gulp -g
+    - npm install --dev
     - gulp
   artifacts:
     paths:
       - node_modules/
       - dist/
+
+# greift auf Dockerfile zu
+dockerbuild:
+  image: docker:latest
+  services:
+    - docker:dind
+  stage: dockerbuild
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - docker build --pull -t $repo_registry/testing:latest .
+    - docker push $repo_registry/testing:latest
+  artifacts:
+    paths:
+      - node_modules/
