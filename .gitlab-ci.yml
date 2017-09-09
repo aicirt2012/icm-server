@@ -4,19 +4,14 @@ cache:
   paths:
     - node_modules/
 
-variables:
-  repo_registry: 'registry.gitlab.com/tum.icm/icm-server'
-
 stages:
   - install_dependencies
-  - dockerbuild
-
+  - docker_build
 
 install_dependencies:
   stage: install_dependencies
   script:
     - npm install
-#    - npm install --only=dev
     - npm install gulp -g
     - gulp
   artifacts:
@@ -32,8 +27,8 @@ dockerbuild:
   stage: dockerbuild
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker build --pull -t $repo_registry/testing:latest .
-    - docker push $repo_registry/testing:latest
+    - docker build --pull -t registry.gitlab.com/tum.icm/icm-server/testing:latest .
+    - docker push registry.gitlab.com/tum.icm/icm-server/testing:latest
   artifacts:
     paths:
       - node_modules/
