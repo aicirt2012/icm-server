@@ -16,8 +16,8 @@ install_dependencies:
   stage: install_dependencies
   script:
     - npm install
-    - npm install --only=dev
-    - npm gulp -g
+#    - npm install --only=dev
+    - npm install gulp -g
     - gulp
   artifacts:
     paths:
