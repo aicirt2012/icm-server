@@ -30,10 +30,10 @@ function routeProvider(passport) {
     r.route('/auth/trello/callback').get(passport.authenticate('trello', {failureRedirect: '/login', session: false}), authCtrl.oauthCallback);
 
     /** User Routes unprotected */
-    r.route('/users/').post(userCtrl.create); 
+    r.route('/users/').post(userCtrl.create);
 
     /** Route Protection - all routes below are protected */
-    r.use(passport.authenticate('jwt', {session: false}));       
+    r.use(passport.authenticate('jwt', {session: false}));
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,8 @@ function routeProvider(passport) {
     r.route('/boxes/').get(boxCtrl.getBoxes);
     r.route('/boxes/').post(boxCtrl.addBox);
     r.route('/boxes/:id').delete(boxCtrl.delBox);
-    r.route('/boxes/:id/rename').post(boxCtrl.renameBox);  
+    r.route('/boxes/:id/rename').post(boxCtrl.renameBox);
+    r.route('/boxes/:id/move').post(boxCtrl.moveBox);
     r.route('/boxes/syncAll').get(boxCtrl.syncIMAP);
 
     /** Task Routes */
@@ -106,8 +107,8 @@ function routeProvider(passport) {
     /** Attachment Routs */
     r.route('/attachments/:attachmentId').get(attachmentCtrl.getAttachment);
     r.route('/attachments/:attachmentId/download').get(attachmentCtrl.downloadAttachment);
-    
-    /** Contact Routes */    
+
+    /** Contact Routes */
     r.route('/contacts/sync').post(contactsCtrl.sync);
     r.route('/contacts/search').get(contactsCtrl.search);
     r.route('/contacts/:id').get(contactsCtrl.get);

@@ -88,6 +88,33 @@ BoxSchema.statics.rename = (boxId, newName) => {
 }
 
 /**
+ * Moves a box and returns the moved box
+ * @param boxId
+ * @param newBoxName // Gmail depends on the name for routes /box1/box1.1
+ * @param newParentBoxId
+ * @return moved box object with unseen count
+ */
+BoxSchema.statics.move = (boxId, newBoxName, newParentBoxId) => {
+  return new Promise((resolve, reject) => {
+    Box.findOne({_id: boxId})
+      .then(box => {
+        box.name = newBoxName;
+        box.parent = newParentBoxId;
+        return box.save();
+      })
+      .then(box => {
+        return Box.findWithUnseenCountById(box._id);
+      })
+      .then(box => {
+        resolve(box);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+}
+
+/**
  * Casecade deletes all boxes with child boxes that
  * have no later update than a certain date
  * @param userId

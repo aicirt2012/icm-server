@@ -17,6 +17,7 @@ class ImapConnector {
 
   excludedBoxes = ['[Gmail]', '[Google Mail]', 'Important', 'All Mail', 'Alle Nachrichten', 'Wichtig'];
   // staticBoxes = [config.gmail.allMessages, config.gmail.inbox, config.gmail.send, config.gmail.draft, config.gmail.deleted];
+  // TODO: Multilanguage
   staticBoxes = ['INBOX', 'Sent Mail', 'Drafts', 'Sent Mail', 'Starred', 'Trash', 'Spam'];
 
   constructor(options, user) {
