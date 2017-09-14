@@ -1,5 +1,10 @@
 https://github.com/KunalKapadia/express-mongoose-es6-rest-api
 
+Install yarn:
+
+npm install -g yarn
+
+
 DEPLOYMENT
 
 # compile to ES5
