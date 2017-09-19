@@ -40,6 +40,7 @@ const UserSchema = new mongoose.Schema({
     email: String,
     password: String
   },
+  // TODO like below for task providers
   contactProvider:{
     socioCortex:{
       isEnabled: {type: Boolean, default: false},
@@ -132,7 +133,7 @@ UserSchema.statics.removeById = (userId) => {
     })
     .then(()=>{
       return Box.removeByUserId(userId);
-    });    
+    });
 }
 
 let User = mongoose.model('User', UserSchema);

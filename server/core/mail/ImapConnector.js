@@ -1,5 +1,6 @@
 import Imap from 'imap';
 import Promise from 'bluebird';
+import config from '../../../config/env'
 
 /**
  * Usefull documentation sources:
@@ -10,11 +11,14 @@ import Promise from 'bluebird';
  * http://stackoverflow.com/questions/9956324/imap-synchronization
  * http://www.imapwiki.org/ClientImplementation/Synchronization
  * http://stackoverflow.com/questions/10076690/ruby-imap-changes-since-last-check
-*/
+ */
 
 class ImapConnector {
 
   excludedBoxes = ['[Gmail]', '[Google Mail]', 'Important', 'All Mail', 'Alle Nachrichten', 'Wichtig'];
+  // staticBoxes = [config.gmail.allMessages, config.gmail.inbox, config.gmail.send, config.gmail.draft, config.gmail.deleted];
+  // TODO: Multilanguage
+  staticBoxes = ['INBOX', 'Sent Mail', 'Drafts', 'Sent Mail', 'Starred', 'Trash', 'Spam'];
 
   constructor(options, user) {
     this.user = user;
@@ -102,11 +106,13 @@ class ImapConnector {
               promises.push(new Promise((yay, nay) => {
                 this.statusBoxAsync(box.name, false).then((res) => {
                   boxListDetails.push({
+                    // TODO: it appears this block is never reached
                     name: res.name, // unique name used as id
                     shortName: res.name.substr(res.name.lastIndexOf('/') + 1, res.name.length),
-                    total: res.messages.total,
+                    total: res.messages.total, // TODO: are we using this?
                     parent: box.parent,
                     uidvalidity: res.uidvalidity, // currently not used
+                    static: this.staticBoxes.indexOf(key) > -1
                   });
                   yay(res);
                 })
@@ -170,7 +176,7 @@ class ImapConnector {
   }
 
   append(boxName, from, to, subject, msgData) {
-    let options = {mailbox: boxName};
+    let options = { mailbox: boxName };
 
     //TODO to must be an array of recipients
     const msg = this.createRfcMessage(from, to, subject, msgData);
@@ -273,6 +279,7 @@ class ImapConnector {
           name: path,
           shortName: path.substr(path.lastIndexOf('/') + 1, path.length),
           parent: parent ? parent.name : null,
+          static: this.staticBoxes.indexOf(key) > -1
         };
         arr.push(box);
       }

@@ -88,6 +88,33 @@ BoxSchema.statics.rename = (boxId, newName) => {
 }
 
 /**
+ * Moves a box and returns the moved box
+ * @param boxId
+ * @param newBoxName // Gmail depends on the name for routes /box1/box1.1
+ * @param newParentBoxId
+ * @return moved box object with unseen count
+ */
+BoxSchema.statics.move = (boxId, newBoxName, newParentBoxId) => {
+  return new Promise((resolve, reject) => {
+    Box.findOne({_id: boxId})
+      .then(box => {
+        box.name = newBoxName;
+        box.parent = newParentBoxId;
+        return box.save();
+      })
+      .then(box => {
+        return Box.findWithUnseenCountById(box._id);
+      })
+      .then(box => {
+        resolve(box);
+      })
+      .catch(err => {
+        reject(err);
+      });
+  });
+}
+
+/**
  * Casecade deletes all boxes with child boxes that
  * have no later update than a certain date
  * @param userId
@@ -238,7 +265,8 @@ BoxSchema.statics.lightBox = (box) => {
     _id: box._id,
     name: box.name,
     shortName: box.shortName,
-    parent: box.parent
+    parent: box.parent,
+    static: box.static
   };
 }
 
@@ -251,7 +279,7 @@ BoxSchema.statics.getBoxesByUserId = (userId) => {
   return new Promise((resolve, reject) => {
     /*<boxId, box>*/
     const boxMap = new Map();
-    Box.find({user: userId}, {_id: 1, shortName: 1, parent: 1}) //TODO remove name projection after refactoring
+    Box.find({user: userId}, {_id: 1, shortName: 1, parent: 1, static: 1}) //TODO remove name projection after refactoring
       .lean()
       .then(boxes => {
         boxes.forEach(box => {

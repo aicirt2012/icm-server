@@ -15,7 +15,7 @@ import EmailController from './email.controller';
  * @apiGroup Box
  * @apiParam {String} [parentBoxId=null] Unique ID of parent box.
  * @apiParam {String} boxName name of new box.
- * @apiSuccessExample Success-Response:  
+ * @apiSuccessExample Success-Response:
  *    {message: 'Box added'}
  */
 exports.addBox = (req, res) => {
@@ -23,7 +23,7 @@ exports.addBox = (req, res) => {
   const emailConnector = user.createIMAPConnector();
   console.log(req.body.parentBoxId, req.body.boxName);
   const parentBoxId = req.body.parentBoxId != 'NONE' ? req.body.parentBoxId : null;
-  Box.findOne({_id: parentBoxId})
+  Box.findOne({ _id: parentBoxId })
     .then((parentBox) => {
       const newBoxName = parentBox ? parentBox.name + '/' + req.body.boxName : req.body.boxName;
       return emailConnector.addBox(newBoxName);
@@ -32,7 +32,7 @@ exports.addBox = (req, res) => {
       return syncIMAPBoxes(user, emailConnector);
     })
     .then(() => {
-      res.status(200).send({message: 'Box added'});
+      res.status(200).send({ message: 'Box added' });
     })
     .catch((err) => {
       res.status(400).send(err);
@@ -45,14 +45,14 @@ exports.addBox = (req, res) => {
  * @apiName DeleteBox
  * @apiGroup Box
  * @apiParam {String} id Box unique ID.
- * @apiSuccessExample Success-Response:  
+ * @apiSuccessExample Success-Response:
  *    {message: 'Box deleted'}
  */
 exports.delBox = (req, res) => {
   const user = req.user;
   const boxId = req.params.id;
   const emailConnector = user.createIMAPConnector();
-  Box.findOne({_id: boxId}).populate('parent')
+  Box.findOne({ _id: boxId }).populate('parent')
     .then(boxToDelete => {
       return [boxToDelete, emailConnector.delBox(boxToDelete.name)]
     })
@@ -63,7 +63,7 @@ exports.delBox = (req, res) => {
       Socket.deleteBox(user._id, boxDeleted);
     })
     .then(() => {
-      res.status(200).send({message: 'Box deleted'});
+      res.status(200).send({ message: 'Box deleted' });
     })
     .catch((err) => {
       res.status(400).send(err);
@@ -77,7 +77,7 @@ exports.delBox = (req, res) => {
  * @apiGroup Box
  * @apiParam {String} id Box unique ID.
  * @apiParam {String} newBoxShortName new short name of box.
- * @apiSuccessExample Success-Response:  
+ * @apiSuccessExample Success-Response:
  *    {message: 'Renamed box: new box name'}
  */
 exports.renameBox = (req, res) => {
@@ -85,7 +85,7 @@ exports.renameBox = (req, res) => {
   const boxId = req.params.id;
   const newShortName = req.body.newBoxShortName;
   const emailConnector = user.createIMAPConnector();
-  Box.findOne({_id: boxId}).populate('parent')
+  Box.findOne({ _id: boxId }).populate('parent')
     .then(oldBox => {
       const newBoxName = oldBox.parent != null ? oldBox.parent.name + '/' + newShortName : newShortName;
       return [oldBox, emailConnector.renameBox(oldBox.name, newBoxName)]
@@ -95,13 +95,48 @@ exports.renameBox = (req, res) => {
     })
     .then(box => {
       Socket.updateBox(user._id, box);
-      res.status(200).send({message: `Renamed box: ${box.name}`});
+      res.status(200).send({ message: `Renamed box: ${box.name}` });
     })
     .catch((err) => {
       res.status(400).send(err);
     });
 }
 
+/**
+ * @api {post} /box/:id/move Move box
+ * @apiDescription Move box.
+ * @apiName MoveBox
+ * @apiGroup Box
+ * @apiParam {String} id Box unique ID.
+ * @apiParam {String} newParentBoxId new parent of box.
+ * @apiSuccessExample Success-Response:
+ *    {message: 'Moved box: new box name'}
+ */
+exports.moveBox = (req, res) => {
+  const user = req.user;
+  const boxId = req.params.id;
+  const newParentBoxId = req.body.newParentBoxId;
+  const emailConnector = user.createIMAPConnector();
+
+  Box.findOne({ _id: boxId })
+    .then(box => {
+      return [box, Box.findOne({ _id: newParentBoxId })];
+    })
+    .spread((box, newParentBox) => {
+      const newBoxName = newParentBox.name + '/' + box.shortName;
+      return [box, emailConnector.renameBox(box.name, newBoxName), newParentBox]
+    })
+    .spread((box, newBoxName, newParentBox) => {
+      return Box.move(box._id, newBoxName, newParentBox._id);
+    })
+    .then(box => {
+      Socket.updateBox(user._id, box);
+      res.status(200).send({ message: `Moved box: ${box.name}` });
+    })
+    .catch((err) => {
+      res.status(400).send(err);
+    });
+}
 
 /**
  * @api {get} /box/ Get all boxes
@@ -109,7 +144,7 @@ exports.renameBox = (req, res) => {
  * @apiName GetBoxes
  * @apiGroup Box
  * @apiSuccessExample Success-Response:
- * //TODO   
+ * //TODO
  * {}
  */
 exports.getBoxes = (req, res) => {
@@ -162,7 +197,7 @@ function syncIMAPMails(user, emailConnector) {
   const before = new Date();
   console.log('--> syncIMAPMails');
   return new Promise((resolve, reject) => {
-    Box.find({user: user})
+    Box.find({ user: user })
       .then(boxes => {
         return emailConnector.fetchBoxes(EmailController.storeEmail, boxes)
       })
@@ -199,7 +234,7 @@ exports.syncIMAP = (req, res, next) => {
     })
     .then(() => {
       console.log('all synced!');
-      res.status(200).send({message: 'Finished syncing'});
+      res.status(200).send({ message: 'Finished syncing' });
     })
     .catch(err => {
       next(err);
