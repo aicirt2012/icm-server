@@ -120,10 +120,15 @@ exports.moveBox = (req, res) => {
 
   Box.findOne({ _id: boxId })
     .then(box => {
-      return [box, Box.findOne({ _id: newParentBoxId })];
+      if (newParentBoxId === 'ROOT') {
+        const newParentBox = {_id: null, name: ''};
+        return [box, newParentBox ];
+      } else {
+        return [box, Box.findOne({ _id: newParentBoxId })];
+      }
     })
     .spread((box, newParentBox) => {
-      const newBoxName = newParentBox.name + '/' + box.shortName;
+      const newBoxName = newParentBox.name !== '' ? newParentBox + '/' + box.shortName : box.shortName;
       return [box, emailConnector.renameBox(box.name, newBoxName), newParentBox]
     })
     .spread((box, newBoxName, newParentBox) => {
