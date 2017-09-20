@@ -198,7 +198,8 @@ EmailSchema.statics.lightEmail = (email) => {
     timestamp: email.timestamp,
     subject: email.subject,
     flags: email.flags,
-    text: email.text ? email.text.substring(0, 70) : null
+    text: email.text ? email.text.substring(0, 70) : null,
+    attachments: email.attachments
   }
 }
 
@@ -219,7 +220,7 @@ EmailSchema.statics.search = (userId, opt) => {
 
   // list only parameters you want to show in UI
   const select = {
-    box: 1, boxes: 1, from: 1, date: 1, subject: 1,
+    box: 1, boxes: 1, from: 1, date: 1, subject: 1, attachments: 1,
     text: {$substrCP: ["$text", 0, 70]}, flags: 1,
     inTrashbox: 1,
     timestamp: {$subtract: ["$date", new Date("1970-01-01")]}
