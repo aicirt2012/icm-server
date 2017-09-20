@@ -27,7 +27,7 @@ exports.login = (req, res) => {
         if (!isMatch || err) {
           res.status(401).send('Wrong password');
         } else {
-          const token = exports.createToken(req.user);
+          const token = exports.createToken(user);
           res.cookie('email-oauth', token); // TODO: @Paul change this to header
           res.status(200).json({token});
         }
