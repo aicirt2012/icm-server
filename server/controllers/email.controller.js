@@ -293,7 +293,7 @@ exports.delFlags = (req, res) => {
 
 /**
  * @api {get} /email/:id Get Email
- * @apiDescription Returns one single mail with all details 
+ * @apiDescription Returns one single mail with all details
  * @apiName GetEmail
  * @apiGroup Email
  * @apiParam {String} id Email unique ID.
@@ -357,7 +357,7 @@ exports.storeEmail = storeEmail;
 
 /**
  * @api {get} /email/search Search Emails
- * @apiDescription Search emails either for box or custom search 
+ * @apiDescription Search emails either for box or custom search
  * @apiName SearchEmail
  * @apiGroup Email
  * @apiParam {String} [boxId] Box unique ID.

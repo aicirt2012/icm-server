@@ -73,7 +73,8 @@ const EmailSchema = new mongoose.Schema({
   timestamps: true
 });
 
-
+// Calculate attachment non.inline
+// clean code
 EmailSchema.pre('findOneAndUpdate', function (next) {
   Box.findOne({name: config.gmail.deleted, user: this._update.user})
     .then((trashBox) => {
@@ -259,10 +260,24 @@ EmailSchema.statics.search = (userId, opt) => {
 
   return Email.aggregate([
     {$match: query},
+    { $lookup: {
+      from: 'attachments',
+      localField: 'attachments',
+      foreignField: '_id',
+      as: "attachments"
+    }},
     {$project: select},
     {$sort: {date: sort == 'DESC' ? -1 : 1}},
     {$limit: 15}
   ]);
+
+  /*
+  , function(err, results) {
+    Email.populate(results, { 'path': 'attachments'}, function(err, results) {
+      if (err) throw err;
+      return results;
+    })
+  }*/
 }
 
 EmailSchema.statics.filterNonTrash = (user, boxId, emails) => {
