@@ -1,6 +1,8 @@
 # Generate API Doc
 ```apidoc -i server/controllers/ -o apidoc/generated -t apidoc/template```
 
+# Solve problem with node-gyp windows
+https://github.com/nodejs/node-gyp
 
 # Intelligent Contextual Mail Server
 

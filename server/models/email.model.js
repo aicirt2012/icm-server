@@ -67,8 +67,8 @@ const EmailSchema = new mongoose.Schema({
   flags: [String],
   labels: [String],
   attachments: [{type: ObjectId, ref: 'Attachment'}],
-  /// isInTrash: Boolean,
   inTrashbox: {type: ObjectId, ref: 'Box'},
+  nonInlineAttachments: Boolean
 }, {
   timestamps: true
 });
@@ -200,7 +200,8 @@ EmailSchema.statics.lightEmail = (email) => {
     subject: email.subject,
     flags: email.flags,
     text: email.text ? email.text.substring(0, 70) : null,
-    attachments: email.attachments
+    attachments: email.attachments,
+    nonInlineAttachments: email.nonInlineAttachments
   }
 }
 
@@ -224,7 +225,8 @@ EmailSchema.statics.search = (userId, opt) => {
     box: 1, boxes: 1, from: 1, date: 1, subject: 1, attachments: 1,
     text: {$substrCP: ["$text", 0, 70]}, flags: 1,
     inTrashbox: 1,
-    timestamp: {$subtract: ["$date", new Date("1970-01-01")]}
+    timestamp: {$subtract: ["$date", new Date("1970-01-01")]},
+    nonInlineAttachments: 1
   };
 
   if (boxId !== 'NONE' && boxId !== '0') {
