@@ -142,3 +142,7 @@ Get code coverage summary on executing `npm test`
 ## Docs and Recipes
 
 * [Gulp recipes](https://github.com/gulpjs/gulp/tree/master/docs/recipes) - the official Gulp recipes directory includes a comprehensive list of guides for different workflows you can add to your project.
+
+## Common issues
+NODE-GYP ERROR ON WINDOWS
+http://www.westerndevs.com/JavaScript/How-to-Fix-node-gyp-Error-on-Windows/
