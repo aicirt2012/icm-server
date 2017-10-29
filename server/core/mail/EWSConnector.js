@@ -2,8 +2,8 @@ import Promise from 'bluebird';
 import moment from 'moment';
 import EWS from 'node-ews';
 import Box from '../../models/box.model';
-import {MailParser} from 'mailparser';
-import {Readable, Stream, PassThrough} from 'stream';
+import { MailParser } from 'mailparser';
+import { Readable, Stream, PassThrough } from 'stream';
 import Attachment from '../../models/attachment.model';
 
 /*
@@ -558,7 +558,8 @@ class EWSConnector {
               box: box._id,
               boxes: [box._id],
               user: this.user._id,
-              attachments: messageIdAndtextAndAttachments[2]
+              attachments: messageIdAndtextAndAttachments[2],
+              nonInlineAttachments: messageIdAndtextAndAttachments[3]
             }
 
             emails.push(email);
@@ -597,6 +598,7 @@ class EWSConnector {
 
       const mailParser = new MailParser();
       let attachments = [];
+      let nonInlineAttachments = false;
 
       let s = new Readable();
       s.push(mimeContent, 'base64');
@@ -606,26 +608,38 @@ class EWSConnector {
 
       mailParser.on('end', (mailObject) => {
 
-        if (mailObject.attachments) {
-          mailObject.attachments.forEach(m => {
+        // use a map
+        const _attachments = mailObject.attachments;
+
+        if (_attachments) {
+
+          Promise.each(_attachments, (att) => {
 
             let readStream = new PassThrough();
-            readStream.end(m.content);
+            readStream.end(att.content);
 
-            Attachment.create(m.fileName, m.contentId, m.contentType,
-              m.contentDisposition == 'inline' ? true : false,
+            return Attachment.create(att.fileName, att.contentId, att.contentType,
+              att.contentDisposition == 'inline' ? true : false,
               readStream)
               .then(attachment => {
                 console.log('attachment created');
+                console.log(attachment);
+                if (!attachment.contentDispositionInline) {
+                  console.log('hey hey new attach');
+                  nonInlineAttachments = true;
+                  console.log(nonInlineAttachments);
+                }
                 attachments.push(attachment._id);
               })
               .catch(err => {
                 console.log(err);
               })
-          });
+          }).then(() => {
+            resolve([mailObject.messageId, mailObject.text, attachments, nonInlineAttachments]);
+          })
+        } else {
+          resolve([mailObject.messageId, mailObject.text, attachments, nonInlineAttachments]);
         }
-
-        resolve([mailObject.messageId, mailObject.text, attachments]);
       }).on('error', (err) => {
         console.log(err);
         reject(err);

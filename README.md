@@ -1,7 +1,6 @@
 # Generate API Doc
 ```apidoc -i server/controllers/ -o apidoc/generated -t apidoc/template```
 
-
 # Intelligent Contextual Mail Server
 
 Based on [Express & mongoose REST API Boilerplate in ES6 with Code Coverage](https://github.com/KunalKapadia/express-mongoose-es6-rest-api).
@@ -143,6 +142,11 @@ Get code coverage summary on executing `npm test`
 
 * [Gulp recipes](https://github.com/gulpjs/gulp/tree/master/docs/recipes) - the official Gulp recipes directory includes a comprehensive list of guides for different workflows you can add to your project.
 
+
 ## Common issues
+# Solve problem with node-gyp windows
 NODE-GYP ERROR ON WINDOWS
+npm install --global --production windows-build-tools
 http://www.westerndevs.com/JavaScript/How-to-Fix-node-gyp-Error-on-Windows/
+
+https://github.com/nodejs/node-gyp
