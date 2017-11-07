@@ -21,6 +21,8 @@ cd icm-server
 ```
 
 Install dependencies:
+
+_If you're having problems installing on windows, see the troubleshooting at the end of this file._
 ```sh
 npm install
 ```
@@ -144,9 +146,11 @@ Get code coverage summary on executing `npm test`
 
 
 ## Common issues
-# Solve problem with node-gyp windows
-NODE-GYP ERROR ON WINDOWS
+### node-gyp requiring python during npm install on windows
+To fix this, simply run:
+```
 npm install --global --production windows-build-tools
+```
 http://www.westerndevs.com/JavaScript/How-to-Fix-node-gyp-Error-on-Windows/
 
 https://github.com/nodejs/node-gyp
