@@ -1,4 +1,11 @@
 # Generate API Doc
+
+Install apidoc globally by running
+
+```npm install apidoc -g```
+
+then run
+
 ```apidoc -i server/controllers/ -o apidoc/generated -t apidoc/template```
 
 # Intelligent Contextual Mail Server
