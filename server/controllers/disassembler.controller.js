@@ -35,10 +35,10 @@ exports.stripHtml = (req, res, next) => {
  *         "value": "Sunday, November 12, 2017",
  *         "type": "DATE",
  *         "occurences": [
- *             {
- *                 "index": 2643,
- *                 "debug_context": "Sunday, November 12, 2017 11:39 AM (Germany Time)"
- *             }
+ *            2643
+ *         ],
+ *         "occurence_context": [
+ *            "Sunday, November 12, 2017 11:39 AM (Germany Time)"
  *         ],
  *         "offset": 25
  *     }

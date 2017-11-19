@@ -35,12 +35,11 @@ class HtmlDisassembler {
           index += emailTextLine.index;
           if (!annotation.occurences) {
             annotation.occurences = [];
+            annotation.occurence_context = [];
             annotation.offset = annotation.value.length;
           }
-          annotation.occurences.push({
-            index: index,
-            debug_context: emailTextLine.value // TODO only for development purposes
-          })
+          annotation.occurences.push(index);
+          annotation.occurence_context.push(emailTextLine.value);   // FIXME only for development purposes
         }
       }
     }
