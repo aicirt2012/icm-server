@@ -26,7 +26,6 @@ class HtmlDisassembler {
 
   indexAnnotations(annotations, htmlSource) {
     let disassembledEmail = this.disassemble(htmlSource);
-    let indexedAnnotations = [];
     for (let i = 0; i < annotations.length; i++) {
       let annotation = annotations[i];
       for (let j = 0; j < disassembledEmail.length; j++) {
@@ -34,17 +33,18 @@ class HtmlDisassembler {
         let index = emailTextLine.value.indexOf(annotation.value);
         if (index > -1) {
           index += emailTextLine.index;
-          indexedAnnotations.push({
-            value: annotation.value,
-            type: annotation.type,
+          if (!annotation.occurences) {
+            annotation.occurences = [];
+            annotation.offset = annotation.value.length;
+          }
+          annotation.occurences.push({
             index: index,
-            offset: annotation.value.length,
             debug_context: emailTextLine.value // TODO only for development purposes
-          });
+          })
         }
       }
     }
-    return indexedAnnotations;
+    return annotations;
   }
 
 }
