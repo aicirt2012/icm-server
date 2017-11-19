@@ -11,7 +11,7 @@ exports.disassemble = (req, res, next) => {
 
 exports.reassemble = (req, res, next) => {
   try {
-    let html = HtmlAssembler.getInstance().reassemble(req.body.email_id, req.body.lines);
+    let html = HtmlAssembler.getInstance().reassemble(req.body.email_id, req.body.annotations, req.body.html);
     res.status(200).send(html);
   } catch (err) {
     next(err);
