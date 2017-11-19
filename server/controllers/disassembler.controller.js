@@ -23,9 +23,9 @@ exports.stripHtml = (req, res, next) => {
 };
 
 /**
- * @api {post} /disassembler/annotations/index Index Annotations
+ * @api {post} /disassembler/annotations/index Add Annotation Indices
  * @apiDescription Indexes all given annotations and outputs the index of each occurrence in the given HTML source
- * @apiName IndexAnnotations
+ * @apiName AddAnnotationsIndices
  * @apiGroup Disassembler
  * @apiParam {Object[]} annotations Objects containing the plain text of the annotation in a 'value' field
  * @apiParam {String} html The HTML source to process
@@ -44,9 +44,26 @@ exports.stripHtml = (req, res, next) => {
  *     }
  * ]
  */
-exports.indexAnnotations = (req, res, next) => {
+exports.addAnnotationIndices = (req, res, next) => {
   try {
-    let html = HtmlDisassembler.getInstance().indexAnnotations(req.body.annotations, req.body.html);
+    let html = HtmlDisassembler.getInstance().addAnnotationIndices(req.body.annotations, req.body.html);
+    res.status(200).send(html);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * @api {post} /disassembler/annotations/ranges Add Range information to Annotations
+ * @apiDescription Adds range information for each annotation occurrence index
+ * @apiName AddAnnotationsRanges
+ * @apiGroup Disassembler
+ * @apiParam {Object[]} indexedAnnotations Objects containing the plain text of the annotation in a 'value' field and the occurrence indices
+ * @apiParam {String} html The HTML source to process
+ */
+exports.addAnnotationRanges = (req, res, next) => {
+  try {
+    let html = HtmlDisassembler.getInstance().addAnnotationRanges(req.body.annotations, req.body.html);
     res.status(200).send(html);
   } catch (err) {
     next(err);

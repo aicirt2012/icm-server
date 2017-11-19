@@ -24,7 +24,7 @@ class HtmlDisassembler {
     return sentences;
   }
 
-  indexAnnotations(annotations, htmlSource) {
+  addAnnotationIndices(annotations, htmlSource) {
     let disassembledEmail = this.disassemble(htmlSource);
     for (let i = 0; i < annotations.length; i++) {
       let annotation = annotations[i];
@@ -44,6 +44,10 @@ class HtmlDisassembler {
       }
     }
     return annotations;
+  }
+
+  addAnnotationRanges(indexedAnnotations, htmlSource) {
+    return "not yet implemented";
   }
 
 }

@@ -120,7 +120,8 @@ function routeProvider(passport) {
 
     /** HTML Assembler Routes - for development purposes */
     r.route('/disassembler/html/strip').post(disassemblerCtrl.stripHtml);
-    r.route('/disassembler/annotations/index').post(disassemblerCtrl.indexAnnotations);
+    r.route('/disassembler/annotations/index').post(disassemblerCtrl.addAnnotationIndices);
+    r.route('/disassembler/annotations/range').post(disassemblerCtrl.addAnnotationRanges);
 
     return r;
 }
