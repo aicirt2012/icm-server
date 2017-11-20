@@ -58,7 +58,7 @@ exports.addAnnotationIndices = (req, res, next) => {
  * @apiDescription Adds range information for each annotation occurrence index
  * @apiName AddAnnotationsRanges
  * @apiGroup Disassembler
- * @apiParam {Object[]} indexedAnnotations Objects containing the plain text of the annotation in a 'value' field and the occurrence indices
+ * @apiParam {Object[]} annotations Objects containing the plain text of the annotation in a 'value' field and the occurrence indices
  * @apiParam {String} html The HTML source to process
  */
 exports.addAnnotationRanges = (req, res, next) => {

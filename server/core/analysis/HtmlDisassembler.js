@@ -1,4 +1,7 @@
 import tokenizeHtml from 'tokenize-htmltext';
+import jsdom from 'jsdom'
+import wgxpath from 'wgxpath'
+import xpath from 'simple-xpath-position'
 
 class HtmlDisassembler {
 
@@ -47,7 +50,25 @@ class HtmlDisassembler {
   }
 
   addAnnotationRanges(indexedAnnotations, htmlSource) {
-    return "not yet implemented";
+    const dom = new jsdom.JSDOM(htmlSource);
+    wgxpath.install(dom.window);
+    let expression = dom.window.document.createExpression("//a");
+    let result = expression.evaluate(dom.window.document, wgxpath.XPathResultType.ORDERED_NODE_ITERATOR_TYPE);
+
+    for (let i = 0; i < indexedAnnotations.length; i++) {
+      let annotation = indexedAnnotations[i];
+      annotation.ranges = [];
+      if (annotation.occurences) {
+        for (let j = 0; j < annotation.occurences.length; j++) {
+          // let range = dom.window.document.createRange();
+          // range.setStart(startNode, startOffset);
+          // range.setEnd(endNode, endOffset);
+          // annotation.ranges.push(range);
+        }
+      }
+    }
+
+    return indexedAnnotations;
   }
 
 }
