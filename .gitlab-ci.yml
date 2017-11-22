@@ -27,8 +27,8 @@ dockerbuild:
   stage: dockerbuild
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
-    - docker build --pull -t registry.gitlab.com/tum.icm/icm-server/testing:latest .
-    - docker push registry.gitlab.com/tum.icm/icm-server/testing:latest
+    - docker build --pull -t registry.gitlab.com/tum.icm/icm-server:latest .
+    - docker push registry.gitlab.com/tum.icm/icm-server:latest
   artifacts:
     paths:
       - node_modules/
