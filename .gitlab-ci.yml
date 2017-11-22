@@ -20,12 +20,11 @@ install_dependencies:
       - dist/
 
 # greift auf Dockerfile zu
-dockerbuild:
+docker_build:
   stage: docker_build
   image: docker:latest
   services:
     - docker:dind
-  stage: dockerbuild
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
     - docker build --pull -t registry.gitlab.com/tum.icm/icm-server:latest .
