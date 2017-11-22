@@ -21,6 +21,7 @@ install_dependencies:
 
 # greift auf Dockerfile zu
 dockerbuild:
+  stage: docker_build
   image: docker:latest
   services:
     - docker:dind
