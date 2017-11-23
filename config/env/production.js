@@ -58,7 +58,7 @@ export default {
       callbackURL: 'http://server.icm.in.tum.de/api/auth/trello/callback'
     }
   },
-  db: 'mongodb://localhost:27017/emailapp',
+  db:  process.env.MONGODB_CONNECTION || 'mongodb://localhost:27017/emailapp',
   port: 4000,
   socketPort: 4001,
   domain: 'http://server.icm.in.tum.de',
