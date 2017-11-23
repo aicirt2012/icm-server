@@ -1,7 +1,7 @@
 export default {
   env: 'local',
   jwt: {
-    secret: process.env.JWT_SECRET || '382a4b7a5745454f3b44346d27744b2d305b3b58394f4d75375e7d7670',
+    secret: '382a4b7a5745454f3b44346d27744b2d305b3b58394f4d75375e7d7670',
     expiresInSeconds: 86400
   },
   trello: {
@@ -27,9 +27,9 @@ export default {
       callbackURL: 'http://localhost:4000/api/auth/trello/callback'
     }
   },
-  attachmentsPath: './Attachments/',
   mongoConnectionURL: 'mongodb://localhost:27017/icmapp',
-  mongooseDebug: process.env.MONGOOSE_DEBUG || true,
+  mongooseDebug: true,
+  attachmentsPath: './Attachments/',
   apiPort: 4000,
   socketPort: 4001,
   domain: 'http://localhost',
