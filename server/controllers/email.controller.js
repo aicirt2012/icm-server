@@ -7,6 +7,7 @@ import Analyzer from '../core/engine/analyzer';
 import fs from 'fs';
 import Socket from '../routes/socket';
 import authCtrl from './auth.controller';
+import GmailConnector from '../core/mail/GmailConnector';
 
 
 exports.sendEmail = (req, res)=> {
@@ -33,7 +34,7 @@ exports.sendEmail = (req, res)=> {
 
     req.user.createSMTPConnector().sendMail(req.body)
       .then(result => {
-        return Box.findOne({name: config.gmail.send, user: req.user});
+        return Box.findOne({name: GmailConnector.staticBoxNames.send, user: req.user});
       })
       .then(box => {
         return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
@@ -74,7 +75,7 @@ exports.append = (req, res)=> {
 
   } else {
 
-    // Box.findOne({name: config.gmail.draft, user: user})
+    // Box.findOne({name: GmailConnector.staticBoxNames.draft, user: user})
     Box.findOne({_id: boxId, user: user})
       .then(box => {
         return [box, emailConnector.append(box.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
@@ -155,7 +156,7 @@ exports.moveToTrash = (req, res) => {
         exports.move(req, res);
       });
   } else if (userProvider === 'Gmail') {
-    Box.findOne({name: config.gmail.deleted, user: req.user})
+    Box.findOne({name: GmailConnector.staticBoxNames.deleted, user: req.user})
       .then(box => {
         req.body.newBoxId = box._id;
         exports.move(req, res);

@@ -23,13 +23,6 @@ export default {
     oauthVersion: '1.0',
     oauthSHA: 'HMAC-SHA1'
   },
-  gmail: {
-    allMessages: '[Gmail]/All Mail',
-    inbox: 'INBOX',
-    send: '[Gmail]/Sent Mail',
-    draft: '[Gmail]/Drafts',
-    deleted: '[Gmail]/Trash'
-  },
   exchange: {
     inbox: 'Inbox',
     send: 'Sent Items',

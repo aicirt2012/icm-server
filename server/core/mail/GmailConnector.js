@@ -13,6 +13,14 @@ class GmailConnector extends ImapConnector {
     super(options, user);
   }
 
+  static staticBoxNames = {
+      allMessages: '[Gmail]/All Mail',
+      inbox: 'INBOX',
+      send: '[Gmail]/Sent Mail',
+      draft: '[Gmail]/Drafts',
+      deleted: '[Gmail]/Trash'
+  }
+
   fetchBoxes(storeEmail, boxes = []) {
     return this.connect().then(() => new Promise((resolve, reject) => {
       let highestmodseq = [];

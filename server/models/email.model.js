@@ -3,6 +3,7 @@ import mongoosePaginate from 'mongoose-paginate';
 import Promise from 'bluebird';
 import Box from './box.model';
 import config from '../../config/env';
+import GmailConnector from '../core/mail/GmailConnector';
 import _ from 'lodash';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
@@ -76,7 +77,7 @@ const EmailSchema = new mongoose.Schema({
 // Calculate attachment non.inline
 // clean code
 EmailSchema.pre('findOneAndUpdate', function (next) {
-  Box.findOne({name: config.gmail.deleted, user: this._update.user})
+  Box.findOne({name: GmailConnector.staticBoxNames.deleted, user: this._update.user})
     .then((trashBox) => {
 
       if (trashBox) {

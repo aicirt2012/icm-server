@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Promise from 'bluebird';
 import Email from './email.model';
 import config from '../../config/env';
+import GmailConnector from '../core/mail/GmailConnector';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 mongoose.Promise = Promise;
@@ -181,7 +182,7 @@ BoxSchema.statics.deleteBoxById = (boxId, userId, delEmails) => {
           return Email.remove({box: boxId});
         } else {
           // TODO: support for exchange
-          Box.findOne({name: config.gmail.deleted, user: userId})
+          Box.findOne({name: GmailConnector.staticBoxNames.deleted, user: userId})
             .then((trashBox) => {
               return Email.update({box: boxId}, {$set: {box: trashBox}});
             });
