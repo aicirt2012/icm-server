@@ -1,7 +1,6 @@
 [
   {
     "value": "Annotation",
-    "offset": 10,
     "ranges": [
       {
         "end": "/p[1]",
