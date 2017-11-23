@@ -27,7 +27,7 @@ export default {
       callbackURL: 'http://server.icm.in.tum.de/api/auth/trello/callback'
     }
   },
-  db: process.env.MONGODB_CONNECTION_URL || 'mongodb://localhost:27017/icmapp',
+  mongoConnectionURL: process.env.MONGODB_CONNECTION_URL || 'mongodb://localhost:27017/icmapp',
   mongooseDebug: process.env.MONGOOSE_DEBUG || true,
   port: process.env.PORT_API || 4000,
   socketPort: process.env.PORT_SOCKET || 4001,

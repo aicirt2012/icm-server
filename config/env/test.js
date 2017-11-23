@@ -27,7 +27,7 @@ export default {
       callbackURL: 'http://localhost:4000/api/auth/trello/callback'
     }
   },
-  db: 'mongodb://localhost:27017/icmapp',
+  mongoConnectionURL: 'mongodb://localhost:27017/icmapp',
   mongooseDebug: process.env.MONGOOSE_DEBUG || true,
   port: 4000,
   domain: 'http://localhost',
