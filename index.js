@@ -29,9 +29,9 @@ if (config.mongooseDebug) {
 // module.parent check is required to support mocha watch
 // src: https://github.com/mochajs/mocha/issues/1912
 if (!module.parent) {
-  // listen on port config.port
-  app.listen(config.port, () => {
-    debug(`server started on port ${config.port} (${config.env})`);
+  // listen on port config.apiPort
+  app.listen(config.apiPort, () => {
+    debug(`server started on port ${config.apiPort} (${config.env})`);
   });
 }
 

@@ -29,7 +29,7 @@ export default {
   },
   mongoConnectionURL: process.env.MONGODB_CONNECTION_URL || 'mongodb://localhost:27017/icmapp',
   mongooseDebug: process.env.MONGOOSE_DEBUG || true,
-  port: process.env.PORT_API || 4000,
+  apiPort: process.env.PORT_API || 4000,
   socketPort: process.env.PORT_SOCKET || 4001,
   domain: 'http://server.icm.in.tum.de',
   frontend: process.env.DOMAIN_FRONTEND || 'http://icm.in.tum.de'

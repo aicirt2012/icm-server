@@ -30,7 +30,7 @@ export default {
   attachmentsPath: './Attachments/',
   mongoConnectionURL: 'mongodb://localhost:27017/icmapp',
   mongooseDebug: process.env.MONGOOSE_DEBUG || true,
-  port: 4000,
+  apiPort: 4000,
   socketPort: 4001,
   domain: 'http://localhost',
   frontend: 'http://localhost:3000'
