@@ -23,15 +23,6 @@ export default {
     oauthVersion: '1.0',
     oauthSHA: 'HMAC-SHA1'
   },
-  smtp: {
-    host: 'smtp.gmail.com',
-    port: 465,
-    auth: {
-      user: 'sebisng2@gmail.com',
-      pass: 's3b1sng2'
-    },
-    domains: ['gmail.com','googlemail.com']
-  },
   oauth: {
     google: {
       clientID: '465909145526-24o6vi7usjb15h7d0k82u1crhlvcaed0.apps.googleusercontent.com',
