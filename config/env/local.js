@@ -1,6 +1,5 @@
 export default {
   env: 'local',
-  MONGOOSE_DEBUG: true,
   jwt: {
     secret: process.env.JWT_SECRET || '382a4b7a5745454f3b44346d27744b2d305b3b58394f4d75375e7d7670',
     expiresInSeconds: 86400
@@ -29,7 +28,8 @@ export default {
     }
   },
   attachmentsPath: './Attachments/',
-  db: 'mongodb://localhost:27017/emailapp',
+  db: 'mongodb://localhost:27017/icmapp',
+  mongooseDebug: process.env.MONGOOSE_DEBUG || true,
   port: 4000,
   socketPort: 4001,
   domain: 'http://localhost',

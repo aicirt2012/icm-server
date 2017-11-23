@@ -1,6 +1,5 @@
 export default {
   env: 'production',
-  MONGOOSE_DEBUG: true,
   jwt: {
     secret: process.env.JWT_SECRET || '382a4b7a5745454f3b44346d27744b2d305b3b58394f4d75375e7d7670',
     expiresInSeconds: process.env.JWT_EXPIRES_IN_SEC || 86400
@@ -28,7 +27,8 @@ export default {
       callbackURL: 'http://server.icm.in.tum.de/api/auth/trello/callback'
     }
   },
-  db:  process.env.MONGODB_CONNECTION_URL || 'mongodb://localhost:27017/icmapp',
+  db: process.env.MONGODB_CONNECTION_URL || 'mongodb://localhost:27017/icmapp',
+  mongooseDebug: process.env.MONGOOSE_DEBUG || true,
   port: process.env.PORT_API || 4000,
   socketPort: process.env.PORT_SOCKET || 4001,
   domain: 'http://server.icm.in.tum.de',

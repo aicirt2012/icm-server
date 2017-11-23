@@ -1,6 +1,5 @@
 export default {
   env: 'test',
-  MONGOOSE_DEBUG: true,
   jwt: {
     secret: '382a4b7a5745454f3b44346d27744b2d305b3b58394f4d75375e7d7670',
     expiresInSeconds: 86400
@@ -28,7 +27,8 @@ export default {
       callbackURL: 'http://localhost:4000/api/auth/trello/callback'
     }
   },
-  db: 'mongodb://localhost:27017/emailapp',
+  db: 'mongodb://localhost:27017/icmapp',
+  mongooseDebug: process.env.MONGOOSE_DEBUG || true,
   port: 4000,
   domain: 'http://localhost',
   frontend: 'http://localhost:3000'
