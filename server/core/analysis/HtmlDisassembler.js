@@ -47,6 +47,14 @@ class HtmlDisassembler {
     return annotations;
   }
 
+  /**
+   * Takes a list of annotations with their occurrence indices and calculates the browser-style Range objects for each occurrence
+   *
+   * @param indexedAnnotations The list of annotations, including their occurrence indices
+   * @param htmlSource The full HTML source text as a single string
+   * @returns {*}
+   *          The same list that was passed in, with the added range objects for each occurrence index
+   */
   addAnnotationRanges(indexedAnnotations, htmlSource) {
     for (let i = 0; i < indexedAnnotations.length; i++) {
       let annotation = indexedAnnotations[i];   // the annotation object
@@ -61,10 +69,18 @@ class HtmlDisassembler {
         }
       }
     }
-
     return indexedAnnotations;
   }
 
+  /**
+   * Calculates the browser-style Range object for an occurrence of an annotation value at a specific index in the HTML source
+   *
+   * @param annotationValue The plain text value of the currently processed annotation
+   * @param annotationOccurrenceIndex The currently processed index of the first character of the annotationValue in the htmlSource
+   * @param htmlSource The full HTML source text as a single string
+   * @returns {{end: string, endOffset: number, start: string, startOffset: number}}
+   *          The browser-style Range object containing the start/end xpath and their offsets
+   */
   calculateOccurrenceRange(annotationValue, annotationOccurrenceIndex, htmlSource) {
     // initialize the variables that should hold the calculation results
     let xPathStart = "";  // string variable for the xpath of the HTML tag where the annotation starts
