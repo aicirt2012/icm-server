@@ -5,14 +5,6 @@ export default {
     secret: process.env.JWT_SECRET || '382a4b7a5745454f3b44346d27744b2d305b3b58394f4d75375e7d7670',
     expiresInSeconds: process.env.JWT_EXPIRES_IN_SEC || 86400
   },
-  email: {
-    /*user: 'felix.in.tum',
-    pass: 'hYW7qHj9sfBkvyzVt2jW',*/
-    user: 'sebisng2@gmail.com',
-    pass: 's3b1sng2',
-    host: 'imap.gmail.com',
-    port: 993
-  },
   trello: {
     baseURL: 'https://api.trello.com/1',
     appName: 'Email Client with Contextual Task Support',

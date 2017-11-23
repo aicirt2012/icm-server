@@ -5,10 +5,19 @@ import chai, {
   expect
 } from 'chai';
 import app from '../../index';
-import config from '../../config/env';
 
 chai.config.includeStack = true;
 
+const config ={
+  email: {
+    /*user: 'felix.in.tum',
+    pass: 'hYW7qHj9sfBkvyzVt2jW',*/
+    user: 'sebisng2@gmail.com',
+    pass: 's3b1sng2',
+    host: 'imap.gmail.com',
+    port: 993
+  }
+}
 after((done) => {
   mongoose.models = {};
   mongoose.modelSchemas = {};
