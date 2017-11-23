@@ -51,7 +51,6 @@
     "http-status": "^0.2.0",
     "imap": "^0.8.16",
     "joi": "9.2.0",
-    "jsdom": "11.3.0",
     "jsonwebtoken": "7.1.9",
     "lodash": "4.17.4",
     "mailparser": "0.6.1",
@@ -71,12 +70,10 @@
     "passport-jwt": "2.2.1",
     "passport-trello": "0.1.5",
     "pos": "0.4.2",
-    "simple-xpath-position": "2.0.2",
     "socket.io": "1.7.2",
     "striptags": "2.1.1",
     "tokenize-htmltext": "1.0.0",
     "url": "0.11.0",
-    "wgxpath": "1.2.0",
     "winston": "2.2.0"
   },
   "devDependencies": {
