@@ -51,13 +51,13 @@ class HtmlDisassembler {
     for (let i = 0; i < indexedAnnotations.length; i++) {
       let annotation = indexedAnnotations[i];   // the annotation object
       let annotationValue = annotation.value;   // the value of the annotation (e.g. "Google")
-      let annotationOccurrenceIndices = annotation.occurences;   // the array of integer indices with all occurrences of the annotation in the source HTML - not sure if needed at all
+      let annotationOccurrenceIndices = annotation.occurences;   // the array of integer indices with all occurrences of the annotation in the source HTML
       annotation.ranges = [];   // initialize the array where the calculated ranges should go
       if (annotationOccurrenceIndices) {
         for (let j = 0; j < annotationOccurrenceIndices.length; j++) {
           let annotationOccurrenceIndex = annotationOccurrenceIndices[j];   // a single index of an occurrence of the annotation value
-          let range = this.calculateOccurrenceRange(annotationValue, annotationOccurrenceIndex, htmlSource);
-          annotation.ranges.push(range);
+          let range = this.calculateOccurrenceRange(annotationValue, annotationOccurrenceIndex, htmlSource);  // call the actual xpath range calculation function
+          annotation.ranges.push(range);  // push the calculated range into the result array
         }
       }
     }
