@@ -49,6 +49,12 @@ class EWSConnector {
 
   }
 
+  static staticBoxNames = {
+    inbox: 'Inbox',
+    send: 'Sent Items',
+    draft: 'Drafts',
+    deleted: 'Deleted Items'
+  }
 
   /**
    * @param emailObject - {

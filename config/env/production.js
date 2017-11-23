@@ -23,12 +23,6 @@ export default {
     oauthVersion: '1.0',
     oauthSHA: 'HMAC-SHA1'
   },
-  exchange: {
-    inbox: 'Inbox',
-    send: 'Sent Items',
-    draft: 'Drafts',
-    deleted: 'Deleted Items'
-  },
   oauth: {
     google: {
       clientID: '465909145526-24o6vi7usjb15h7d0k82u1crhlvcaed0.apps.googleusercontent.com',

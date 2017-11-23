@@ -8,7 +8,7 @@ import fs from 'fs';
 import Socket from '../routes/socket';
 import authCtrl from './auth.controller';
 import GmailConnector from '../core/mail/GmailConnector';
-
+import EWSConnector from '../core/mail/EWSConnector';
 
 exports.sendEmail = (req, res)=> {
 
@@ -17,7 +17,7 @@ exports.sendEmail = (req, res)=> {
     const emailConnector = req.user.createIMAPConnector();
     emailConnector.sendMail(req.body)
       .then(result => {
-        return Box.findOne({name: config.exchange.send, user: req.user});
+        return Box.findOne({name: EWSConnector.staticBoxNames.send, user: req.user});
       })
       .then(box => {
         return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
@@ -57,7 +57,7 @@ exports.append = (req, res)=> {
 
   if (req.user.provider.name == 'Exchange') {
 
-    // Box.findOne({name: config.exchange.draft, user: user})
+    // Box.findOne({name: EWSConnector.staticBoxNames.draft, user: user})
     Box.findOne({_id: boxId, user: user})
       .then(box => {
         return [box, emailConnector.append(req.body, box.ewsId)]
@@ -150,7 +150,7 @@ exports.moveToTrash = (req, res) => {
   const userProvider = req.user.provider.name;
 
   if (userProvider === 'Exchange') {
-    Box.findOne({name: config.exchange.deleted, user: req.user})
+    Box.findOne({name: EWSConnector.staticBoxNames.deleted, user: req.user})
       .then(box => {
         req.body.newBoxId = box._id;
         exports.move(req, res);
@@ -422,7 +422,7 @@ exports.appendEnron = (req, res) => {
 
           // agregate boxes according to the folder names
 
-          Box.findOne({name: config.exchange.inbox, user: req.user})
+          Box.findOne({name: EWSConnector.staticBoxNames.inbox, user: req.user})
             .then(box => {
 
               // filter emails without ewsItemId (exchange)
