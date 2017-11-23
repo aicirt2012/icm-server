@@ -36,15 +36,6 @@ export default {
     draft: 'Drafts',
     deleted: 'Deleted Items'
   },
-  smtp: {
-    host: 'smtp.gmail.com',
-    port: 465,
-    auth: {
-      user: 'sebisng2@gmail.com',
-      pass: 's3b1sng2'
-    },
-    domains: ['gmail.com', 'googlemail.com']
-  },
   oauth: {
     google: {
       clientID: '465909145526-24o6vi7usjb15h7d0k82u1crhlvcaed0.apps.googleusercontent.com',
@@ -59,7 +50,7 @@ export default {
     }
   },
   attachmentsPath: './Attachments/',
-  db: 'mongodb://admin:admin@ds249415.mlab.com:49415/emailapp',
+  db: 'mongodb://localhost:27017/icmapp',
   port: 4000,
   socketPort: 4001,
   domain: 'http://localhost',
