@@ -122,6 +122,7 @@ function routeProvider(passport) {
     r.route('/disassembler/html/strip').post(disassemblerCtrl.stripHtml);
     r.route('/disassembler/annotations/index').post(disassemblerCtrl.addAnnotationIndices);
     r.route('/disassembler/annotations/range').post(disassemblerCtrl.addAnnotationRanges);
+    r.route('/disassembler/annotations/range/mock').post(disassemblerCtrl.addAnnotationRangesMock);
 
     return r;
 }

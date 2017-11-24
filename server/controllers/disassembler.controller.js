@@ -54,7 +54,7 @@ exports.addAnnotationIndices = (req, res, next) => {
 };
 
 /**
- * @api {post} /disassembler/annotations/ranges Add Range information to Annotations
+ * @api {post} /disassembler/annotations/range Add Range information to Annotations
  * @apiDescription Adds range information for each annotation occurrence index
  * @apiName AddAnnotationsRanges
  * @apiGroup Disassembler
@@ -64,6 +64,22 @@ exports.addAnnotationIndices = (req, res, next) => {
 exports.addAnnotationRanges = (req, res, next) => {
   try {
     let html = HtmlDisassembler.getInstance().addAnnotationRanges(req.body.annotations, req.body.html);
+    res.status(200).send(html);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * @api {post} /disassembler/annotations/range/mock MOCKED SERVICE Add Range information to Annotations
+ * @apiDescription Adds range information for each annotation occurrence index. Mocked Service, only for testing.
+ * @apiName AddAnnotationsRangesMock
+ * @apiGroup Disassembler
+ * @apiParam {Integer} response_id id of the response to get
+ */
+exports.addAnnotationRangesMock = (req, res, next) => {
+  try {
+    let html = HtmlDisassembler.getInstance().mockedAddAnnotationRanges(req.body.response_id);
     res.status(200).send(html);
   } catch (err) {
     next(err);
