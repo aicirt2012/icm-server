@@ -228,6 +228,40 @@
 				"description": ""
 			},
 			"response": []
+		},
+		{
+			"name": "range annotations MOCK",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"response_id\": 1\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/disassembler/annotations/range/mock",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"disassembler",
+						"annotations",
+						"range",
+						"mock"
+					]
+				},
+				"description": ""
+			},
+			"response": []
 		}
 	]
 }
