@@ -2,7 +2,7 @@
 let domain = process.env.DOMAIN || 'http://server.icm.in.tum.de';
 let apiPort = process.env.PORT_API || 4000;
 let socketPort = process.env.PORT_SOCKET || 4001;
-let domainWithPort = domain+'.'+apiPort;
+let domainWithPort = domain+':'+apiPort;
 
 export default {
   env: 'production',
