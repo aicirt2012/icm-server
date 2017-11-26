@@ -8,7 +8,7 @@ export default {
   env: 'production',
   jwt: {
     secret: process.env.JWT_SECRET || '382a4b7a5745454f3b44346d27744b2d305b3b58394f4d75375e7d7670',
-    expiresInSeconds: process.env.JWT_EXPIRES_IN_SEC || 86400
+    expiresInSeconds: parseInt(process.env.JWT_EXPIRES_IN_SEC) || 86400
   },
   trello: {
     baseURL: 'https://api.trello.com/1',
