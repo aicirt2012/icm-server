@@ -1,3 +1,9 @@
+
+let domain = process.env.DOMAIN || 'http://server.icm.in.tum.de';
+let apiPort = process.env.PORT_API || 4000;
+let socketPort = process.env.PORT_SOCKET || 4001;
+let domainWithPort = domain+'.'+apiPort;
+
 export default {
   env: 'production',
   jwt: {
@@ -18,20 +24,20 @@ export default {
     google: {
       clientID: '465909145526-24o6vi7usjb15h7d0k82u1crhlvcaed0.apps.googleusercontent.com',
       clientSecret: 'ov0JPJIiAy8g4A7rYgUdc27S',
-      callbackURL: 'http://server.icm.in.tum.de/api/auth/google/callback'
+      callbackURL: domainWithPort+'/api/auth/google/callback'
     },
     trello: {
       appName: 'Email Client with Contextual Task Support',
       consumerKey: '734feed8b99a158d3a9cd9af87e096f3',
       consumerSecret: '498ac521e9ecb0f32467f7dffae04054efc6f13318ad20538cd75195e8d4eb54',
-      callbackURL: 'http://server.icm.in.tum.de/api/auth/trello/callback'
+      callbackURL: domainWithPort+'/api/auth/trello/callback'
     }
   },
   mongoConnectionURL: process.env.MONGODB_CONNECTION_URL || 'mongodb://localhost:27017/icmapp',
   mongooseDebug: process.env.MONGOOSE_DEBUG || true,
   attachmentsPath: process.env.ATTACHMENTS_PATH || './Attachments/',
-  apiPort: process.env.PORT_API || 4000,
-  socketPort: process.env.PORT_SOCKET || 4001,
-  domain: 'http://server.icm.in.tum.de',
+  apiPort: apiPort,
+  socketPort: socketPort,
+  domain: domain,
   frontend: process.env.DOMAIN_FRONTEND || 'http://icm.in.tum.de'
 };
