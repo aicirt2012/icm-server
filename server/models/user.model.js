@@ -40,7 +40,7 @@ const UserSchema = new mongoose.Schema({
     email: String,
     password: String
   },
-  // TODO like below for task providers
+  //  TODO like below for task providers
   contactProvider:{
     socioCortex:{
       isEnabled: {type: Boolean, default: false},
