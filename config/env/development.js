@@ -59,7 +59,8 @@ export default {
     }
   },
   attachmentsPath: './Attachments/',
-  db: 'mongodb://admin:admin@ds249415.mlab.com:49415/emailapp',
+  // db: 'mongodb://admin:admin@ds249415.mlab.com:49415/emailapp',
+  db: 'mongodb://localhost:27017/emailapp',
   port: 4000,
   socketPort: 4001,
   domain: 'http://localhost',

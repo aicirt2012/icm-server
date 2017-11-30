@@ -323,11 +323,9 @@ exports.getSingleMail = (req, res)=> {
 }
 
 function replaceInlineAttachmentsSrc(email, user) {
-  const URL = `${config.domain}:${config.port}/api/attachment/`
-  const token = authCtrl.createToken(user);
   email.attachments.forEach((a) => {
     if (a.contentDispositionInline) {
-      email.html = email.html.replace(`cid:${a.contentId}`, `${URL}${a._id}?token=${token}`);
+      email.html = email.html.replace(`cid:${a.contentId}`, `ATTACHMENT_POINT/${a._id}?token=TOKEN_POINT`);
     }
   })
 
