@@ -4,9 +4,8 @@ import Box from '../models/box.model';
 import config from '../../config/env';
 import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
-import fs from 'fs';
 import Socket from '../routes/socket';
-import authCtrl from './auth.controller';
+import HtmlDisassembler from '../core/analysis/HtmlDisassembler'
 import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
 
@@ -312,6 +311,12 @@ exports.getSingleMail = (req, res) => {
       console.log(mail);
       mail = replaceInlineAttachmentsSrc(mail, req.user);
       return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
+    })
+    .then(email => {
+      let plainTextBody = HtmlDisassembler.getInstance().stripHtml(email.html);
+      let annotations = []; // TODO call async java service
+      let indexedAnnotations = HtmlDisassembler.getInstance().addAnnotationIndices(annotations, email.html);
+      let annotationsRanges = HtmlDisassembler.getInstance().addAnnotationRanges(indexedAnnotations, email.html);
     })
     .then(email => {
       res.status(200).send(email);
