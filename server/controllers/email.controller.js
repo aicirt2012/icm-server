@@ -316,7 +316,8 @@ exports.getSingleMail = (req, res) => {
       let plainTextBody = HtmlDisassembler.getInstance().stripHtml(email.html);
       let annotations = []; // TODO call async java service
       let indexedAnnotations = HtmlDisassembler.getInstance().addAnnotationIndices(annotations, email.html);
-      let annotationsRanges = HtmlDisassembler.getInstance().addAnnotationRanges(indexedAnnotations, email.html);
+      email['annotations'] = HtmlDisassembler.getInstance().addAnnotationRanges(indexedAnnotations, email.html);
+      return email;
     })
     .then(email => {
       res.status(200).send(email);
