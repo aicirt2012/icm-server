@@ -70,6 +70,8 @@
     "passport-jwt": "2.2.1",
     "passport-trello": "0.1.5",
     "pos": "0.4.2",
+    "request": "2.83.0",
+    "request-promise": "4.2.2",
     "socket.io": "1.7.2",
     "striptags": "2.1.1",
     "tokenize-htmltext": "1.0.0",

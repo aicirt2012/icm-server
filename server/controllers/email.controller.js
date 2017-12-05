@@ -6,8 +6,10 @@ import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
 import Socket from '../routes/socket';
 import HtmlDisassembler from '../core/analysis/HtmlDisassembler'
+import NERConnectorService from "../core/analysis/NERConnectorService";
 import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
+
 
 exports.sendEmail = (req, res) => {
 
@@ -314,7 +316,7 @@ exports.getSingleMail = (req, res) => {
     })
     .then(email => {
       let plainTextBody = HtmlDisassembler.getInstance().stripHtml(email.html);
-      let annotations = []; // TODO call async java service
+      let annotations = NERConnectorService.runNamedEntityRecognition(emailId, plainTextBody);
       let indexedAnnotations = HtmlDisassembler.getInstance().addAnnotationIndices(annotations, email.html);
       email['annotations'] = HtmlDisassembler.getInstance().addAnnotationRanges(indexedAnnotations, email.html);
       return email;
