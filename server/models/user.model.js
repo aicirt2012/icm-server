@@ -134,17 +134,37 @@ UserSchema.method({
     }
   },
   createSMTPConnector: function () {
-    return new SMTPConnector({
-      host: this.provider.smtpHost,
-      port: this.provider.smtpPort,
-      secure: true,
-      domains: this.provider.smtpDomains,
-      auth: {
-        user: this.provider.user,
-        pass: this.provider.password
-      },
-      currentUser: this
-    });
+    switch (this.provider.name) {
+      case 'Gmail': {
+        const SMTPOptions = {
+          host: this.emailProvider.gmail.smtpHost,
+          port: this.emailProvider.gmail.smtpPort,
+          secure: true,
+          domains: this.emailProvider.gmail.smtpDomains,
+          auth: {
+            user: this.emailProvider.gmail.user,
+            pass: this.emailProvider.gmail.password
+          },
+          currentUser: this
+        };
+        return new SMTPConnector(SMTPOptions);
+        break;
+      }
+      default: {
+        const SMTPOptions = {
+          host: this.emailProvider.gmail.smtpHost,
+          port: this.emailProvider.gmail.smtpPort,
+          secure: true,
+          domains: this.emailProvider.gmail.smtpDomains,
+          auth: {
+            user: this.emailProvider.gmail.user,
+            pass: this.emailProvider.gmail.password
+          },
+          currentUser: this
+        };
+        return new SMTPConnector(SMTPOptions);
+      }
+    }
   }
 });
 
