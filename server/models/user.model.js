@@ -13,9 +13,9 @@ import Task from './task.model';
 import TrainingData from './trainingData.model';
 
 const UserSchema = new mongoose.Schema({
-  username: {type: String, required: true, index: true},
+  username: { type: String, required: true, index: true },
   email: String,
-  password: {type: String, required: true},
+  password: { type: String, required: true },
   provider: {
     name: String,
     user: String,
@@ -56,16 +56,16 @@ const UserSchema = new mongoose.Schema({
     }
   },
   //  TODO like below for task providers
-  contactProvider:{
-    socioCortex:{
-      isEnabled: {type: Boolean, default: false},
+  contactProvider: {
+    socioCortex: {
+      isEnabled: { type: Boolean, default: false },
       email: String,
       password: String,
       baseURL: String
     }
   },
   displayName: String,
-  lastSync: {type: Date, default: null}
+  lastSync: { type: Date, default: null }
 }, {
   timestamps: true
 });
@@ -97,22 +97,43 @@ UserSchema.method({
       cb(null, isMatch);
     });
   },
-  createIMAPConnector: function() {
-    const imapOptions = {
-      user: this.provider.user,
-      password: this.provider.password,
-      host: this.provider.host,
-      port: this.provider.port,
-      tls: true,
-      mailbox: 'INBOX'
-    };
+  createIMAPConnector: function () {
     switch (this.provider.name) {
-      case 'Gmail': return new GmailConnector(imapOptions, this); break;
-      case 'Exchange': return new EWSConnector(imapOptions, this); break;
-      default: return new GmailConnector(imapOptions, this);
+      case 'Gmail': {
+        const imapOptions = {
+          user: this.provider.gmail.user,
+          password: this.provider.gmail.password,
+          host: this.provider.gmail.host,
+          port: this.provider.gmail.port,
+          tls: true,
+          mailbox: 'INBOX'
+        };
+        return new GmailConnector(imapOptions, this);
+        break;
+      }
+      case 'Exchange': {
+        const imapOptions = {
+          user: this.provider.exchange.user,
+          password: this.provider.exchange.password,
+          host: this.provider.exchange.host,
+        };
+        return new EWSConnector(imapOptions, this);
+        break;
+      }
+      default: {
+        const imapOptions = {
+          user: this.provider.gmail.user,
+          password: this.provider.gmail.password,
+          host: this.provider.gmail.host,
+          port: this.provider.gmail.port,
+          tls: true,
+          mailbox: 'INBOX'
+        };
+        return new GmailConnector(imapOptions, this);
+      }
     }
   },
-  createSMTPConnector: function(){
+  createSMTPConnector: function () {
     return new SMTPConnector({
       host: this.provider.smtpHost,
       port: this.provider.smtpPort,
@@ -131,22 +152,22 @@ UserSchema.plugin(mongoosePaginate);
 
 UserSchema.statics.removeById = (userId) => {
   return Contact.removeByUserId(userId)
-    .then(()=>{
+    .then(() => {
       return Pattern.removeByUserId(userId);
     })
-    .then(()=>{
+    .then(() => {
       return TrainingData.removeByUserId(userId);
     })
-    .then(()=>{
+    .then(() => {
       return Task.removeByUserId(userId);
     })
-    .then(()=>{
+    .then(() => {
       return Attachment.removeByUserId(userId);
     })
-    .then(()=>{
+    .then(() => {
       return Email.removeByUserId(userId);
     })
-    .then(()=>{
+    .then(() => {
       return Box.removeByUserId(userId);
     });
 }
