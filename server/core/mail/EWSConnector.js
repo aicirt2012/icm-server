@@ -31,7 +31,7 @@ class EWSConnector {
     this.ewsConfig = {
       username: options.user,
       password: options.password,
-      host: 'https://xmail.mwn.de',
+      host: options.host,
       temp: './'
     };
 

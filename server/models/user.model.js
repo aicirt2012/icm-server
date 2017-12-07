@@ -37,10 +37,22 @@ const UserSchema = new mongoose.Schema({
     password: String
   },
   emailProvider: {
-    google: {
+    gmail: {
+      user: String,
+      password: String,
+      host: String,
+      port: Number,
+      smtpHost: String,
+      smtpPort: Number,
+      smtpDomains: [String],
       googleId: String,
       googleAccessToken: String,
       googleRefreshToken: String
+    },
+    exchange: {
+      user: String,
+      password: String,
+      host: String,
     }
   },
   //  TODO like below for task providers
