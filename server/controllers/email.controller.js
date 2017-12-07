@@ -10,20 +10,20 @@ import authCtrl from './auth.controller';
 import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
 
-exports.sendEmail = (req, res)=> {
+exports.sendEmail = (req, res) => {
 
   if (req.user.provider.name == 'Exchange') {
 
     const emailConnector = req.user.createIMAPConnector();
     emailConnector.sendMail(req.body)
       .then(result => {
-        return Box.findOne({name: EWSConnector.staticBoxNames.send, user: req.user});
+        return Box.findOne({ name: EWSConnector.staticBoxNames.send, user: req.user });
       })
       .then(box => {
         return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
       })
       .then(() => {
-        res.status(200).send({message: 'Finished fetching'});
+        res.status(200).send({ message: 'Finished fetching' });
       })
       .catch((err) => {
         console.log(err);
@@ -34,13 +34,13 @@ exports.sendEmail = (req, res)=> {
 
     req.user.createSMTPConnector().sendMail(req.body)
       .then(result => {
-        return Box.findOne({name: GmailConnector.staticBoxNames.send, user: req.user});
+        return Box.findOne({ name: GmailConnector.staticBoxNames.send, user: req.user });
       })
       .then(box => {
         return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
       })
       .then(() => {
-        res.status(200).send({message: 'Finished fetching'});
+        res.status(200).send({ message: 'Finished fetching' });
       })
       .catch((err) => {
         console.log(err);
@@ -50,7 +50,7 @@ exports.sendEmail = (req, res)=> {
   }
 }
 
-exports.append = (req, res)=> {
+exports.append = (req, res) => {
   const user = req.user;
   const boxId = req.body.boxId;
   const emailConnector = user.createIMAPConnector();
@@ -58,7 +58,7 @@ exports.append = (req, res)=> {
   if (req.user.provider.name == 'Exchange') {
 
     // Box.findOne({name: EWSConnector.staticBoxNames.draft, user: user})
-    Box.findOne({_id: boxId, user: user})
+    Box.findOne({ _id: boxId, user: user })
       .then(box => {
         return [box, emailConnector.append(req.body, box.ewsId)]
       })
@@ -66,7 +66,7 @@ exports.append = (req, res)=> {
         return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
       })
       .spread((msgData, result) => {
-        res.status(200).send({msgData: 'ok'});
+        res.status(200).send({ msgData: 'ok' });
       })
       .catch((err) => {
         console.log(err);
@@ -76,7 +76,7 @@ exports.append = (req, res)=> {
   } else {
 
     // Box.findOne({name: GmailConnector.staticBoxNames.draft, user: user})
-    Box.findOne({_id: boxId, user: user})
+    Box.findOne({ _id: boxId, user: user })
       .then(box => {
         return [box, emailConnector.append(box.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
       })
@@ -84,7 +84,7 @@ exports.append = (req, res)=> {
         return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
       })
       .spread((msgData, result) => {
-        res.status(200).send({msgData: msgData});
+        res.status(200).send({ msgData: msgData });
       })
       .catch((err) => {
         console.log(err);
@@ -94,7 +94,7 @@ exports.append = (req, res)=> {
   }
 }
 
-exports.move = (req, res) =>{
+exports.move = (req, res) => {
   const emailId = req.params.id;
   const newBoxId = req.body.newBoxId;
   const user = req.user;
@@ -103,9 +103,9 @@ exports.move = (req, res) =>{
 
   if (req.user.provider.name == 'Exchange') {
 
-    Email.findOne({_id: emailId}).populate('boxes')
+    Email.findOne({ _id: emailId }).populate('boxes')
       .then(email => {
-        return [email, Box.findOne({_id: newBoxId, user: user})]
+        return [email, Box.findOne({ _id: newBoxId, user: user })]
       })
       .spread((email, destBox) => {
         const srcBox = email.boxes[0];
@@ -115,7 +115,7 @@ exports.move = (req, res) =>{
         return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
       })
       .then((messages) => {
-        res.status(200).send({messages: messages});
+        res.status(200).send({ messages: messages });
       })
       .catch(err => {
         console.log(err);
@@ -124,9 +124,9 @@ exports.move = (req, res) =>{
 
   } else {
 
-    Email.findOne({_id: emailId}).populate('boxes')
+    Email.findOne({ _id: emailId }).populate('boxes')
       .then(email => {
-        return [email, Box.findOne({_id: newBoxId, user: user})]
+        return [email, Box.findOne({ _id: newBoxId, user: user })]
       })
       // TODO boxId from parameter
       .spread((email, destBox) => {
@@ -137,7 +137,7 @@ exports.move = (req, res) =>{
         return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
       })
       .then((messages) => {
-        res.status(200).send({messages: messages});
+        res.status(200).send({ messages: messages });
       })
       .catch(err => {
         console.log(err);
@@ -150,13 +150,13 @@ exports.moveToTrash = (req, res) => {
   const userProvider = req.user.provider.name;
 
   if (userProvider === 'Exchange') {
-    Box.findOne({name: EWSConnector.staticBoxNames.deleted, user: req.user})
+    Box.findOne({ name: EWSConnector.staticBoxNames.deleted, user: req.user })
       .then(box => {
         req.body.newBoxId = box._id;
         exports.move(req, res);
       });
   } else if (userProvider === 'Gmail') {
-    Box.findOne({name: GmailConnector.staticBoxNames.deleted, user: req.user})
+    Box.findOne({ name: GmailConnector.staticBoxNames.deleted, user: req.user })
       .then(box => {
         req.body.newBoxId = box._id;
         exports.move(req, res);
@@ -197,7 +197,7 @@ exports.addFlags = (req, res) => {
         return email.save();
       })
       .then(() => {
-        res.status(200).send({message: 'Successfully added Flags'});
+        res.status(200).send({ message: 'Successfully added Flags' });
       })
       .catch(err => {
         res.status(400).send(err);
@@ -215,7 +215,7 @@ exports.addFlags = (req, res) => {
         return email.save();
       })
       .then(() => {
-        res.status(200).send({message: 'Successfully added Flags'});
+        res.status(200).send({ message: 'Successfully added Flags' });
       })
       .catch(err => {
         res.status(400).send(err);
@@ -260,7 +260,7 @@ exports.delFlags = (req, res) => {
         return email.save()
       })
       .then(() => {
-        res.status(200).send({message: 'Successfully deleted Flags'});
+        res.status(200).send({ message: 'Successfully deleted Flags' });
       })
       .catch((err) => {
         res.status(400).send(err);
@@ -282,7 +282,7 @@ exports.delFlags = (req, res) => {
         return email.save()
       })
       .then(() => {
-        res.status(200).send({message: 'Successfully deleted Flags'});
+        res.status(200).send({ message: 'Successfully deleted Flags' });
       })
       .catch((err) => {
         res.status(400).send(err);
@@ -305,9 +305,9 @@ exports.delFlags = (req, res) => {
  *       "lastname": "Doe"
  *     }
  */
-exports.getSingleMail = (req, res)=> {
+exports.getSingleMail = (req, res) => {
   const emailId = req.params.id;
-  Email.findOne({_id: emailId}).populate('attachments')
+  Email.findOne({ _id: emailId }).populate('attachments')
     .lean()
     .then((mail) => {
       console.log('retrieving email id...');
@@ -324,11 +324,9 @@ exports.getSingleMail = (req, res)=> {
 }
 
 function replaceInlineAttachmentsSrc(email, user) {
-  const URL = `${config.domain}:${config.apiPort}/api/attachment/`
-  const token = authCtrl.createToken(user);
   email.attachments.forEach((a) => {
     if (a.contentDispositionInline) {
-      email.html = email.html.replace(`cid:${a.contentId}`, `${URL}${a._id}?token=${token}`);
+      email.html = email.html.replace(`cid:${a.contentId}`, `ATTACHMENT_POINT/${a._id}?token=TOKEN_POINT`);
     }
   })
 
@@ -353,6 +351,7 @@ function storeEmail(mail) {
       });
   });
 }
+
 exports.storeEmail = storeEmail;
 
 
@@ -372,7 +371,7 @@ exports.storeEmail = storeEmail;
  *       "lastname": "Doe"
  *     }
  */
-exports.searchEmails= (req, res)=> {
+exports.searchEmails = (req, res) => {
 
   const options = {
     boxId: req.query.boxId,
@@ -409,20 +408,20 @@ exports.appendEnron = (req, res) => {
   const emailConnector = req.user.createIMAPConnector();
 
   // find enron user e.g Allen
-  User.findOne({username: 'allen-p'})
+  User.findOne({ username: 'allen-p' })
     .then((user) => {
       console.log('this is the user');
       console.log(user);
 
       // get all emails for this user;
-      Email.find({user: user}).limit(3)
+      Email.find({ user: user }).limit(3)
         .then((emails) => {
 
           // in which box to store these emails?
 
           // agregate boxes according to the folder names
 
-          Box.findOne({name: EWSConnector.staticBoxNames.inbox, user: req.user})
+          Box.findOne({ name: EWSConnector.staticBoxNames.inbox, user: req.user })
             .then(box => {
 
               // filter emails without ewsItemId (exchange)
@@ -452,7 +451,7 @@ exports.appendEnron = (req, res) => {
                   });
               })
                 .then(() => {
-                  res.status(200).send({msgData: 'ok'});
+                  res.status(200).send({ msgData: 'ok' });
                 })
                 .catch((err) => {
                   console.log(err);
