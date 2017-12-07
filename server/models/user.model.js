@@ -16,17 +16,7 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, index: true },
   email: String,
   password: { type: String, required: true },
-  provider: {
-    name: String,
-    user: String,
-    password: String,
-    host: String,
-    port: Number,
-    smtpHost: String,
-    smtpPort: Number,
-    smtpDomains: [String]
-  },
-  highestmodseq: String,
+  provider: { name: String },
   trello: {
     trelloAccessTokenSecret: String,
     trelloAccessToken: String,
@@ -45,6 +35,7 @@ const UserSchema = new mongoose.Schema({
       smtpHost: String,
       smtpPort: Number,
       smtpDomains: [String],
+      highestmodseq: String,
       googleId: String,
       googleAccessToken: String,
       googleRefreshToken: String

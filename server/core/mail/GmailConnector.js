@@ -29,7 +29,7 @@ class GmailConnector extends ImapConnector {
           highestmodseq.push(hms);
         });
       }).then(() => {
-        this.user.highestmodseq = this.user.highestmodseq && parseInt(this.user.highestmodseq) > parseInt(highestmodseq[0]) ? this.user.highestmodseq : highestmodseq[0];
+        this.user.emailProvider.gmail.highestmodseq = this.user.emailProvider.gmail.highestmodseq && parseInt(this.user.emailProvider.gmail.highestmodseq) > parseInt(highestmodseq[0]) ? this.user.emailProvider.gmail.highestmodseq : highestmodseq[0];
         //this.user.lastSync = new Date();
         this.user.save().then(() => {
           this.end().then(() => {
@@ -50,9 +50,9 @@ class GmailConnector extends ImapConnector {
           extensions: ['X-GM-LABELS']
         };
 
-        if (this.user.highestmodseq) {
+        if (this.user.emailProvider.gmail.highestmodseq) {
           options.modifiers = {
-            changedsince: this.user.highestmodseq
+            changedsince: this.user.emailProvider.gmail.highestmodseq
           };
         }
 
