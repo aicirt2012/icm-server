@@ -323,6 +323,8 @@ exports.getSingleMail = (req, res) => {
     });
 }
 
+// Inline attachments URL and tokens are changed in the front-end
+// they have the form AttachmentURL/attachmentId?token=JWTToken
 function replaceInlineAttachmentsSrc(email, user) {
   email.attachments.forEach((a) => {
     if (a.contentDispositionInline) {
