@@ -27,12 +27,6 @@ const UserSchema = new mongoose.Schema({
     smtpDomains: [String]
   },
   highestmodseq: String,
-  /*
-  google: {
-    googleAccessToken: String,
-    googleId: String
-  },
-  */
   trello: {
     trelloAccessTokenSecret: String,
     trelloAccessToken: String,
