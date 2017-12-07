@@ -101,10 +101,10 @@ UserSchema.method({
     switch (this.provider.name) {
       case 'Gmail': {
         const imapOptions = {
-          user: this.provider.gmail.user,
-          password: this.provider.gmail.password,
-          host: this.provider.gmail.host,
-          port: this.provider.gmail.port,
+          user: this.emailProvider.gmail.user,
+          password: this.emailProvider.gmail.password,
+          host: this.emailProvider.gmail.host,
+          port: this.emailProvider.gmail.port,
           tls: true,
           mailbox: 'INBOX'
         };
@@ -113,19 +113,19 @@ UserSchema.method({
       }
       case 'Exchange': {
         const imapOptions = {
-          user: this.provider.exchange.user,
-          password: this.provider.exchange.password,
-          host: this.provider.exchange.host,
+          user: this.emailProvider.exchange.user,
+          password: this.emailProvider.exchange.password,
+          host: this.emailProvider.exchange.host,
         };
         return new EWSConnector(imapOptions, this);
         break;
       }
       default: {
         const imapOptions = {
-          user: this.provider.gmail.user,
-          password: this.provider.gmail.password,
-          host: this.provider.gmail.host,
-          port: this.provider.gmail.port,
+          user: this.emailProvider.gmail.user,
+          password: this.emailProvider.gmail.password,
+          host: this.emailProvider.gmail.host,
+          port: this.emailProvider.gmail.port,
           tls: true,
           mailbox: 'INBOX'
         };
