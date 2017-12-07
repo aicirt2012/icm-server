@@ -27,10 +27,12 @@ const UserSchema = new mongoose.Schema({
     smtpDomains: [String]
   },
   highestmodseq: String,
+  /*
   google: {
     googleAccessToken: String,
     googleId: String
   },
+  */
   trello: {
     trelloAccessTokenSecret: String,
     trelloAccessToken: String,
@@ -39,6 +41,13 @@ const UserSchema = new mongoose.Schema({
   sociocortex: {
     email: String,
     password: String
+  },
+  emailProvider: {
+    google: {
+      googleId: String,
+      googleAccessToken: String,
+      googleRefreshToken: String
+    }
   },
   //  TODO like below for task providers
   contactProvider:{
