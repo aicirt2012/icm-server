@@ -12,7 +12,7 @@ import EWSConnector from '../core/mail/EWSConnector';
 
 exports.sendEmail = (req, res) => {
 
-  if (req.user.provider.name === 'Exchange') {
+  if (req.user.isExchangeProvider()) {
 
     const emailConnector = req.user.createIMAPConnector();
     emailConnector.sendMail(req.body)
@@ -55,7 +55,7 @@ exports.append = (req, res) => {
   const boxId = req.body.boxId;
   const emailConnector = user.createIMAPConnector();
 
-  if (req.user.provider.name === 'Exchange') {
+  if (req.user.isExchangeProvider()) {
 
     // Box.findOne({name: EWSConnector.staticBoxNames.draft, user: user})
     Box.findOne({ _id: boxId, user: user })
@@ -101,7 +101,7 @@ exports.move = (req, res) => {
 
   const emailConnector = user.createIMAPConnector();
 
-  if (req.user.provider.name === 'Exchange') {
+  if (req.user.isExchangeProvider()) {
 
     Email.findOne({ _id: emailId }).populate('boxes')
       .then(email => {
@@ -147,7 +147,7 @@ exports.move = (req, res) => {
 }
 
 exports.moveToTrash = (req, res) => {
-  if (req.user.provider.name === 'Exchange') {
+  if (req.user.isExchangeProvider()) {
     Box.findOne({ name: EWSConnector.staticBoxNames.deleted, user: req.user })
       .then(box => {
         req.body.newBoxId = box._id;
@@ -183,7 +183,7 @@ exports.addFlags = (req, res) => {
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
 
-  if (req.user.provider.name === 'Exchange') {
+  if (req.user.isExchangeProvider()) {
 
     Email.findById(emailId)//.populate('box')
       .then(mail => {
@@ -242,7 +242,7 @@ exports.delFlags = (req, res) => {
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
 
-  if (req.user.provider.name === 'Exchange') {
+  if (req.user.isExchangeProvider()) {
 
     Email.findById(emailId)//.populate('box')
       .then(mail => {

@@ -16,36 +16,22 @@ import User from '../models/user.model';
  *     "email": "felix.in.tum@gmail.com",
  *     "username": "Felix Michel",
  *     "__v": 0,
- *     "highestmodseq": "15820",
  *     "lastSync": "2017-08-28T21:16:02.235Z",
- *     "google": {
- *         "googleId": "110833890801655058669",
- *         "googleAccessToken": "ya29.Gl2fBDqbAHTl16Ni3ViJEqTMQDNQ6dQH2wnpa7BuhqH0QmeDqgpKyLm6cgLTkpwahjZeHcEMIwj4xySCVR82NK_yA6gZoPhIkpSO5jooQ_NjWpaCCmyY9eRppl0Jk-0"
- *     },
  *     "provider": {
  *         "name": "Gmail",
- *         "user": "felix.in.tum@gmail.com",
- *         "password": "hYW7qHj9sfBkvyzVt2jW",
- *         "host": "imap.gmail.com",
- *         "port": 993,
- *         "smtpHost": "smtp.gmail.com",
- *         "smtpPort": 465,
- *         "smtpDomains": [
- *             "gmail.com",
- *             "googlemail.com"
- *         ]
  *     }
+ *     ...
  * }
  */
 exports.get = (req, res, next) => {
-  if(req.user._id != req.params.id)
+  if (req.user._id != req.params.id)
     next(new Error('Can only get user of current JWT!'));
   else
-    User.findOne({_id: req.params.id}).exec()
+    User.findOne({ _id: req.params.id }).exec()
       .then(user => {
         res.status(200).send(user);
       })
-      .catch(err=>{
+      .catch(err => {
         next(err);
       });
 }
@@ -71,8 +57,8 @@ exports.create = (req, res, next) => {
     .then(user => {
       res.status(200).send(user);
     }).catch(err => {
-      next(err);
-    });
+    next(err);
+  });
 }
 
 /**
@@ -84,16 +70,36 @@ exports.create = (req, res, next) => {
  * {}
  */
 exports.update = (req, res, next) => {
-  console.log(req.boy);
-  if(req.user._id != req.params.id)
+  const provider = req.body.provider;
+  if (req.user._id != req.params.id)
     next(new Error('Can only update user of current JWT!'));
-  else
-    User.findOneAndUpdate({_id: req.params.id}, req.body, {new: true}).exec()
+  else {
+    User.findOne({ _id: req.params.id }).exec()
       .then(user => {
-        res.status(200).send(user);
-      }).catch(err=>{
-        next(err); 
+        if (provider.name === 'Gmail') {
+          user.emailProvider.gmail.user = provider.user;
+          user.emailProvider.gmail.password = provider.password;
+          user.emailProvider.gmail.host = provider.host;
+          user.emailProvider.gmail.port = provider.port;
+          user.emailProvider.gmail.smtpHost = provider.smtpHost;
+          user.emailProvider.gmail.smtpPort = provider.smtpPort;
+          user.emailProvider.gmail.smtpDomains = provider.smtpDomains;
+          user.provider.name = 'Gmail';
+        } else if (provider.name === 'Exchange') {
+          user.emailProvider.exchange.user = provider.user;
+          user.emailProvider.exchange.password = provider.password;
+          user.emailProvider.exchange.host = provider.host;
+          user.provider.name = 'Exchange';
+        }
+        return user.save();
+      })
+      .then(savedUser => {
+        res.status(200).send(savedUser);
+      })
+      .catch(err => {
+        next(err);
       });
+  }
 }
 
 
@@ -106,14 +112,14 @@ exports.update = (req, res, next) => {
  * {}
  */
 exports.remove = (req, res, next) => {
-  if(req.user._id != req.params.id)
+  if (req.user._id != req.params.id)
     next(new Error('Can only delete user of current JWT!'));
-  else  
+  else
     User.removeById(req.params.id)
       .then(user => {
-        res.status(200).send({message: 'User deleted successfully!'});
+        res.status(200).send({ message: 'User deleted successfully!' });
       })
-      .catch(err=>{
+      .catch(err => {
         next(err);
       });
 }

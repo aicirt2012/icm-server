@@ -16,7 +16,9 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, index: true },
   email: String,
   password: { type: String, required: true },
-  provider: { name: String },
+  provider: {
+    name: { type: String, enum: ['Gmail', 'Exchange'] },
+  },
   trello: {
     trelloAccessTokenSecret: String,
     trelloAccessToken: String,
@@ -156,6 +158,9 @@ UserSchema.method({
         return new SMTPConnector(SMTPOptions);
       }
     }
+  },
+  isExchangeProvider() {
+    return this.provider.name === 'Exchange';
   }
 });
 
