@@ -19,6 +19,7 @@ const UserSchema = new mongoose.Schema({
   provider: {
     name: { type: String, enum: ['Gmail', 'Exchange'] },
   },
+  // TODO refactor these provider. Put them inside taskProviders
   trello: {
     trelloAccessTokenSecret: String,
     trelloAccessToken: String,
@@ -48,7 +49,18 @@ const UserSchema = new mongoose.Schema({
       host: String,
     }
   },
-  //  TODO like below for task providers
+  // TODO put providers here
+  taskProviders: {
+    trello: {
+      trelloAccessTokenSecret: String,
+      trelloAccessToken: String,
+      trelloId: String
+    },
+    sociocortex: {
+      email: String,
+      password: String
+    },
+  },
   contactProvider: {
     socioCortex: {
       isEnabled: { type: Boolean, default: false },
