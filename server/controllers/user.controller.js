@@ -84,12 +84,12 @@ exports.update = (req, res, next) => {
           user.emailProvider.gmail.smtpHost = provider.smtpHost;
           user.emailProvider.gmail.smtpPort = provider.smtpPort;
           user.emailProvider.gmail.smtpDomains = provider.smtpDomains;
-          user.provider.name = 'Gmail';
+          user.provider = 'Gmail';
         } else if (provider.name === 'Exchange') {
           user.emailProvider.exchange.user = provider.user;
           user.emailProvider.exchange.password = provider.password;
           user.emailProvider.exchange.host = provider.host;
-          user.provider.name = 'Exchange';
+          user.provider = 'Exchange';
         }
         return user.save();
       })

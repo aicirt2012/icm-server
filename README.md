@@ -51,6 +51,11 @@ DEBUG=icm-server:* npm start
 ```
 Refer [debug](https://www.npmjs.com/package/debug) to know how to selectively turn on logs.
 
+#### Config
+# EWSConnector
+The SyncFolderItems operation will return a maximum of 512 changes (for all boxes). 
+Subsequent SyncFolderItems requests must be performed to get additional changes.
+Refer to the constant MAX_CHANGES_RETURNED in EWSConnector.js
 
 #### Tests
 

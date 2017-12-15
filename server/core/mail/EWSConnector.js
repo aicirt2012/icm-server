@@ -387,10 +387,15 @@ class EWSConnector {
     });
   }
 
+  /*
+  * https://msdn.microsoft.com/en-us/library/aa563967(v=exchg.150).aspx
+  * The SyncFolderItems operation will return a maximum of 512 changes. Subsequent SyncFolderItems requests must be
+  * performed to get additional changes.
+  * */
   fetchEmails(storeEmail, box) {
     return new Promise((resolve, reject) => {
       let syncState = box.ewsSyncState;
-      const MAX_CHANGES_RETURNED = '20';
+      const MAX_CHANGES_RETURNED = '512';
       const ewsFunction = 'SyncFolderItems';
       const ewsArgs = {
         ItemShape: {
