@@ -1,8 +1,11 @@
 
-let domain = process.env.DOMAIN || 'http://server.icm.in.tum.de';
-let apiPort = process.env.PORT_API || 4000;
-let socketPort = process.env.PORT_SOCKET || 4001;
-let domainWithPort = domain+':'+apiPort;
+let domain = process.env.DOMAIN || 'https://api.server.icm.in.tum.de';
+let apiPort = process.env.PORT_API || 9001;
+let socketPort = process.env.PORT_SOCKET || 9002;
+let domainWithPort = domain;
+
+console.log('ENVIRONMENT VARIABLES: ------------------------------------------');
+console.log(process.env)
 
 export default {
   env: 'production',
