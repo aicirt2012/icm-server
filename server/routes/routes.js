@@ -41,6 +41,7 @@ function routeProvider(passport) {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /** User Routes */
+    r.route('/users/me/provider/contacts/sociocortex').post(userCtrl.setContactProviderSocioCortex);
     r.route('/users/:id').get(userCtrl.get);
     r.route('/users/:id').put(userCtrl.update);
     r.route('/users/:id').delete(userCtrl.remove);

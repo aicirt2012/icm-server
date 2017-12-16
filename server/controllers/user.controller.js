@@ -126,3 +126,32 @@ exports.remove = (req, res, next) => {
         next(err);
       });
 }
+
+
+/**
+ * @api {post} /users/me/provider/contacts/sociocortex Set SocioCortex Contact Provider
+ * @apiDescription Set SocioCortex Contact Provider
+ * @apiName ContactProviderSocioCortex
+ * @apiGroup User
+ * @apiSuccessExample Success-Response:
+ * {}
+ */
+exports.setContactProviderSocioCortex = (req, res, next) => {   
+    User.findById(req.user._id)
+      .then(user => {
+        user.contactProvider.socioCortex = {
+          isEnabled: req.body.isEnabled,
+          email: req.body.email,
+          password: req.body.password,
+          baseURL: req.body.baseURL
+        }
+        return user.save();
+      })
+      .then(user=>{
+        res.status(200).send({message: 'SocioCortex contact provider settings successfully updated!'}); 
+      })
+      .catch(err => {
+        next(err);
+      });
+}
+
