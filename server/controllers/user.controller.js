@@ -57,7 +57,10 @@ exports.create = (req, res, next) => {
     .then(user => {
       res.status(200).send(user);
     }).catch(err => {
-    next(err);
+      if (err && err.code !== 11000 )
+        res.status(500).send("User name or email already exist!");
+      else
+        next(err);
   });
 }
 
