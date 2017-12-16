@@ -66,7 +66,7 @@ const UserSchema = new mongoose.Schema({
       isEnabled: { type: Boolean, default: false },
       email: String,
       password: String,
-      baseURL: String
+      baseURL: {type: String, default: 'https://wwwmatthes.in.tum.de/api/v1'},
     }
   },
   displayName: String,
