@@ -13,8 +13,8 @@ import Task from './task.model';
 import TrainingData from './trainingData.model';
 
 const UserSchema = new mongoose.Schema({
-  username: { type: String, required: true, index: true },
-  email: String,
+  username: { type: String, required: true, index: true, unique: true},
+  email: {type: String, unique: true},
   password: { type: String, required: true },
   provider: { type: String, enum: ['Gmail', 'Exchange'] },
   // TODO refactor these provider. Put them inside taskProviders
