@@ -40,8 +40,8 @@ export default class SCContactConnector extends SocioCortex{
 
   //TODO Remove when impl is finished!
   getContactsStub(){
-    //const dir = './server/core/contact/sc.contact.stub.json';
-    const dir = 'D:/Projekte/ICM/repos/sebis_contacts_restapi.json';
+    const dir = './server/core/contact/stub/sc.contact.stub.pseudo.json';
+    //const dir = 'D:/Projekte/ICM/repos/sebis_contacts_restapi.json';
     const providerContacts = JSON.parse(fs.readFileSync(dir));
     const contacts = [];
     providerContacts.forEach(providerContact=>{
