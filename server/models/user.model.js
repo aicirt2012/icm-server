@@ -19,7 +19,7 @@ const provider = {
 
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, index: true, unique: true},
-  email: {type: String, unique: true, sparse: true},
+  email: {type: String, unique: true, sparse: true}, //TODO check if can be removed
   password: { type: String, required: true },
   provider: { type: String, enum: [provider.GMAIL, provider.EXCHANGE], default: provider.GMAIL},
   // TODO refactor these provider. Put them inside taskProviders
