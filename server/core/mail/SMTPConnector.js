@@ -4,9 +4,19 @@ import nodemailer from 'nodemailer';
 
 class SMTPConnector {
 
-  constructor(smtpConfig) {
-      this.options = smtpConfig;
+  constructor(user) {
+    this.options ={
+      host: user.emailProvider.gmail.smtpHost,
+      port: user.emailProvider.gmail.smtpPort,
+      secure: true,
+      domains: user.emailProvider.gmail.smtpDomains,
+      auth: {
+        user: user.emailProvider.gmail.user,
+        pass: user.emailProvider.gmail.password
+      },
+      currentUser: user
     }
+  }
   /* Request Body Syntax for sendMail
   {
 	  "from" : "peter@niedermeier-ed.de",

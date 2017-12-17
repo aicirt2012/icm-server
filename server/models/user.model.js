@@ -12,11 +12,16 @@ import Pattern from './pattern.model';
 import Task from './task.model';
 import TrainingData from './trainingData.model';
 
+const provider = {
+  GMAIL: 'Gmail',
+  EXCHANGE: 'Exchange'
+}
+
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, index: true, unique: true},
   email: {type: String, unique: true, sparse: true},
   password: { type: String, required: true },
-  provider: { type: String, enum: ['Gmail', 'Exchange'] },
+  provider: { type: String, enum: [provider.GMAIL, provider.EXCHANGE], default: provider.GMAIL},
   // TODO refactor these provider. Put them inside taskProviders
   trello: {
     trelloAccessTokenSecret: String,
@@ -112,43 +117,17 @@ UserSchema.method({
     }
   },
   createSMTPConnector: function () {
-    switch (this.provider) {
-      case 'Gmail': {
-        const SMTPOptions = {
-          host: this.emailProvider.gmail.smtpHost,
-          port: this.emailProvider.gmail.smtpPort,
-          secure: true,
-          domains: this.emailProvider.gmail.smtpDomains,
-          auth: {
-            user: this.emailProvider.gmail.user,
-            pass: this.emailProvider.gmail.password
-          },
-          currentUser: this
-        };
-        return new SMTPConnector(SMTPOptions);
-        break;
-      }
-      default: {
-        const SMTPOptions = {
-          host: this.emailProvider.gmail.smtpHost,
-          port: this.emailProvider.gmail.smtpPort,
-          secure: true,
-          domains: this.emailProvider.gmail.smtpDomains,
-          auth: {
-            user: this.emailProvider.gmail.user,
-            pass: this.emailProvider.gmail.password
-          },
-          currentUser: this
-        };
-        return new SMTPConnector(SMTPOptions);
-      }
+    if(this.isGMailProvider()){      
+      return new SMTPConnector(this);     
+    }else{
+      throw new Error("SMTP provider not specified!");
     }
   },
   isExchangeProvider() {
-    return this.provider === 'Exchange';
+    return this.provider === provider.EXCHANGE;
   },
   isGMailProvider() {
-    return this.provider === 'Gmail';
+    return this.provider === provider.GMAIL;
   }
 });
 
