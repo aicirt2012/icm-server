@@ -40,7 +40,9 @@ export default class SCContactConnector extends SocioCortex{
 
   //TODO Remove when impl is finished!
   getContactsStub(){
-    const providerContacts = JSON.parse(fs.readFileSync('./server/core/contact/sc.contact.stub.json'));
+    //const dir = './server/core/contact/sc.contact.stub.json';
+    const dir = 'D:/Projekte/ICM/repos/sebis_contacts_restapi.json';
+    const providerContacts = JSON.parse(fs.readFileSync(dir));
     const contacts = [];
     providerContacts.forEach(providerContact=>{
       contacts.push(this.convert2MongoObject(providerContact));
@@ -80,7 +82,7 @@ export default class SCContactConnector extends SocioCortex{
     map.set('Fax Business', 'businessFax');
     map.set('Department', 'businessDepartment');
     map.set('Job Title', 'businessJobTitle');  
-    map.set('Groups', '');
+    map.set('Groups', 'groups');
   
     const json = {
       provider: "SC",
@@ -89,8 +91,13 @@ export default class SCContactConnector extends SocioCortex{
       lastModifiedAt: new Date(scContact.lastModifiedAt)
     };
     scContact.attributes.forEach(attribute=>{
-      if(map.has(attribute.name) && map.get(attribute.name) !== '')
-        json[map.get(attribute.name)] = attribute.values.pop();
+      if(map.has(attribute.name) && map.get(attribute.name) !== ''){
+        if(attribute.name == 'Groups'){
+          json[map.get(attribute.name)] = attribute.values;
+        }else{
+          json[map.get(attribute.name)] = attribute.values.pop();
+        }        
+      }
     });
     return json;
   }

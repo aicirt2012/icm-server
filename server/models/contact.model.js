@@ -33,8 +33,9 @@ const ContactSchema = new mongoose.Schema({
   businessFax: {type: String, index: true},
   businessDepartment: {type: String, index: true},
   businessJobTitle: {type: String, index: true},
+  groups: [{type: String, index: true}],
   provider: {type: String, index: true},
-  providerId: {type: String, index: true},
+  providerId: {type: String, index: true},  
   user: {type: ObjectId, ref: 'User'},
   syncedAt: Date,
   lastModifiedAt: Date
