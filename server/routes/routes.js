@@ -30,7 +30,7 @@ function routeProvider(passport) {
     r.route('/auth/trello/callback').get(passport.authenticate('trello', {failureRedirect: '/login', session: false}), authCtrl.oauthCallback);
 
     /** User Routes unprotected */
-    r.route('/users/').post(userCtrl.create);
+    r.route('/users/signup').post(userCtrl.signUp);
 
     /** Route Protection - all routes below are protected */
     r.use(passport.authenticate('jwt', {session: false}));

@@ -39,23 +39,22 @@ exports.get = (req, res, next) => {
  * @apiDescription Create User
  * @apiName CreateUser
  * @apiGroup User
- * @apiParam {String} username First- and lastname of user.
- * @apiParam {String} email Email of user.
+ * @apiParam {String} username First- and LastName of user.
  * @apiParam {String} password Password of user.
  * @apiSuccessExample Success-Response:
  * {}
  */
-exports.create = (req, res, next) => {
+exports.signUp = (req, res, next) => {
   const user = new User({
     username: req.body.username,
-    password: req.body.password,
-    email: req.body.email
+    password: req.body.password
   });
   user.save()
     .then(user => {
       res.status(200).send(user);
-    }).catch(err => {
-      if (err && err.code !== 11000 )
+    })
+    .catch(err => {
+      if (err && err.code !== "E11000" )
         res.status(500).send("User name or email already exist!");
       else
         next(err);
