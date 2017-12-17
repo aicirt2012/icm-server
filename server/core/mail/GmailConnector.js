@@ -9,8 +9,15 @@ import Box from '../../models/box.model';
 
 class GmailConnector extends ImapConnector {
 
-  constructor(options, user) {
-    super(options, user);
+  constructor(user) {
+    super({
+      user: user.emailProvider.gmail.user,
+      password: user.emailProvider.gmail.password,
+      host: user.emailProvider.gmail.host,
+      port: user.emailProvider.gmail.port,
+      tls: true,
+      mailbox: 'INBOX'
+    }, user);
   }
 
   static staticBoxNames = {

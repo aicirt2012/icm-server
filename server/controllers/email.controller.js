@@ -153,7 +153,7 @@ exports.moveToTrash = (req, res) => {
         req.body.newBoxId = box._id;
         exports.move(req, res);
       });
-  } else if (userProvider === 'Gmail') {
+  } else if (req.user.isGMailProvider()) {
     Box.findOne({ name: GmailConnector.staticBoxNames.deleted, user: req.user })
       .then(box => {
         req.body.newBoxId = box._id;

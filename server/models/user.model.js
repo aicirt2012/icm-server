@@ -103,39 +103,12 @@ UserSchema.method({
     });
   },
   createIMAPConnector: function () {
-    switch (this.provider) {
-      case 'Gmail': {
-        const imapOptions = {
-          user: this.emailProvider.gmail.user,
-          password: this.emailProvider.gmail.password,
-          host: this.emailProvider.gmail.host,
-          port: this.emailProvider.gmail.port,
-          tls: true,
-          mailbox: 'INBOX'
-        };
-        return new GmailConnector(imapOptions, this);
-        break;
-      }
-      case 'Exchange': {
-        const imapOptions = {
-          user: this.emailProvider.exchange.user,
-          password: this.emailProvider.exchange.password,
-          host: this.emailProvider.exchange.host,
-        };
-        return new EWSConnector(imapOptions, this);
-        break;
-      }
-      default: {
-        const imapOptions = {
-          user: this.emailProvider.gmail.user,
-          password: this.emailProvider.gmail.password,
-          host: this.emailProvider.gmail.host,
-          port: this.emailProvider.gmail.port,
-          tls: true,
-          mailbox: 'INBOX'
-        };
-        return new GmailConnector(imapOptions, this);
-      }
+    if(this.isGMailProvider()){
+      return new GmailConnector(this);
+    }else if(this.isExchangeProvider()){
+      return new EWSConnector(this);
+    }else{
+      throw new Error('EMail provider not defined!');
     }
   },
   createSMTPConnector: function () {
@@ -173,6 +146,9 @@ UserSchema.method({
   },
   isExchangeProvider() {
     return this.provider === 'Exchange';
+  },
+  isGMailProvider() {
+    return this.provider === 'Gmail';
   }
 });
 

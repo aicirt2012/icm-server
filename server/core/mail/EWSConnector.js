@@ -21,17 +21,16 @@ class EWSConnector {
 
   excludedBoxes = ['Conversation Action Settings', 'Files'];
 
-  constructor(options, user) {
+  constructor(user) {
 
     console.log('Hallo EWSConnector');
-
     this.user = user;
 
     // exchange server connection info
     this.ewsConfig = {
-      username: options.user,
-      password: options.password,
-      host: options.host,
+      username: user.emailProvider.exchange.user,
+      password: user.emailProvider.exchange.password,
+      host: user.emailProvider.exchange.host,
       temp: './'
     };
 
