@@ -1,6 +1,7 @@
 import config from '../../../config/env';
 import SocioCortex from './SocioCortex';
 import fs from 'fs';
+import { Promise } from 'bluebird';
 
 
 export default class SCContactConnector extends SocioCortex{
@@ -10,9 +11,26 @@ export default class SCContactConnector extends SocioCortex{
     this.userId = userId;
   }
 
+  static test(isEnabled, baseURL, email, password){    
+    return new Promise((resolve, reject)=>{
+      if(!isEnabled)
+        resolve(true);
+      else
+        new SCContactConnector(null, baseURL, email, password).get('users/me') //entityTypes/11rs7h6n9ioej
+          .then(()=>{
+            resolve(true);
+          })
+          .catch(err=>{
+            resolve(false);
+          })
+    });
+    
+  }
+
   getContacts(){
     return this.get('entityTypes/11rs7h6n9ioej/entities?attributes=*&meta=lastModifiedAt')
       .then(providerContacts=>{
+        console.log(providerContacts)
         const contacts = [];
         providerContacts.forEach(providerContact=>{
           contacts.push(this.convert2MongoObject(providerContact))

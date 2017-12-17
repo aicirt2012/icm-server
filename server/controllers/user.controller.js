@@ -1,4 +1,5 @@
 import User from '../models/user.model';
+import SCContactConnector from '../core/contact/SCContactConnector';
 
 
 /**
@@ -137,21 +138,33 @@ exports.remove = (req, res, next) => {
  * {}
  */
 exports.setContactProviderSocioCortex = (req, res, next) => {   
-    User.findById(req.user._id)
-      .then(user => {
-        user.contactProvider.socioCortex = {
-          isEnabled: req.body.isEnabled,
-          email: req.body.email,
-          password: req.body.password,
-          baseURL: req.body.baseURL
-        }
-        return user.save();
-      })
-      .then(user=>{
-        res.status(200).send({message: 'SocioCortex contact provider settings successfully updated!'}); 
-      })
-      .catch(err => {
-        next(err);
-      });
+
+    const isEnabled = req.body.isEnabled;
+    const email = req.body.email;
+    const password = req.body.password;
+    const baseURL = req.body.baseURL;
+    
+    SCContactConnector.test(isEnabled, baseURL, email, password)
+      .then(isWorking=>{
+        if(!isWorking)
+          res.status(500).send({message: 'SocioCortex contact provider settings - connection test failed!'}); 
+        else
+          User.findById(req.user._id)
+            .then(user => {
+              user.contactProvider.socioCortex = {
+                isEnabled: isEnabled,
+                email: email,
+                password: password,
+                baseURL: baseURL
+              }
+              return user.save();
+            })
+            .then(user=>{
+              res.status(200).send({message: 'SocioCortex contact provider settings successfully updated!'}); 
+            })
+            .catch(err => {
+              next(err);
+            });
+      });    
 }
 

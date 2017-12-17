@@ -78,6 +78,7 @@ exports.sync = (req, res, next) => {
   //TODO add check if provider is configured
   //if(req.user.contactProvider.socioCortex.isEnabled)
   const p = req.user.contactProvider.socioCortex;
+  console.log(req.user._id, p.baseURL, p.email, p.password);
   new SCContactConnector(req.user._id, p.baseURL, p.email, p.password)
     .getContacts()
     .then(providerContacts=>{
