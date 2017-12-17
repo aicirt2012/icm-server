@@ -41,6 +41,8 @@ function routeProvider(passport) {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /** User Routes */
+    r.route('/users/me/provider/email/gmail').post(userCtrl.setEmailProviderGMail);    
+    r.route('/users/me/provider/email/exchange').post(userCtrl.setEmailProviderExchange);        
     r.route('/users/me/provider/contacts/sociocortex').post(userCtrl.setContactProviderSocioCortex);
     r.route('/users/:id').get(userCtrl.get);
     r.route('/users/:id').put(userCtrl.update);

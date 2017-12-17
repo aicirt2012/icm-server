@@ -128,6 +128,67 @@ exports.remove = (req, res, next) => {
       });
 }
 
+/**
+ * @api {post} /users/me/provider/exchange/gmail Set Mail Provider Exchange
+ * @apiDescription Set Exchange Provider
+ * @apiName SetExchangeProvider
+ * @apiGroup User
+ * @apiSuccessExample Success-Response:
+ * {}
+ */
+exports.setEmailProviderExchange = (req, res, next) => {   
+  
+ User.findById(req.user._id)
+   .then(user => {
+      user.emailProvider.gmail = {
+        user: req.body.user,
+        password: req.body.password,
+        host: req.body.host,
+      }
+      user.provider = 'Exchange';
+      return user.save();
+   })
+   .then(user=>{
+     res.status(200).send({message: 'Successfully set Exchange configuration!'}); 
+   })
+   .catch(err => {
+     next(err);
+   });         
+}
+
+
+/**
+ * @api {post} /users/me/provider/email/gmail Set Mail Provider GMail
+ * @apiDescription Set GMail Provider
+ * @apiName SetGMailProvider
+ * @apiGroup User
+ * @apiSuccessExample Success-Response:
+ * {}
+ */
+exports.setEmailProviderGMail = (req, res, next) => {   
+   
+  User.findById(req.user._id)
+    .then(user => {
+      user.emailProvider.gmail = {
+        user: req.body.user,
+        password: req.body.password,
+        host: req.body.host,
+        port: req.body.port,
+        smtpHost: req.body.smtpHost,
+        smtpPort: req.body.smtpPort,
+        smtpDomains: req.body.smtpDomains,
+      }
+      user.provider = 'Gmail';
+      return user.save();
+    })
+    .then(user=>{
+      res.status(200).send({message: 'Successfully set GMail configuration!'}); 
+    })
+    .catch(err => {
+      next(err);
+    });         
+}
+
 
 /**
  * @api {post} /users/me/provider/contacts/sociocortex Set SocioCortex Contact Provider
@@ -139,32 +200,32 @@ exports.remove = (req, res, next) => {
  */
 exports.setContactProviderSocioCortex = (req, res, next) => {   
 
-    const isEnabled = req.body.isEnabled;
-    const email = req.body.email;
-    const password = req.body.password;
-    const baseURL = req.body.baseURL;
-    
-    SCContactConnector.test(isEnabled, baseURL, email, password)
-      .then(isWorking=>{
-        if(!isWorking)
-          res.status(500).send({message: 'SocioCortex contact provider settings - connection test failed!'}); 
-        else
-          User.findById(req.user._id)
-            .then(user => {
-              user.contactProvider.socioCortex = {
-                isEnabled: isEnabled,
-                email: email,
-                password: password,
-                baseURL: baseURL
-              }
-              return user.save();
-            })
-            .then(user=>{
-              res.status(200).send({message: 'SocioCortex contact provider settings successfully updated!'}); 
-            })
-            .catch(err => {
-              next(err);
-            });
-      });    
+  const isEnabled = req.body.isEnabled;
+  const email = req.body.email;
+  const password = req.body.password;
+  const baseURL = req.body.baseURL;
+  
+  SCContactConnector.test(isEnabled, baseURL, email, password)
+    .then(isWorking=>{
+      if(!isWorking)
+        res.status(500).send({message: 'SocioCortex contact provider settings - connection test failed!'}); 
+      else
+        User.findById(req.user._id)
+          .then(user => {
+            user.contactProvider.socioCortex = {
+              isEnabled: isEnabled,
+              email: email,
+              password: password,
+              baseURL: baseURL
+            }
+            return user.save();
+          })
+          .then(user=>{
+            res.status(200).send({message: 'SocioCortex contact provider settings successfully updated!'}); 
+          })
+          .catch(err => {
+            next(err);
+          });
+    });    
 }
 
