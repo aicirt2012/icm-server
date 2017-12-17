@@ -28,7 +28,7 @@ export default class SCContactConnector extends SocioCortex{
   }
 
   getContacts(){
-    return this.get('entityTypes/11rs7h6n9ioej/entities?attributes=*&meta=lastModifiedAt')
+    return this.get('/entityTypes/11rs7h6n9ioej/entities?attributes=*&meta=lastModifiedAt')
       .then(providerContacts=>{
         console.log(providerContacts)
         const contacts = [];
