@@ -80,7 +80,7 @@ exports.sync = (req, res, next) => {
   const p = req.user.contactProvider.socioCortex;
   console.log(req.user._id, p.baseURL, p.email, p.password);
   new SCContactConnector(req.user._id, p.baseURL, p.email, p.password)
-    .getContacts()
+    .getContactsStub()
     .then(providerContacts=>{
       return Promise.map(providerContacts, providerContact=>{
         return syncContact(providerContact, syncedAt);
