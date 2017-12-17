@@ -44,9 +44,9 @@ function routeProvider(passport) {
     r.route('/users/me/provider/email/gmail').post(userCtrl.setEmailProviderGMail);    
     r.route('/users/me/provider/email/exchange').post(userCtrl.setEmailProviderExchange);        
     r.route('/users/me/provider/contacts/sociocortex').post(userCtrl.setContactProviderSocioCortex);
-    r.route('/users/:id').get(userCtrl.get);
-    r.route('/users/:id').put(userCtrl.update);
-    r.route('/users/:id').delete(userCtrl.remove);
+    r.route('/users/me').get(userCtrl.get);
+    r.route('/users/me').put(userCtrl.update);
+    r.route('/users/me').delete(userCtrl.remove);
 
     /** Email Routes */
     r.route('/emails/appendEnron').post(emailCtrl.appendEnron); /* API Endpoint for testing Enron*/

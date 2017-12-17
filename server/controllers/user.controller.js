@@ -24,17 +24,14 @@ import SCContactConnector from '../core/contact/SCContactConnector';
  *     ...
  * }
  */
-exports.get = (req, res, next) => {
-  if (req.user._id != req.params.id)
-    next(new Error('Can only get user of current JWT!'));
-  else
-    User.findOne({ _id: req.params.id }).exec()
-      .then(user => {
-        res.status(200).send(user);
-      })
-      .catch(err => {
-        next(err);
-      });
+exports.get = (req, res, next) => { 
+  User.findById(req.user._id)
+    .then(user => {
+      res.status(200).send(user);
+    })
+    .catch(err => {
+      next(err);
+    });
 }
 
 /**
@@ -75,35 +72,31 @@ exports.create = (req, res, next) => {
  */
 exports.update = (req, res, next) => {
   const provider = req.body.provider;
-  if (req.user._id != req.params.id)
-    next(new Error('Can only update user of current JWT!'));
-  else {
-    User.findOne({ _id: req.params.id }).exec()
-      .then(user => {
-        if (provider.name === 'Gmail') {
-          user.emailProvider.gmail.user = provider.user;
-          user.emailProvider.gmail.password = provider.password;
-          user.emailProvider.gmail.host = provider.host;
-          user.emailProvider.gmail.port = provider.port;
-          user.emailProvider.gmail.smtpHost = provider.smtpHost;
-          user.emailProvider.gmail.smtpPort = provider.smtpPort;
-          user.emailProvider.gmail.smtpDomains = provider.smtpDomains;
-          user.provider = 'Gmail';
-        } else if (provider.name === 'Exchange') {
-          user.emailProvider.exchange.user = provider.user;
-          user.emailProvider.exchange.password = provider.password;
-          user.emailProvider.exchange.host = provider.host;
-          user.provider = 'Exchange';
-        }
-        return user.save();
-      })
-      .then(savedUser => {
-        res.status(200).send(savedUser);
-      })
-      .catch(err => {
-        next(err);
-      });
-  }
+  User.findById(req.user._id)
+    .then(user => {
+      if (provider.name === 'Gmail') {
+        user.emailProvider.gmail.user = provider.user;
+        user.emailProvider.gmail.password = provider.password;
+        user.emailProvider.gmail.host = provider.host;
+        user.emailProvider.gmail.port = provider.port;
+        user.emailProvider.gmail.smtpHost = provider.smtpHost;
+        user.emailProvider.gmail.smtpPort = provider.smtpPort;
+        user.emailProvider.gmail.smtpDomains = provider.smtpDomains;
+        user.provider = 'Gmail';
+      } else if (provider.name === 'Exchange') {
+        user.emailProvider.exchange.user = provider.user;
+        user.emailProvider.exchange.password = provider.password;
+        user.emailProvider.exchange.host = provider.host;
+        user.provider = 'Exchange';
+      }
+      return user.save();
+    })
+    .then(savedUser => {
+      res.status(200).send(savedUser);
+    })
+    .catch(err => {
+      next(err);
+    });
 }
 
 
@@ -116,16 +109,13 @@ exports.update = (req, res, next) => {
  * {}
  */
 exports.remove = (req, res, next) => {
-  if (req.user._id != req.params.id)
-    next(new Error('Can only delete user of current JWT!'));
-  else
-    User.removeById(req.params.id)
-      .then(user => {
-        res.status(200).send({ message: 'User deleted successfully!' });
-      })
-      .catch(err => {
-        next(err);
-      });
+  User.removeById(req.user._id)
+    .then(user => {
+      res.status(200).send({ message: 'User deleted successfully!' });
+    })
+    .catch(err => {
+      next(err);
+    });
 }
 
 /**
