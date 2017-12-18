@@ -1,14 +1,14 @@
 import request from 'request-promise'
 
-class NERConnectorService {
+class NERService {
 
-  static runNamedEntityRecognition(emailId, plainTextBody) {
+  static runNamedEntityRecognition(emailId, htmlSource) {
     let options = {
       method: 'POST',
       uri: 'http://localhost:8080/ner/recognize',
       body: {
         emailId: emailId,
-        lines: plainTextBody
+        htmlSource: htmlSource
       },
       json: true
     };
@@ -17,4 +17,4 @@ class NERConnectorService {
 
 }
 
-export default NERConnectorService;
+export default NERService;

@@ -5,8 +5,7 @@ import config from '../../config/env';
 import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
 import Socket from '../routes/socket';
-import HtmlDisassembler from '../core/analysis/HtmlDisassembler'
-import NERConnectorService from "../core/analysis/NERConnectorService";
+import NERService from "../core/analysis/NERService";
 import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
 
@@ -315,10 +314,7 @@ exports.getSingleMail = (req, res) => {
       return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
     })
     .then(email => {
-      let plainTextBody = HtmlDisassembler.getInstance().stripHtml(email.html);
-      let annotations = NERConnectorService.runNamedEntityRecognition(emailId, plainTextBody);
-      let indexedAnnotations = HtmlDisassembler.getInstance().addAnnotationIndices(annotations, email.html);
-      email['annotations'] = HtmlDisassembler.getInstance().addAnnotationRanges(indexedAnnotations, email.html);
+      email['annotations'] = NERService.runNamedEntityRecognition(emailId, email.html);
       return email;
     })
     .then(email => {

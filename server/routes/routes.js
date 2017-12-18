@@ -13,7 +13,6 @@ import translationCtrl from '../controllers/translation.controller';
 import dashboardCtrl from '../controllers/dashboard.controller';
 import contactsCtrl from '../controllers/contacts.controller';
 import patternCtrl from '../controllers/pattern.controller';
-import disassemblerCtrl from '../controllers/disassembler.controller';
 
 
 function routeProvider(passport) {
@@ -117,12 +116,6 @@ function routeProvider(passport) {
     r.route('/contacts/search').get(contactsCtrl.search);
     r.route('/contacts/:id').get(contactsCtrl.get);
     r.route('/contacts').get(contactsCtrl.list);
-
-    /** HTML Assembler Routes - for development purposes */
-    r.route('/disassembler/html/strip').post(disassemblerCtrl.stripHtml);
-    r.route('/disassembler/annotations/index').post(disassemblerCtrl.addAnnotationIndices);
-    r.route('/disassembler/annotations/range').post(disassemblerCtrl.addAnnotationRanges);
-    r.route('/disassembler/annotations/range/mock').post(disassemblerCtrl.addAnnotationRangesMock);
 
     return r;
 }
