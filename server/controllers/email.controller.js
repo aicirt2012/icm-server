@@ -305,6 +305,7 @@ exports.delFlags = (req, res) => {
  */
 exports.getSingleMail = (req, res) => {
   const emailId = req.params.id;
+  let email;
   Email.findOne({ _id: emailId }).populate('attachments')
     .lean()
     .then((mail) => {
@@ -313,11 +314,12 @@ exports.getSingleMail = (req, res) => {
       mail = replaceInlineAttachmentsSrc(mail, req.user);
       return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
     })
-    .then(email => {
-      email['annotations'] = NERService.runNamedEntityRecognition(emailId, email.html);
-      return email;
+    .then(mail => {
+      email = mail;
+      return NERService.runNamedEntityRecognition(emailId, email.html);
     })
-    .then(email => {
+    .then(resultDTO => {
+      email['annotations'] = resultDTO.annotations;
       res.status(200).send(email);
     })
     .catch((err) => {
