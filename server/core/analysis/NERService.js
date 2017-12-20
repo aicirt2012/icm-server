@@ -5,7 +5,7 @@ class NERService {
   static recognizeEntitiesInHtml(emailId, htmlSource) {
     let options = {
       method: 'POST',
-      uri: 'http://localhost:8080/ner/recognize/html',
+      uri: 'http://127.0.0.1:8080/ner/recognize/html',
       body: {
         emailId: emailId,
         htmlSource: htmlSource
@@ -18,7 +18,7 @@ class NERService {
   static recognizeEntitiesInPlainText(emailId, plainText) {
     let options = {
       method: 'POST',
-      uri: 'http://localhost:8080/ner/recognize/text',
+      uri: 'http://127.0.0.1:8080/ner/recognize/text',
       body: {
         emailId: emailId,
         plainText: plainText
