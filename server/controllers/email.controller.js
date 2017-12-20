@@ -1,7 +1,6 @@
 import Promise from 'bluebird';
 import Email from '../models/email.model';
 import Box from '../models/box.model';
-import config from '../../config/env';
 import User from '../models/user.model';
 import Analyzer from '../core/engine/analyzer';
 import Socket from '../routes/socket';
@@ -17,13 +16,13 @@ exports.sendEmail = (req, res) => {
     const emailConnector = req.user.createIMAPConnector();
     emailConnector.sendMail(req.body)
       .then(result => {
-        return Box.findOne({ name: EWSConnector.staticBoxNames.send, user: req.user });
+        return Box.findOne({name: EWSConnector.staticBoxNames.send, user: req.user});
       })
       .then(box => {
         return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
       })
       .then(() => {
-        res.status(200).send({ message: 'Finished fetching' });
+        res.status(200).send({message: 'Finished fetching'});
       })
       .catch((err) => {
         console.log(err);
@@ -34,13 +33,13 @@ exports.sendEmail = (req, res) => {
 
     req.user.createSMTPConnector().sendMail(req.body)
       .then(result => {
-        return Box.findOne({ name: GmailConnector.staticBoxNames.send, user: req.user });
+        return Box.findOne({name: GmailConnector.staticBoxNames.send, user: req.user});
       })
       .then(box => {
         return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
       })
       .then(() => {
-        res.status(200).send({ message: 'Finished fetching' });
+        res.status(200).send({message: 'Finished fetching'});
       })
       .catch((err) => {
         console.log(err);
@@ -58,7 +57,7 @@ exports.append = (req, res) => {
   if (req.user.isExchangeProvider()) {
 
     // Box.findOne({name: EWSConnector.staticBoxNames.draft, user: user})
-    Box.findOne({ _id: boxId, user: user })
+    Box.findOne({_id: boxId, user: user})
       .then(box => {
         return [box, emailConnector.append(req.body, box.ewsId)]
       })
@@ -66,7 +65,7 @@ exports.append = (req, res) => {
         return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
       })
       .spread((msgData, result) => {
-        res.status(200).send({ msgData: 'ok' });
+        res.status(200).send({msgData: 'ok'});
       })
       .catch((err) => {
         console.log(err);
@@ -76,7 +75,7 @@ exports.append = (req, res) => {
   } else {
 
     // Box.findOne({name: GmailConnector.staticBoxNames.draft, user: user})
-    Box.findOne({ _id: boxId, user: user })
+    Box.findOne({_id: boxId, user: user})
       .then(box => {
         return [box, emailConnector.append(box.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
       })
@@ -84,7 +83,7 @@ exports.append = (req, res) => {
         return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
       })
       .spread((msgData, result) => {
-        res.status(200).send({ msgData: msgData });
+        res.status(200).send({msgData: msgData});
       })
       .catch((err) => {
         console.log(err);
@@ -103,9 +102,9 @@ exports.move = (req, res) => {
 
   if (req.user.isExchangeProvider()) {
 
-    Email.findOne({ _id: emailId }).populate('boxes')
+    Email.findOne({_id: emailId}).populate('boxes')
       .then(email => {
-        return [email, Box.findOne({ _id: newBoxId, user: user })]
+        return [email, Box.findOne({_id: newBoxId, user: user})]
       })
       .spread((email, destBox) => {
         const srcBox = email.boxes[0];
@@ -115,7 +114,7 @@ exports.move = (req, res) => {
         return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
       })
       .then((messages) => {
-        res.status(200).send({ messages: messages });
+        res.status(200).send({messages: messages});
       })
       .catch(err => {
         console.log(err);
@@ -124,9 +123,9 @@ exports.move = (req, res) => {
 
   } else {
 
-    Email.findOne({ _id: emailId }).populate('boxes')
+    Email.findOne({_id: emailId}).populate('boxes')
       .then(email => {
-        return [email, Box.findOne({ _id: newBoxId, user: user })]
+        return [email, Box.findOne({_id: newBoxId, user: user})]
       })
       // TODO boxId from parameter
       .spread((email, destBox) => {
@@ -137,7 +136,7 @@ exports.move = (req, res) => {
         return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
       })
       .then((messages) => {
-        res.status(200).send({ messages: messages });
+        res.status(200).send({messages: messages});
       })
       .catch(err => {
         console.log(err);
@@ -148,13 +147,13 @@ exports.move = (req, res) => {
 
 exports.moveToTrash = (req, res) => {
   if (req.user.isExchangeProvider()) {
-    Box.findOne({ name: EWSConnector.staticBoxNames.deleted, user: req.user })
+    Box.findOne({name: EWSConnector.staticBoxNames.deleted, user: req.user})
       .then(box => {
         req.body.newBoxId = box._id;
         exports.move(req, res);
       });
   } else if (req.user.isGMailProvider()) {
-    Box.findOne({ name: GmailConnector.staticBoxNames.deleted, user: req.user })
+    Box.findOne({name: GmailConnector.staticBoxNames.deleted, user: req.user})
       .then(box => {
         req.body.newBoxId = box._id;
         exports.move(req, res);
@@ -195,7 +194,7 @@ exports.addFlags = (req, res) => {
         return email.save();
       })
       .then(() => {
-        res.status(200).send({ message: 'Successfully added Flags' });
+        res.status(200).send({message: 'Successfully added Flags'});
       })
       .catch(err => {
         res.status(400).send(err);
@@ -213,7 +212,7 @@ exports.addFlags = (req, res) => {
         return email.save();
       })
       .then(() => {
-        res.status(200).send({ message: 'Successfully added Flags' });
+        res.status(200).send({message: 'Successfully added Flags'});
       })
       .catch(err => {
         res.status(400).send(err);
@@ -258,7 +257,7 @@ exports.delFlags = (req, res) => {
         return email.save()
       })
       .then(() => {
-        res.status(200).send({ message: 'Successfully deleted Flags' });
+        res.status(200).send({message: 'Successfully deleted Flags'});
       })
       .catch((err) => {
         res.status(400).send(err);
@@ -280,7 +279,7 @@ exports.delFlags = (req, res) => {
         return email.save()
       })
       .then(() => {
-        res.status(200).send({ message: 'Successfully deleted Flags' });
+        res.status(200).send({message: 'Successfully deleted Flags'});
       })
       .catch((err) => {
         res.status(400).send(err);
@@ -306,7 +305,7 @@ exports.delFlags = (req, res) => {
 exports.getSingleMail = (req, res) => {
   const emailId = req.params.id;
   let email;
-  Email.findOne({ _id: emailId }).populate('attachments')
+  Email.findOne({_id: emailId}).populate('attachments')
     .lean()
     .then((mail) => {
       console.log('retrieving email id...');
@@ -319,7 +318,7 @@ exports.getSingleMail = (req, res) => {
       if (email.html)
         return NERService.recognizeEntitiesInHtml(emailId, email.html);
       else
-        return NERService.recognizeEntitiesInPlainText(emailId, email.text)
+        return NERService.recognizeEntitiesInPlainText(emailId, email.text);
     })
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
@@ -417,20 +416,20 @@ exports.appendEnron = (req, res) => {
   const emailConnector = req.user.createIMAPConnector();
 
   // find enron user e.g Allen
-  User.findOne({ username: 'allen-p' })
+  User.findOne({username: 'allen-p'})
     .then((user) => {
       console.log('this is the user');
       console.log(user);
 
       // get all emails for this user;
-      Email.find({ user: user }).limit(3)
+      Email.find({user: user}).limit(3)
         .then((emails) => {
 
           // in which box to store these emails?
 
           // agregate boxes according to the folder names
 
-          Box.findOne({ name: EWSConnector.staticBoxNames.inbox, user: req.user })
+          Box.findOne({name: EWSConnector.staticBoxNames.inbox, user: req.user})
             .then(box => {
 
               // filter emails without ewsItemId (exchange)
@@ -460,7 +459,7 @@ exports.appendEnron = (req, res) => {
                   });
               })
                 .then(() => {
-                  res.status(200).send({ msgData: 'ok' });
+                  res.status(200).send({msgData: 'ok'});
                 })
                 .catch((err) => {
                   console.log(err);
