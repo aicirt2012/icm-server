@@ -19,7 +19,7 @@ import Attachment from '../../models/attachment.model';
 
 class EWSConnector {
 
-  excludedBoxes = ['Conversation Action Settings', 'Files'];
+  excludedBoxes = ['Conversation Action Settings', 'Files', 'Dateien', 'Einstellungen für QuickSteps', 'Journal', 'Notizen', 'Yammer-Stamm', 'Synchronisierungsprobleme' ]; //'Eingehend', 'Ausgehend', 'Feeds'
 
   constructor(user) {
 
