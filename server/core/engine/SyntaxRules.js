@@ -6,7 +6,7 @@ export default {
     name: 'MD + SUBJECT',
     rule: 'If a modal verb (auxiliary verb) is then first word of a sentence, this is an indication for a (task) request.',
     fn: function(taggedWords) {
-      return taggedWords[0][1] == 'MD'; // 1st word is of type modal verb (MD)
+      return taggedWords && taggedWords[0] && taggedWords[0][1] == 'MD'; // 1st word is of type modal verb (MD)
     }
   }]
 };
