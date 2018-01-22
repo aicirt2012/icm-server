@@ -33,5 +33,6 @@ export default {
   apiPort: 4000,
   socketPort: 4001,
   domain: 'http://localhost',
-  frontend: 'http://localhost:3000'
+  frontend: 'http://localhost:3000',
+  analyticsConnectionUrl: 'http://127.0.0.1:8080/ner',
 };

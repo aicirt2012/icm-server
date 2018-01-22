@@ -42,5 +42,6 @@ export default {
   apiPort: apiPort,
   socketPort: socketPort,
   domain: domain,
-  frontend: process.env.DOMAIN_FRONTEND || 'http://icm.in.tum.de'
+  frontend: process.env.DOMAIN_FRONTEND || 'http://icm.in.tum.de',
+  analyticsConnectionUrl: process.env.ANALYTICS_CONNECTION_URL || 'http://127.0.0.1:8080/ner',
 };
