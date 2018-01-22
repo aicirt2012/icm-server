@@ -11,7 +11,7 @@ import SCContactConnector from '../core/contact/SCContactConnector';
  * {}
  */
 exports.get = (req, res, next) => {
-  Contact.findOne({user: req.user._id}).exec()
+  Contact.findOne({user: req.user._id, _id: req.params.id}).exec()
     .then(contact => {
       res.status(200).send(contact);
     })
