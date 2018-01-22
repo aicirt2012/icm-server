@@ -1,4 +1,4 @@
-import config from '../../config/env';
+import config from '../../../config/env';
 import request from 'request-promise'
 
 class NERService {
