@@ -325,8 +325,8 @@ exports.getSingleMail = (req, res) => {
       res.status(200).send(email);
     })
     .catch((err) => {
-      if (err && err.message && err.message === "Error: connect ECONNREFUSED 127.0.0.1:8080") {
-        // TODO replace by proper error handling when analyzer is not available
+      if (email) {
+        // if at least loading of mail worked, reply with what we got
         res.status(200).send(email);
         return;
       }
