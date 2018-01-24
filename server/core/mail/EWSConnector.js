@@ -19,7 +19,7 @@ import Attachment from '../../models/attachment.model';
 
 class EWSConnector {
 
-  excludedBoxes = ['Conversation Action Settings', 'Files', 'Dateien', 'Einstellungen für QuickSteps', 'Journal', 'Notizen', 'Yammer-Stamm', 'Synchronisierungsprobleme' ]; //'Eingehend', 'Ausgehend', 'Feeds'
+  excludedBoxes = ['Conversation Action Settings', 'Files', 'Dateien', 'Einstellungen für QuickSteps', 'Journal', 'Notizen', 'Yammer-Stamm', 'Synchronisierungsprobleme']; //'Eingehend', 'Ausgehend', 'Feeds'
 
   constructor(user) {
 
@@ -334,6 +334,7 @@ class EWSConnector {
 
   _getOnlyEmailBoxes(result) {
     const allBoxes = result.ResponseMessages.SyncFolderHierarchyResponseMessage.Changes.Create;
+    let emailChildParent = new Map();
     let emailBoxNames = new Map();
     let emailBoxes = new Map();
     allBoxes.forEach(box => {
@@ -341,8 +342,11 @@ class EWSConnector {
         const folderId = box.Folder.FolderId.attributes.Id;
         const parentId = box.Folder.ParentFolderId.attributes.Id;
 
+        emailChildParent.set(folderId, parentId);
         emailBoxNames.set(folderId, box.Folder.DisplayName);
-        box.Folder.ParentFolderId.attributes.Name = emailBoxNames.get(parentId) || null;
+        let fullPath = [];
+        this._getFullPath(fullPath, folderId, emailChildParent, emailBoxNames);
+        box.Folder.ParentFolderId.attributes.Name = fullPath.length > 0 ? fullPath.join('/') : null;
 
         let boxArray = emailBoxes.get(parentId) ? emailBoxes.get(parentId) : [];
         boxArray.push(box.Folder);
@@ -350,6 +354,17 @@ class EWSConnector {
       }
     })
     return emailBoxes;
+  }
+
+  _getFullPath(fullPath, childId, emailChildParent, emailBoxNames) {
+    const parentId = emailChildParent.get(childId);
+    if (parentId) {
+      const parentName = emailBoxNames.get(parentId);
+      if (parentName) {
+        fullPath.unshift(parentName);
+        this._getFullPath(fullPath, parentId, emailChildParent, emailBoxNames);
+      }
+    }
   }
 
   _generateBoxList(boxes) {
