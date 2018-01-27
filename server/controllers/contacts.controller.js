@@ -53,11 +53,27 @@ exports.list = (req, res, next) => {
 exports.search = (req, res, next) => {
   const query = req.query.query;
   Contact.find(
-    {user: req.user._id, $text: {$search: query}},
-    {score: {$meta: "textScore"}, firstName: 1, lastName: 1,
-    email: 1, businessCompany: 1, businessJobTitle: 1, groups: 1})
+    {
+      user: req.user._id,
+      $text: {$search: query}
+    },
+    {
+      score: {$meta: "textScore"},
+      firstName: 1,
+      lastName: 1,
+      email: 1,
+      businessCompany: 1,
+      businessJobTitle: 1,
+      groups: 1
+    })
     .sort({score: {$meta: "textScore"}})
     .exec()
+    .then(contacts => {
+      return contacts;
+    })
+    .each(contact => {
+      appendSecondaryContacts(req.user, contact);
+    })
     .then(contacts => {
       res.status(200).send(contacts);
     })
@@ -112,7 +128,28 @@ function syncContact(providerContact, syncedAt) {
     });
 }
 
-
+function appendSecondaryContacts(user, contact) {
+  Contact.find(
+    {
+      user: user._id,
+      $or: [
+        {businessCompany: contact.businessCompany},
+        {groups: {$elemMatch: {$in: contact.groups}}}
+      ],
+      _id: {$ne: contact._id}
+    }, {
+      firstName: 1,
+      lastName: 1,
+      email: 1,
+      businessCompany: 1,
+      groups: 1
+    })
+    .exec()
+    .then(contacts => {
+      contact['secondaryContacts'] = contacts;
+      return contact;
+    });
+}
 
 
 
