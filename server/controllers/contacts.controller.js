@@ -54,7 +54,8 @@ exports.search = (req, res, next) => {
   const query = req.query.query;
   Contact.find(
     {user: req.user._id, $text: {$search: query}},
-    {score: {$meta: "textScore"}, firstName: 1, lastName: 1})
+    {score: {$meta: "textScore"}, firstName: 1, lastName: 1,
+    email: 1, businessCompany: 1, businessJobTitle: 1, groups: 1})
     .sort({score: {$meta: "textScore"}})
     .exec()
     .then(contacts => {
