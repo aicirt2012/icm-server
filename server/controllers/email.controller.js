@@ -10,7 +10,6 @@ import EWSConnector from '../core/mail/EWSConnector';
 import Pattern from '../models/pattern.model'
 
 
-
 exports.sendEmail = (req, res) => {
 
   if (req.user.isExchangeProvider()) {
@@ -312,36 +311,35 @@ exports.getSingleMail = (req, res) => {
   Email.findOne({_id: emailId}).populate('attachments')
     .lean()
     .then((mail) => {
+      // replace attachments and run old analyzer
       mail = replaceInlineAttachmentsSrc(mail, req.user);
       return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
     })
     .then(mail => {
-      Pattern.find({user:req.user}).then((p)=>
-      {
-        //this.patterns = p.map(item=>item.pattern);
-
-      console.log(p);
-        let pattern_dtos = [];
-
-        p.forEach(x=>pattern_dtos.push({
-          label: x.pattern,
-          matchTillSentenceEnd:x.matchTillSentenceEnd,
-          caseSensitive: x.caseSensitive
-        }));
-
+      // get all patterns for current user
       email = mail;
+      return Pattern.find({user: req.user});
+    })
+    .then(patterns => {
+      // transform patterns into the DTOs that the NER expects
+      let patternDTOs = [];
+      patterns.forEach(pattern => patternDTOs.push({
+        label: pattern.pattern,
+        matchTillSentenceEnd: pattern.matchTillSentenceEnd,
+        caseSensitive: pattern.caseSensitive
+      }));
+      return patternDTOs;
+    })
+    .then(patternDTOs => {
+      // call the NER service
       if (email.html)
-      {
-
-        return NERService.recognizeEntitiesInHtml(emailId, email.html,pattern_dtos);
-      }
+        return NERService.recognizeEntitiesInHtml(emailId, email.html, patternDTOs);
       else
         return NERService.recognizeEntitiesInPlainText(emailId, email.text);
-      });
     })
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
-     console.log(resultDTO.annotations);
+      console.log(resultDTO.annotations);
       res.status(200).send(email);
     })
     .catch((err) => {
