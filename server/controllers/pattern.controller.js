@@ -5,6 +5,8 @@ import Pattern from '../models/pattern.model';
 exports.createPattern = (req, res, next) => {
   const pattern = new Pattern(req.body);
   pattern.isDefault = false;
+  pattern.matchTillSentenceEnd = true;
+  pattern.caseSensitive = false;
   pattern.user = req.user;
   pattern.save().then(p => {
     res.status(200).send(p);

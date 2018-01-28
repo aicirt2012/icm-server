@@ -3,7 +3,8 @@ import Pattern from '../../models/pattern.model';
 export default {
   patterns: [{
     pattern: 'please ASAP',
-    isDefault: true
+    isDefault: true,
+    matchTillSentenceEnd:true
   }],
   init: function() {
     Pattern.find({

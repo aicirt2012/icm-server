@@ -7,6 +7,8 @@ import Socket from '../routes/socket';
 import NERService from "../core/analysis/NERService";
 import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
+import Pattern from '../models/pattern.model'
+
 
 
 exports.sendEmail = (req, res) => {
@@ -304,24 +306,42 @@ exports.delFlags = (req, res) => {
  */
 exports.getSingleMail = (req, res) => {
   const emailId = req.params.id;
+
   let email;
+
   Email.findOne({_id: emailId}).populate('attachments')
     .lean()
     .then((mail) => {
-      console.log('retrieving email id...');
-      console.log(mail);
       mail = replaceInlineAttachmentsSrc(mail, req.user);
       return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
     })
     .then(mail => {
+      Pattern.find({user:req.user}).then((p)=>
+      {
+        //this.patterns = p.map(item=>item.pattern);
+
+      console.log(p);
+        let pattern_dtos = [];
+
+        p.forEach(x=>pattern_dtos.push({
+          label: x.pattern,
+          matchTillSentenceEnd:x.matchTillSentenceEnd,
+          caseSensitive: x.caseSensitive
+        }));
+
       email = mail;
       if (email.html)
-        return NERService.recognizeEntitiesInHtml(emailId, email.html);
+      {
+
+        return NERService.recognizeEntitiesInHtml(emailId, email.html,pattern_dtos);
+      }
       else
         return NERService.recognizeEntitiesInPlainText(emailId, email.text);
+      });
     })
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
+     console.log(resultDTO.annotations);
       res.status(200).send(email);
     })
     .catch((err) => {
