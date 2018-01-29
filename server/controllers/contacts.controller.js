@@ -72,10 +72,11 @@ exports.search = (req, res, next) => {
       return contacts;
     })
     .each(contact => {
-      appendSecondaryContacts(req.user, contact);
+      contact = appendSecondaryContacts(req.user, contact);
+      return contact;
     })
     .then(contacts => {
-      res.status(200).send(contacts);
+      res.status(200).send(contacts.slice(0, 3));
     })
     .catch(err => {
       next(err);
@@ -129,7 +130,7 @@ function syncContact(providerContact, syncedAt) {
 }
 
 function appendSecondaryContacts(user, contact) {
-  Contact.find(
+  return Contact.find(
     {
       user: user._id,
       $or: [
@@ -146,7 +147,7 @@ function appendSecondaryContacts(user, contact) {
     })
     .exec()
     .then(contacts => {
-      contact['secondaryContacts'] = contacts;
+      contact.secondaryContacts = contacts;
       return contact;
     });
 }
