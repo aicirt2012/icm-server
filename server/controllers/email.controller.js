@@ -341,17 +341,25 @@ exports.getSingleMail = (req, res) => {
       email['annotations'] = resultDTO.annotations;
       if (resultDTO.annotations.length > 0) {
         let suggestedTasks = [];
-        let allDates = resultDTO.annotations.filter(x=>x.nerType === 'DATE' );
-        let allPersons = resultDTO.annotations.filter(x=>x.nerType === 'PERSON');
+        let allDates = resultDTO.annotations.filter(x => x.nerType === 'DATE');
+        let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === 'PERSON');
+        // TODO: we should intersect with Trello! because it makes no sense to suggest people that are not in the trello board!
+        // TODO: differentiate between "possibleMembers" and  "members".. for now we just send members, but in FE there is both :/
+        let allPersons = [];
+        allPersonAnnotations.forEach(x =>
+            allPersons.push({
+              fullName: x.value,
+            })
+        );
         resultDTO.annotations.forEach(a => {
-          if (a.nerType == 'TASK_TITLE'){
+          if (a.nerType == 'TASK_TITLE') {
             // pick random Date
             var date = allDates[Math.floor(Math.random() * allDates.length)];
             suggestedTasks.push({
               name: a.value,
-              taskType:"suggested",
-              date:date.value,
-              members:allPersons,
+              taskType: "suggested",
+              date: date.value,
+              members: allPersons,
             });
           }
         });
