@@ -76,7 +76,7 @@ exports.search = (req, res, next) => {
       return contact;
     })
     .then(contacts => {
-      res.status(200).send(contacts.slice(0, 3));
+      res.status(200).send(contacts);
     })
     .catch(err => {
       next(err);
@@ -147,6 +147,8 @@ function appendSecondaryContacts(user, contact) {
     })
     .exec()
     .then(contacts => {
+      //TODO sort secondary contacts
+      contacts = contacts.slice(0, 10);
       contact.secondaryContacts = contacts;
       return contact;
     });
