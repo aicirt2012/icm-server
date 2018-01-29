@@ -339,7 +339,26 @@ exports.getSingleMail = (req, res) => {
     })
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
-      console.log(resultDTO.annotations);
+      if (resultDTO.annotations.length > 0) {
+        let suggestedTasks = [];
+        let allDates = resultDTO.annotations.filter(x=>x.nerType === 'DATE' );
+        let allPersons = resultDTO.annotations.filter(x=>x.nerType === 'PERSON');
+        resultDTO.annotations.forEach(a => {
+          if (a.nerType == 'TASK_TITLE'){
+            // pick random Date
+            var date = allDates[Math.floor(Math.random() * allDates.length)];
+            suggestedTasks.push({
+              name: a.value,
+              taskType:"suggested",
+              date:date.value,
+              members:allPersons,
+            });
+          }
+        });
+
+
+        email['suggestedTasks'] = suggestedTasks;
+      }
       res.status(200).send(email);
     })
     .catch((err) => {
