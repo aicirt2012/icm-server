@@ -7,15 +7,15 @@ import SCContactConnector from '../core/contact/SCContactConnector';
  * @apiName GetContact
  * @apiGroup Contacts
  * @apiSuccessExample Success-Response:
- * //TODO   
+ * //TODO
  * {}
  */
-exports.get = (req, res, next) => {  
-  Contact.findOne({user:req.user._id}).exec()
-    .then(contact => { 
+exports.get = (req, res, next) => {
+  Contact.findOne({user: req.user._id, _id: req.params.id}).exec()
+    .then(contact => {
       res.status(200).send(contact);
     })
-    .catch(err=>{      
+    .catch(err => {
       next(err);
     });
 }
@@ -26,15 +26,15 @@ exports.get = (req, res, next) => {
  * @apiName GetContacts
  * @apiGroup Contacts
  * @apiSuccessExample Success-Response:
- * //TODO   
+ * //TODO
  * {}
  */
-exports.list = (req, res, next) => {  
-  Contact.find({user:req.user._id}, {firstName:1, lastName:1}).limit(100).exec()
-    .then(contacts => { 
+exports.list = (req, res, next) => {
+  Contact.find({user: req.user._id}, {firstName: 1, lastName: 1}).limit(100).exec()
+    .then(contacts => {
       res.status(200).send(contacts);
     })
-    .catch(err=>{      
+    .catch(err => {
       next(err);
     });
 }
@@ -47,20 +47,38 @@ exports.list = (req, res, next) => {
  * @apiName SearchContact
  * @apiGroup Contacts
  * @apiSuccessExample Success-Response:
- * //TODO   
+ * //TODO
  * {}
  */
-exports.search = (req, res, next) => {  
+exports.search = (req, res, next) => {
   const query = req.query.query;
   Contact.find(
-      {user:req.user._id, $text: {$search: query}}, 
-      {score: {$meta: "textScore"}, firstName:1, lastName:1})
+    {
+      user: req.user._id,
+      $text: {$search: query}
+    },
+    {
+      score: {$meta: "textScore"},
+      firstName: 1,
+      lastName: 1,
+      email: 1,
+      businessCompany: 1,
+      businessJobTitle: 1,
+      groups: 1
+    })
     .sort({score: {$meta: "textScore"}})
     .exec()
-    .then(contacts => { 
+    .then(contacts => {
+      return contacts;
+    })
+    .each(contact => {
+      contact = appendSecondaryContacts(req.user, contact);
+      return contact;
+    })
+    .then(contacts => {
       res.status(200).send(contacts);
     })
-    .catch(err=>{      
+    .catch(err => {
       next(err);
     });
 }
@@ -70,48 +88,71 @@ exports.search = (req, res, next) => {
  * @apiDescription Syncs all contacts
  * @apiName SyncContact
  * @apiGroup Contacts
- * @apiSuccessExample Success-Response:  
+ * @apiSuccessExample Success-Response:
  * {}
  */
-exports.sync = (req, res, next) => { 
-  const syncedAt = new Date(); 
+exports.sync = (req, res, next) => {
+  const syncedAt = new Date();
   //TODO add check if provider is configured
   //if(req.user.contactProvider.socioCortex.isEnabled)
   const p = req.user.contactProvider.socioCortex;
   console.log(req.user._id, p.baseURL, p.email, p.password);
   new SCContactConnector(req.user._id, p.baseURL, p.email, p.password)
     .getContactsStub()
-    .then(providerContacts=>{
-      return Promise.map(providerContacts, providerContact=>{
+    .then(providerContacts => {
+      return Promise.map(providerContacts, providerContact => {
         return syncContact(providerContact, syncedAt);
-      },{concurrency: 10});
+      }, {concurrency: 10});
     })
-    .then(()=>{
-      res.send({success:true});
+    .then(() => {
+      res.send({success: true});
     })
-    .catch(err=>{
+    .catch(err => {
       next(err);
     });
 }
 
-function syncContact(providerContact, syncedAt){  
-  return Contact.findOne({user:providerContact.user, providerId: providerContact.providerId}).exec()
-    .then(localContact=>{
-      if(localContact !== null){
+function syncContact(providerContact, syncedAt) {
+  return Contact.findOne({user: providerContact.user, providerId: providerContact.providerId}).exec()
+    .then(localContact => {
+      if (localContact !== null) {
         const keys = Object.keys(providerContact);
-        for(let i=0; i<keys.length; i++){
+        for (let i = 0; i < keys.length; i++) {
           localContact[keys[i]] = providerContact[keys[i]];
-        }      
-      }else{
+        }
+      } else {
         localContact = providerContact;
       }
       const newContact = new Contact(localContact);
       newContact.syncedAt = syncedAt;
-      return newContact.save();  
+      return newContact.save();
     });
 }
 
-
+function appendSecondaryContacts(user, contact) {
+  return Contact.find(
+    {
+      user: user._id,
+      $or: [
+        {businessCompany: contact.businessCompany},
+        {groups: {$elemMatch: {$in: contact.groups}}}
+      ],
+      _id: {$ne: contact._id}
+    }, {
+      firstName: 1,
+      lastName: 1,
+      email: 1,
+      businessCompany: 1,
+      groups: 1
+    })
+    .exec()
+    .then(contacts => {
+      //TODO sort secondary contacts
+      contacts = contacts.slice(0, 10);
+      contact.secondaryContacts = contacts;
+      return contact;
+    });
+}
 
 
 
