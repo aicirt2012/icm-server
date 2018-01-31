@@ -51,6 +51,7 @@ exports.list = (req, res, next) => {
  * {}
  */
 exports.search = (req, res, next) => {
+  let start = new Date().getTime();
   const query = req.query.query;
   Contact.find(
     {
@@ -77,6 +78,8 @@ exports.search = (req, res, next) => {
       return contact;
     })
     .then(contacts => {
+      let elapsed = new Date().getTime() - start;
+      console.log("Loaded contacts in " + elapsed + "ms.");
       res.status(200).send(contacts);
     })
     .catch(err => {
@@ -133,23 +136,51 @@ function syncContact(providerContact, syncedAt) {
 function appendSecondaryContacts(user, primaryContact) {
   if (!primaryContact.businessCompany && (!primaryContact.groups || primaryContact.groups.length < 1))
     return [];
-  return Contact.find(
+  return Contact.aggregate([
+    {$match: {_id: user._id}},
+    // {$match: {$or: [
+    //       {businessCompany: contact.businessCompany},
+    //       {groups: {$elemMatch: {$in: contact.groups}}}
+    //     ],}},
     {
-      user: user._id,
-      $or: [
-        {businessCompany: primaryContact.businessCompany},
-        {groups: {$elemMatch: {$in: primaryContact.groups}}}
-      ],
-      _id: {$ne: primaryContact._id}
-    }, {
-      firstName: 1,
-      lastName: 1,
-      email: 1,
-      businessCompany: 1,
-      groups: 1
-    })
-    .lean()
-    .exec()
+      $project: {
+        firstName: 1,
+        lastName: 1,
+        email: 1,
+        businessCompany: 1,
+        groups: 1
+      }
+    },
+    {
+      $addFields: {
+        commonGroups: {$setIntersection: ["$groups", contact.groups]},
+        sameCompany: {$cond:{if: {$eq: ["$businessCompany", contact.businessCompany]}, then: 1, else: 0}}
+      }
+    },
+    {
+      $addFields: {
+        relationScore: { $add: ['$commonGroups', '$sameCompany'] }
+      }
+    }
+  ]).exec()
+  // return Contact.find(
+  //   {
+  //     user: user._id,
+  //     $or: [
+  //       {businessCompany: primaryContact.businessCompany},
+  //       {groups: {$elemMatch: {$in: primaryContact.groups}}}
+  //     ],
+  //     _id: {$ne: primaryContact._id}
+  //   }, {
+  //     firstName: 1,
+  //     lastName: 1,
+  //     email: 1,
+  //     businessCompany: 1,
+  //     groups: 1
+  //   })
+  //   .lean()
+  //   .limit(10)
+  //   .exec()
     .then(contacts => {
       // TODO move calculation, sorting and result limiting to DB query to speed up process
       contacts.forEach((contact) => {
@@ -161,7 +192,7 @@ function appendSecondaryContacts(user, primaryContact) {
         // sort descending by relationsScore (highest score -> closest relation)
         return b.relationScore - a.relationScore;
       });
-      contacts = contacts.slice(0, 10);
+      // contacts = contacts.slice(0, 10);
 
       primaryContact.secondaryContacts = contacts;
       return primaryContact;
