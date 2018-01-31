@@ -79,7 +79,7 @@ exports.search = (req, res, next) => {
     })
     .then(contacts => {
       let elapsed = new Date().getTime() - start;
-      console.log("Loaded contacts in " + elapsed + "ms.");
+      console.log("Loaded contacts in " + elapsed + "ms.");   // classical: 400ms, early limiting without sorting: 100ms
       res.status(200).send(contacts);
     })
     .catch(err => {
