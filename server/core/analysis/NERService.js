@@ -3,13 +3,15 @@ import request from 'request-promise'
 
 class NERService {
 
-  static recognizeEntitiesInHtml(emailId, htmlSource) {
+  static recognizeEntitiesInHtml(emailId, htmlSource, patterns) {
+
     let options = {
       method: 'POST',
       uri: config.analyticsConnectionUrl + '/recognize/html',
       body: {
         emailId: emailId,
-        htmlSource: htmlSource
+        htmlSource: htmlSource,
+        regexPatterns:patterns
       },
       json: true
     };

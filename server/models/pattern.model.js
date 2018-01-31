@@ -5,6 +5,8 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 const PatternSchema = new mongoose.Schema({
   pattern: String,
   isDefault: Boolean,
+  matchTillSentenceEnd : Boolean,
+  caseSensitive : Boolean,
   user: { type: ObjectId, ref: 'User'}
 }, {
   timestamps: true

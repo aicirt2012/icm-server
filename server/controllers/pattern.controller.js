@@ -3,8 +3,11 @@ import Pattern from '../models/pattern.model';
 
 /* CREATE PATTERN */
 exports.createPattern = (req, res, next) => {
-  const pattern = new Pattern(req.body);
+  const pattern = new Pattern();
+  pattern.pattern=req.body.pattern;
   pattern.isDefault = false;
+  pattern.matchTillSentenceEnd = req.body.matchTillSentenceEnd;
+  pattern.caseSensitive = req.body.caseSensitive;
   pattern.user = req.user;
   pattern.save().then(p => {
     res.status(200).send(p);
