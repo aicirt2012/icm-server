@@ -66,6 +66,7 @@ exports.search = (req, res, next) => {
       businessJobTitle: 1,
       groups: 1
     })
+    .lean()
     .sort({score: {$meta: "textScore"}})
     .exec()
     .then(contacts => {
