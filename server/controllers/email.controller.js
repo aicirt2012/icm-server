@@ -8,6 +8,7 @@ import NERService from "../core/analysis/NERService";
 import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
 import Pattern from '../models/pattern.model'
+import Constants from '../models/constants';
 
 
 exports.sendEmail = (req, res) => {
@@ -341,8 +342,8 @@ exports.getSingleMail = (req, res) => {
       email['annotations'] = resultDTO.annotations;
       if (resultDTO.annotations.length > 0) {
         let suggestedTasks = [];
-        let allDates = resultDTO.annotations.filter(x => x.nerType === 'DATE');
-        let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === 'PERSON');
+        let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date);
+        let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person);
         // TODO: we should intersect with Trello! because it makes no sense to suggest people that are not in the trello board!
         // TODO: differentiate between "possibleMembers" and  "members".. for now we just send members, but in FE there is both :/
         let allPersons = [];
@@ -352,12 +353,12 @@ exports.getSingleMail = (req, res) => {
             })
         );
         resultDTO.annotations.forEach(a => {
-          if (a.nerType == 'TASK_TITLE') {
+          if (a.nerType == Constants.nerTypes.taskTitle) {
             // pick random Date
             var date = allDates[Math.floor(Math.random() * allDates.length)];
             suggestedTasks.push({
               name: a.value,
-              taskType: "suggested",
+              taskType: Constants.taskTypes.suggested,
               date: date.value,
               members: allPersons,
             });
