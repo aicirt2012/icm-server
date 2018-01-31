@@ -18,7 +18,7 @@ exports.get = (req, res, next) => {
     .catch(err => {
       next(err);
     });
-}
+};
 
 /**
  * @api {get} /contacts Get all Contacts
@@ -37,7 +37,7 @@ exports.list = (req, res, next) => {
     .catch(err => {
       next(err);
     });
-}
+};
 
 
 /**
@@ -81,7 +81,7 @@ exports.search = (req, res, next) => {
     .catch(err => {
       next(err);
     });
-}
+};
 
 /**
  * @api {post} /contacts/sync Sync Contacts
@@ -110,7 +110,7 @@ exports.sync = (req, res, next) => {
     .catch(err => {
       next(err);
     });
-}
+};
 
 function syncContact(providerContact, syncedAt) {
   return Contact.findOne({user: providerContact.user, providerId: providerContact.providerId}).exec()
@@ -145,6 +145,7 @@ function appendSecondaryContacts(user, contact) {
       businessCompany: 1,
       groups: 1
     })
+    .lean()
     .exec()
     .then(contacts => {
       //TODO sort secondary contacts
@@ -153,6 +154,3 @@ function appendSecondaryContacts(user, contact) {
       return contact;
     });
 }
-
-
-
