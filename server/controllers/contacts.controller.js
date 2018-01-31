@@ -130,15 +130,15 @@ function syncContact(providerContact, syncedAt) {
     });
 }
 
-function appendSecondaryContacts(user, contact) {
+function appendSecondaryContacts(user, primaryContact) {
   return Contact.find(
     {
       user: user._id,
       $or: [
-        {businessCompany: contact.businessCompany},
-        {groups: {$elemMatch: {$in: contact.groups}}}
+        {businessCompany: primaryContact.businessCompany},
+        {groups: {$elemMatch: {$in: primaryContact.groups}}}
       ],
-      _id: {$ne: contact._id}
+      _id: {$ne: primaryContact._id}
     }, {
       firstName: 1,
       lastName: 1,
@@ -149,9 +149,19 @@ function appendSecondaryContacts(user, contact) {
     .lean()
     .exec()
     .then(contacts => {
-      //TODO sort secondary contacts
+      // TODO move calculation, sorting and result limiting to DB query to speed up process
+      contacts.forEach((contact) => {
+        let relationScore = contact.groups.filter((group) => primaryContact.groups.includes(group)).length;
+        relationScore += contact.businessCompany && contact.businessCompany === primaryContact.businessCompany ? 1 : 0;
+        contact.relationScore = relationScore;
+      });
+      contacts.sort((a, b) => {
+        // sort descending by relationsScore (highest score -> closest relation)
+        return b.relationScore - a.relationScore;
+      });
       contacts = contacts.slice(0, 10);
-      contact.secondaryContacts = contacts;
-      return contact;
+
+      primaryContact.secondaryContacts = contacts;
+      return primaryContact;
     });
 }
