@@ -359,7 +359,7 @@ exports.getSingleMail = (req, res) => {
           suggestedTask = {
             names: allTaskAnnotations,
             dates: allDates,
-            mentionedMembers: allPersons,
+            mentionedMembers: mentionedPersons,
           };
           email['suggestedTask'] = suggestedTask;
           res.status(200).send(email);
