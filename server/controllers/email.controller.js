@@ -336,42 +336,37 @@ exports.getSingleMail = (req, res) => {
     .then(patternDTOs => {
       // call the NER service
       if (email.html)
-        return NERService.recognizeEntitiesInHtml(emailId, email.html,email.subject, patternDTOs);
+        return NERService.recognizeEntitiesInHtml(emailId, email.html, email.subject, patternDTOs);
       else
-        return NERService.recognizeEntitiesInPlainText(emailId, email.text,email.subject,patternDTOs);
+        return NERService.recognizeEntitiesInPlainText(emailId, email.text, email.subject, patternDTOs);
     })
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
-      if (resultDTO.annotations.length > 0) {
-        let allTaskAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle);
-        if (allTaskAnnotations.length > 0) {
-          let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date);
-          let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person);
-          let allPersons = [];
-          let suggestedTask;
-          allPersonAnnotations.forEach(x =>
-            allPersons.push({
-              fullName: x.value,
-            })
-          );
-
-
-          createTaskConnector(Constants.taskProviders.trello, req.user)
-
-            .getOpenBoardsForMember({}).then((allBoards) => {
-            return allBoards;
-          }).then(allBoards => {
-          let mentionedPersons=  getMentionedPersons(allPersons, allBoards);
-              suggestedTask = {
-                names: allTaskAnnotations,
-                dates: allDates,
-                mentionedMembers: allPersons,
-              };
-          });
+      let allTaskAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle);
+      if (allTaskAnnotations.length > 0) {
+        let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date);
+        let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person);
+        let allPersons = [];
+        let suggestedTask;
+        allPersonAnnotations.forEach(x =>
+          allPersons.push({
+            fullName: x.value,
+          })
+        );
+        createTaskConnector(Constants.taskProviders.trello, req.user)
+          .getOpenBoardsForMember({}).then(allBoards => {
+          let mentionedPersons = getMentionedPersons(allPersons, allBoards);
+          suggestedTask = {
+            names: allTaskAnnotations,
+            dates: allDates,
+            mentionedMembers: allPersons,
+          };
           email['suggestedTask'] = suggestedTask;
-        }
+          res.status(200).send(email);
+        });
       }
-      res.status(200).send(email);
+      else
+        res.status(200).send(email);
     })
     .catch((err) => {
       if (email) {
@@ -389,9 +384,9 @@ function getMentionedPersons(nerPersons, trelloBoards) {
   let result = [];
   nerPersons.forEach(item => {
     trelloBoards.forEach(board => {
-      item.members.forEach(member => {
-        if ((member.fullName.includes(item) || member.username.includes(item)) &&
-          result.findIndex(existingItem => existingItem.username !== member.username))
+      board.members.forEach(member => {
+        if ((member.fullName.includes(item.fullName) || member.username.includes(item.fullName))   &&
+          result.findIndex(existingItem => existingItem.username === member.username) ===-1     )
 
           result.push(member)
       })
