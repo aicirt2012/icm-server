@@ -131,6 +131,8 @@ function syncContact(providerContact, syncedAt) {
 }
 
 function appendSecondaryContacts(user, primaryContact) {
+  if (!primaryContact.businessCompany && (!primaryContact.groups || primaryContact.groups.length < 1))
+    return [];
   return Contact.find(
     {
       user: user._id,
