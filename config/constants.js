@@ -14,5 +14,9 @@ export default {
   taskTypes:{
     suggested:"suggested",
     linked:"linked"
+  },
+  textOrigins:{
+    body:"BODY",
+    subject:"SUBJECT"
   }
 }

@@ -336,9 +336,9 @@ exports.getSingleMail = (req, res) => {
     .then(patternDTOs => {
       // call the NER service
       if (email.html)
-        return NERService.recognizeEntitiesInHtml(emailId, email.html, patternDTOs);
+        return NERService.recognizeEntitiesInHtml(emailId, email.html,email.subject, patternDTOs);
       else
-        return NERService.recognizeEntitiesInPlainText(emailId, email.text);
+        return NERService.recognizeEntitiesInPlainText(emailId, email.text,email.subject,patternDTOs);
     })
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
