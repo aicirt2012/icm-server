@@ -10,7 +10,7 @@ import Task from '../../models/task.model';
 import Pattern from '../../models/pattern.model';
 import SyntaxRules from './SyntaxRules';
 import Classifier from './Classifier';
-import Constants from '../../models/constants';
+import Constants from '../../../config/constants';
 
 class Analyzer {
   /*

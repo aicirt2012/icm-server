@@ -144,6 +144,24 @@ class TrelloConnector extends TaskConnector {
       })
     });
   }
+  getOpenBoardsForMember(params) {
+    params['fields'] = 'id';
+    params['filter'] = 'open';
+    const url = this.buildURL(`/members/${this.options.trelloId}/boards`, params);
+    return new Promise((resolve, reject) => {
+      fetch(url).then((res) => res.json()).then((boards) => {
+        let promises = [];
+        boards.forEach((b) => {
+          promises.push(this.getBoard(b.id, params));
+        });
+        Promise.all(promises).then((res) => {
+          resolve(res);
+        });
+      }).catch((err) => {
+        reject(err);
+      })
+    });
+  }
 
   /**
    * get board

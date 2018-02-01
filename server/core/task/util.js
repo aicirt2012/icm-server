@@ -1,6 +1,6 @@
 import TrelloConnector from './TrelloConnector';
 import SociocortexConnector from './SociocortexConnector';
-import Constants from '../../models/constants';
+import Constants from '../../../config/constants';
 
 
 /* TASK HELPER */

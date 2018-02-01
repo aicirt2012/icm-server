@@ -8,7 +8,8 @@ import NERService from "../core/analysis/NERService";
 import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
 import Pattern from '../models/pattern.model'
-import Constants from '../models/constants';
+import Constants from '../../config/constants';
+import {createTaskConnector} from '../core/task/util';
 
 
 exports.sendEmail = (req, res) => {
@@ -307,6 +308,7 @@ exports.delFlags = (req, res) => {
 exports.getSingleMail = (req, res) => {
   const emailId = req.params.id;
 
+
   let email;
 
   Email.findOne({_id: emailId}).populate('attachments')
@@ -341,32 +343,33 @@ exports.getSingleMail = (req, res) => {
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
       if (resultDTO.annotations.length > 0) {
-        let suggestedTasks = [];
-        let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date);
-        let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person);
-        // TODO: we should intersect with Trello! because it makes no sense to suggest people that are not in the trello board!
-        // TODO: differentiate between "possibleMembers" and  "members".. for now we just send members, but in FE there is both :/
-        let allPersons = [];
-        allPersonAnnotations.forEach(x =>
+        let allTaskAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle);
+        if (allTaskAnnotations.length > 0) {
+          let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date);
+          let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person);
+          let allPersons = [];
+          let suggestedTask;
+          allPersonAnnotations.forEach(x =>
             allPersons.push({
               fullName: x.value,
             })
-        );
-        resultDTO.annotations.forEach(a => {
-          if (a.nerType == Constants.nerTypes.taskTitle) {
-            // pick random Date
-            var date = allDates[Math.floor(Math.random() * allDates.length)];
-            suggestedTasks.push({
-              name: a.value,
-              taskType: Constants.taskTypes.suggested,
-              date: date.value,
-              members: allPersons,
-            });
-          }
-        });
+          );
 
 
-        email['suggestedTasks'] = suggestedTasks;
+          createTaskConnector(Constants.taskProviders.trello, req.user)
+
+            .getOpenBoardsForMember({}).then((allBoards) => {
+            return allBoards;
+          }).then(allBoards => {
+          let mentionedPersons=  getMentionedPersons(allPersons, allBoards);
+              suggestedTask = {
+                names: allTaskAnnotations,
+                dates: allDates,
+                mentionedMembers: allPersons,
+              };
+          });
+          email['suggestedTask'] = suggestedTask;
+        }
       }
       res.status(200).send(email);
     })
@@ -378,6 +381,23 @@ exports.getSingleMail = (req, res) => {
       }
       res.status(400).send(err);
     });
+}
+
+
+function getMentionedPersons(nerPersons, trelloBoards) {
+
+  let result = [];
+  nerPersons.forEach(item => {
+    trelloBoards.forEach(board => {
+      item.members.forEach(member => {
+        if ((member.fullName.includes(item) || member.username.includes(item)) &&
+          result.findIndex(existingItem => existingItem.username !== member.username))
+
+          result.push(member)
+      })
+    })
+  });
+  return result;
 }
 
 // Inline attachments URL and tokens are changed in the front-end
