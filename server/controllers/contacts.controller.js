@@ -51,14 +51,17 @@ exports.list = (req, res, next) => {
  * {}
  */
 exports.search = (req, res, next) => {
+  //FIXME ensure query is a plain text string, not a regex itself!
+  //FIXME ensure query has a sufficient length
+  let start = new Date().getTime();
   const query = req.query.query;
   Contact.find(
     {
       user: req.user._id,
-      $text: {$search: query}
+      $or: [{firstName: new RegExp(query, "i")},
+        {lastName: new RegExp(query, "i")}]
     },
     {
-      score: {$meta: "textScore"},
       firstName: 1,
       lastName: 1,
       email: 1,
@@ -67,13 +70,15 @@ exports.search = (req, res, next) => {
       groups: 1
     })
     .lean()
-    .sort({score: {$meta: "textScore"}})
+    // .sort({score: {$meta: "textScore"}}) // TODO decide how to sort results
     .exec()
     .map(contact => {
       contact = appendSecondaryContacts(req.user, contact);
       return contact;
     }, {concurrency: 5})
     .then(contacts => {
+      let elapsed = new Date().getTime() - start;
+      console.log("Loaded contacts in " + elapsed + "ms.");
       res.status(200).send(contacts);
     })
     .catch(err => {
