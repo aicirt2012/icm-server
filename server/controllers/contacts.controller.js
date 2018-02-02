@@ -69,13 +69,10 @@ exports.search = (req, res, next) => {
     .lean()
     .sort({score: {$meta: "textScore"}})
     .exec()
-    .then(contacts => {
-      return contacts;
-    })
-    .each(contact => {
+    .map(contact => {
       contact = appendSecondaryContacts(req.user, contact);
       return contact;
-    })
+    }, {concurrency: 5})
     .then(contacts => {
       res.status(200).send(contacts);
     })
