@@ -342,9 +342,9 @@ exports.getSingleMail = (req, res) => {
     })
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
-      let allTaskAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle);
-      if (allTaskAnnotations.length > 0) {
-        let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date);
+      let allTaskAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x=>x.value);
+            if (allTaskAnnotations.length > 0) {
+        let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x=>x.value);
         let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person);
         let allPersons = [];
         let suggestedTask;
@@ -359,9 +359,11 @@ exports.getSingleMail = (req, res) => {
           suggestedTask = {
             names: allTaskAnnotations,
             dates: allDates,
-            mentionedMembers: mentionedPersons,
+            members: mentionedPersons,
+            taskType: Constants.taskTypes.suggested
           };
-          email['suggestedTask'] = suggestedTask;
+          if (suggestedTask&&(suggestedTask.dates.length>0 || suggestedTask.names.length>0 || suggestedTask.members.length>0))
+            email['suggestedTask'] = suggestedTask;
           res.status(200).send(email);
         });
       }
@@ -385,8 +387,8 @@ function getMentionedPersons(nerPersons, trelloBoards) {
   nerPersons.forEach(item => {
     trelloBoards.forEach(board => {
       board.members.forEach(member => {
-        if ((member.fullName.includes(item.fullName) || member.username.includes(item.fullName))   &&
-          result.findIndex(existingItem => existingItem.username === member.username) ===-1     )
+        if ((member.fullName.includes(item.fullName) || member.username.includes(item.fullName)) &&
+          result.findIndex(existingItem => existingItem.username === member.username) === -1)
 
           result.push(member)
       })
