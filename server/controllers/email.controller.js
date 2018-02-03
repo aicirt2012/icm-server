@@ -307,8 +307,6 @@ exports.delFlags = (req, res) => {
  */
 exports.getSingleMail = (req, res) => {
   const emailId = req.params.id;
-
-
   let email;
 
   Email.findOne({_id: emailId}).populate('attachments')
@@ -341,9 +339,9 @@ exports.getSingleMail = (req, res) => {
     })
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
-      let allTaskAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x=>x.value);
-            if (allTaskAnnotations.length > 0) {
-        let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x=>x.value);
+      let allTaskAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x => x.value);
+      if (allTaskAnnotations.length > 0) {
+        let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.value);
         let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person);
         let allPersons = [];
         let suggestedTask;
@@ -361,7 +359,7 @@ exports.getSingleMail = (req, res) => {
             members: mentionedPersons,
             taskType: Constants.taskTypes.suggested
           };
-          if (suggestedTask&&(suggestedTask.dates.length>0 || suggestedTask.names.length>0 || suggestedTask.members.length>0))
+          if (suggestedTask && (suggestedTask.dates.length > 0 || suggestedTask.names.length > 0 || suggestedTask.members.length > 0))
             email['suggestedTask'] = suggestedTask;
           res.status(200).send(email);
         });
@@ -377,7 +375,7 @@ exports.getSingleMail = (req, res) => {
       }
       res.status(400).send(err);
     });
-}
+};
 
 
 function getMentionedPersons(nerPersons, trelloBoards) {
