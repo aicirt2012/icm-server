@@ -328,8 +328,7 @@ exports.getSingleMail = (req, res) => {
       let patternDTOs = [];
       patterns.forEach(pattern => patternDTOs.push({
         label: pattern.pattern,
-        matchTillSentenceEnd: pattern.matchTillSentenceEnd,
-        caseSensitive: pattern.caseSensitive
+        isRegex: pattern.isRegex
       }));
       return patternDTOs;
     })

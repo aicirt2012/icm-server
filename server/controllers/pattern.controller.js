@@ -5,9 +5,7 @@ import Pattern from '../models/pattern.model';
 exports.createPattern = (req, res, next) => {
   const pattern = new Pattern();
   pattern.pattern=req.body.pattern;
-  pattern.isDefault = false;
-  pattern.matchTillSentenceEnd = req.body.matchTillSentenceEnd;
-  pattern.caseSensitive = req.body.caseSensitive;
+  pattern.isRegex = req.body.isRegex;
   pattern.user = req.user;
   pattern.save().then(p => {
     res.status(200).send(p);
@@ -56,11 +54,7 @@ exports.deletePattern = (req, res, next) => {
 /* GET ALL PATTERNS */
 exports.getAllPatterns = (req, res, next) => {
   Pattern.find({
-    $or: [{
-      isDefault: true
-    }, {
       user: req.user
-    }]
   }).then((patterns) => {
     res.status(200).send(patterns);
   }).catch((err) => {
