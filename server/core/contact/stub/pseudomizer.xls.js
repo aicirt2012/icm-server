@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const sha256 = x => crypto.createHash('sha1').update(x, 'utf8').digest('hex');
 
 const inputCrawlerDir = 'crawler.data.json';
-const inputContactsDir = '../../../../../Kontakt Simplified.xlsx';
+const inputContactsDir = '../../../../../Kontakt.xlsx'; // only *.xlsx files
 const outputDir = 'sc.contact.stub.contacts.xlsx';
 
 
@@ -110,7 +110,10 @@ workbook.xlsx.readFile(inputContactsDir)
     })
     .then(()=>{
       console.log('Pseudomizer finished!')
-    });
+    })
+    .catch(err=>{
+      console.log(err);
+    })
 
 
 
