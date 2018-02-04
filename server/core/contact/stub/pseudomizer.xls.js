@@ -9,7 +9,7 @@ const inputContactsDir = '../../../../../Kontakt.xlsx'; // only *.xlsx files
 const outputDir = 'sc.contact.stub.contacts.xlsx';
 
 
-const headers = new Set(['Title', 'First Name', 'Last Name', 'Birthday', 'E-Mail', 'E-Mail 2', 'Url', 'Web Page', 'LinkedIn URL', 'Home Country', 'Home State', 'Home Street', 'Home Zip Code', 'Home City', 'Telephone Home', 'Telephone Mobile', 'Fax Home', 'Company', 'Business Country', 'Business State', 'Business Zip Code', 'Business City', 'Business Street', 'Telephone Business', 'Telephone Assistant', 'Fax Business', 'Department', 'Job Title', 'Groups']);
+const headers = new Set(['Kontakt', 'Title', 'First Name', 'Last Name', 'Birthday', 'E-Mail', 'E-Mail 2', 'Url', 'Web Page', 'LinkedIn URL', 'Home Country', 'Home State', 'Home Street', 'Home Zip Code', 'Home City', 'Telephone Home', 'Telephone Mobile', 'Fax Home', 'Company', 'Business Country', 'Business State', 'Business Zip Code', 'Business City', 'Business Street', 'Telephone Business', 'Telephone Assistant', 'Fax Business', 'Department', 'Job Title', 'Groups']);
 const map = new Map(); //<colNr, header>
 
 if(!fs.existsSync(inputCrawlerDir))
@@ -37,8 +37,16 @@ workbook.xlsx.readFile(inputContactsDir)
               if(map.has(i)){
                 if(value != null){
                   const field = map.get(i);
-                  console.log(field, value)
-                  if(field == 'Title'){
+                  //console.log(field, value)
+                  if(field == 'Kontakt'){
+                    console.log(row.values[1])
+                    let title = "";
+                    Array.from(map.keys()).forEach(key=>{
+                      if(map.get(key) == 'Title' && row.values[key])
+                        title = row.values[key] + " ";
+                    });                    
+                    newValue = title + crawlerContact.name+" "+crawlerContact.surname;
+                  }else if(field == 'Title'){
                     newValue = value;
                   }else if(field == 'First Name'){
                     newValue = crawlerContact.name;
@@ -101,7 +109,6 @@ workbook.xlsx.readFile(inputContactsDir)
               }
               row.getCell(i).value = newValue;                            
             }); 
-            console.log(crawlerContact) 
           }          
         });
     })
