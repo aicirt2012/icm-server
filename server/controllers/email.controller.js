@@ -2,11 +2,14 @@ import Promise from 'bluebird';
 import Email from '../models/email.model';
 import Box from '../models/box.model';
 import User from '../models/user.model';
-import Analyzer from '../core/engine/analyzer';
+import Analyzer from '../core/engine/Analyzer';
 import Socket from '../routes/socket';
 import NERService from "../core/analysis/NERService";
 import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
+import Pattern from '../models/pattern.model'
+import Constants from '../../config/constants';
+import {createTaskConnector} from '../core/task/util';
 
 
 exports.sendEmail = (req, res) => {
@@ -305,23 +308,60 @@ exports.delFlags = (req, res) => {
 exports.getSingleMail = (req, res) => {
   const emailId = req.params.id;
   let email;
+
   Email.findOne({_id: emailId}).populate('attachments')
     .lean()
     .then((mail) => {
-      console.log('retrieving email id...');
-      console.log(mail);
+      // replace attachments and run old analyzer
       mail = replaceInlineAttachmentsSrc(mail, req.user);
       return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
     })
     .then(mail => {
+      // get all patterns for current user
       email = mail;
+      return Pattern.find({user: req.user});
+    })
+    .then(patterns => {
+      // transform patterns into the DTOs that the NER expects
+      let patternDTOs = [];
+      patterns.forEach(pattern => patternDTOs.push({
+        label: pattern.pattern,
+        isRegex: pattern.isRegex
+      }));
+      return patternDTOs;
+    })
+    .then(patternDTOs => {
+      // call the NER service
       if (email.html)
-        return NERService.recognizeEntitiesInHtml(emailId, email.html);
+        return NERService.recognizeEntitiesInHtml(emailId, email.html, email.subject, patternDTOs);
       else
-        return NERService.recognizeEntitiesInPlainText(emailId, email.text);
+        return NERService.recognizeEntitiesInPlainText(emailId, email.text, email.subject, patternDTOs);
     })
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
+      let allPersons = [];
+      resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person).forEach(x =>
+        allPersons.push({
+          fullName: x.formattedValue,
+        })
+      );
+      return createTaskConnector(Constants.taskProviders.trello, req.user)
+        .getOpenBoardsForMember({}).then(allBoards => {
+          return getUserFullNamesFromEmail(email, req.user).then(emails => {
+            //put people in to, cc,from, bcc first
+            allPersons = allPersons.concat(emails, allPersons);
+            let recognizedPersons = getMentionedPersons(allPersons, allBoards);
+            email['suggestedData'] = {
+              titles: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x => x.formattedValue),
+              dates: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.formattedValue),
+              persons: recognizedPersons
+            };
+            email['suggestedData']['titles'].push(email.subject);
+            return email;
+          })
+        })
+    })
+    .then(email => {
       res.status(200).send(email);
     })
     .catch((err) => {
@@ -332,7 +372,54 @@ exports.getSingleMail = (req, res) => {
       }
       res.status(400).send(err);
     });
+};
+
+
+function getMentionedPersons(nerPersons, trelloBoards) {
+
+  let result = [];
+  nerPersons.forEach(item => {
+    trelloBoards.forEach(board => {
+      board.members.forEach(member => {
+        if ((member.fullName.includes(item.fullName) || member.username.includes(item.fullName)) &&
+          result.findIndex(existingItem => existingItem.username === member.username) === -1)
+
+          result.push(member)
+      })
+    })
+  });
+  return result;
 }
+
+
+function getUserFullNamesFromEmail(email, user) {
+  let allAddresses = email.to;
+  allAddresses = allAddresses.concat(email.cc);
+  allAddresses = allAddresses.concat(email.from);
+  allAddresses = allAddresses.concat(email.bcc);
+  let trelloConnector = createTaskConnector(Constants.taskProviders.trello, user);
+
+  let result = [];
+  let promises = [];
+  return new Promise((resolve, reject) => {
+    allAddresses.forEach(address => {
+        let newPromise = trelloConnector.searchMembers({query: address.address, limit: '1'});
+        promises.push(newPromise);
+      }
+    );
+    Promise.all(promises).then((values) => {
+      console.log(values);
+      values.forEach(value => {
+        if (value.length > 0 && value[0].fullName && result.findIndex(existingItem => existingItem.fullName === value[0].fullName) === -1)
+          result.push({"fullName": value[0].fullName});
+      });
+      resolve(result);
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+}
+
 
 // Inline attachments URL and tokens are changed in the front-end
 // they have the form AttachmentURL/attachmentId?token=JWTToken
@@ -477,5 +564,4 @@ exports.appendEnron = (req, res) => {
 
     });
 
-}
-
+};

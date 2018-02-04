@@ -38,7 +38,7 @@ class LingueeConnector {
     translate(word) {
       //TODO implement multiple language support, see language variable (low priority)
       return new Promise((resolve, reject) => {
-        request('http://www.linguee.com/english-german/search?source=auto&query='+word, function (err, res, body) {
+        request({uri: 'http://www.linguee.com/english-german/search?source=auto&query=' + word, encoding: 'binary' }, function (err, res, body) {
           if (!err && res.statusCode == 200) {
             const $ = cheerio.load(body);
             const translation = [];

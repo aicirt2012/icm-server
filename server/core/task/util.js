@@ -1,13 +1,15 @@
 import TrelloConnector from './TrelloConnector';
 import SociocortexConnector from './SociocortexConnector';
+import Constants from '../../../config/constants';
+
 
 /* TASK HELPER */
 export function createTaskConnector(provider, user) {
   switch (provider) {
-    case 'trello':
+    case Constants.taskProviders.trello:
       return new TrelloConnector(user.trello);
       break;
-    case 'sociocortex':
+    case Constants.taskProviders.socioCortex:
       return new SociocortexConnector(user.sociocortex);
       break;
     default:

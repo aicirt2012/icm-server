@@ -10,6 +10,7 @@ import Task from '../../models/task.model';
 import Pattern from '../../models/pattern.model';
 import SyntaxRules from './SyntaxRules';
 import Classifier from './Classifier';
+import Constants from '../../../config/constants';
 
 class Analyzer {
   /*
@@ -74,7 +75,7 @@ class Analyzer {
         });
         Promise.all(promises).then((results) => {
           this.linkedTasks = results.map((r) => {
-            r['taskType'] = 'linked';
+            r['taskType'] = Constants.taskTypes.linked;
             return r;
           }).filter((task) => task.closed == false);
           resolve(results);

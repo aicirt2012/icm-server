@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Promise from 'bluebird';
-import config from '../../config/env';
+
 const ObjectId = mongoose.Schema.Types.ObjectId;
 mongoose.Promise = Promise;
 
@@ -26,7 +26,7 @@ const ContactSchema = new mongoose.Schema({
   businessCountry: {type: String, index: true},
   businessState: {type: String, index: true},
   businessZip: {type: String, index: true},
-  businessCity: {type: String, index: true},  
+  businessCity: {type: String, index: true},
   businessStreet: {type: String, index: true},
   businessPhone: {type: String, index: true},
   businessPhoneAssistant: {type: String, index: true},
@@ -35,17 +35,17 @@ const ContactSchema = new mongoose.Schema({
   businessJobTitle: {type: String, index: true},
   groups: [{type: String, index: true}],
   provider: {type: String, index: true},
-  providerId: {type: String, index: true},  
+  providerId: {type: String, index: true},
   user: {type: ObjectId, ref: 'User'},
   syncedAt: Date,
   lastModifiedAt: Date
 }, {timestamps: true});
 
-ContactSchema.index({'$**': 'text'},{"weights": { firstName:150, lastName:150 }});
+ContactSchema.index({'$**': 'text'}, {"weights": {firstName: 150, lastName: 150}});
 
 ContactSchema.statics.removeByUserId = (userId) => {
-  return Contact.find({user:userId}).remove().exec();
-}
+  return Contact.find({user: userId}).remove().exec();
+};
 
-let Contact = mongoose.model('Contact', ContactSchema)
+let Contact = mongoose.model('Contact', ContactSchema);
 export default Contact;
