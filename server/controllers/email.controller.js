@@ -339,33 +339,25 @@ exports.getSingleMail = (req, res) => {
     })
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
-      let allTaskAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x => x.value);
-      if (allTaskAnnotations.length > 0) {
-        let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.value);
-        let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person);
-        let allPersons = [];
-        let suggestedTask;
-        allPersonAnnotations.forEach(x =>
-          allPersons.push({
-            fullName: x.value,
-          })
-        );
-        createTaskConnector(Constants.taskProviders.trello, req.user)
-          .getOpenBoardsForMember({}).then(allBoards => {
-          let mentionedPersons = getMentionedPersons(allPersons, allBoards);
-          suggestedTask = {
-            names: allTaskAnnotations,
-            dates: allDates,
-            members: mentionedPersons,
-            taskType: Constants.taskTypes.suggested
+      let allPersons = [];
+      resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person).forEach(x =>
+        allPersons.push({
+          fullName: x.formattedValue,
+        })
+      );
+      return createTaskConnector(Constants.taskProviders.trello, req.user)
+        .getOpenBoardsForMember({}).then(allBoards => {
+          let recognizedPersons = getMentionedPersons(allPersons, allBoards);
+          email['suggestedData'] = {
+            titles: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x => x.formattedValue),
+            dates: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.formattedValue),
+            persons: recognizedPersons
           };
-          if (suggestedTask && (suggestedTask.dates.length > 0 || suggestedTask.names.length > 0 || suggestedTask.members.length > 0))
-            email['suggestedTask'] = suggestedTask;
-          res.status(200).send(email);
+          return email;
         });
-      }
-      else
-        res.status(200).send(email);
+    })
+    .then(email => {
+      res.status(200).send(email);
     })
     .catch((err) => {
       if (email) {
