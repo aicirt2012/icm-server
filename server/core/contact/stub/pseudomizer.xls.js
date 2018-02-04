@@ -11,6 +11,7 @@ const outputDir = 'sc.contact.stub.contacts.xlsx';
 
 const headers = new Set(['Kontakt', 'Title', 'First Name', 'Last Name', 'Birthday', 'E-Mail', 'E-Mail 2', 'Url', 'Web Page', 'LinkedIn URL', 'Home Country', 'Home State', 'Home Street', 'Home Zip Code', 'Home City', 'Telephone Home', 'Telephone Mobile', 'Fax Home', 'Company', 'Business Country', 'Business State', 'Business Zip Code', 'Business City', 'Business Street', 'Telephone Business', 'Telephone Assistant', 'Fax Business', 'Department', 'Job Title', 'Groups']);
 const map = new Map(); //<colNr, header>
+const groups = new Map();
 
 if(!fs.existsSync(inputCrawlerDir))
   console.log('Input Crawler file not found!')
@@ -103,7 +104,9 @@ workbook.xlsx.readFile(inputContactsDir)
                   }else if(field == 'Job Title'){
                     newValue = 'anonymized value';
                   }else if(field == 'Groups'){
-                    newValue = value;
+                    if(!groups.has(value))                    
+                      groups.set(value, 'G'+(groups.size+1));                      
+                    newValue = groups.get(value);
                   }                  
                 }  
               }
@@ -116,6 +119,7 @@ workbook.xlsx.readFile(inputContactsDir)
       workbook.xlsx.writeFile(outputDir)   
     })
     .then(()=>{
+      console.log(groups)
       console.log('Pseudomizer finished!')
     })
     .catch(err=>{
