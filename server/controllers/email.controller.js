@@ -347,6 +347,9 @@ exports.getSingleMail = (req, res) => {
       );
       return createTaskConnector(Constants.taskProviders.trello, req.user)
         .getOpenBoardsForMember({}).then(allBoards => {
+          return getUserFullNamesFromEmail(email, req.user).then(emails => {
+          //put people in to, cc,from, bcc first
+          allPersons = allPersons.concat(emails, allPersons);
           let recognizedPersons = getMentionedPersons(allPersons, allBoards);
           email['suggestedData'] = {
             titles: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x => x.formattedValue),
@@ -355,7 +358,7 @@ exports.getSingleMail = (req, res) => {
           };
           email['suggestedData']['titles'].push(email.subject);
           return email;
-        });
+        })
     })
     .then(email => {
       res.status(200).send(email);
@@ -368,24 +371,54 @@ exports.getSingleMail = (req, res) => {
       }
       res.status(400).send(err);
     });
-};
+});
 
 
-function getMentionedPersons(nerPersons, trelloBoards) {
+  function getMentionedPersons(nerPersons, trelloBoards) {
 
-  let result = [];
-  nerPersons.forEach(item => {
-    trelloBoards.forEach(board => {
-      board.members.forEach(member => {
-        if ((member.fullName.includes(item.fullName) || member.username.includes(item.fullName)) &&
-          result.findIndex(existingItem => existingItem.username === member.username) === -1)
+    let result = [];
+    nerPersons.forEach(item => {
+      trelloBoards.forEach(board => {
+        board.members.forEach(member => {
+          if ((member.fullName.includes(item.fullName) || member.username.includes(item.fullName)) &&
+            result.findIndex(existingItem => existingItem.username === member.username) === -1)
 
-          result.push(member)
+            result.push(member)
+        })
       })
-    })
-  });
-  return result;
-}
+    });
+    return result;
+  }
+
+
+  function getUserFullNamesFromEmail(email, user) {
+    let allAddresses = email.to;
+    allAddresses = allAddresses.concat(email.cc);
+    allAddresses = allAddresses.concat(email.from);
+    allAddresses = allAddresses.concat(email.bcc);
+    let trelloConnector = createTaskConnector(Constants.taskProviders.trello, user);
+
+    let result = [];
+    let promises = [];
+    return new Promise((resolve, reject) => {
+      allAddresses.forEach(address => {
+          let newPromise = trelloConnector.searchMembers({query: address.address, limit: '1'});
+          promises.push(newPromise);
+        }
+      );
+      Promise.all(promises).then((values) => {
+        console.log(values);
+        values.forEach(value => {
+          if (value.length > 0 && value[0].fullName != undefined && result.findIndex(existingItem => existingItem.fullName === value[0].fullName) === -1)
+            result.push({"fullName": value[0].fullName});
+        });
+        resolve(result);
+      }).catch((err) => {
+        reject(err);
+      });
+    });
+  }
+
 
 // Inline attachments URL and tokens are changed in the front-end
 // they have the form AttachmentURL/attachmentId?token=JWTToken
