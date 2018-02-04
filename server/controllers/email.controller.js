@@ -342,37 +342,34 @@ exports.getSingleMail = (req, res) => {
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
       let allTaskAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x => x.value);
-      if (allTaskAnnotations.length > 0) {
-        let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.value);
-        let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person);
-        let allPersons = [];
-        let suggestedTask;
-        allPersonAnnotations.forEach(x =>
-          allPersons.push({
-            fullName: x.value,
-          })
-        );
-        createTaskConnector(Constants.taskProviders.trello, req.user)
-          .getOpenBoardsForMember({}).then(allBoards => {
-          let emailAddresses = [];
-          getUserFullNamesFromEmail(email, req.user).then(emails => {
-            //put people in to, cc,from, bcc first
-            allPersons = allPersons.concat(emails, allPersons);
-            let mentionedPersons = getMentionedPersons(allPersons, allBoards);
-            suggestedTask = {
-              names: allTaskAnnotations,
-              dates: allDates,
-              members: mentionedPersons,
-              taskType: Constants.taskTypes.suggested
-            };
-            if (suggestedTask && (suggestedTask.dates.length > 0 || suggestedTask.names.length > 0 || suggestedTask.members.length > 0))
-              email['suggestedTask'] = suggestedTask;
-            res.status(200).send(email);
-          });
+      allTaskAnnotations.unshift(email.subject);
+      let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.value);
+      let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person);
+      let allPersons = [];
+      let suggestedTask;
+      allPersonAnnotations.forEach(x =>
+        allPersons.push({
+          fullName: x.value,
+        })
+      );
+      createTaskConnector(Constants.taskProviders.trello, req.user)
+        .getOpenBoardsForMember({}).then(allBoards => {
+        let emailAddresses = [];
+        getUserFullNamesFromEmail(email, req.user).then(emails => {
+          //put people in to, cc,from, bcc first
+          allPersons = allPersons.concat(emails, allPersons);
+          let mentionedPersons = getMentionedPersons(allPersons, allBoards);
+          suggestedTask = {
+            names: allTaskAnnotations,
+            dates: allDates,
+            members: mentionedPersons,
+            taskType: Constants.taskTypes.suggested
+          };
+          email['suggestedTask'] = suggestedTask;
+          res.status(200).send(email);
         });
-      }
-      else
-        res.status(200).send(email);
+      });
+
     })
     .catch((err) => {
       if (email) {
@@ -422,8 +419,8 @@ function getUserFullNamesFromEmail(email, user) {
     );
     Promise.all(promises).then((values) => {
       console.log(values);
-      values.forEach(value=> {
-        if (value.length>0 && value[0].fullName != undefined && result.findIndex(existingItem => existingItem.fullName === value[0].fullName) === -1)
+      values.forEach(value => {
+        if (value.length > 0 && value[0].fullName != undefined && result.findIndex(existingItem => existingItem.fullName === value[0].fullName) === -1)
           result.push({"fullName": value[0].fullName});
       });
       resolve(result);
