@@ -353,6 +353,7 @@ exports.getSingleMail = (req, res) => {
             dates: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.formattedValue),
             persons: recognizedPersons
           };
+          email['suggestedData']['titles'].push(email.subject);
           return email;
         });
     })
