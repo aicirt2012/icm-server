@@ -341,9 +341,9 @@ exports.getSingleMail = (req, res) => {
     })
     .then(resultDTO => {
       email['annotations'] = resultDTO.annotations;
-      let allTaskAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x=>x.value);
-            if (allTaskAnnotations.length > 0) {
-        let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x=>x.value);
+      let allTaskAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x => x.value);
+      if (allTaskAnnotations.length > 0) {
+        let allDates = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.value);
         let allPersonAnnotations = resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person);
         let allPersons = [];
         let suggestedTask;
@@ -354,16 +354,21 @@ exports.getSingleMail = (req, res) => {
         );
         createTaskConnector(Constants.taskProviders.trello, req.user)
           .getOpenBoardsForMember({}).then(allBoards => {
-          let mentionedPersons = getMentionedPersons(allPersons, allBoards);
-          suggestedTask = {
-            names: allTaskAnnotations,
-            dates: allDates,
-            members: mentionedPersons,
-            taskType: Constants.taskTypes.suggested
-          };
-          if (suggestedTask&&(suggestedTask.dates.length>0 || suggestedTask.names.length>0 || suggestedTask.members.length>0))
-            email['suggestedTask'] = suggestedTask;
-          res.status(200).send(email);
+          let emailAddresses = [];
+          getUserFullNamesFromEmail(email, req.user).then(emails => {
+            //put people in to, cc,from, bcc first
+            allPersons = allPersons.concat(emails, allPersons);
+            let mentionedPersons = getMentionedPersons(allPersons, allBoards);
+            suggestedTask = {
+              names: allTaskAnnotations,
+              dates: allDates,
+              members: mentionedPersons,
+              taskType: Constants.taskTypes.suggested
+            };
+            if (suggestedTask && (suggestedTask.dates.length > 0 || suggestedTask.names.length > 0 || suggestedTask.members.length > 0))
+              email['suggestedTask'] = suggestedTask;
+            res.status(200).send(email);
+          });
         });
       }
       else
@@ -395,6 +400,39 @@ function getMentionedPersons(nerPersons, trelloBoards) {
   });
   return result;
 }
+
+
+function getUserFullNamesFromEmail(email, user) {
+
+  let allAddresses = email.to;
+  allAddresses = allAddresses.concat(email.cc);
+  allAddresses = allAddresses.concat(email.from);
+  allAddresses = allAddresses.concat(email.bcc);
+  let trelloConnector = createTaskConnector(Constants.taskProviders.trello, user);
+
+  let result = [];
+  let promises = [];
+  return new Promise((resolve, reject) => {
+    allAddresses.forEach(address => {
+        let newPromise = trelloConnector.searchMembers({query: address.address, limit: '1'});
+        promises.push(newPromise);
+
+
+      }
+    );
+    Promise.all(promises).then((values) => {
+      console.log(values);
+      values.forEach(value=> {
+        if (value.length>0 && value[0].fullName != undefined && result.findIndex(existingItem => existingItem.fullName === value[0].fullName) === -1)
+          result.push({"fullName": value[0].fullName});
+      });
+      resolve(result);
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+}
+
 
 // Inline attachments URL and tokens are changed in the front-end
 // they have the form AttachmentURL/attachmentId?token=JWTToken
