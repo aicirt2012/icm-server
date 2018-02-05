@@ -47,10 +47,16 @@ class TrelloConnector extends TaskConnector {
    * get task
    */
   getTask(id) {
-    let params = {'members':'true','board':'true','list':'true', 'stickers': 'true'};
+    let params = {'members': 'true', 'board': 'true', 'list': 'true', 'stickers': 'true'};
     const url = this.buildURL(`/cards/${id}`, params);
     return new Promise((resolve, reject) => {
-      fetch(url).then((res) => res.json()).then((json) => {
+      fetch(url).then((res) => res.json()
+      ).then((task) => {
+        return this.getMembersForBoard(task.board.id).then((members) => {
+          task.board.members = members;
+          return task;
+        })
+      }).then((json) => {
         resolve(json);
       }).catch((err) => {
         reject(err);
@@ -107,6 +113,7 @@ class TrelloConnector extends TaskConnector {
       })
     });
   }
+
   /**
    * search members
    * @params {string} - query (required).
@@ -144,6 +151,7 @@ class TrelloConnector extends TaskConnector {
       })
     });
   }
+
   getOpenBoardsForMember(params) {
     params['fields'] = 'id';
     params['filter'] = 'open';
@@ -231,6 +239,18 @@ class TrelloConnector extends TaskConnector {
         Promise.all(promises).then((res) => {
           resolve(res);
         });
+      }).catch((err) => {
+        reject(err);
+      })
+    });
+  }
+
+  getMembersForBoard(boardId) {
+    let params = {'fields': 'id,avatarHash,initials,fullName,username,confirmed,memberType'};
+    const url = this.buildURL(`/boards/${boardId}/members`, params);
+    return new Promise((resolve, reject) => {
+      fetch(url).then((res) => res.json()).then((json) => {
+        resolve(json);
       }).catch((err) => {
         reject(err);
       })
