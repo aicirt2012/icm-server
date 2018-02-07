@@ -1,0 +1,246 @@
+{
+  "id": 98216,
+  "num_rows": 1000,
+  "file_format": "json",
+  "name": "ICM dummy contacts",
+  "array": true,
+  "columns": [
+    {
+      "name": "_gender",
+      "null_percentage": 0,
+      "type": "Gender (abbrev)",
+      "formula": ""
+    },
+    {
+      "name": "Salutation",
+      "null_percentage": 0,
+      "type": "Formula",
+      "value": "if field(\"_gender\") == \"M\" then \"Mr.\" else \"Mrs.\" end",
+      "formula": ""
+    },
+    {
+      "name": "Title",
+      "null_percentage": 0,
+      "type": "Custom List",
+      "values": [
+        "\"Dr.\"",
+        "\"Dr. Dr.\"",
+        "\"Prof. Dr.\"",
+        "\"Prof.\"",
+        "\"Dr.\"",
+        "\"Dr. Dr.\"",
+        "\"Prof. Dr.\"",
+        "\"Prof.\"",
+        "\"Dr.\"",
+        "\"Dr. Dr.\"",
+        "\"Prof. Dr.\"",
+        "\"Prof.\"",
+        "\"Dr. h. c.\"",
+        "\"Dr. Dr. h.c.\"",
+        "\"Prof. Dr. Dr. h. c.\"",
+        "\"Dr. med.\"",
+        "\"Dr. Dr. med.\"",
+        "\"Ph.D.\""
+      ],
+      "selectionStyle": "random",
+      "distribution": null,
+      "formula": ""
+    },
+    {
+      "name": "First Name",
+      "null_percentage": 0,
+      "type": "First Name",
+      "formula": ""
+    },
+    {
+      "name": "Last Name",
+      "null_percentage": 0,
+      "type": "Last Name",
+      "formula": ""
+    },
+    {
+      "name": "Job Title",
+      "null_percentage": 0,
+      "type": "Job Title",
+      "formula": ""
+    },
+    {
+      "name": "Department",
+      "null_percentage": 0,
+      "type": "Department (Corporate)",
+      "formula": ""
+    },
+    {
+      "name": "Company",
+      "null_percentage": 0,
+      "type": "Fake Company Name",
+      "formula": ""
+    },
+    {
+      "name": "E-Mail",
+      "null_percentage": 0,
+      "type": "Email Address",
+      "formula": ""
+    },
+    {
+      "name": "E-Mail 2",
+      "null_percentage": 0,
+      "type": "Email Address",
+      "formula": ""
+    },
+    {
+      "name": "LinkedIn URL",
+      "null_percentage": 0,
+      "type": "URL",
+      "includeProtocol": false,
+      "includeHost": false,
+      "includePath": true,
+      "includeQueryString": false,
+      "formula": "concat(\"http://linkedin.com\", this)"
+    },
+    {
+      "name": "Telephone Business",
+      "null_percentage": 0,
+      "type": "Phone",
+      "format": "+# ### ### ####",
+      "formula": ""
+    },
+    {
+      "name": "Telephone Mobile",
+      "null_percentage": 0,
+      "type": "Phone",
+      "format": "(###) ###-####",
+      "formula": ""
+    },
+    {
+      "name": "Fax Business",
+      "null_percentage": 0,
+      "type": "Phone",
+      "format": "+# ### ### ####",
+      "formula": ""
+    },
+    {
+      "name": "Telephone Assistant",
+      "null_percentage": 0,
+      "type": "Phone",
+      "format": "+# ### ### ####",
+      "formula": ""
+    },
+    {
+      "name": "Birthday",
+      "null_percentage": 0,
+      "type": "Date",
+      "min": "01/01/1950",
+      "max": "01/01/1998",
+      "format": "%Y/%m/%d",
+      "formula": ""
+    },
+    {
+      "name": "Groups[8]",
+      "null_percentage": 0,
+      "type": "LinkedIn Skill",
+      "formula": ""
+    },
+    {
+      "name": "Business Street",
+      "null_percentage": 0,
+      "type": "Street Address",
+      "formula": ""
+    },
+    {
+      "name": "Business Zip Code",
+      "null_percentage": 0,
+      "type": "Postal Code",
+      "formula": ""
+    },
+    {
+      "name": "Business City",
+      "null_percentage": 0,
+      "type": "City",
+      "formula": ""
+    },
+    {
+      "name": "Business State",
+      "null_percentage": 0,
+      "type": "State",
+      "onlyUSPlaces": false,
+      "formula": ""
+    },
+    {
+      "name": "Business Country",
+      "null_percentage": 0,
+      "type": "Country",
+      "countries": [
+
+      ],
+      "formula": ""
+    },
+    {
+      "name": "Home Street",
+      "null_percentage": 0,
+      "type": "Street Address",
+      "formula": ""
+    },
+    {
+      "name": "Home Zip Code",
+      "null_percentage": 0,
+      "type": "Postal Code",
+      "formula": ""
+    },
+    {
+      "name": "Home City",
+      "null_percentage": 0,
+      "type": "City",
+      "formula": ""
+    },
+    {
+      "name": "Home State",
+      "null_percentage": 0,
+      "type": "State",
+      "onlyUSPlaces": false,
+      "formula": ""
+    },
+    {
+      "name": "Home Country",
+      "null_percentage": 0,
+      "type": "Country",
+      "countries": [
+
+      ],
+      "formula": ""
+    },
+    {
+      "name": "Telephone Home",
+      "null_percentage": 0,
+      "type": "Phone",
+      "format": "+# ### ### ####",
+      "formula": ""
+    },
+    {
+      "name": "Fax Home",
+      "null_percentage": 0,
+      "type": "Phone",
+      "format": "+# ### ### ####",
+      "formula": ""
+    },
+    {
+      "name": "Web Page",
+      "null_percentage": 0,
+      "type": "URL",
+      "includeProtocol": true,
+      "includeHost": true,
+      "includePath": true,
+      "includeQueryString": false,
+      "formula": ""
+    },
+    {
+      "name": "Last Modification",
+      "null_percentage": 0,
+      "type": "Date",
+      "min": "2/7/2015",
+      "max": "2/7/2018",
+      "format": "%Y-%m-%dT%H:%M:%SZ",
+      "formula": ""
+    }
+  ]
+}
