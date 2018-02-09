@@ -64,6 +64,7 @@ exports.search = (req, res, next) => {
       email: 1,
       businessCompany: 1,
       businessJobTitle: 1,
+      businessDepartment: 1,
       groups: 1
     })
     .lean()
