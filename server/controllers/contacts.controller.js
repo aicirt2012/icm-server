@@ -90,9 +90,11 @@ exports.search = (req, res, next) => {
  * {}
  */
 exports.sync = (req, res, next) => {
+  if (!req.user.contactProvider.socioCortex || !req.user.contactProvider.socioCortex.isEnabled) {
+    res.send({success: false, message: "SocioCortex not configured or not enabled."});
+    return;
+  }
   const syncedAt = new Date();
-  //TODO add check if provider is configured
-  //if(req.user.contactProvider.socioCortex.isEnabled)
   const p = req.user.contactProvider.socioCortex;
   console.log(req.user._id, p.baseURL, p.email, p.password);
   new SCContactConnector(req.user._id, p.baseURL, p.email, p.password)
