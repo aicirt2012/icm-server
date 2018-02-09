@@ -23,7 +23,7 @@ dummyContacts.forEach(dummyContact => {
   addAttribute(scContact, 'Salutation', dummyContact, 'Salutation');
   addAttribute(scContact, 'First Name', dummyContact, 'First Name');
   addAttribute(scContact, 'Last Name', dummyContact, 'Last Name');
-  addAttribute(scContact, 'Birthday', dummyContact, '');
+  addAttribute(scContact, 'Birthday', dummyContact, 'Birthday');
   addAttribute(scContact, 'E-Mail', dummyContact, 'E-Mail');
   addAttribute(scContact, 'E-Mail 2', dummyContact, 'E-Mail 2');
   addAttribute(scContact, 'Url', dummyContact, null);
@@ -54,8 +54,24 @@ dummyContacts.forEach(dummyContact => {
 });
 
 function addAttribute(scContact, scKey, dummyContact, dummyKey){
+
+  let values = [dummyContact[dummyKey]];
+  if(scKey == 'Groups'){   
+    values = [];
+    if(dummyContact[dummyKey] != null)
+      dummyContact[dummyKey].forEach(value=>{
+        values.push({
+          id: sha256(value),
+          name: value
+        });
+      });      
+  }else if(scKey == 'Birthday'){
+    /** convert from 1953/04/23 to 2017-07-25T19:02:37.000Z (ISO8601) */
+    if(values != null)
+      values = new Date(values).toISOString()
+  }
   scContact.attributes.push({
-    "values": [dummyContact[dummyKey]],
+    "values": values,
     "name": scKey
   });
 }
