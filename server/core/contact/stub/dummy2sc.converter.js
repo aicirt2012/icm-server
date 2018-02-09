@@ -13,7 +13,7 @@ const dummyContacts = JSON.parse(fs.readFileSync(inputDir));
 console.log('All dummy contacts loaded!')
 
 dummyContacts.forEach(dummyContact => {
-  const scContact = {};  
+  const scContact = {};
   scContact.name = dummyContact['Title']+' '+dummyContact['First Name']+' '+dummyContact['Last Name'].trim();
   scContact.id = sha256(scContact.name);
   scContact.lastModifiedAt = '2017-07-25T19:02:37.000Z';
@@ -56,19 +56,19 @@ dummyContacts.forEach(dummyContact => {
 function addAttribute(scContact, scKey, dummyContact, dummyKey){
 
   let values = [dummyContact[dummyKey]];
-  if(scKey == 'Groups'){   
+  if(scKey == 'Groups'){
     values = [];
     if(dummyContact[dummyKey] != null)
       dummyContact[dummyKey].forEach(value=>{
-        values.push({
-          id: sha256(value),
-          name: value
-        });
-      });      
+        values.push(value);
+      });
   }else if(scKey == 'Birthday'){
     /** convert from 1953/04/23 to 2017-07-25T19:02:37.000Z (ISO8601) */
-    if(values != null)
-      values = new Date(values).toISOString()
+    if(values != null) {
+      let date = new Date(values).toISOString();
+      values = [];
+      values.push(date);
+    }
   }
   scContact.attributes.push({
     "values": values,
