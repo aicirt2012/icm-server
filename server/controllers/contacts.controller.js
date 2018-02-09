@@ -90,10 +90,11 @@ exports.search = (req, res, next) => {
  * {}
  */
 exports.sync = (req, res, next) => {
-  if (!req.user.contactProvider.socioCortex || !req.user.contactProvider.socioCortex.isEnabled) {
-    res.send({success: false, message: "SocioCortex not configured or not enabled."});
-    return;
-  }
+  // FIXME re-enable config check once data comes from actual system not from local file system
+  // if (!req.user.contactProvider.socioCortex || !req.user.contactProvider.socioCortex.isEnabled) {
+  //   res.send({success: false, message: "SocioCortex not configured or not enabled."});
+  //   return;
+  // }
   const syncedAt = new Date();
   const p = req.user.contactProvider.socioCortex;
   console.log(req.user._id, p.baseURL, p.email, p.password);
