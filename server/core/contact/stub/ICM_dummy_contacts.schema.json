@@ -20,7 +20,7 @@
     },
     {
       "name": "Title",
-      "null_percentage": 0,
+      "null_percentage": 50,
       "type": "Custom List",
       "values": [
         "\"Dr.\"",
@@ -60,19 +60,19 @@
     },
     {
       "name": "Job Title",
-      "null_percentage": 0,
+      "null_percentage": 20,
       "type": "Job Title",
       "formula": ""
     },
     {
       "name": "Department",
-      "null_percentage": 0,
+      "null_percentage": 21,
       "type": "Department (Corporate)",
       "formula": ""
     },
     {
       "name": "Company",
-      "null_percentage": 0,
+      "null_percentage": 21,
       "type": "Fake Company Name",
       "formula": ""
     },
@@ -84,13 +84,13 @@
     },
     {
       "name": "E-Mail 2",
-      "null_percentage": 0,
+      "null_percentage": 80,
       "type": "Email Address",
       "formula": ""
     },
     {
       "name": "LinkedIn URL",
-      "null_percentage": 0,
+      "null_percentage": 75,
       "type": "URL",
       "includeProtocol": false,
       "includeHost": false,
@@ -100,28 +100,28 @@
     },
     {
       "name": "Telephone Business",
-      "null_percentage": 0,
+      "null_percentage": 30,
       "type": "Phone",
       "format": "+# ### ### ####",
       "formula": ""
     },
     {
       "name": "Telephone Mobile",
-      "null_percentage": 0,
+      "null_percentage": 60,
       "type": "Phone",
       "format": "(###) ###-####",
       "formula": ""
     },
     {
       "name": "Fax Business",
-      "null_percentage": 0,
+      "null_percentage": 76,
       "type": "Phone",
       "format": "+# ### ### ####",
       "formula": ""
     },
     {
       "name": "Telephone Assistant",
-      "null_percentage": 0,
+      "null_percentage": 85,
       "type": "Phone",
       "format": "+# ### ### ####",
       "formula": ""
@@ -136,39 +136,39 @@
       "formula": ""
     },
     {
-      "name": "Groups[8]",
+      "name": "Groups[5]",
       "null_percentage": 0,
       "type": "LinkedIn Skill",
-      "formula": ""
+      "formula": "this = this[0, random(0,4)]"
     },
     {
       "name": "Business Street",
-      "null_percentage": 0,
+      "null_percentage": 30,
       "type": "Street Address",
       "formula": ""
     },
     {
       "name": "Business Zip Code",
-      "null_percentage": 0,
+      "null_percentage": 30,
       "type": "Postal Code",
       "formula": ""
     },
     {
       "name": "Business City",
-      "null_percentage": 0,
+      "null_percentage": 30,
       "type": "City",
       "formula": ""
     },
     {
       "name": "Business State",
-      "null_percentage": 0,
+      "null_percentage": 30,
       "type": "State",
       "onlyUSPlaces": false,
       "formula": ""
     },
     {
       "name": "Business Country",
-      "null_percentage": 0,
+      "null_percentage": 30,
       "type": "Country",
       "countries": [
 
@@ -177,32 +177,32 @@
     },
     {
       "name": "Home Street",
-      "null_percentage": 0,
+      "null_percentage": 40,
       "type": "Street Address",
       "formula": ""
     },
     {
       "name": "Home Zip Code",
-      "null_percentage": 0,
+      "null_percentage": 40,
       "type": "Postal Code",
       "formula": ""
     },
     {
       "name": "Home City",
-      "null_percentage": 0,
+      "null_percentage": 40,
       "type": "City",
       "formula": ""
     },
     {
       "name": "Home State",
-      "null_percentage": 0,
+      "null_percentage": 40,
       "type": "State",
       "onlyUSPlaces": false,
       "formula": ""
     },
     {
       "name": "Home Country",
-      "null_percentage": 0,
+      "null_percentage": 40,
       "type": "Country",
       "countries": [
 
@@ -211,27 +211,37 @@
     },
     {
       "name": "Telephone Home",
-      "null_percentage": 0,
+      "null_percentage": 45,
       "type": "Phone",
       "format": "+# ### ### ####",
       "formula": ""
     },
     {
       "name": "Fax Home",
-      "null_percentage": 0,
+      "null_percentage": 90,
       "type": "Phone",
       "format": "+# ### ### ####",
       "formula": ""
     },
     {
       "name": "Web Page",
-      "null_percentage": 0,
+      "null_percentage": 49,
       "type": "URL",
       "includeProtocol": true,
       "includeHost": true,
       "includePath": true,
       "includeQueryString": false,
       "formula": ""
+    },
+    {
+      "name": "Web Page 2",
+      "null_percentage": 61,
+      "type": "URL",
+      "includeProtocol": true,
+      "includeHost": true,
+      "includePath": true,
+      "includeQueryString": false,
+      "formula": "field(\"Web Page 2\") if field(\"Web Page\")"
     },
     {
       "name": "Last Modification",
