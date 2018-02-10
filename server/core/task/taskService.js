@@ -3,12 +3,9 @@ import Task from "../../models/task.model";
 import Promise from "bluebird";
 import {createTaskConnector} from "./util";
 
-class TaskService{
- static addLinkedTasksToEmail(email,user)
-  {
-    console.log(email);
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    console.log(user);
+class TaskService {
+
+  static addLinkedTasksToEmail(email, user) {
     return new Promise((resolve, reject) => {
       let promises = [];
       Task.find({
@@ -37,4 +34,5 @@ class TaskService{
     });
   }
 }
+
 export default TaskService;
