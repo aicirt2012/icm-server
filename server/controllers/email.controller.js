@@ -2,7 +2,6 @@ import Promise from 'bluebird';
 import Email from '../models/email.model';
 import Box from '../models/box.model';
 import User from '../models/user.model';
-import Analyzer from '../core/engine/Analyzer';
 import Socket from '../routes/socket';
 import NERService from "../core/analysis/NERService";
 import GmailConnector from '../core/mail/GmailConnector';
