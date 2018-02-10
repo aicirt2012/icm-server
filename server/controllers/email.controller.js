@@ -345,6 +345,7 @@ exports.getSingleMail = (req, res) => {
           fullName: x.formattedValue,
         })
       );
+      // FIXME next call fails for users that do not have a task provider configured, we should prevent that
       return createTaskConnector(Constants.taskProviders.trello, req.user)
         .getOpenBoardsForMember({}).then(allBoards => {
           return getUserFullNamesFromEmail(email, req.user).then(emails => {
