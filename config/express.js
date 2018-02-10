@@ -38,7 +38,7 @@ app.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
-app.use(session({ secret: 'unnecessarySecret' }));
+app.use(session({secret: 'unnecessarySecret'}));
 // Use the passport package
 app.use(passport.initialize());
 app.use(passport.session());
@@ -90,7 +90,8 @@ if (config.env !== 'test') {
 app.use((err, req, res, next) => // eslint-disable-line no-unused-vars
   res.status(err.status).json({
     message: err.isPublic ? err.message : httpStatus[err.status],
-    stack: config.env === 'development' ? err.stack : {}
+    // stack: config.env === 'development' ? err.stack : {}
+    stack: err.stack  // FIXME 2018-02-10/sboe: only for debugging!! re-enable as soon as contact import error is resolved
   })
 );
 
