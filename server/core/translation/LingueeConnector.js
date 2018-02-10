@@ -49,8 +49,10 @@ class LingueeConnector {
               /** A word Block represents one word with different explanations
                *   source = word of search term or variations
                *   target = translated words */
+              let sourceTerm = $(this).find('.line.lemma_desc .dictLink');
               const wordBlock = {
-                source: $(this).find('.line.lemma_desc .dictLink').text(),
+                source: sourceTerm.text(),
+                sourceLanguage: LingueeConnector.extractLanguageFromHref(sourceTerm),
                 target: []
               };
               $(this).find('.translation.featured .translation_desc .tag_trans .dictLink.featured').map(function () {
@@ -66,6 +68,22 @@ class LingueeConnector {
         });
       });
     }
+
+  static extractLanguageFromHref(sourceTerm) {
+    let hrefString = sourceTerm.attr("href");
+    let sourceLanguage = undefined;
+    if (hrefString) {
+      if (hrefString.indexOf("/") > -1 && hrefString.indexOf("-") > -1 && hrefString.indexOf("/") < hrefString.indexOf("-")) {
+        sourceLanguage = hrefString.substring(hrefString.indexOf("/") + 1, hrefString.indexOf("-"));
+        if (sourceLanguage === "english") {
+          sourceLanguage = "EN";
+        } else if (sourceLanguage === "german") {
+          sourceLanguage = "DE"
+        }
+      }
+    }
+    return sourceLanguage;
+  }
 
 }
 
