@@ -16,8 +16,7 @@ class TaskService {
         }]
       }).then((tasks) => {
         tasks.forEach((t) => {
-          let connector = createTaskConnector(t.provider, user);
-          promises.push(connector.getTask(t.taskId));
+          promises.push(this.getTaskWithBoardMembers(t.taskId,t.provider,user));
         });
         Promise.all(promises).then((results) => {
           this.linkedTasks = results.map((r) => {
@@ -33,6 +32,22 @@ class TaskService {
       });
     });
   }
+
+
+  static getTaskWithBoardMembers(taskId, TaskProvider, user) {
+
+    let connector = createTaskConnector(TaskProvider, user);
+    return connector.getTask(taskId).then((task) => {
+      return connector.getMembersForBoard(task.board.id).then((members) => {
+        task.board.members = members;
+        return task;
+      })
+    }).catch((err) => {
+      reject(err);
+    });
+  }
+
+
 }
 
 export default TaskService;

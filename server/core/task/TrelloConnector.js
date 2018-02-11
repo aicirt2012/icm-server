@@ -52,12 +52,7 @@ class TrelloConnector extends TaskConnector {
     return new Promise((resolve, reject) => {
       fetch(url).then((res) => res.json()
       ).then((task) => {
-        return this.getMembersForBoard(task.board.id).then((members) => {
-          task.board.members = members;
-          return task;
-        })
-      }).then((json) => {
-        resolve(json);
+        resolve(task);
       }).catch((err) => {
         reject(err);
       })
