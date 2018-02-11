@@ -129,7 +129,7 @@ class TrelloConnector extends TaskConnector {
    * @params {string} - query (required).
    */
   getBoardsForMember(params) {
-    params['lists'] = 'all,open';
+    params['lists'] = 'open';
     params['filter'] = 'open';
     params['fields'] = 'id,name';
 
