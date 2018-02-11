@@ -129,21 +129,18 @@ class TrelloConnector extends TaskConnector {
    * @params {string} - query (required).
    */
   getBoardsForMember(params) {
-    params['lists'] = 'all';
-    params['members'] = 'true';
+    params['lists'] = 'all,open';
+    params['filter'] = 'open';
+    params['fields'] = 'id,name';
+
+
     const url = this.buildURL(`/members/${this.options.trelloId}/boards`, params);
     return new Promise((resolve, reject) => {
       fetch(url).then((res) => res.json()).then((boards) => {
-        let promises = [];
-        boards.forEach((b) => {
-          promises.push(this.getBoard(b.id, params));
-        });
-        Promise.all(promises).then((res) => {
-          resolve(res);
-        });
-      }).catch((err) => {
-        reject(err);
-      })
+        resolve(boards);
+      });
+    }).catch((err) => {
+      reject(err);
     });
   }
 

@@ -145,7 +145,7 @@ exports.searchMembers = (req, res) => {
 
 /* GET ALL BOARDS (+ LISTS) FOR MEMBER */
 exports.getAllBoardsForMember = (req, res) => {
-  createTaskConnector(req.query.provider, req.user).getBoardsForMember(req.query).then((data) => {
+  TaskService.getBoardsForMember(req.query.provider, req.user).then((data) => {
     if (req.query.linkedTasks) {
       let promises = [];
       data.forEach((board) => {
