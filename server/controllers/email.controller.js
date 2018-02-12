@@ -345,7 +345,8 @@ exports.getSingleMail = (req, res) => {
           fullName: x.formattedValue,
         })
       );
-      return !(email && (req.user.trello || req.user.sociocortex)) ? mail : createTaskConnector(Constants.taskProviders.trello, req.user)
+      // TODO move the following trello interaction to taskService
+      return !(email && req.user.trello) ? mail : createTaskConnector(Constants.taskProviders.trello, req.user)
         .getOpenBoardsForMember({}).then(allBoards => {
           return getUserFullNamesFromEmail(email, req.user).then(emails => {
             //put people in to, cc,from, bcc first
