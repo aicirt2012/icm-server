@@ -238,7 +238,7 @@ class TrelloConnector extends TaskConnector {
   }
 
   getMembersForBoard(boardId) {
-    let params = {'fields': 'id,avatarHash,initials,fullName,username,confirmed,memberType'};
+    let params = {'fields': 'id,avatarHash,initials,fullName,username'};
     const url = this.buildURL(`/boards/${boardId}/members`, params);
     return new Promise((resolve, reject) => {
       fetch(url).then((res) => res.json()).then((json) => {

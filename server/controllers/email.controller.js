@@ -377,15 +377,13 @@ exports.getSingleMail = (req, res) => {
 
 
 function getMentionedPersons(nerPersons, trelloBoards) {
-
   let result = [];
   nerPersons.forEach(item => {
     trelloBoards.forEach(board => {
       board.members.forEach(member => {
         if ((member.fullName.includes(item.fullName) || member.username.includes(item.fullName)) &&
           result.findIndex(existingItem => existingItem.username === member.username) === -1)
-
-          result.push(member)
+          result.push(TaskService.convertMemberToMinimalEntity(member));
       })
     })
   });
