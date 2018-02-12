@@ -39,7 +39,7 @@ export default class SCContactConnector extends SocioCortex{
 
   //TODO Remove when impl is finished, also remove modifications to gulpfile!
   getContactsStub(){
-    const dir = './sc.contact.stub.dummy.json';
+    const dir = __dirname + '/../../../sc.contact.stub.dummy.json';
     //const dir = 'D:/Projekte/ICM/repos/sebis_contacts_restapi.json';
     const providerContacts = JSON.parse(fs.readFileSync(dir));
     const contacts = [];
