@@ -312,9 +312,9 @@ exports.getSingleMail = (req, res) => {
   Email.findOne({_id: emailId}).populate('attachments')
     .lean()
     .then((mail) => {
-      // replace attachments and run old analyzer
+      // replace attachments
       mail = replaceInlineAttachmentsSrc(mail, req.user);
-      return (mail && (req.user.trello || req.user.sociocortex)) ? TaskService.addLinkedTasksToEmail(mail,req.user): mail;
+      return (mail && (req.user.trello || req.user.sociocortex)) ? TaskService.addLinkedTasksToEmail(mail, req.user) : mail;
     })
     .then(mail => {
       // get all patterns for current user
@@ -345,8 +345,7 @@ exports.getSingleMail = (req, res) => {
           fullName: x.formattedValue,
         })
       );
-      // FIXME next call fails for users that do not have a task provider configured, we should prevent that
-      return createTaskConnector(Constants.taskProviders.trello, req.user)
+      return !(email && (req.user.trello || req.user.sociocortex)) ? mail : createTaskConnector(Constants.taskProviders.trello, req.user)
         .getOpenBoardsForMember({}).then(allBoards => {
           return getUserFullNamesFromEmail(email, req.user).then(emails => {
             //put people in to, cc,from, bcc first
@@ -360,7 +359,7 @@ exports.getSingleMail = (req, res) => {
             email['suggestedData']['titles'].unshift(email.subject);
             return email;
           })
-        })
+        });
     })
     .then(email => {
       res.status(200).send(email);
