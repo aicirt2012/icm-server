@@ -21,9 +21,9 @@ class TaskService {
         Promise.all(promises).then((results) => {
           this.linkedTasks = results.map((r) => {
             r['taskType'] = Constants.taskTypes.linked;
+            r['board'] = TaskService.convertToMinimalEntity(r.board);
             return r;
-          }).filter((task) => task.closed == false);
-          //resolve(results);
+          }).filter((task) => !task.closed);
           email.linkedTasks = results;
           resolve(email);
         });
@@ -67,6 +67,17 @@ class TaskService {
     });
 
   }
+
+  static convertToMinimalEntity(board) {
+    return board ? {
+      id: board.id,
+      name: board.name,
+      members: board.members,
+      lists: board.lists,
+      cards: board.cards
+    } : {};
+  }
+
 }
 
 export default TaskService;
