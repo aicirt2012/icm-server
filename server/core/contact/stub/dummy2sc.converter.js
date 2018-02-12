@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const sha256 = x => crypto.createHash('sha1').update(x, 'utf8').digest('hex');
 
 const inputDir = 'ICM_dummy_contacts.json';
-const outputDir = 'sc.contact.stub.dummy.json.js';
+const outputDir = 'sc.contact.stub.dummy.json';
 if(!fs.existsSync(inputDir))
   console.log('Input file not found!')
 
