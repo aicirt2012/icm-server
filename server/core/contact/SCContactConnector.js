@@ -11,7 +11,7 @@ export default class SCContactConnector extends SocioCortex{
     this.userId = userId;
   }
 
-  static test(isEnabled, baseURL, email, password){    
+  static test(isEnabled, baseURL, email, password){
     return new Promise((resolve, reject)=>{
       if(!isEnabled)
         resolve(true);
@@ -24,7 +24,6 @@ export default class SCContactConnector extends SocioCortex{
             resolve(false);
           })
     });
-    
   }
 
   getContacts(){
@@ -38,9 +37,9 @@ export default class SCContactConnector extends SocioCortex{
       });
   }
 
-  //TODO Remove when impl is finished!
+  //TODO Remove when impl is finished, also remove modifications to gulpfile!
   getContactsStub(){
-    const dir = './server/core/contact/stub/sc.contact.stub.dummy.json.js';
+    const dir = __dirname + '/../../../sc.contact.stub.dummy.json';
     //const dir = 'D:/Projekte/ICM/repos/sebis_contacts_restapi.json';
     const providerContacts = JSON.parse(fs.readFileSync(dir));
     const contacts = [];
@@ -51,8 +50,7 @@ export default class SCContactConnector extends SocioCortex{
   }
 
   convert2MongoObject(scContact){
-    
-    const map = new Map();  
+    const map = new Map();
     map.set('Title', 'title');
     map.set('Salutation', '');
     map.set('First Name', 'firstName');
@@ -62,7 +60,7 @@ export default class SCContactConnector extends SocioCortex{
     map.set('E-Mail 2', 'email2');
     map.set('Url', 'url');
     map.set('Web Page', 'www');
-    map.set('LinkedIn URL', 'linkedInUrl');  
+    map.set('LinkedIn URL', 'linkedInUrl');
     map.set('Home Country', 'homeCountry');
     map.set('Home State', 'homeState');
     map.set('Home Street', 'homeStreet');
@@ -70,7 +68,7 @@ export default class SCContactConnector extends SocioCortex{
     map.set('Home City', 'homeCity');
     map.set('Telephone Home', 'homePhone');
     map.set('Telephone Mobile', 'homeMobile');
-    map.set('Fax Home', 'homeFax');  
+    map.set('Fax Home', 'homeFax');
     map.set('Company', 'businessCompany');
     map.set('Business Country', 'businessCountry');
     map.set('Business State', 'businessState');
@@ -81,9 +79,9 @@ export default class SCContactConnector extends SocioCortex{
     map.set('Telephone Assistant', 'businessPhoneAssistant');
     map.set('Fax Business', 'businessFax');
     map.set('Department', 'businessDepartment');
-    map.set('Job Title', 'businessJobTitle');  
+    map.set('Job Title', 'businessJobTitle');
     map.set('Groups', 'groups');
-  
+
     const json = {
       provider: "SC",
       providerId: scContact.id,
@@ -96,11 +94,11 @@ export default class SCContactConnector extends SocioCortex{
           json[map.get(attribute.name)] = attribute.values;
         }else{
           json[map.get(attribute.name)] = attribute.values.pop();
-        }        
+        }
       }
     });
     return json;
   }
-    
+
 
 }
