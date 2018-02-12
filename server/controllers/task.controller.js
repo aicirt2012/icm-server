@@ -4,7 +4,7 @@ import User from '../models/user.model';
 import Email from '../models/email.model';
 import Task from '../models/task.model';
 import TrainingData from '../models/trainingData.model';
-import TaskService from "../core/task/taskService";
+import TaskService from "../core/task/TaskService";
 
 /*
  * CREATE TASK

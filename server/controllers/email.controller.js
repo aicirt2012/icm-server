@@ -9,7 +9,7 @@ import EWSConnector from '../core/mail/EWSConnector';
 import Pattern from '../models/pattern.model'
 import Constants from '../../config/constants';
 import {createTaskConnector} from '../core/task/util';
-import TaskService from "../core/task/taskService";
+import TaskService from "../core/task/TaskService";
 
 
 exports.sendEmail = (req, res) => {
