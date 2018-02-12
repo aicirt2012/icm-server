@@ -2,7 +2,6 @@ import Promise from 'bluebird';
 import Email from '../models/email.model';
 import Box from '../models/box.model';
 import User from '../models/user.model';
-import Analyzer from '../core/engine/Analyzer';
 import Socket from '../routes/socket';
 import NERService from "../core/analysis/NERService";
 import GmailConnector from '../core/mail/GmailConnector';
@@ -10,6 +9,7 @@ import EWSConnector from '../core/mail/EWSConnector';
 import Pattern from '../models/pattern.model'
 import Constants from '../../config/constants';
 import {createTaskConnector} from '../core/task/util';
+import TaskService from "../core/task/TaskService";
 
 
 exports.sendEmail = (req, res) => {
@@ -312,9 +312,9 @@ exports.getSingleMail = (req, res) => {
   Email.findOne({_id: emailId}).populate('attachments')
     .lean()
     .then((mail) => {
-      // replace attachments and run old analyzer
+      // replace attachments
       mail = replaceInlineAttachmentsSrc(mail, req.user);
-      return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
+      return (mail && (req.user.trello || req.user.sociocortex)) ? TaskService.addLinkedTasksToEmail(mail, req.user) : mail;
     })
     .then(mail => {
       // get all patterns for current user
@@ -345,8 +345,8 @@ exports.getSingleMail = (req, res) => {
           fullName: x.formattedValue,
         })
       );
-      // FIXME next call fails for users that do not have a task provider configured, we should prevent that
-      return createTaskConnector(Constants.taskProviders.trello, req.user)
+      // TODO move the following trello interaction to taskService
+      return !(email && req.user.trello) ? mail : createTaskConnector(Constants.taskProviders.trello, req.user)
         .getOpenBoardsForMember({}).then(allBoards => {
           return getUserFullNamesFromEmail(email, req.user).then(emails => {
             //put people in to, cc,from, bcc first
@@ -357,10 +357,10 @@ exports.getSingleMail = (req, res) => {
               dates: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.formattedValue),
               persons: recognizedPersons
             };
-            email['suggestedData']['titles'].push(email.subject);
+            email['suggestedData']['titles'].unshift(email.subject);
             return email;
           })
-        })
+        });
     })
     .then(email => {
       res.status(200).send(email);
@@ -377,15 +377,13 @@ exports.getSingleMail = (req, res) => {
 
 
 function getMentionedPersons(nerPersons, trelloBoards) {
-
   let result = [];
   nerPersons.forEach(item => {
     trelloBoards.forEach(board => {
       board.members.forEach(member => {
         if ((member.fullName.includes(item.fullName) || member.username.includes(item.fullName)) &&
           result.findIndex(existingItem => existingItem.username === member.username) === -1)
-
-          result.push(member)
+          result.push(TaskService.convertMemberToMinimalEntity(member));
       })
     })
   });
