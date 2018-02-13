@@ -11,7 +11,17 @@ import TaskService from "../core/task/TaskService";
  * BODY: {..., sentenceId, sentences}
  */
 exports.createTask = (req, res) => {
-  createTaskConnector(req.query.provider, req.user).createTask(req.body).then((t) => {
+  let connector = createTaskConnector(req.query.provider, req.user);
+  connector.createTask(req.body).then((task) => {
+    if (req.body.sourceUrl && req.body.sourceUrl.length > 0) {
+      return connector.attachUrl(task.id, req.body.sourceUrl).then(resp => {
+          return task;
+        }
+      )
+    } else {
+      return task;
+    }
+  }).then((t) => {
     let task = new Task();
     task['taskId'] = t.id;
     task['provider'] = req.query.provider || 'trello';

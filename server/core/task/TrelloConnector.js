@@ -249,6 +249,20 @@ class TrelloConnector extends TaskConnector {
     });
   }
 
+  attachUrl(taskId, urlString) {
+    let params = {'url': urlString};
+    const url = this.buildURL(`/cards/${taskId}/attachments`, params);
+    return new Promise((resolve, reject) => {
+      fetch(url, {
+        method: 'POST',
+      }).then((res) => {
+        resolve(res);
+      }).catch((err) => {
+        reject(err);
+      })
+    });
+  }
+
   /* Trello Connector utils */
   buildURL(path, params) {
     return `${this.trello.baseURL}${path}?` + `key=${this.trello.key}&` + `token=${this.accessToken}` + `${this.addQueries(params)}`;
