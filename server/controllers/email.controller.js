@@ -357,7 +357,7 @@ exports.getSingleMail = (req, res) => {
               dates: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.formattedValue).sort((a, b) => new Date(b) - new Date(a)),
               persons: recognizedPersons
             };
-            email['suggestedData']['titles'].unshift(email.subject);
+            email['suggestedData']['titles'].push(email.subject);
             return email;
           })
         });
