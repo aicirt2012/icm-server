@@ -354,7 +354,7 @@ exports.getSingleMail = (req, res) => {
             let recognizedPersons = getMentionedPersons(allPersons, allBoards);
             email['suggestedData'] = {
               titles: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x => x.formattedValue),
-              dates: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.formattedValue),
+              dates: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.formattedValue).sort((a, b) => new Date(b) - new Date(a)),
               persons: recognizedPersons
             };
             email['suggestedData']['titles'].unshift(email.subject);
