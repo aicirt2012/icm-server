@@ -59,6 +59,7 @@ exports.search = (req, res, next) => {
     },
     {
       score: {$meta: "textScore"},
+      title: 1,
       firstName: 1,
       lastName: 1,
       email: 1,
@@ -143,6 +144,7 @@ function appendSecondaryContacts(user, primaryContact) {
       ],
       _id: {$ne: primaryContact._id}
     }, {
+      title: 1,
       firstName: 1,
       lastName: 1,
       email: 1,
