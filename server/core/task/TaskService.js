@@ -19,12 +19,11 @@ class TaskService {
           promises.push(this.getTaskWithBoardMembers(t.taskId, t.provider, user));
         });
         Promise.all(promises).then((results) => {
-          this.linkedTasks = results.map((task) => {
+          email.linkedTasks = results.map((task) => {
             task['taskType'] = Constants.taskTypes.linked;
             task['board'] = TaskService.convertBoardToMinimalEntity(task.board);
             return task;
-          }).filter((task) => !task.closed);
-          email.linkedTasks = results;
+          }).filter(task => !task.closed);
           resolve(email);
         });
       }).catch((err) => {
