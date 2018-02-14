@@ -24,7 +24,7 @@ import SCContactConnector from '../core/contact/SCContactConnector';
  *     ...
  * }
  */
-exports.get = (req, res, next) => { 
+exports.get = (req, res, next) => {
   User.findById(req.user._id)
     .then(user => {
       res.status(200).send(user);
@@ -71,6 +71,7 @@ exports.signUp = (req, res, next) => {
  */
 exports.update = (req, res, next) => {
   const provider = req.body.provider;
+  const trello = req.body.trello;
   User.findById(req.user._id)
     .then(user => {
       if (provider.name === 'Gmail') {
@@ -87,6 +88,9 @@ exports.update = (req, res, next) => {
         user.emailProvider.exchange.password = provider.password;
         user.emailProvider.exchange.host = provider.host;
         user.provider = 'Exchange';
+      }
+      if (trello) {
+        user.trello = trello;
       }
       return user.save();
     })
@@ -125,8 +129,8 @@ exports.remove = (req, res, next) => {
  * @apiSuccessExample Success-Response:
  * {}
  */
-exports.setEmailProviderExchange = (req, res, next) => {   
-  
+exports.setEmailProviderExchange = (req, res, next) => {
+
  User.findById(req.user._id)
    .then(user => {
       user.emailProvider.gmail = {
@@ -138,11 +142,11 @@ exports.setEmailProviderExchange = (req, res, next) => {
       return user.save();
    })
    .then(user=>{
-     res.status(200).send({message: 'Successfully set Exchange configuration!'}); 
+     res.status(200).send({message: 'Successfully set Exchange configuration!'});
    })
    .catch(err => {
      next(err);
-   });         
+   });
 }
 
 
@@ -154,8 +158,8 @@ exports.setEmailProviderExchange = (req, res, next) => {
  * @apiSuccessExample Success-Response:
  * {}
  */
-exports.setEmailProviderGMail = (req, res, next) => {   
-   
+exports.setEmailProviderGMail = (req, res, next) => {
+
   User.findById(req.user._id)
     .then(user => {
       user.emailProvider.gmail = {
@@ -171,11 +175,11 @@ exports.setEmailProviderGMail = (req, res, next) => {
       return user.save();
     })
     .then(user=>{
-      res.status(200).send({message: 'Successfully set GMail configuration!'}); 
+      res.status(200).send({message: 'Successfully set GMail configuration!'});
     })
     .catch(err => {
       next(err);
-    });         
+    });
 }
 
 
@@ -187,17 +191,17 @@ exports.setEmailProviderGMail = (req, res, next) => {
  * @apiSuccessExample Success-Response:
  * {}
  */
-exports.setContactProviderSocioCortex = (req, res, next) => {   
+exports.setContactProviderSocioCortex = (req, res, next) => {
 
   const isEnabled = req.body.isEnabled;
   const email = req.body.email;
   const password = req.body.password;
   const baseURL = req.body.baseURL;
-  
+
   SCContactConnector.test(isEnabled, baseURL, email, password)
     .then(isWorking=>{
       if(!isWorking)
-        res.status(500).send({message: 'SocioCortex contact provider settings - connection test failed!'}); 
+        res.status(500).send({message: 'SocioCortex contact provider settings - connection test failed!'});
       else
         User.findById(req.user._id)
           .then(user => {
@@ -210,11 +214,11 @@ exports.setContactProviderSocioCortex = (req, res, next) => {
             return user.save();
           })
           .then(user=>{
-            res.status(200).send({message: 'SocioCortex contact provider settings successfully updated!'}); 
+            res.status(200).send({message: 'SocioCortex contact provider settings successfully updated!'});
           })
           .catch(err => {
             next(err);
           });
-    });    
+    });
 }
 
