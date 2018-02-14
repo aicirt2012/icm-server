@@ -26,7 +26,8 @@ const UserSchema = new mongoose.Schema({
   trello: {
     trelloAccessTokenSecret: String,
     trelloAccessToken: String,
-    trelloId: String
+    trelloId: String,
+    userEmail: String
   },
   sociocortex: {
     email: String,
@@ -117,8 +118,8 @@ UserSchema.method({
     }
   },
   createSMTPConnector: function () {
-    if(this.isGMailProvider()){      
-      return new SMTPConnector(this);     
+    if(this.isGMailProvider()){
+      return new SMTPConnector(this);
     }else{
       throw new Error("SMTP provider not specified!");
     }

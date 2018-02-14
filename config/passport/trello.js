@@ -6,7 +6,7 @@ import User from '../../server/models/user.model';
 
 function verifyTrello(req, token, tokenSecret, profile, done) {
   User.findOne({
-    email: profile.emails[0].value
+    'trello.userEmail': profile.emails[0].value
   }, (err, user) => {
     if (err) {
       return done(err);
@@ -16,7 +16,8 @@ function verifyTrello(req, token, tokenSecret, profile, done) {
       user.trello = {
         trelloId: profile.id,
         trelloAccessToken: token,
-        trelloAccessTokenSecret: tokenSecret
+        trelloAccessTokenSecret: tokenSecret,
+        userEmail: profile.emails[0].value
       };
       user.username = profile.displayName;
       user.email = profile.emails[0].value;
@@ -31,7 +32,8 @@ function verifyTrello(req, token, tokenSecret, profile, done) {
       user.trello = {
         trelloId: profile.id,
         trelloAccessToken: token,
-        trelloAccessTokenSecret: tokenSecret
+        trelloAccessTokenSecret: tokenSecret,
+        userEmail: profile.emails[0].value
       };
       user.save((err) => {
         if (err) {
