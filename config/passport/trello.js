@@ -17,7 +17,7 @@ function verifyTrello(req, token, tokenSecret, profile, done) {
         trelloId: profile.id,
         trelloAccessToken: token,
         trelloAccessTokenSecret: tokenSecret,
-        userEmail: profile.emails[0].value
+        userEmail: ""
       };
       user.username = profile.displayName;
       user.email = profile.emails[0].value;
@@ -33,7 +33,7 @@ function verifyTrello(req, token, tokenSecret, profile, done) {
         trelloId: profile.id,
         trelloAccessToken: token,
         trelloAccessTokenSecret: tokenSecret,
-        userEmail: profile.emails[0].value
+        userEmail: ""
       };
       user.save((err) => {
         if (err) {
