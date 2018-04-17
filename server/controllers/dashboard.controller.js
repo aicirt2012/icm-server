@@ -194,24 +194,6 @@ function getConversations(userId){
   ]);
 }
 
-//TODO remove
-function testNer(){
-  Email.find({}).then((emails)=>{
-    emails.forEach((email)=>{
-      if(email.text != undefined){
-        email.plainText = email.text;
-      }else if(email.html != undefined){
-        email.plainText = striptags(email.html);
-      }
-      console.log(email.flags);
-      console.log(email.labels);
-      console.log('#############');
-
-    });
-    console.log(emails.length);
-  });
-}
-
 exports.getTimeline = (req, res) => {
   let userId = req.user._id;
   const s = {};
