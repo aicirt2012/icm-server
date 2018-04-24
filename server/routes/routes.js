@@ -16,24 +16,24 @@ import patternCtrl from '../controllers/pattern.controller';
 
 
 function routeProvider(passport) {
-    const router = express.Router();
+    const r = express.Router();
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////// Unprotected Routes ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /** Authentication Routes unprotected */
-    router.route('/auth/login').post(validate(paramValidation.login), authCtrl.login);
-    router.route('/auth/google').get(passport.authenticate('google', {scope: ['email', 'profile']}));
-    router.route('/auth/google/callback').get(passport.authenticate('google', {failureRedirect: '/login'}), authCtrl.oauthCallback);
-    router.route('/auth/trello').get(passport.authenticate('trello', {session: false}));
-    router.route('/auth/trello/callback').get(passport.authenticate('trello', {failureRedirect: '/login', session: false}), authCtrl.oauthCallback);
+    r.route('/auth/login').post(validate(paramValidation.login), authCtrl.login);
+    r.route('/auth/google').get(passport.authenticate('google', {scope: ['email', 'profile']}));
+    r.route('/auth/google/callback').get(passport.authenticate('google', {failureRedirect: '/login'}), authCtrl.oauthCallback);
+    r.route('/auth/trello').get(passport.authenticate('trello', {session: false}));
+    r.route('/auth/trello/callback').get(passport.authenticate('trello', {failureRedirect: '/login', session: false}), authCtrl.oauthCallback);
 
     /** User Routes unprotected */
-    router.route('/users/').post(userCtrl.create); 
+    r.route('/users/signup').post(userCtrl.signUp);
 
     /** Route Protection - all routes below are protected */
-    router.use(passport.authenticate('jwt', {session: false}));       
+    r.use(passport.authenticate('jwt', {session: false}));
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,76 +41,83 @@ function routeProvider(passport) {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /** User Routes */
-    router.route('/users/:id').get(userCtrl.get);
-    router.route('/users/:id').put(userCtrl.update);
-    router.route('/users/:id').delete(userCtrl.remove);
+    r.route('/users/me/provider/email/gmail').post(userCtrl.setEmailProviderGMail);    
+    r.route('/users/me/provider/email/exchange').post(userCtrl.setEmailProviderExchange);        
+    r.route('/users/me/provider/contacts/sociocortex').post(userCtrl.setContactProviderSocioCortex);
+    r.route('/users/me').get(userCtrl.get);
+    r.route('/users/me').put(userCtrl.update);
+    r.route('/users/me').delete(userCtrl.remove);
 
     /** Email Routes */
-    router.route('/email/appendEnron').post(emailCtrl.appendEnron); /* API Endpoint for testing Enron*/
-    router.route('/email/append').post(emailCtrl.append); /* IMAP API Endpoints */
-    router.route('/email/:emailId/move').post(emailCtrl.move);
-    router.route('/email/:emailId/trash').post(emailCtrl.trash);
-    router.route('/email/send').post(emailCtrl.sendEmail);
-    router.route('/email/:emailId/flags').post(emailCtrl.addFlags);
-    router.route('/email/:emailId/flags').delete(emailCtrl.delFlags);
-    router.route('/email/search').get(emailCtrl.searchMails);
-    router.route('/email/:emailId').get(emailCtrl.getSingleMail);
+    r.route('/emails/appendEnron').post(emailCtrl.appendEnron); /* API Endpoint for testing Enron*/
+    r.route('/emails/append').post(emailCtrl.append); /* IMAP API Endpoints */
+    r.route('/emails/send').post(emailCtrl.sendEmail);
+    r.route('/emails/search').get(emailCtrl.searchEmails);
+    r.route('/emails/:id/move').post(emailCtrl.move);
+    r.route('/emails/:id/trash').post(emailCtrl.moveToTrash);
+    r.route('/emails/:id/flags').post(emailCtrl.addFlags);
+    r.route('/emails/:id/flags').delete(emailCtrl.delFlags);
+    r.route('/emails/:id').get(emailCtrl.getSingleMail);
 
     /** Box Routes */
-    router.route('/box/').get(boxCtrl.getBoxes);
-    router.route('/box/').post(boxCtrl.addBox);
-    router.route('/box/:boxId').delete(boxCtrl.delBox);
-    router.route('/box/:boxId/rename').post(boxCtrl.renameBox);  
-    router.route('/box/syncAll').get(boxCtrl.syncIMAP);
+    r.route('/boxes/').get(boxCtrl.getBoxes);
+    r.route('/boxes/').post(boxCtrl.addBox);
+    r.route('/boxes/:id').delete(boxCtrl.delBox);
+    r.route('/boxes/:id/rename').post(boxCtrl.renameBox);
+    r.route('/boxes/:id/move').post(boxCtrl.moveBox);
+    r.route('/boxes/syncAll').get(boxCtrl.syncIMAP);
 
     /** Task Routes */
-    router.route('/task/search/members').get(taskCtrl.searchMembers);
-    router.route('/task/search').get(taskCtrl.searchTasks);
-    router.route('/task/cards').post(taskCtrl.searchCardsForMembers);
-    router.route('/task/boards').get(taskCtrl.getAllBoardsForMember);
-    router.route('/task/boards/:boardId/lists').get(taskCtrl.getAllListsForBoard);
-    router.route('/task/lists/:listId/cards').get(taskCtrl.getAllCardsForList);
-    router.route('/task/:taskId').get(taskCtrl.getSingleTask);
-    router.route('/task/:taskId').put(taskCtrl.updateTask);
-    router.route('/task/:taskId').delete(taskCtrl.deleteTask);
-    router.route('/task/:taskId/unlink').put(taskCtrl.unlinkTask);
-    router.route('/task/').post(taskCtrl.createTask);
-    router.route('/task/sociocortex/register').post(taskCtrl.registerSociocortex);
-    router.route('/task/sociocortex/connect').get(taskCtrl.connectSociocortex);
-    router.route('/task/email/:emailId/linkTask').post(taskCtrl.linkTaskToMail);
-    router.route('/task/email/:emailId/addTask').post(taskCtrl.createTask);
+    r.route('/tasks/search/members').get(taskCtrl.searchMembers);
+    r.route('/tasks/search').get(taskCtrl.searchTasks);
+    r.route('/tasks/cards').post(taskCtrl.searchCardsForMembers);
+    r.route('/tasks/boards').get(taskCtrl.getAllBoardsForMember);
+    r.route('/tasks/boards/:boardId/lists').get(taskCtrl.getAllListsForBoard);
+    r.route('/tasks/lists/:listId/cards').get(taskCtrl.getAllCardsForList);
+    r.route('/tasks/:taskId').get(taskCtrl.getSingleTask);
+    r.route('/tasks/:taskId').put(taskCtrl.updateTask);
+    r.route('/tasks/:taskId').delete(taskCtrl.deleteTask);
+    r.route('/tasks/:taskId/unlink').put(taskCtrl.unlinkTask);
+    r.route('/tasks/').post(taskCtrl.createTask);
+    r.route('/tasks/sociocortex/register').post(taskCtrl.registerSociocortex);
+    r.route('/tasks/sociocortex/connect').get(taskCtrl.connectSociocortex);
+    r.route('/tasks/email/:emailId/linkTask').post(taskCtrl.linkTaskToMail);
+    r.route('/tasks/email/:emailId/addTask').post(taskCtrl.createTask);
 
     /** Wiki Routes */
-    router.route('/wiki/search').get(wikiCtrl.search);
+    r.route('/wikis/search').get(wikiCtrl.search);
 
     /** Translate Routes */
-    router.route('/translate/').get(translationCtrl.translate);
+    r.route('/translate/').get(translationCtrl.translate);
 
     /** Dashboard Routes */
-    router.route('/dashboard/summary').get(dashboardCtrl.getSummary);
-    router.route('/dashboard/timeline').get(dashboardCtrl.getTimeline);
-    router.route('/dashboard/network').get(dashboardCtrl.getNetwork);
-    router.route('/dashboard/structure').get(dashboardCtrl.getStructure);
+    r.route('/dashboards/summary').get(dashboardCtrl.getSummary);
+    r.route('/dashboards/timeline').get(dashboardCtrl.getTimeline);
+    r.route('/dashboards/network').get(dashboardCtrl.getNetwork);
+    r.route('/dashboards/structure').get(dashboardCtrl.getStructure);
 
     /** Import Routes - for testing */
-    router.route('/import/enron').post(importCtrl.importEnronData);
-    router.route('/import/enronall').post(importCtrl.importEnronDataAll);
+    r.route('/import/enron').post(importCtrl.importEnronData);
+    r.route('/import/enronall').post(importCtrl.importEnronDataAll);
 
     /** Pattern Routes */
-    router.route('/pattern/:patternId').get(patternCtrl.getSinglePattern);
-    router.route('/pattern/:patternId').put(patternCtrl.updatePattern);
-    router.route('/pattern/:patternId').delete(patternCtrl.deletePattern);
-    router.route('/pattern/').post(patternCtrl.createPattern);
-    router.route('/pattern/').get(patternCtrl.getAllPatterns);
+    r.route('/patterns/:id').get(patternCtrl.getSinglePattern);
+    r.route('/patterns/:id').put(patternCtrl.updatePattern);
+    r.route('/patterns/:id').delete(patternCtrl.deletePattern);
+    r.route('/patterns').post(patternCtrl.createPattern);
+    r.route('/patterns').get(patternCtrl.getAllPatterns);
 
     /** Attachment Routs */
-    router.route('/attachment/:attachmentId').get(attachmentCtrl.getAttachment);
-    router.route('/attachment/:attachmentId/download').get(attachmentCtrl.downloadAttachment);
-    
-    /** Contact Routes */
-    router.route('/contacts/').get(contactsCtrl.list);
+    r.route('/attachments/:attachmentId').get(attachmentCtrl.getAttachment);
+    r.route('/attachments/:attachmentId/download').get(attachmentCtrl.downloadAttachment);
 
-    return router;
+    /** Contact Routes */
+    r.route('/contacts/sync').post(contactsCtrl.sync);
+    r.route('/contacts/search').get(contactsCtrl.search);
+    r.route('/contacts/:id').get(contactsCtrl.get);
+    r.route('/contacts').get(contactsCtrl.list);
+
+    return r;
 }
 
 

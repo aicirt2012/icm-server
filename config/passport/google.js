@@ -13,7 +13,7 @@ function verifyGoogle(accessToken, refreshToken, profile, done) {
     }
     if (!user) {
       user = new User();
-      user.google = {
+      user.emailProvider.gmail = {
         googleId: profile.id,
         googleAccessToken: accessToken,
         googleRefreshToken: refreshToken

@@ -2,8 +2,8 @@ import Promise from 'bluebird';
 import moment from 'moment';
 import EWS from 'node-ews';
 import Box from '../../models/box.model';
-import {MailParser} from 'mailparser';
-import {Readable, Stream, PassThrough} from 'stream';
+import { MailParser } from 'mailparser';
+import { Readable, Stream, PassThrough } from 'stream';
 import Attachment from '../../models/attachment.model';
 
 /*
@@ -19,19 +19,18 @@ import Attachment from '../../models/attachment.model';
 
 class EWSConnector {
 
-  excludedBoxes = ['Conversation Action Settings', 'Files'];
+  excludedBoxes = ['Conversation Action Settings', 'Files', 'Dateien', 'Einstellungen für QuickSteps', 'Journal', 'Notizen', 'Yammer-Stamm', 'Synchronisierungsprobleme']; //'Eingehend', 'Ausgehend', 'Feeds'
 
-  constructor(options, user) {
+  constructor(user) {
 
     console.log('Hallo EWSConnector');
-
     this.user = user;
 
     // exchange server connection info
     this.ewsConfig = {
-      username: options.user,
-      password: options.password,
-      host: 'https://xmail.mwn.de',
+      username: user.emailProvider.exchange.user,
+      password: user.emailProvider.exchange.password,
+      host: user.emailProvider.exchange.host,
       temp: './'
     };
 
@@ -49,6 +48,12 @@ class EWSConnector {
 
   }
 
+  static staticBoxNames = {
+    inbox: 'Inbox',
+    send: 'Sent Items',
+    draft: 'Drafts',
+    deleted: 'Deleted Items'
+  }
 
   /**
    * @param emailObject - {
@@ -329,6 +334,7 @@ class EWSConnector {
 
   _getOnlyEmailBoxes(result) {
     const allBoxes = result.ResponseMessages.SyncFolderHierarchyResponseMessage.Changes.Create;
+    let emailChildParent = new Map();
     let emailBoxNames = new Map();
     let emailBoxes = new Map();
     allBoxes.forEach(box => {
@@ -336,8 +342,11 @@ class EWSConnector {
         const folderId = box.Folder.FolderId.attributes.Id;
         const parentId = box.Folder.ParentFolderId.attributes.Id;
 
+        emailChildParent.set(folderId, parentId);
         emailBoxNames.set(folderId, box.Folder.DisplayName);
-        box.Folder.ParentFolderId.attributes.Name = emailBoxNames.get(parentId) || null;
+        let fullPath = [];
+        this._getFullPath(fullPath, folderId, emailChildParent, emailBoxNames);
+        box.Folder.ParentFolderId.attributes.Name = fullPath.length > 0 ? fullPath.join('/') : null;
 
         let boxArray = emailBoxes.get(parentId) ? emailBoxes.get(parentId) : [];
         boxArray.push(box.Folder);
@@ -345,6 +354,17 @@ class EWSConnector {
       }
     })
     return emailBoxes;
+  }
+
+  _getFullPath(fullPath, childId, emailChildParent, emailBoxNames) {
+    const parentId = emailChildParent.get(childId);
+    if (parentId) {
+      const parentName = emailBoxNames.get(parentId);
+      if (parentName) {
+        fullPath.unshift(parentName);
+        this._getFullPath(fullPath, parentId, emailChildParent, emailBoxNames);
+      }
+    }
   }
 
   _generateBoxList(boxes) {
@@ -381,10 +401,15 @@ class EWSConnector {
     });
   }
 
+  /*
+  * https://msdn.microsoft.com/en-us/library/aa563967(v=exchg.150).aspx
+  * The SyncFolderItems operation will return a maximum of 512 changes. Subsequent SyncFolderItems requests must be
+  * performed to get additional changes.
+  * */
   fetchEmails(storeEmail, box) {
     return new Promise((resolve, reject) => {
       let syncState = box.ewsSyncState;
-      const MAX_CHANGES_RETURNED = '20';
+      const MAX_CHANGES_RETURNED = '512';
       const ewsFunction = 'SyncFolderItems';
       const ewsArgs = {
         ItemShape: {
@@ -558,7 +583,8 @@ class EWSConnector {
               box: box._id,
               boxes: [box._id],
               user: this.user._id,
-              attachments: messageIdAndtextAndAttachments[2]
+              attachments: messageIdAndtextAndAttachments[2],
+              nonInlineAttachments: messageIdAndtextAndAttachments[3]
             }
 
             emails.push(email);
@@ -597,6 +623,7 @@ class EWSConnector {
 
       const mailParser = new MailParser();
       let attachments = [];
+      let nonInlineAttachments = false;
 
       let s = new Readable();
       s.push(mimeContent, 'base64');
@@ -606,26 +633,38 @@ class EWSConnector {
 
       mailParser.on('end', (mailObject) => {
 
-        if (mailObject.attachments) {
-          mailObject.attachments.forEach(m => {
+        // use a map
+        const _attachments = mailObject.attachments;
+
+        if (_attachments) {
+
+          Promise.each(_attachments, (att) => {
 
             let readStream = new PassThrough();
-            readStream.end(m.content);
+            readStream.end(att.content);
 
-            Attachment.create(m.fileName, m.contentId, m.contentType,
-              m.contentDisposition == 'inline' ? true : false,
+            return Attachment.create(att.fileName, att.contentId, att.contentType,
+              att.contentDisposition == 'inline' ? true : false,
               readStream)
               .then(attachment => {
                 console.log('attachment created');
+                console.log(attachment);
+                if (!attachment.contentDispositionInline) {
+                  console.log('hey hey new attach');
+                  nonInlineAttachments = true;
+                  console.log(nonInlineAttachments);
+                }
                 attachments.push(attachment._id);
               })
               .catch(err => {
                 console.log(err);
               })
-          });
+          }).then(() => {
+            resolve([mailObject.messageId, mailObject.text, attachments, nonInlineAttachments]);
+          })
+        } else {
+          resolve([mailObject.messageId, mailObject.text, attachments, nonInlineAttachments]);
         }
-
-        resolve([mailObject.messageId, mailObject.text, attachments]);
       }).on('error', (err) => {
         console.log(err);
         reject(err);

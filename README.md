@@ -1,6 +1,12 @@
 # Generate API Doc
-```apidoc -i server/controllers/ -o apidoc/generated -t apidoc/template```
 
+Install apidoc globally by running
+
+```npm install apidoc -g```
+
+then run
+
+```apidoc -i server/controllers/ -o apidoc/generated -t apidoc/template```
 
 # Intelligent Contextual Mail Server
 
@@ -22,6 +28,8 @@ cd icm-server
 ```
 
 Install dependencies:
+
+_If you're having problems installing on windows, see the troubleshooting at the end of this file._
 ```sh
 npm install
 ```
@@ -43,6 +51,11 @@ DEBUG=icm-server:* npm start
 ```
 Refer [debug](https://www.npmjs.com/package/debug) to know how to selectively turn on logs.
 
+#### Config
+# EWSConnector
+The SyncFolderItems operation will return a maximum of 512 changes (for all boxes). 
+Subsequent SyncFolderItems requests must be performed to get additional changes.
+Refer to the constant MAX_CHANGES_RETURNED in EWSConnector.js
 
 #### Tests
 
@@ -142,3 +155,27 @@ Get code coverage summary on executing `npm test`
 ## Docs and Recipes
 
 * [Gulp recipes](https://github.com/gulpjs/gulp/tree/master/docs/recipes) - the official Gulp recipes directory includes a comprehensive list of guides for different workflows you can add to your project.
+
+
+## Common issues
+### node-gyp requiring python during npm install on windows
+To fix this, simply run:
+```
+npm install --global --production windows-build-tools
+```
+http://www.westerndevs.com/JavaScript/How-to-Fix-node-gyp-Error-on-Windows/
+
+https://github.com/nodejs/node-gyp
+
+### Configuring debugging with breakpoints in WebStorm
+To use breakpoints in WebStorm, a separate run configuration needs to be created.
+
+1. Create new NodeJS run configuration
+
+![1](https://user-images.githubusercontent.com/6501308/32493209-526892e8-c3bd-11e7-995c-7592db95fdf9.PNG)
+2. Configure like in the screenshot below
+
+![2](https://user-images.githubusercontent.com/6501308/32493367-da115004-c3bd-11e7-89c6-b880409a7840.PNG)
+3. Select the run configuration and start the server using the debug button
+
+![3](https://user-images.githubusercontent.com/6501308/32493368-da3b4ff8-c3bd-11e7-9382-b4aba944041b.PNG)

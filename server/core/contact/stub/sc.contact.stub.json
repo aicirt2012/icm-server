@@ -1,0 +1,234 @@
+[
+  {
+      "name": "Max Mustermann",
+      "attributes": [
+          {
+              "values": [],
+              "name": "Home City",
+              "id": "10ho5vvtpqbno",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/10ho5vvtpqbno"
+          },
+          {
+              "values": [
+                  "Max2"
+              ],
+              "name": "First Name",
+              "id": "12teoqk5sstia",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/12teoqk5sstia"
+          },
+          {
+              "values": [],
+              "name": "Home Country",
+              "id": "14avo8vfwu9uu",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/14avo8vfwu9uu"
+          },
+          {
+              "values": [],
+              "name": "Telephone Home",
+              "id": "14iznws6rzzhy",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/14iznws6rzzhy"
+          },
+          {
+              "values": [
+                  "Mustermann"
+              ],
+              "name": "Last Name",
+              "id": "16pj1njtzyg54",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/16pj1njtzyg54"
+          },
+          {
+              "values": [],
+              "name": "Home Street",
+              "id": "183abx1msplb8",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/183abx1msplb8"
+          },
+          {
+              "values": [
+                  "FR-2200"
+              ],
+              "name": "Business Zip Code",
+              "id": "1a9k7s6h3f8pa",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1a9k7s6h3f8pa"
+          },
+          {
+              "values": [],
+              "name": "Url",
+              "id": "1eoky4j4dg03n",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1eoky4j4dg03n"
+          },
+          {
+              "values": [],
+              "name": "Telephone Assistant",
+              "id": "1f2prjk9dicm7",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1f2prjk9dicm7"
+          },
+          {
+              "values": [],
+              "name": "Telephone Mobile",
+              "id": "1ie6yd2ltn9d0",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1ie6yd2ltn9d0"
+          },
+          {
+              "values": [
+                  "Prof."
+              ],
+              "name": "Title",
+              "id": "1kyqs9z8c8jra",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1kyqs9z8c8jra"
+          },
+          {
+              "values": [],
+              "name": "Fax Business",
+              "id": "1pk6ttg8gmho9",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1pk6ttg8gmho9"
+          },
+          {
+              "values": [
+                  "Herr"
+              ],
+              "name": "Salutation",
+              "id": "1qw4ay9po8ub5",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1qw4ay9po8ub5"
+          },
+          {
+              "values": [],
+              "name": "Web Page",
+              "id": "1rh7xhzuaxubc",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1rh7xhzuaxubc"
+          },
+          {
+              "values": [],
+              "name": "Birthday",
+              "id": "1u4g5wpp3nwx1",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1u4g5wpp3nwx1"
+          },
+          {
+              "values": [
+                  "France"
+              ],
+              "name": "Business Country",
+              "id": "1uoeiye80gqfs",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1uoeiye80gqfs"
+          },
+          {
+              "values": [
+                  "+45 305 32544"
+              ],
+              "name": "Telephone Business",
+              "id": "1w492yyc2h7tz",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1w492yyc2h7tz"
+          },
+          {
+              "values": [
+                  "University of Hometown (DHT)"
+              ],
+              "name": "Company",
+              "id": "1wi5v0m3fwxnt",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/1wi5v0m3fwxnt"
+          },
+          {
+              "values": [
+                  "max@gmail.com"
+              ],
+              "name": "E-Mail",
+              "id": "2sszlnkuekw3",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/2sszlnkuekw3"
+          },
+          {
+              "values": [],
+              "name": "Home State",
+              "id": "3zoqkgw5vzjg",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/3zoqkgw5vzjg"
+          },
+          {
+              "values": [],
+              "name": "Fax Home",
+              "id": "86ppxjldk5uc",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/86ppxjldk5uc"
+          },
+          {
+              "values": [],
+              "name": "Home Zip Code",
+              "id": "9duhu04pvykl",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/9duhu04pvykl"
+          },
+          {
+              "values": [],
+              "name": "E-Mail 2",
+              "id": "arbvijprzft0",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/arbvijprzft0"
+          },
+          {
+              "values": [],
+              "name": "Zusage Sponsoring",
+              "id": "fkmi5cs04mmr",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/fkmi5cs04mmr"
+          },
+          {
+              "values": [
+                  "Paris"
+              ],
+              "name": "Business City",
+              "id": "iew36qqkqpyu",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/iew36qqkqpyu"
+          },
+          {
+              "values": [],
+              "name": "Groups",
+              "id": "j1bqmbugv3uc",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/j1bqmbugv3uc"
+          },
+          {
+              "values": [],
+              "name": "E-Mail egal",
+              "id": "lozv0dt0h97j",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/lozv0dt0h97j"
+          },
+          {
+              "values": [],
+              "name": "LinkedIn URL",
+              "id": "mgstx2tn37nl",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/mgstx2tn37nl"
+          },
+          {
+              "values": [
+                  "Parkallee 1"
+              ],
+              "name": "Business Street",
+              "id": "mgu1vy24w2yl",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/mgu1vy24w2yl"
+          },
+          {
+              "values": [],
+              "name": "Konto",
+              "id": "t4g0h43yecme",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/t4g0h43yecme"
+          },
+          {
+              "values": [
+                  "Department of Computer Science"
+              ],
+              "name": "Department",
+              "id": "u1g8gurh8stb",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/u1g8gurh8stb"
+          },
+          {
+              "values": [],
+              "name": "Business State",
+              "id": "wenqqicem9v9",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/wenqqicem9v9"
+          },
+          {
+              "values": [
+                  "Professor, Ph.D., Head of Finance"
+              ],
+              "name": "Job Title",
+              "id": "y87phyvqukw4",
+              "href": "https://wwwmatthes.in.tum.de/api/v1/attributes/y87phyvqukw4"
+          }
+      ],
+      "id": "100s78eg16q82",
+      "href": "https://wwwmatthes.in.tum.de/api/v1/entities/100s78eg16q82",
+      "lastModifiedAt": "2017-07-25T19:02:37.000Z"
+  }
+]

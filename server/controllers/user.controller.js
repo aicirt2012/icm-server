@@ -1,4 +1,5 @@
 import User from '../models/user.model';
+import SCContactConnector from '../core/contact/SCContactConnector';
 
 
 /**
@@ -16,38 +17,21 @@ import User from '../models/user.model';
  *     "email": "felix.in.tum@gmail.com",
  *     "username": "Felix Michel",
  *     "__v": 0,
- *     "highestmodseq": "15820",
  *     "lastSync": "2017-08-28T21:16:02.235Z",
- *     "google": {
- *         "googleId": "110833890801655058669",
- *         "googleAccessToken": "ya29.Gl2fBDqbAHTl16Ni3ViJEqTMQDNQ6dQH2wnpa7BuhqH0QmeDqgpKyLm6cgLTkpwahjZeHcEMIwj4xySCVR82NK_yA6gZoPhIkpSO5jooQ_NjWpaCCmyY9eRppl0Jk-0"
- *     },
  *     "provider": {
  *         "name": "Gmail",
- *         "user": "felix.in.tum@gmail.com",
- *         "password": "hYW7qHj9sfBkvyzVt2jW",
- *         "host": "imap.gmail.com",
- *         "port": 993,
- *         "smtpHost": "smtp.gmail.com",
- *         "smtpPort": 465,
- *         "smtpDomains": [
- *             "gmail.com",
- *             "googlemail.com"
- *         ]
  *     }
+ *     ...
  * }
  */
 exports.get = (req, res, next) => {
-  if(req.user._id != req.params.id)
-    next(new Error('Can only get user of current JWT!'));
-  else
-    User.findOne({_id: req.params.id}).exec()
-      .then(user => {
-        res.status(200).send(user);
-      })
-      .catch(err=>{
-        next(err);
-      });
+  User.findById(req.user._id)
+    .then(user => {
+      res.status(200).send(user);
+    })
+    .catch(err => {
+      next(err);
+    });
 }
 
 /**
@@ -55,24 +39,26 @@ exports.get = (req, res, next) => {
  * @apiDescription Create User
  * @apiName CreateUser
  * @apiGroup User
- * @apiParam {String} username First- and lastname of user.
- * @apiParam {String} email Email of user.
+ * @apiParam {String} username First- and LastName of user.
  * @apiParam {String} password Password of user.
  * @apiSuccessExample Success-Response:
  * {}
  */
-exports.create = (req, res, next) => {
+exports.signUp = (req, res, next) => {
   const user = new User({
     username: req.body.username,
-    password: req.body.password,
-    email: req.body.email
+    password: req.body.password
   });
   user.save()
     .then(user => {
       res.status(200).send(user);
-    }).catch(err => {
-      next(err);
-    });
+    })
+    .catch(err => {
+      if (err && err.code !== "E11000" )
+        res.status(500).send("User name or email already exist!");
+      else
+        next(err);
+  });
 }
 
 /**
@@ -84,15 +70,36 @@ exports.create = (req, res, next) => {
  * {}
  */
 exports.update = (req, res, next) => {
-  if(req.user._id != req.params.id)
-    next(new Error('Can only update user of current JWT!'));
-  else
-    User.findOneAndUpdate({_id: req.params.id}, req.body, {new: true}).exec()
-      .then(user => {
-        res.status(200).send(user);
-      }).catch(err=>{
-        next(err); 
-      });
+  const provider = req.body.provider;
+  const trello = req.body.trello;
+  User.findById(req.user._id)
+    .then(user => {
+      if (provider.name === 'Gmail') {
+        user.emailProvider.gmail.user = provider.user;
+        user.emailProvider.gmail.password = provider.password;
+        user.emailProvider.gmail.host = provider.host;
+        user.emailProvider.gmail.port = provider.port;
+        user.emailProvider.gmail.smtpHost = provider.smtpHost;
+        user.emailProvider.gmail.smtpPort = provider.smtpPort;
+        user.emailProvider.gmail.smtpDomains = provider.smtpDomains;
+        user.provider = 'Gmail';
+      } else if (provider.name === 'Exchange') {
+        user.emailProvider.exchange.user = provider.user;
+        user.emailProvider.exchange.password = provider.password;
+        user.emailProvider.exchange.host = provider.host;
+        user.provider = 'Exchange';
+      }
+      if (trello) {
+        user.trello = trello;
+      }
+      return user.save();
+    })
+    .then(savedUser => {
+      res.status(200).send(savedUser);
+    })
+    .catch(err => {
+      next(err);
+    });
 }
 
 
@@ -105,14 +112,113 @@ exports.update = (req, res, next) => {
  * {}
  */
 exports.remove = (req, res, next) => {
-  if(req.user._id != req.params.id)
-    next(new Error('Can only delete user of current JWT!'));
-  else  
-    User.removeById(req.params.id)
-      .then(user => {
-        res.status(200).send({message: 'User deleted successfully!'});
-      })
-      .catch(err=>{
-        next(err);
-      });
+  User.removeById(req.user._id)
+    .then(user => {
+      res.status(200).send({ message: 'User deleted successfully!' });
+    })
+    .catch(err => {
+      next(err);
+    });
 }
+
+/**
+ * @api {post} /users/me/provider/exchange/gmail Set Mail Provider Exchange
+ * @apiDescription Set Exchange Provider
+ * @apiName SetExchangeProvider
+ * @apiGroup User
+ * @apiSuccessExample Success-Response:
+ * {}
+ */
+exports.setEmailProviderExchange = (req, res, next) => {
+
+ User.findById(req.user._id)
+   .then(user => {
+      user.emailProvider.gmail = {
+        user: req.body.user,
+        password: req.body.password,
+        host: req.body.host,
+      }
+      user.provider = 'Exchange';
+      return user.save();
+   })
+   .then(user=>{
+     res.status(200).send({message: 'Successfully set Exchange configuration!'});
+   })
+   .catch(err => {
+     next(err);
+   });
+}
+
+
+/**
+ * @api {post} /users/me/provider/email/gmail Set Mail Provider GMail
+ * @apiDescription Set GMail Provider
+ * @apiName SetGMailProvider
+ * @apiGroup User
+ * @apiSuccessExample Success-Response:
+ * {}
+ */
+exports.setEmailProviderGMail = (req, res, next) => {
+
+  User.findById(req.user._id)
+    .then(user => {
+      user.emailProvider.gmail = {
+        user: req.body.user,
+        password: req.body.password,
+        host: req.body.host,
+        port: req.body.port,
+        smtpHost: req.body.smtpHost,
+        smtpPort: req.body.smtpPort,
+        smtpDomains: req.body.smtpDomains,
+      }
+      user.provider = 'Gmail';
+      return user.save();
+    })
+    .then(user=>{
+      res.status(200).send({message: 'Successfully set GMail configuration!'});
+    })
+    .catch(err => {
+      next(err);
+    });
+}
+
+
+/**
+ * @api {post} /users/me/provider/contacts/sociocortex Set SocioCortex Contact Provider
+ * @apiDescription Set SocioCortex Contact Provider
+ * @apiName ContactProviderSocioCortex
+ * @apiGroup User
+ * @apiSuccessExample Success-Response:
+ * {}
+ */
+exports.setContactProviderSocioCortex = (req, res, next) => {
+
+  const isEnabled = req.body.isEnabled;
+  const email = req.body.email;
+  const password = req.body.password;
+  const baseURL = req.body.baseURL;
+
+  SCContactConnector.test(isEnabled, baseURL, email, password)
+    .then(isWorking=>{
+      if(!isWorking)
+        res.status(500).send({message: 'SocioCortex contact provider settings - connection test failed!'});
+      else
+        User.findById(req.user._id)
+          .then(user => {
+            user.contactProvider.socioCortex = {
+              isEnabled: isEnabled,
+              email: email,
+              password: password,
+              baseURL: baseURL
+            }
+            return user.save();
+          })
+          .then(user=>{
+            res.status(200).send({message: 'SocioCortex contact provider settings successfully updated!'});
+          })
+          .catch(err => {
+            next(err);
+          });
+    });
+}
+

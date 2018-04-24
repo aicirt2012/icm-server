@@ -3,8 +3,9 @@ import Pattern from '../models/pattern.model';
 
 /* CREATE PATTERN */
 exports.createPattern = (req, res, next) => {
-  const pattern = new Pattern(req.body);
-  pattern.isDefault = false;
+  const pattern = new Pattern();
+  pattern.pattern=req.body.pattern;
+  pattern.isRegex = req.body.isRegex;
   pattern.user = req.user;
   pattern.save().then(p => {
     res.status(200).send(p);
@@ -15,28 +16,18 @@ exports.createPattern = (req, res, next) => {
 
 /* GET SINGLE PATTERN */
 exports.getSinglePattern = (req, res, next) => {
-  Pattern.findOne({
-    $and: [{
-      _id: req.params.patternId
-    }, {
-      user: req.user
-    }]
-  }).then(data => {
-    res.status(200).send(data);
-  }).catch(err => {
-    next(err);
-  });
+  Pattern.findOne({_id: req.params.id, user: req.user})
+    .then(data => {
+      res.status(200).send(data);
+    })
+    .catch(err => {
+      next(err);
+    });
 }
 
 /* UPDATE PATTERN */
 exports.updatePattern = (req, res, next) => {
-  Pattern.findOneAndUpdate({
-    $and: [{
-      _id: req.params.patternId
-    }, {
-      user: req.user
-    }]
-  }, req.body, {
+  Pattern.findOneAndUpdate({_id: req.params.id, user: req.user}, req.body, {
     new: true,
     upsert: true,
     setDefaultsOnInsert: true
@@ -51,13 +42,7 @@ exports.updatePattern = (req, res, next) => {
 
 /* DELETE PATTERN */
 exports.deletePattern = (req, res, next) => {
-  Pattern.find({
-    $and: [{
-      _id: req.params.patternId
-    }, {
-      user: req.user
-    }]
-  }).remove().exec((err, data) => {
+  Pattern.find({_id: req.params.id, user: req.user}).remove().exec((err, data) => {
     if (err) {
       next(err);
     } else {
@@ -69,11 +54,7 @@ exports.deletePattern = (req, res, next) => {
 /* GET ALL PATTERNS */
 exports.getAllPatterns = (req, res, next) => {
   Pattern.find({
-    $or: [{
-      isDefault: true
-    }, {
       user: req.user
-    }]
   }).then((patterns) => {
     res.status(200).send(patterns);
   }).catch((err) => {

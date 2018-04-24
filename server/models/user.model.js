@@ -12,36 +12,71 @@ import Pattern from './pattern.model';
 import Task from './task.model';
 import TrainingData from './trainingData.model';
 
+const provider = {
+  GMAIL: 'Gmail',
+  EXCHANGE: 'Exchange'
+}
+
 const UserSchema = new mongoose.Schema({
-  username: {type: String, required: true, index: true},
-  email: String,
-  password: {type: String, required: true},
-  provider: {
-    name: String,
-    user: String,
-    password: String,
-    host: String,
-    port: Number,
-    smtpHost: String,
-    smtpPort: Number,
-    smtpDomains: [String]
-  },
-  highestmodseq: String,
-  google: {
-    googleAccessToken: String,
-    googleId: String
-  },
+  username: { type: String, required: true, index: true, unique: true},
+  email: {type: String, unique: true, sparse: true}, //TODO check if can be removed
+  password: { type: String, required: true },
+  provider: { type: String, enum: [provider.GMAIL, provider.EXCHANGE], default: provider.GMAIL},
+  // TODO refactor these provider. Put them inside taskProviders
   trello: {
     trelloAccessTokenSecret: String,
     trelloAccessToken: String,
-    trelloId: String
+    trelloId: String,
+    userEmail: String
   },
   sociocortex: {
     email: String,
     password: String
   },
+  emailProvider: {
+    gmail: {
+      user: String,
+      password: String,
+      host: { type: String, default: 'imap.gmail.com' },
+      port: { type: Number, default: 993 },
+      smtpHost: { type: String, default: 'smtp.gmail.com' },
+      smtpPort: { type: Number, default: 465 },
+      smtpDomains: { type: [String], default: ['gmail.com', 'googlemail.com'] },
+      highestmodseq: String,
+      googleId: String,
+      googleAccessToken: String,
+      googleRefreshToken: String
+    },
+    exchange: {
+      user: String,
+      password: String,
+      host: { type: String, default: 'xmail.mwn.de' },
+    }
+  },
+  // TODO put providers here
+  taskProviders: {
+    trello: {
+      isEnabled: { type: Boolean, default: false },
+      trelloAccessTokenSecret: String,
+      trelloAccessToken: String,
+      trelloId: String
+    },
+    sociocortex: {
+      isEnabled: { type: Boolean, default: false },
+      email: String,
+      password: String
+    },
+  },
+  contactProvider: {
+    socioCortex: {
+      isEnabled: { type: Boolean, default: false },
+      email: String,
+      password: String,
+      baseURL: {type: String, default: 'https://wwwmatthes.in.tum.de/api/v1'},
+    }
+  },
   displayName: String,
-  lastSync: {type: Date, default: null}
+  lastSync: { type: Date, default: null }
 }, {
   timestamps: true
 });
@@ -73,33 +108,27 @@ UserSchema.method({
       cb(null, isMatch);
     });
   },
-  createIMAPConnector: function() {
-    const imapOptions = {
-      user: this.provider.user,
-      password: this.provider.password,
-      host: this.provider.host,
-      port: this.provider.port,
-      tls: true,
-      mailbox: 'INBOX'
-    };
-    switch (this.provider.name) {
-      case 'Gmail': return new GmailConnector(imapOptions, this); break;
-      case 'Exchange': return new EWSConnector(imapOptions, this); break;
-      default: return new GmailConnector(imapOptions, this);
+  createIMAPConnector: function () {
+    if(this.isGMailProvider()){
+      return new GmailConnector(this);
+    }else if(this.isExchangeProvider()){
+      return new EWSConnector(this);
+    }else{
+      throw new Error('EMail provider not defined!');
     }
   },
-  createSMTPConnector: function(){
-    return new SMTPConnector({
-      host: this.provider.smtpHost,
-      port: this.provider.smtpPort,
-      secure: true,
-      domains: this.provider.smtpDomains,
-      auth: {
-        user: this.provider.user,
-        pass: this.provider.password
-      },
-      currentUser: this
-    });
+  createSMTPConnector: function () {
+    if(this.isGMailProvider()){
+      return new SMTPConnector(this);
+    }else{
+      throw new Error("SMTP provider not specified!");
+    }
+  },
+  isExchangeProvider() {
+    return this.provider === provider.EXCHANGE;
+  },
+  isGMailProvider() {
+    return this.provider === provider.GMAIL;
   }
 });
 
@@ -107,24 +136,24 @@ UserSchema.plugin(mongoosePaginate);
 
 UserSchema.statics.removeById = (userId) => {
   return Contact.removeByUserId(userId)
-    .then(()=>{
+    .then(() => {
       return Pattern.removeByUserId(userId);
     })
-    .then(()=>{
+    .then(() => {
       return TrainingData.removeByUserId(userId);
     })
-    .then(()=>{
+    .then(() => {
       return Task.removeByUserId(userId);
     })
-    .then(()=>{
+    .then(() => {
       return Attachment.removeByUserId(userId);
     })
-    .then(()=>{
+    .then(() => {
       return Email.removeByUserId(userId);
     })
-    .then(()=>{
+    .then(() => {
       return Box.removeByUserId(userId);
-    });    
+    });
 }
 
 let User = mongoose.model('User', UserSchema);

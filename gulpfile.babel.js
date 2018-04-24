@@ -8,7 +8,7 @@ const plugins = gulpLoadPlugins();
 
 const paths = {
   js: ['./**/*.js', '!dist/**', '!node_modules/**', '!apidoc/**', '!coverage/**'],
-  nonJs: ['./package.json', './.gitignore', './web.config'],
+  nonJs: ['./package.json', './.gitignore', './web.config', './server/core/contact/stub/sc.contact.stub.dummy.json'],   //TODO remove copying of dummy file after contact import implementation is done
   tests: './server/tests/*.js'
 };
 
@@ -26,7 +26,7 @@ gulp.task('copy', () =>
 
 // Compile ES6 to ES5 and copy to dist
 gulp.task('babel', () =>
-  gulp.src([...paths.js, '!gulpfile.babel.js'], { base: '.' })
+  gulp.src([...paths.js, '!gulpfile.babel.js'], {base: '.'})
     .pipe(plugins.newer('dist'))
     .pipe(plugins.sourcemaps.init())
     .pipe(plugins.babel())

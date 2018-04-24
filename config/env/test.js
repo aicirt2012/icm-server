@@ -1,17 +1,8 @@
 export default {
   env: 'test',
-  MONGOOSE_DEBUG: true,
   jwt: {
     secret: '382a4b7a5745454f3b44346d27744b2d305b3b58394f4d75375e7d7670',
     expiresInSeconds: 86400
-  },
-  email: {
-    /*user: 'felix.in.tum',
-    pass: 'hYW7qHj9sfBkvyzVt2jW',*/
-    user: 'sebisng2@gmail.com',
-    pass: 's3b1sng2',
-    host: 'imap.gmail.com',
-    port: 993
   },
   trello: {
     baseURL: 'https://trello.com/1',
@@ -22,22 +13,6 @@ export default {
     accessTokenSecret: "bb3d26c8435dc5fd90cfbbdeef0330d9",
     oauthVersion: '1.0',
     oauthSHA: 'HMAC-SHA1'
-  },
-  gmail: {
-    allMessages: '[Gmail]/All Mail',
-    inbox: 'INBOX',
-    send: '[Gmail]/Sent Mail',
-    draft: '[Gmail]/Drafts',
-    deleted: '[Gmail]/Trash'
-  },
-  smtp: {
-    host: 'smtp.gmail.com',
-    port: 465,
-    auth: {
-      user: 'sebisng2@gmail.com',
-      pass: 's3b1sng2'
-    },
-    domains: ['gmail.com','googlemail.com']
   },
   oauth: {
     google: {
@@ -52,8 +27,12 @@ export default {
       callbackURL: 'http://localhost:4000/api/auth/trello/callback'
     }
   },
-  db: 'mongodb://localhost:27017/emailapp',
-  port: 4000,
+  mongoConnectionURL: 'mongodb://localhost:27017/icmapp',
+  mongooseDebug: true,
+  attachmentsPath: './Attachments/',
+  apiPort: 4000,
+  socketPort: 4001,
   domain: 'http://localhost',
-  frontend: 'http://localhost:3000'
+  frontend: 'http://localhost:3000',
+  analyticsConnectionUrl: 'http://127.0.0.1:8080/ner',
 };

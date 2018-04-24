@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import util from 'util';
 import config from './config/env';
 import app from './config/express';
-import Patterns from './server/core/engine/Pattern';
 import Socket from './server/routes/socket';
 
 const debug = require('debug')('EmailAppServer:index');
@@ -14,13 +13,13 @@ Promise = require('bluebird'); // eslint-disable-line no-global-assign
 mongoose.Promise = Promise;
 
 // connect to mongo db
-mongoose.connect(config.db, { server: { socketOptions: { keepAlive: 1 } } });
+mongoose.connect(config.mongoConnectionURL, { server: { socketOptions: { keepAlive: 1 } } });
 mongoose.connection.on('error', () => {
-  throw new Error(`unable to connect to database: ${config.db}`);
+  throw new Error(`unable to connect to database: ${config.mongoConnectionURL}`);
 });
 
 // print mongoose logs in dev env
-if (config.MONGOOSE_DEBUG) {
+if (config.mongooseDebug) {
   mongoose.set('debug', (collectionName, method, query, doc) => {
     debug(`${collectionName}.${method}`, util.inspect(query, false, 20), doc);
   });
@@ -29,14 +28,12 @@ if (config.MONGOOSE_DEBUG) {
 // module.parent check is required to support mocha watch
 // src: https://github.com/mochajs/mocha/issues/1912
 if (!module.parent) {
-  // listen on port config.port
-  app.listen(config.port, () => {
-    debug(`server started on port ${config.port} (${config.env})`);
+  // listen on port config.apiPort
+  app.listen(config.apiPort, () => {
+    debug(`server started on port ${config.apiPort} (${config.env})`);
   });
 }
 
-// init database with default entries
-Patterns.init();
 
 process.on('uncaughtException', (err) => {
   console.log(err);

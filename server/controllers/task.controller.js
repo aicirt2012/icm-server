@@ -4,13 +4,24 @@ import User from '../models/user.model';
 import Email from '../models/email.model';
 import Task from '../models/task.model';
 import TrainingData from '../models/trainingData.model';
+import TaskService from "../core/task/TaskService";
 
 /*
  * CREATE TASK
  * BODY: {..., sentenceId, sentences}
  */
 exports.createTask = (req, res) => {
-  createTaskConnector(req.query.provider, req.user).createTask(req.body).then((t) => {
+  let connector = createTaskConnector(req.query.provider, req.user);
+  connector.createTask(req.body).then((task) => {
+    if (req.body.sourceUrl && req.body.sourceUrl.length > 0) {
+      return connector.attachUrl(task.id, req.body.sourceUrl).then(resp => {
+          return task;
+        }
+      )
+    } else {
+      return task;
+    }
+  }).then((t) => {
     let task = new Task();
     task['taskId'] = t.id;
     task['provider'] = req.query.provider || 'trello';
@@ -52,7 +63,7 @@ exports.createTask = (req, res) => {
 
 /* GET SINGLE TASK */
 exports.getSingleTask = (req, res) => {
-  createTaskConnector(req.query.provider, req.user).getTask(req.params.taskId).then((data) => {
+  TaskService.getTaskWithBoardMembers(req.params.taskId,req.query.provider, req.user).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
@@ -144,7 +155,7 @@ exports.searchMembers = (req, res) => {
 
 /* GET ALL BOARDS (+ LISTS) FOR MEMBER */
 exports.getAllBoardsForMember = (req, res) => {
-  createTaskConnector(req.query.provider, req.user).getBoardsForMember(req.query).then((data) => {
+  TaskService.getBoardsForMember(req.query.provider, req.user).then((data) => {
     if (req.query.linkedTasks) {
       let promises = [];
       data.forEach((board) => {

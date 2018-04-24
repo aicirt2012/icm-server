@@ -1,22 +1,25 @@
 import Promise from 'bluebird';
 import Email from '../models/email.model';
 import Box from '../models/box.model';
-import config from '../../config/env';
 import User from '../models/user.model';
-import Analyzer from '../core/engine/analyzer';
-import fs from 'fs';
 import Socket from '../routes/socket';
-import authCtrl from './auth.controller';
+import NERService from "../core/analysis/NERService";
+import GmailConnector from '../core/mail/GmailConnector';
+import EWSConnector from '../core/mail/EWSConnector';
+import Pattern from '../models/pattern.model'
+import Constants from '../../config/constants';
+import {createTaskConnector} from '../core/task/util';
+import TaskService from "../core/task/TaskService";
 
 
-exports.sendEmail = (req, res)=> {
+exports.sendEmail = (req, res) => {
 
-  if (req.user.provider.name == 'Exchange') {
+  if (req.user.isExchangeProvider()) {
 
     const emailConnector = req.user.createIMAPConnector();
     emailConnector.sendMail(req.body)
       .then(result => {
-        return Box.findOne({name: config.exchange.send, user: req.user});
+        return Box.findOne({name: EWSConnector.staticBoxNames.send, user: req.user});
       })
       .then(box => {
         return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
@@ -33,7 +36,7 @@ exports.sendEmail = (req, res)=> {
 
     req.user.createSMTPConnector().sendMail(req.body)
       .then(result => {
-        return Box.findOne({name: config.gmail.send, user: req.user});
+        return Box.findOne({name: GmailConnector.staticBoxNames.send, user: req.user});
       })
       .then(box => {
         return req.user.createIMAPConnector().fetchBoxes(storeEmail, [box]);
@@ -49,14 +52,14 @@ exports.sendEmail = (req, res)=> {
   }
 }
 
-exports.append = (req, res)=> {
+exports.append = (req, res) => {
   const user = req.user;
   const boxId = req.body.boxId;
   const emailConnector = user.createIMAPConnector();
 
-  if (req.user.provider.name == 'Exchange') {
+  if (req.user.isExchangeProvider()) {
 
-    // Box.findOne({name: config.exchange.draft, user: user})
+    // Box.findOne({name: EWSConnector.staticBoxNames.draft, user: user})
     Box.findOne({_id: boxId, user: user})
       .then(box => {
         return [box, emailConnector.append(req.body, box.ewsId)]
@@ -74,7 +77,7 @@ exports.append = (req, res)=> {
 
   } else {
 
-    // Box.findOne({name: config.gmail.draft, user: user})
+    // Box.findOne({name: GmailConnector.staticBoxNames.draft, user: user})
     Box.findOne({_id: boxId, user: user})
       .then(box => {
         return [box, emailConnector.append(box.name, user.email, req.body.to, req.body.subject, req.body.msgData)]
@@ -93,14 +96,14 @@ exports.append = (req, res)=> {
   }
 }
 
-exports.move = (req, res) =>{
-  const emailId = req.params.emailId;
+exports.move = (req, res) => {
+  const emailId = req.params.id;
   const newBoxId = req.body.newBoxId;
   const user = req.user;
 
   const emailConnector = user.createIMAPConnector();
 
-  if (req.user.provider.name == 'Exchange') {
+  if (req.user.isExchangeProvider()) {
 
     Email.findOne({_id: emailId}).populate('boxes')
       .then(email => {
@@ -145,20 +148,18 @@ exports.move = (req, res) =>{
   }
 }
 
-exports.trash = (req, res) => {
-  const userProvider = req.user.provider.name;
-
-  if (userProvider === 'Exchange') {
-    Box.findOne({name: config.exchange.deleted, user: req.user})
+exports.moveToTrash = (req, res) => {
+  if (req.user.isExchangeProvider()) {
+    Box.findOne({name: EWSConnector.staticBoxNames.deleted, user: req.user})
       .then(box => {
         req.body.newBoxId = box._id;
-        move(req, res);
+        exports.move(req, res);
       });
-  } else if (userProvider === 'Gmail') {
-    Box.findOne({name: config.gmail.deleted, user: req.user})
+  } else if (req.user.isGMailProvider()) {
+    Box.findOne({name: GmailConnector.staticBoxNames.deleted, user: req.user})
       .then(box => {
         req.body.newBoxId = box._id;
-        move(req, res);
+        exports.move(req, res);
       });
   }
 }
@@ -178,13 +179,13 @@ exports.trash = (req, res) => {
  *     }
  */
 exports.addFlags = (req, res) => {
-  const emailId = req.params.emailId;
+  const emailId = req.params.id;
   const flags = req.body.flags;
   const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
 
-  if (req.user.provider.name == 'Exchange') {
+  if (req.user.isExchangeProvider()) {
 
     Email.findById(emailId)//.populate('box')
       .then(mail => {
@@ -237,13 +238,13 @@ exports.addFlags = (req, res) => {
  *     }
  */
 exports.delFlags = (req, res) => {
-  const emailId = req.params.emailId;
+  const emailId = req.params.id;
   const flags = req.body.flags;
   const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
 
-  if (req.user.provider.name == 'Exchange') {
+  if (req.user.isExchangeProvider()) {
 
     Email.findById(emailId)//.populate('box')
       .then(mail => {
@@ -293,7 +294,7 @@ exports.delFlags = (req, res) => {
 
 /**
  * @api {get} /email/:id Get Email
- * @apiDescription Returns one single mail with all details 
+ * @apiDescription Returns one single mail with all details
  * @apiName GetEmail
  * @apiGroup Email
  * @apiParam {String} id Email unique ID.
@@ -304,30 +305,127 @@ exports.delFlags = (req, res) => {
  *       "lastname": "Doe"
  *     }
  */
-exports.getSingleMail = (req, res)=> {
-  const emailId = req.params.emailId;
+exports.getSingleMail = (req, res) => {
+  const emailId = req.params.id;
+  let email;
+
   Email.findOne({_id: emailId}).populate('attachments')
     .lean()
     .then((mail) => {
-      console.log('retrieving email id...');
-      console.log(mail);
+      // replace attachments
       mail = replaceInlineAttachmentsSrc(mail, req.user);
-      return (mail && (req.user.trello || req.user.sociocortex)) ? new Analyzer(mail, req.user).getEmailTasks() : mail;
+      return (mail && (req.user.trello || req.user.sociocortex)) ? TaskService.addLinkedTasksToEmail(mail, req.user) : mail;
+    })
+    .then(mail => {
+      // get all patterns for current user
+      email = mail;
+      return Pattern.find({user: req.user});
+    })
+    .then(patterns => {
+      // transform patterns into the DTOs that the NER expects
+      let patternDTOs = [];
+      patterns.forEach(pattern => patternDTOs.push({
+        label: pattern.pattern,
+        isRegex: pattern.isRegex
+      }));
+      return patternDTOs;
+    })
+    .then(patternDTOs => {
+      // call the NER service
+      if (email.html)
+        return NERService.recognizeEntitiesInHtml(emailId, email.html, email.subject, patternDTOs);
+      else
+        return NERService.recognizeEntitiesInPlainText(emailId, email.text, email.subject, patternDTOs);
+    })
+    .then(resultDTO => {
+      email['annotations'] = resultDTO.annotations;
+      let allPersons = [];
+      resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.person).forEach(x =>
+        allPersons.push({
+          fullName: x.formattedValue,
+        })
+      );
+      // TODO move the following trello interaction to taskService
+      return !(email && req.user.trello) ? mail : createTaskConnector(Constants.taskProviders.trello, req.user)
+        .getOpenBoardsForMember({}).then(allBoards => {
+          return getUserFullNamesFromEmail(email, req.user).then(emails => {
+            //put people in to, cc,from, bcc first
+            allPersons = allPersons.concat(emails, allPersons);
+            let recognizedPersons = getMentionedPersons(allPersons, allBoards);
+            email['suggestedData'] = {
+              titles: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.taskTitle).map(x => x.formattedValue),
+              dates: resultDTO.annotations.filter(x => x.nerType === Constants.nerTypes.date).map(x => x.formattedValue).sort((a, b) => new Date(b) - new Date(a)),
+              persons: recognizedPersons
+            };
+            email['suggestedData']['titles'].push(email.subject);
+            return email;
+          })
+        });
     })
     .then(email => {
       res.status(200).send(email);
     })
     .catch((err) => {
+      if (email) {
+        // if at least loading of mail worked, reply with what we got
+        res.status(200).send(email);
+        return;
+      }
       res.status(400).send(err);
     });
+};
+
+
+function getMentionedPersons(nerPersons, trelloBoards) {
+  let result = [];
+  nerPersons.forEach(item => {
+    trelloBoards.forEach(board => {
+      board.members.forEach(member => {
+        if ((member.fullName.includes(item.fullName) || member.username.includes(item.fullName)) &&
+          result.findIndex(existingItem => existingItem.username === member.username) === -1)
+          result.push(TaskService.convertMemberToMinimalEntity(member));
+      })
+    })
+  });
+  return result;
 }
 
+
+function getUserFullNamesFromEmail(email, user) {
+  let allAddresses = email.to;
+  allAddresses = allAddresses.concat(email.cc);
+  allAddresses = allAddresses.concat(email.from);
+  allAddresses = allAddresses.concat(email.bcc);
+  let trelloConnector = createTaskConnector(Constants.taskProviders.trello, user);
+
+  let result = [];
+  let promises = [];
+  return new Promise((resolve, reject) => {
+    allAddresses.forEach(address => {
+        let newPromise = trelloConnector.searchMembers({query: address.address, limit: '1'});
+        promises.push(newPromise);
+      }
+    );
+    Promise.all(promises).then((values) => {
+      console.log(values);
+      values.forEach(value => {
+        if (value.length > 0 && value[0].fullName && result.findIndex(existingItem => existingItem.fullName === value[0].fullName) === -1)
+          result.push({"fullName": value[0].fullName});
+      });
+      resolve(result);
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+}
+
+
+// Inline attachments URL and tokens are changed in the front-end
+// they have the form AttachmentURL/attachmentId?token=JWTToken
 function replaceInlineAttachmentsSrc(email, user) {
-  const URL = `${config.domain}:${config.port}/api/attachment/`
-  const token = authCtrl.createToken(user);
   email.attachments.forEach((a) => {
     if (a.contentDispositionInline) {
-      email.html = email.html.replace(`cid:${a.contentId}`, `${URL}${a._id}?token=${token}`);
+      email.html = email.html.replace(`cid:${a.contentId}`, `ATTACHMENT_POINT/${a._id}?token=TOKEN_POINT`);
     }
   })
 
@@ -352,12 +450,13 @@ function storeEmail(mail) {
       });
   });
 }
+
 exports.storeEmail = storeEmail;
 
 
 /**
  * @api {get} /email/search Search Emails
- * @apiDescription Search emails either for box or custom search 
+ * @apiDescription Search emails either for box or custom search
  * @apiName SearchEmail
  * @apiGroup Email
  * @apiParam {String} [boxId] Box unique ID.
@@ -371,7 +470,7 @@ exports.storeEmail = storeEmail;
  *       "lastname": "Doe"
  *     }
  */
-exports.searchMails= (req, res)=> {
+exports.searchEmails = (req, res) => {
 
   const options = {
     boxId: req.query.boxId,
@@ -421,7 +520,7 @@ exports.appendEnron = (req, res) => {
 
           // agregate boxes according to the folder names
 
-          Box.findOne({name: config.exchange.inbox, user: req.user})
+          Box.findOne({name: EWSConnector.staticBoxNames.inbox, user: req.user})
             .then(box => {
 
               // filter emails without ewsItemId (exchange)
@@ -464,5 +563,4 @@ exports.appendEnron = (req, res) => {
 
     });
 
-}
-
+};
