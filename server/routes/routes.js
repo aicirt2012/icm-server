@@ -84,7 +84,9 @@ function routeProvider(passport) {
     r.route('/tasks/email/:emailId/linkTask').post(taskCtrl.linkTaskToMail);
     r.route('/tasks/email/:emailId/addTask').post(taskCtrl.createTask);
 
-    r.route('/tasks/sc-test/cases').get(taskCtrl.testGetCases);
+    /** SocioCortex Test Routes */
+    r.route('/sc-test/cases').get(taskCtrl.testGetCases);
+    r.route('/sc-test/tasks').get(taskCtrl.testGetTasks);
 
     /** Wiki Routes */
     r.route('/wikis/search').get(wikiCtrl.search);

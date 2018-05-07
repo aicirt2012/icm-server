@@ -287,3 +287,27 @@ exports.testGetCases = async (req, res) => {
   let cases = await new SCTestService().getCases();
   res.status(200).send(cases);
 };
+
+exports.testGetTasks = async (req, res) => {
+  let scTestService = new SCTestService();
+  let caseIds = req.query.caseId;
+  let promises = [];
+  // create request for each case id
+  if (Array.isArray(caseIds)) {
+    caseIds.forEach((caseId) => {
+      promises.push(scTestService.getTasks(caseId))
+    });
+  } else {
+    promises.push(scTestService.getTasks(caseIds))
+  }
+  // execute all requests
+  Promise.all(promises).then((results) => {
+    let tasks = [];
+    results.forEach((task) => {
+      tasks.push(task);
+    });
+    res.status(200).send(tasks);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+};
