@@ -1,13 +1,47 @@
 import Promise from "bluebird";
 import fetch from "node-fetch";
+import 'babel-polyfill';
 
 class TaskService {
 
   sociocortex = {
-    baseURL: 'http://localhost:8084/api/v1',
+    baseURL: 'http://192.168.178.20:8084/api/v1',
+    // baseURL: 'http://localhost:8084/api/v1',
     appName: 'Email Client with Contextual Task Support',
     user: 'mustermann@test.sc'
   };
+
+  async getCases() {
+    const url = this.buildURL('/cases/me', '');
+    return new Promise((resolve, reject) => {
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'simulateuser': this.sociocortex.user
+        }
+      }).then((res) => res.json())
+        .then((json) => {
+          // reduce to minimal entity
+          return json.map((caseEntity) => {
+            return {
+              id: caseEntity.id,
+              name: caseEntity.description,
+              state: caseEntity.state
+            }
+          })
+        })
+        .then((json) => {
+          resolve(json);
+        }).catch((err) => {
+        reject(err);
+      })
+    });
+  }
+
+  /*getAvailableTasks(caseId) {
+    const url = this.buildURL('/', '');
+  }*/
 
   /**
    * create task

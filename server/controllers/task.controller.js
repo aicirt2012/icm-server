@@ -1,6 +1,7 @@
+import 'babel-polyfill';
 import SociocortexConnector from '../core/task/SociocortexConnector'; //TODO: remove once SC implementation is finished
-import { createTaskConnector } from '../core/task/util'
-import User from '../models/user.model';
+import SCTestService from '../core/task/SCTestService'; //TODO: remove after testing SC integration
+import {createTaskConnector} from '../core/task/util'
 import Email from '../models/email.model';
 import Task from '../models/task.model';
 import TrainingData from '../models/trainingData.model';
@@ -28,7 +29,7 @@ exports.createTask = (req, res) => {
     task['email'] = req.params.emailId || null;
     task.save().then((result) => {
       if (req.params.emailId) {
-        TrainingData.findOne({ email: result.email, sentenceId: req.body.sentenceId }).then((td) => {
+        TrainingData.findOne({email: result.email, sentenceId: req.body.sentenceId}).then((td) => {
           if (td) {
             td.label = true;
             td.task = result;
@@ -49,7 +50,7 @@ exports.createTask = (req, res) => {
             });
           }
         });
-        Email.findOne({ _id: result.email }).then((e) => {
+        Email.findOne({_id: result.email}).then((e) => {
           result['thrid'] = e.thrid;
           result.save();
         });
@@ -59,16 +60,16 @@ exports.createTask = (req, res) => {
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 /* GET SINGLE TASK */
 exports.getSingleTask = (req, res) => {
-  TaskService.getTaskWithBoardMembers(req.params.taskId,req.query.provider, req.user).then((data) => {
+  TaskService.getTaskWithBoardMembers(req.params.taskId, req.query.provider, req.user).then((data) => {
     res.status(200).send(data);
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 /* UPDATE TASK */
 exports.updateTask = (req, res) => {
@@ -77,19 +78,19 @@ exports.updateTask = (req, res) => {
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 /* DELETE TASK */
 exports.deleteTask = (req, res) => {
   createTaskConnector(req.query.provider, req.user).deleteTask(req.params.taskId).then((data) => {
-    Task.findOne({ taskId: req.params.taskId }).then((task) => {
-      TrainingData.findOne({ task: task }).then((td) => {
+    Task.findOne({taskId: req.params.taskId}).then((task) => {
+      TrainingData.findOne({task: task}).then((td) => {
         if (td) {
           td.task = null;
           td.label = false;
           td.save();
         }
-        Task.remove({ taskId: req.params.taskId }).then((value) => {
+        Task.remove({taskId: req.params.taskId}).then((value) => {
           res.status(200).send(value);
         });
       });
@@ -97,7 +98,7 @@ exports.deleteTask = (req, res) => {
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 /* LINK TASK TO MAIL */
 exports.linkTaskToMail = (req, res) => {
@@ -106,7 +107,7 @@ exports.linkTaskToMail = (req, res) => {
   task['provider'] = req.query.provider || 'trello';
   task['taskId'] = req.body.taskId;
   task.save().then((t) => {
-    Email.findOne({ _id: t.email }).then((e) => {
+    Email.findOne({_id: t.email}).then((e) => {
       task['thrid'] = e.thrid;
       task.save();
     });
@@ -114,25 +115,25 @@ exports.linkTaskToMail = (req, res) => {
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 /* UNLINK TASK */
 exports.unlinkTask = (req, res) => {
-  Task.findOne({ taskId: req.params.taskId }).then((task) => {
-    TrainingData.findOne({ task: task }).then((td) => {
+  Task.findOne({taskId: req.params.taskId}).then((task) => {
+    TrainingData.findOne({task: task}).then((td) => {
       if (td) {
         td.task = null;
         td.label = false;
         td.save();
       }
-      Task.remove({ taskId: req.params.taskId }).then((value) => {
+      Task.remove({taskId: req.params.taskId}).then((value) => {
         res.status(200).send(value);
       });
     });
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 /* SEARCH TASKS */
 exports.searchTasks = (req, res) => {
@@ -141,7 +142,7 @@ exports.searchTasks = (req, res) => {
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 /* SEARCH MEMBERS */
 exports.searchMembers = (req, res) => {
@@ -150,7 +151,7 @@ exports.searchMembers = (req, res) => {
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 
 /* GET ALL BOARDS (+ LISTS) FOR MEMBER */
@@ -160,17 +161,17 @@ exports.getAllBoardsForMember = (req, res) => {
       let promises = [];
       data.forEach((board) => {
         promises.push(markLinkedTasksInCards(board.cards));
-      })
+      });
       Promise.all(promises).then(() => {
-          res.status(200).send(data);
-        })
+        res.status(200).send(data);
+      })
     } else {
       res.status(200).send(data);
     }
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 function markLinkedTasksInCards(cards) {
   return new Promise((resolve, reject) => {
@@ -192,7 +193,7 @@ function markLinkedTasksInCards(cards) {
           resolve();
         })
       }));
-    })
+    });
     Promise.all(promises).then(resolve)
   })
 }
@@ -204,7 +205,7 @@ exports.getAllListsForBoard = (req, res) => {
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 /* GET ALL CARDS FOR LIST */
 exports.getAllCardsForList = (req, res) => {
@@ -213,7 +214,7 @@ exports.getAllCardsForList = (req, res) => {
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 /* GET CARDS FOR MEMBER */
 exports.searchCardsForMembers = (req, res) => {
@@ -222,7 +223,7 @@ exports.searchCardsForMembers = (req, res) => {
     let promises = [];
     req.body.emailAddresses.forEach((e) => {
       promises.push(new Promise((resolve, reject) => {
-        taskConnector.searchMembers({ query: e }, req.query).then((members) => {
+        taskConnector.searchMembers({query: e}, req.query).then((members) => {
           if (members.length > 0 && members[0].id) {
             taskConnector.getCardsForMember(members[0].id, req.query).then((data) => {
               resolve(data);
@@ -245,12 +246,12 @@ exports.searchCardsForMembers = (req, res) => {
       }, []);
       res.status(200).send(cards);
     }).catch((err) => {
-        res.status(400).send(err);
-      });
+      res.status(400).send(err);
+    });
   } else {
     res.status(200).send([]);
   }
-}
+};
 
 /* REGISTER NEW USER IN SOCIOCORTEX */
 // TODO: needs generalization ?
@@ -262,7 +263,7 @@ exports.registerSociocortex = (req, res) => {
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
 
 /* LOG IN SOCIOCORTEX */
 // TODO: needs generalization ?
@@ -274,4 +275,15 @@ exports.connectSociocortex = (req, res) => {
   }).catch((err) => {
     res.status(400).send(err);
   });
-}
+};
+
+/*
+--------------
+ SOCIOCORTEX TESTING LOGIC
+--------------
+ */
+
+exports.testGetCases = async (req, res) => {
+  let cases = await new SCTestService().getCases();
+  res.status(200).send(cases);
+};
