@@ -9,8 +9,8 @@ const TaskSchema = new mongoose.Schema({
   email: {type: ObjectId, ref: 'Email'},
   user: {type: ObjectId, ref: 'User'}, //TODO populate this field
   thrid: String,
-  optionalParameters: [{name: String, type: String, constraints: String, value: any, defaultValue: any}],
-  requiredParameters: [{name: String, type: String, constraints: String, value: any, defaultValue: any}],
+  optionalParameters: [{name: String, type: String, constraints: String, value: Object, defaultValue: Object}],
+  requiredParameters: [{name: String, type: String, constraints: String, value: Object, defaultValue: Object}],
 }, {
   timestamps: true
 });
