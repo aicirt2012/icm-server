@@ -311,3 +311,15 @@ exports.testGetTasks = async (req, res) => {
     res.status(400).send(err);
   });
 };
+
+exports.testActivateHumanTask = async (req, res) => {
+  let taskId = req.query.taskId;
+  let response = await new SCTestService().activateHumanTask(taskId);
+  res.status(200).send(response);
+};
+
+exports.testActivateDualTask = async (req, res) => {
+  let taskId = req.query.taskId;
+  let response = await new SCTestService().activateDualTask(taskId);
+  res.status(200).send(response);
+};

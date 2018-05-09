@@ -81,6 +81,32 @@ class TaskService {
     });
   }
 
+  async activateHumanTask(taskId) {
+    return this.activateTask(taskId, 'humantasks');
+  }
+
+  async activateDualTask(taskId) {
+    return this.activateTask(taskId, 'dualtasks');
+  }
+
+  async activateTask(taskId, taskServiceName) {
+    const url = this.buildURL('/' + taskServiceName + '/' + taskId + '/activate', '');
+    return new Promise((resolve, reject) => {
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'simulateuser': this.sociocortex.user
+        }
+      }).then((res) => res.json())
+        .then((json) => {
+          resolve(json);
+        }).catch((err) => {
+        reject(err);
+      })
+    });
+  }
+
   recursivelyGetTasks(tree) {
     if (Array.isArray(tree)) {
       let tasks = [];
@@ -89,7 +115,7 @@ class TaskService {
       });
       return tasks;
     } else {
-      if (tree.resourceType == 'humantasks' || tree.resourceType == 'dualtasks') {
+      if (tree.resourceType && tree.resourceType === 'humantasks' || tree.resourceType === 'dualtasks') {
         return tree;
       } else {
         if (tree.children) {
@@ -97,29 +123,6 @@ class TaskService {
         }
       }
     }
-  }
-
-  /**
-   * create task
-   * @params {string} - idList (required).
-   * @params {string} - name (desirable).
-   */
-  createTask(body) {
-    const url = this.buildURL('/cards', '');
-    return new Promise((resolve, reject) => {
-      fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: {
-          'Content-Type': 'application/json',
-          'simulateuser': this.sociocortex.user
-        }
-      }).then((res) => res.json()).then((json) => {
-        resolve(json);
-      }).catch((err) => {
-        reject(err);
-      })
-    });
   }
 
   /* REST utils, TODO move to own util module */
