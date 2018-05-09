@@ -1,0 +1,63 @@
+{
+	"info": {
+		"_postman_id": "16d092fe-af95-492d-881c-aada4d7e25b3",
+		"name": "ICM SC Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET cases",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/sc-test/cases",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"sc-test",
+						"cases"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET tasks",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/sc-test/tasks?cases=[e0r1hs6quip2]",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"sc-test",
+						"tasks"
+					],
+					"query": [
+						{
+							"key": "cases",
+							"value": "[e0r1hs6quip2]"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
