@@ -3,7 +3,7 @@ import Task from "../../models/task.model";
 import Promise from "bluebird";
 import {createTaskConnector} from "./util";
 
-class TaskService {
+class TaskServiceUtil {
 
   static addLinkedTasksToEmail(email, user) {
     return new Promise((resolve, reject) => {
@@ -21,7 +21,7 @@ class TaskService {
         Promise.all(promises).then((results) => {
           email.linkedTasks = results.map((task) => {
             task['taskType'] = Constants.taskTypes.linked;
-            task['board'] = TaskService.convertBoardToMinimalEntity(task.board);
+            task['board'] = TaskServiceUtil.convertBoardToMinimalEntity(task.board);
             return task;
           }).filter(task => !task.closed);
           resolve(email);
@@ -59,7 +59,7 @@ class TaskService {
         });
         Promise.all(promises).then((res) => {
           if (res.members) {
-            res.members.forEach(member => TaskService.convertMemberToMinimalEntity(member));
+            res.members.forEach(member => TaskServiceUtil.convertMemberToMinimalEntity(member));
           }
           resolve(res);
         });
@@ -92,4 +92,4 @@ class TaskService {
 
 }
 
-export default TaskService;
+export default TaskServiceUtil;

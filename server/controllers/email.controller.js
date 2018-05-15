@@ -9,7 +9,7 @@ import EWSConnector from '../core/mail/EWSConnector';
 import Pattern from '../models/pattern.model'
 import Constants from '../../config/constants';
 import {createTaskConnector} from '../core/task/util';
-import TaskService from "../core/task/TaskService";
+import TaskServiceUtil from "../core/task/TaskServiceUtil";
 
 
 exports.sendEmail = (req, res) => {
@@ -314,7 +314,7 @@ exports.getSingleMail = (req, res) => {
     .then((mail) => {
       // replace attachments
       mail = replaceInlineAttachmentsSrc(mail, req.user);
-      return (mail && (req.user.trello || req.user.sociocortex)) ? TaskService.addLinkedTasksToEmail(mail, req.user) : mail;
+      return (mail && (req.user.trello || req.user.sociocortex)) ? TaskServiceUtil.addLinkedTasksToEmail(mail, req.user) : mail;
     })
     .then(mail => {
       // get all patterns for current user
@@ -383,7 +383,7 @@ function getMentionedPersons(nerPersons, trelloBoards) {
       board.members.forEach(member => {
         if ((member.fullName.includes(item.fullName) || member.username.includes(item.fullName)) &&
           result.findIndex(existingItem => existingItem.username === member.username) === -1)
-          result.push(TaskService.convertMemberToMinimalEntity(member));
+          result.push(TaskServiceUtil.convertMemberToMinimalEntity(member));
       })
     })
   });
