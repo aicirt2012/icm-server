@@ -1,0 +1,359 @@
+{
+	"info": {
+		"_postman_id": "9baa95aa-46e1-45ec-bd21-b556f633794b",
+		"name": "ICM Tasks",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "-- Login and update token variable",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "927159e0-c7b7-4294-a350-df2906fbfe82",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Extract token from response\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"token\", jsonData.token);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\":\"Simon\",\n\t\"password\":\"test123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/auth/login",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks-ng/providers/trello/configure",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks-ng/providers/trello/configure",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks-ng",
+						"providers",
+						"trello",
+						"configure"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks-ng/providers/trello/setup",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks-ng/providers/trello/setup",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks-ng",
+						"providers",
+						"trello",
+						"setup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks-ng/providers/trello/teardown",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks-ng/providers/trello/teardown",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks-ng",
+						"providers",
+						"trello",
+						"teardown"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks-ng/providers/sociocortex/configure",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks-ng/providers/sociocortex/configure",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks-ng",
+						"providers",
+						"sociocortex",
+						"configure"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks-ng/providers/sociocortex/setup",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks-ng/providers/sociocortex/setup",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks-ng",
+						"providers",
+						"sociocortex",
+						"setup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks-ng/providers/sociocortex/teardown",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks-ng/providers/sociocortex/teardown",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks-ng",
+						"providers",
+						"sociocortex",
+						"teardown"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks-ng",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"provider\": \"sociocortex\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks-ng",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks-ng"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks-ng/:id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/tasks-ng/{{task_id}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks-ng",
+						"{{task_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks-ng/:id",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"provider\": \"sociocortex\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks-ng/{{task_id}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks-ng",
+						"{{task_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks-ng/:id",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/tasks-ng/{{task_id}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks-ng",
+						"{{task_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
