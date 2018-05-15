@@ -16,24 +16,20 @@ class TaskService {
     throw new Error("Not yet implemented: Method 'teardown' has to be overridden by inheriting classes.");
   }
 
-  create() {
+  create(task) {
     throw new Error("Not yet implemented: Method 'create' has to be overridden by inheriting classes.");
   }
 
-  get() {
+  get(provider_id) {
     throw new Error("Not yet implemented: Method 'get' has to be overridden by inheriting classes.");
   }
 
-  update() {
+  update(provider_id, task) {
     throw new Error("Not yet implemented: Method 'update' has to be overridden by inheriting classes.");
   }
 
-  delete() {
+  delete(provider_id) {
     throw new Error("Not yet implemented: Method 'delete' has to be overridden by inheriting classes.");
-  }
-
-  search() {
-    throw new Error("Not yet implemented: Method 'search' has to be overridden by inheriting classes.");
   }
 
 }

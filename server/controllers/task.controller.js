@@ -1,6 +1,7 @@
 import Constants from "../../config/constants";
 import TrelloService from "../core/task/trello.service";
 import SociocortexService from "../core/task/sociocortex.service";
+import Task from "../models/task.model";
 
 exports.configure = (req, res) => {
   getTaskService(req.params.id, req.user)
@@ -33,23 +34,64 @@ exports.teardown = (req, res) => {
 };
 
 exports.createTask = (req, res) => {
-  res.status(400).send("Controller method not yet implemented.");
+  getTaskService(req.body.provider, req.user)
+    .create(req.body)
+    .then((task) => {
+      task.save().then((result) => {
+        res.status(200).send(result);
+      })
+    }).catch((err) => {
+    res.status(400).send(err);
+  });
 };
 
 exports.readTask = (req, res) => {
-  res.status(400).send("Controller method not yet implemented.");
+  Task.findById(req.params.id).then((task) => {
+    getTaskService(task.provider, req.user)
+      .get(task.providerId)
+      .then((data) => {
+        res.status(200).send(data);
+      });
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
 };
 
 exports.updateTask = (req, res) => {
-  res.status(400).send("Controller method not yet implemented.");
+  // load task from DB to ensure correct current provider is used
+  Task.findById(req.params.id).then((task) => {
+    getTaskService(task.provider, req.user)
+      .update(task.providerId, req.body)
+      .then((data) => {
+        res.status(200).send(data);
+      });
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
 };
 
 exports.deleteTask = (req, res) => {
-  res.status(400).send("Controller method not yet implemented.");
+  Task.findById(req.params.id).then((task) => {
+    getTaskService(task.provider, req.user)
+      .delete(task.providerId)
+      .then(() => {
+        Task.delete(req.params.id)
+          .then((data) => {
+            res.status(200).send(data);
+          });
+      });
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
 };
 
 exports.searchTasks = (req, res) => {
-  res.status(400).send("Controller method not yet implemented.");
+  // FIXME do not just pass request body to mongo, potential security risk, current implementation only for development
+  Task.find(req.body).then((tasks) => {
+    res.status(200).send(tasks);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
 };
 
 function getTaskService(providerName, user) {
