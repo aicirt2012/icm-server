@@ -7,7 +7,8 @@ import importCtrl from '../controllers/import.controller';
 import emailCtrl from '../controllers/email.controller';
 import boxCtrl from '../controllers/box.controller';
 import attachmentCtrl from '../controllers/attachment.controller';
-import taskCtrl from '../controllers/task.controller';
+import taskLegacyCtrl from '../controllers/task.legacy.controller';
+import taskCtrl from '../controllers/task.controller'
 import wikiCtrl from '../controllers/wiki.controller';
 import translationCtrl from '../controllers/translation.controller';
 import dashboardCtrl from '../controllers/dashboard.controller';
@@ -41,8 +42,8 @@ function routeProvider(passport) {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /** User Routes */
-    r.route('/users/me/provider/email/gmail').post(userCtrl.setEmailProviderGMail);    
-    r.route('/users/me/provider/email/exchange').post(userCtrl.setEmailProviderExchange);        
+    r.route('/users/me/provider/email/gmail').post(userCtrl.setEmailProviderGMail);
+    r.route('/users/me/provider/email/exchange').post(userCtrl.setEmailProviderExchange);
     r.route('/users/me/provider/contacts/sociocortex').post(userCtrl.setContactProviderSocioCortex);
     r.route('/users/me').get(userCtrl.get);
     r.route('/users/me').put(userCtrl.update);
@@ -68,21 +69,31 @@ function routeProvider(passport) {
     r.route('/boxes/syncAll').get(boxCtrl.syncIMAP);
 
     /** Task Routes */
-    r.route('/tasks/search/members').get(taskCtrl.searchMembers);
-    r.route('/tasks/search').get(taskCtrl.searchTasks);
-    r.route('/tasks/cards').post(taskCtrl.searchCardsForMembers);
-    r.route('/tasks/boards').get(taskCtrl.getAllBoardsForMember);
-    r.route('/tasks/boards/:boardId/lists').get(taskCtrl.getAllListsForBoard);
-    r.route('/tasks/lists/:listId/cards').get(taskCtrl.getAllCardsForList);
-    r.route('/tasks/:taskId').get(taskCtrl.getSingleTask);
-    r.route('/tasks/:taskId').put(taskCtrl.updateTask);
-    r.route('/tasks/:taskId').delete(taskCtrl.deleteTask);
-    r.route('/tasks/:taskId/unlink').put(taskCtrl.unlinkTask);
-    r.route('/tasks/').post(taskCtrl.createTask);
-    r.route('/tasks/sociocortex/register').post(taskCtrl.registerSociocortex);
-    r.route('/tasks/sociocortex/connect').get(taskCtrl.connectSociocortex);
-    r.route('/tasks/email/:emailId/linkTask').post(taskCtrl.linkTaskToMail);
-    r.route('/tasks/email/:emailId/addTask').post(taskCtrl.createTask);
+    r.route('/tasks/search/members').get(taskLegacyCtrl.searchMembers);
+    r.route('/tasks/search').get(taskLegacyCtrl.searchTasks);
+    r.route('/tasks/cards').post(taskLegacyCtrl.searchCardsForMembers);
+    r.route('/tasks/boards').get(taskLegacyCtrl.getAllBoardsForMember);
+    r.route('/tasks/boards/:boardId/lists').get(taskLegacyCtrl.getAllListsForBoard);
+    r.route('/tasks/lists/:listId/cards').get(taskLegacyCtrl.getAllCardsForList);
+    r.route('/tasks/:taskId').get(taskLegacyCtrl.getSingleTask);
+    r.route('/tasks/:taskId').put(taskLegacyCtrl.updateTask);
+    r.route('/tasks/:taskId').delete(taskLegacyCtrl.deleteTask);
+    r.route('/tasks/:taskId/unlink').put(taskLegacyCtrl.unlinkTask);
+    r.route('/tasks/').post(taskLegacyCtrl.createTask);
+    r.route('/tasks/sociocortex/register').post(taskLegacyCtrl.registerSociocortex);
+    r.route('/tasks/sociocortex/connect').get(taskLegacyCtrl.connectSociocortex);
+    r.route('/tasks/email/:emailId/linkTask').post(taskLegacyCtrl.linkTaskToMail);
+    r.route('/tasks/email/:emailId/addTask').post(taskLegacyCtrl.createTask);
+
+    /** Task Routes v2 **/
+    r.route('/tasks-ng/providers/:providerName/configure').post(taskCtrl.configure);
+    r.route('/tasks-ng/providers/:providerName/setup').post(taskCtrl.setup);
+    r.route('/tasks-ng/providers/:providerName/teardown').post(taskCtrl.teardown);
+    r.route('/tasks-ng/query').get(taskCtrl.searchTasks);
+    r.route('/tasks-ng').post(taskCtrl.createTask);
+    r.route('/tasks-ng/:id').get(taskCtrl.readTask);
+    r.route('/tasks-ng/:id').put(taskCtrl.updateTask);
+    r.route('/tasks-ng/:id').delete(taskCtrl.deleteTask);
 
     /** Wiki Routes */
     r.route('/wikis/search').get(wikiCtrl.search);
