@@ -86,9 +86,9 @@ function routeProvider(passport) {
     r.route('/tasks/email/:emailId/addTask').post(taskLegacyCtrl.createTask);
 
     /** Task Routes v2 **/
-    r.route('/tasks-ng/providers/:providerName/configure').post(taskCtrl.configure);
-    r.route('/tasks-ng/providers/:providerName/setup').post(taskCtrl.setup);
-    r.route('/tasks-ng/providers/:providerName/teardown').post(taskCtrl.teardown);
+    r.route('/tasks-ng/providers/:id/configure').post(taskCtrl.configure);
+    r.route('/tasks-ng/providers/:id/setup').post(taskCtrl.setup);
+    r.route('/tasks-ng/providers/:id/teardown').post(taskCtrl.teardown);
     r.route('/tasks-ng/query').get(taskCtrl.searchTasks);
     r.route('/tasks-ng').post(taskCtrl.createTask);
     r.route('/tasks-ng/:id').get(taskCtrl.readTask);
