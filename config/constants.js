@@ -15,7 +15,7 @@ const SUBJECT = 'SUBJECT';
 export default {
   taskProviders: {
     trello: TRELLO,
-    socioCortex: SOCIOCORTEX
+    sociocortex: SOCIOCORTEX
   },
   nerTypes: {
     person: PERSON,

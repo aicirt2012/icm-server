@@ -9,7 +9,7 @@ export function createTaskConnector(provider, user) {
     case Constants.taskProviders.trello:
       return new TrelloConnector(user.trello);
       break;
-    case Constants.taskProviders.socioCortex:
+    case Constants.taskProviders.sociocortex:
       return new SociocortexConnector(user.sociocortex);
       break;
     default:

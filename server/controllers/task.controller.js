@@ -1,3 +1,7 @@
+import Constants from "../../config/constants";
+import TrelloService from "../core/task/trello.service";
+import SociocortexService from "../core/task/sociocortex.service";
+
 exports.configure = (req, res) => {
   getTaskService(req.params.id, req.user)
     .configure(req.body.username, req.body.password, req.body)
@@ -49,5 +53,12 @@ exports.searchTasks = (req, res) => {
 };
 
 function getTaskService(providerName, user) {
-  throw "Getting task service on controller level not yet implemented.";
+  switch (providerName) {
+    case Constants.taskProviders.trello:
+      return new TrelloService(user);
+    case Constants.taskProviders.sociocortex:
+      return new SociocortexService(user);
+    default:
+      throw new Error("No such task service: '" + providerName + "'.");
+  }
 }
