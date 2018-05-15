@@ -5,6 +5,7 @@ import Email from '../models/email.model';
 import Task from '../models/task.model';
 import TrainingData from '../models/trainingData.model';
 import TaskServiceUtil from "../core/task/TaskServiceUtil";
+import SCTestService from "../core/task/SCTestService";
 
 /*
  * CREATE TASK
@@ -275,3 +276,51 @@ exports.connectSociocortex = (req, res) => {
     res.status(400).send(err);
   });
 }
+
+/*
+--------------
+ SOCIOCORTEX TESTING LOGIC
+--------------
+ */
+
+exports.testGetCases = async (req, res) => {
+  let cases = await new SCTestService().getCases();
+  res.status(200).send(cases);
+};
+
+exports.testGetTasks = async (req, res) => {
+  let scTestService = new SCTestService();
+  let caseIds = req.query.caseId;
+  let promises = [];
+  // create request for each case id
+  if (Array.isArray(caseIds)) {
+    caseIds.forEach((caseId) => {
+      promises.push(scTestService.getTasks(caseId))
+    });
+  } else {
+    promises.push(scTestService.getTasks(caseIds))
+  }
+  // execute all requests
+  Promise.all(promises).then((results) => {
+    let tasks = [];
+    results.forEach((task) => {
+      tasks.push(task);
+    });
+    res.status(200).send(tasks);
+  }).catch((err) => {
+    res.status(400).send(err);
+  });
+};
+
+exports.testActivateHumanTask = async (req, res) => {
+  let taskId = req.query.taskId;
+  let response = await new SCTestService().activateHumanTask(taskId);
+  res.status(200).send(response);
+};
+
+exports.testActivateDualTask = async (req, res) => {
+  let taskId = req.query.taskId;
+  let response = await new SCTestService().activateDualTask(taskId);
+  res.status(200).send(response);
+};
+

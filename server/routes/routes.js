@@ -96,10 +96,10 @@ function routeProvider(passport) {
     r.route('/tasks-ng/:id').delete(taskCtrl.deleteTask);
 
     /** SocioCortex Test Routes */
-    r.route('/sc-test/cases').get(taskCtrl.testGetCases);
-    r.route('/sc-test/tasks').get(taskCtrl.testGetTasks);
-    r.route('/sc-test/activate-human').get(taskCtrl.testActivateHumanTask);
-    r.route('/sc-test/activate-dual').get(taskCtrl.testActivateDualTask);
+    r.route('/sc-test/cases').get(taskLegacyCtrl.testGetCases);
+    r.route('/sc-test/tasks').get(taskLegacyCtrl.testGetTasks);
+    r.route('/sc-test/activate-human').get(taskLegacyCtrl.testActivateHumanTask);
+    r.route('/sc-test/activate-dual').get(taskLegacyCtrl.testActivateDualTask);
 
     /** Wiki Routes */
     r.route('/wikis/search').get(wikiCtrl.search);
