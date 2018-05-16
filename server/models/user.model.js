@@ -59,7 +59,9 @@ const UserSchema = new mongoose.Schema({
       isEnabled: { type: Boolean, default: false },
       trelloAccessTokenSecret: String,
       trelloAccessToken: String,
-      trelloId: String
+      trelloId: String,
+      registrationEmail: String,
+      registrationStarted: Date
     },
     sociocortex: {
       isEnabled: { type: Boolean, default: false },
