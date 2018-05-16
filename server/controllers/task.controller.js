@@ -35,65 +35,76 @@ exports.teardown = (req, res) => {
 };
 
 exports.createTask = (req, res) => {
-  Email.findOne({_id: req.body.email}).then(email => {
-    getTaskService(req.body.provider, req.user)
-      .create(req.body)
-      .then(trelloTask => {
-        Task.fromTrello(trelloTask, email, req.user).save()
-          .then(task => {
-            // convert to plain object and re-append parameters to avoid mongo removing them before serialization
-            task = task.toObject();
-            task.parameters = trelloTask.parameters;
-            res.status(200).send(task);
-          })
-      });
-  }).catch(err => {
+  Email.findOne({_id: req.body.email, user: req.user._id})
+    .then(email => {
+      getTaskService(req.body.provider, req.user)
+        .create(req.body)
+        .then(providerTask => {
+          Task.fromProvider(providerTask, email, req.user).save()
+            .then(task => {
+              // convert to plain object and re-append parameters to avoid mongo removing them before serialization
+              task = task.toObject();
+              task.parameters = providerTask.parameters;
+              res.status(200).send(task);
+            })
+        });
+    }).catch(err => {
     res.status(400).send(err);
   });
 };
 
 exports.readTask = (req, res) => {
-  Task.findById(req.params.id).then(task => {
-    getTaskService(task.provider, req.user)
-      .get(task.providerId)
-      .then(task => {
-        res.status(200).send(task);
-      });
-  }).catch(err => {
+  Task.findOne({_id: req.params.id, user: req.user._id})
+    .then(task => {
+      getTaskService(task.provider, req.user)
+        .get(task.providerId)
+        .then(providerTask => {
+          task = task.toObject();
+          task.parameters = providerTask.parameters;
+          res.status(200).send(task);
+        });
+    }).catch(err => {
     res.status(400).send(err);
   });
 };
 
 exports.updateTask = (req, res) => {
   // load task from DB to ensure correct current provider is used
-  Task.findById(req.params.id).then(task => {
-    getTaskService(task.provider, req.user)
-      .update(task.providerId, req.body)
-      .then(task => {
-        res.status(200).send(task);
+  Task.findOne({_id: req.params.id, user: req.user._id})
+    .then(task => {
+      getTaskService(task.provider, req.user)
+        .update(task.providerId, req.body)
+        .then(providerTask => {
+          task = task.toObject();
+          task.parameters = providerTask.parameters;
+          res.status(200).send(task);
+        }).catch(err => {
+        res.status(400).send(err);
       });
-  }).catch(err => {
+    }).catch(err => {
     res.status(400).send(err);
   });
 };
 
 exports.deleteTask = (req, res) => {
-  Task.findById(req.params.id).then(task => {
-    getTaskService(task.provider, req.user)
-      .delete(task.providerId)
-      .then(() => {
-        Task.delete(req.params.id)
-          .then(data => {
-            res.status(200).send(data);
-          });
-      });
-  }).catch(err => {
+  Task.findOne({_id: req.params.id, user: req.user._id})
+    .then(task => {
+      getTaskService(task.provider, req.user)
+        .delete(task.providerId)
+        .then(() => {
+          Task.delete(req.params.id)
+            .then(data => {
+              res.status(200).send(data);
+            });
+        });
+    }).catch(err => {
     res.status(400).send(err);
   });
 };
 
 exports.searchTasks = (req, res) => {
   // FIXME do not just pass request body to mongo, potential security risk, current implementation only for development
+  req.body.user = req.user._id;
   Task.find(req.body).then(tasks => {
     res.status(200).send(tasks);
   }).catch(err => {

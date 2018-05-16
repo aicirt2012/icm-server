@@ -32,11 +32,11 @@ TaskSchema.statics.removeByUserId = (userId) => {
   return Task.find({user: userId}).remove().exec();
 };
 
-TaskSchema.statics.fromTrello = (trelloTask, email, user) => {
+TaskSchema.statics.fromProvider = (providerTask, email, user) => {
   const task = new Task();
-  task.provider = trelloTask.provider;
-  task.providerId = trelloTask.providerId;
-  task.parameters = trelloTask.parameters;
+  task.provider = providerTask.provider;
+  task.providerId = providerTask.providerId;
+  task.parameters = providerTask.parameters;
   task.user = user._id;
   task.email = email._id;
   task.threadId = email ? email.thrid : null;
