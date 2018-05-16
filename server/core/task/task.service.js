@@ -1,7 +1,3 @@
-import TrelloService from "./trello.service";
-import SociocortexService from "./sociocortex.service";
-import Constants from "../../../config/constants";
-
 class TaskService {
 
   constructor(user) {
@@ -34,17 +30,6 @@ class TaskService {
 
   async delete(provider_id) {
     throw new Error("Not yet implemented: Method 'delete' has to be overridden by inheriting classes.");
-  }
-
-  static get(providerName, user) {
-    switch (providerName) {
-      case Constants.taskProviders.trello:
-        return new TrelloService(user);
-      case Constants.taskProviders.sociocortex:
-        return new SociocortexService(user);
-      default:
-        throw new Error("No such task service: '" + providerName + "'.");
-    }
   }
 
 }

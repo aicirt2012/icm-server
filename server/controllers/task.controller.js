@@ -1,8 +1,10 @@
+import Constants from "../../config/constants";
+import TrelloService from "../core/task/trello.service";
+import SociocortexService from "../core/task/sociocortex.service";
 import Task from "../models/task.model";
-import TaskService from "../core/task/task.service";
 
 exports.configure = (req, res) => {
-  TaskService.get(req.params.id, req.user)
+  getTaskService(req.params.id, req.user)
     .configure(req.body.username, req.body.password, req.body)
     .then((data) => {
       res.status(200).send(data);
@@ -12,7 +14,7 @@ exports.configure = (req, res) => {
 };
 
 exports.setup = (req, res) => {
-  TaskService.get(req.params.id, req.user)
+  getTaskService(req.params.id, req.user)
     .setup(req.body)
     .then((data) => {
       res.status(200).send(data);
@@ -22,7 +24,7 @@ exports.setup = (req, res) => {
 };
 
 exports.teardown = (req, res) => {
-  TaskService.get(req.params.id, req.user)
+  getTaskService(req.params.id, req.user)
     .teardown(req.body)
     .then((data) => {
       res.status(200).send(data);
@@ -32,7 +34,7 @@ exports.teardown = (req, res) => {
 };
 
 exports.createTask = (req, res) => {
-  TaskService.get(req.body.provider, req.user)
+  getTaskService(req.body.provider, req.user)
     .create(req.body)
     .then((task) => {
       task.save().then((result) => {
@@ -45,7 +47,7 @@ exports.createTask = (req, res) => {
 
 exports.readTask = (req, res) => {
   Task.findById(req.params.id).then((task) => {
-    TaskService.get(task.provider, req.user)
+    getTaskService(task.provider, req.user)
       .get(task.providerId)
       .then((data) => {
         res.status(200).send(data);
@@ -58,7 +60,7 @@ exports.readTask = (req, res) => {
 exports.updateTask = (req, res) => {
   // load task from DB to ensure correct current provider is used
   Task.findById(req.params.id).then((task) => {
-    TaskService.get(task.provider, req.user)
+    getTaskService(task.provider, req.user)
       .update(task.providerId, req.body)
       .then((data) => {
         res.status(200).send(data);
@@ -70,7 +72,7 @@ exports.updateTask = (req, res) => {
 
 exports.deleteTask = (req, res) => {
   Task.findById(req.params.id).then((task) => {
-    TaskService.get(task.provider, req.user)
+    getTaskService(task.provider, req.user)
       .delete(task.providerId)
       .then(() => {
         Task.delete(req.params.id)
@@ -91,3 +93,14 @@ exports.searchTasks = (req, res) => {
     res.status(400).send(err);
   });
 };
+
+function getTaskService(providerName, user) {
+  switch (providerName) {
+    case Constants.taskProviders.trello:
+      return new TrelloService(user);
+    case Constants.taskProviders.sociocortex:
+      return new SociocortexService(user);
+    default:
+      throw new Error("No such task service: '" + providerName + "'.");
+  }
+}
