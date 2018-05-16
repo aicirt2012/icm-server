@@ -37,8 +37,8 @@ TaskSchema.statics.fromTrello = (trelloTask, email, user) => {
   task.provider = trelloTask.provider;
   task.providerId = trelloTask.providerId;
   task.parameters = trelloTask.parameters;
-  task.user = user;
-  task.email = email;
+  task.user = user._id;
+  task.email = email._id;
   task.threadId = email ? email.thrid : null;
   return task;
 };
