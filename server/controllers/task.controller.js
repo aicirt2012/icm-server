@@ -47,7 +47,9 @@ exports.createTask = (req, res) => {
               task.parameters = providerTask.parameters;
               res.status(200).send(task);
             })
-        });
+        }).catch(err => {
+        res.status(400).send(err);
+      });
     }).catch(err => {
     res.status(400).send(err);
   });
@@ -62,7 +64,9 @@ exports.readTask = (req, res) => {
           task = task.toObject();
           task.parameters = providerTask.parameters;
           res.status(200).send(task);
-        });
+        }).catch(err => {
+        res.status(400).send(err);
+      });
     }).catch(err => {
     res.status(400).send(err);
   });
@@ -96,7 +100,9 @@ exports.deleteTask = (req, res) => {
             .then(data => {
               res.status(200).send(data);
             });
-        });
+        }).catch(err => {
+        res.status(400).send(err);
+      });
     }).catch(err => {
     res.status(400).send(err);
   });
