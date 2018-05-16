@@ -8,14 +8,12 @@ class TrelloConnector {
     key: '734feed8b99a158d3a9cd9af87e096f3',
     secret: '498ac521e9ecb0f32467f7dffae04054efc6f13318ad20538cd75195e8d4eb54',
     accessToken: '6d22bcbdb0dcfc8126e8e692624b8fd1198c73fcdc7f115171b6694ee27f4f8f',
-    accessTokenSecret: 'bb3d26c8435dc5fd90cfbbdeef0330d9',
     oauthVersion: '1.0',
     oauthSHA: 'HMAC-SHA1'
   };
 
-  constructor(trelloAccessToken, trelloAccessTokenSecret) {
+  constructor(trelloAccessToken) {
     this.accessToken = trelloAccessToken;
-    this.accessTokenSecret = trelloAccessTokenSecret;
   }
 
   /**
@@ -23,11 +21,11 @@ class TrelloConnector {
    * @params {string} - idList (required).
    * @params {string} - name (desirable).
    */
-  async createTask(body) {
+  async createTask(trelloTask) {
     const url = this.buildURL('/cards', '');
     await response = fetch(url, {
       method: 'POST',
-      body: JSON.stringify(body),
+      body: JSON.stringify(trelloTask),
       headers: {
         'Content-Type': 'application/json'
       }
@@ -49,11 +47,11 @@ class TrelloConnector {
    * update task
    * @params {string} - name (optional).
    */
-  async updateTask(id, body) {
+  async updateTask(id, trelloTask) {
     const url = this.buildURL(`/cards/${id}`, '');
     await response = fetch(url, {
       method: 'PUT',
-      body: JSON.stringify(body),
+      body: JSON.stringify(trelloTask),
       headers: {
         'Content-Type': 'application/json'
       }
@@ -94,3 +92,5 @@ class TrelloConnector {
   }
 
 }
+
+export default TrelloConnector;

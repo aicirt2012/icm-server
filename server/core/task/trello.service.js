@@ -2,8 +2,14 @@ import Constants from "../../../config/constants";
 import Task from "../../models/task.model"
 import User from "../../models/user.model"
 import TaskService from "./task.service";
+import TrelloConnector from "./trello.connector";
 
 class TrelloService extends TaskService {
+
+  constructor(user) {
+    super(user);
+    this._connector = new TrelloConnector(this._user.taskProviders.trello.trelloAccessToken);
+  }
 
   async configure(username, password, providerSpecificData) {
     let emailAlreadyInUse = await User.findOne({
@@ -38,19 +44,32 @@ class TrelloService extends TaskService {
   }
 
   async create(task) {
-    throw new Error("Not yet implemented!");
+    const trelloTask = {};  // TODO map from task object to trello
+    const response = await this._connector.createTask(trelloTask);
+    const resultingTask = new Task();
+    // TODO map from trello response to task object
+    return resultingTask;
   }
 
   async get(provider_id) {
-    throw new Error("Not yet implemented!");
+    const response = await this._connector.getTask(provider_id);
+    const task = new Task();
+    // TODO map from trello response to task object
+    return task;
   }
 
   async update(provider_id, task) {
-    throw new Error("Not yet implemented!");
+    const trelloTask = {};  // TODO map from task object to trello
+    const response = await this._connector.updateTask(provider_id, trelloTask);
+    const resultingTask = new Task();
+    // TODO map from trello response to task object
+    return resultingTask;
   }
 
   async delete(provider_id) {
-    throw new Error("Not yet implemented!");
+    const response = await this._connector.deleteTask(provider_id);
+    // TODO map from trello response to task object
+    return resultingTask;
   }
 
 }
