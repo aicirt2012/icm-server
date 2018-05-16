@@ -35,7 +35,7 @@ exports.teardown = (req, res) => {
 };
 
 exports.createTask = (req, res) => {
-  Email.findById(req.body.email).then(email => {
+  Email.findOne({_id: req.body.email}).then(email => {
     getTaskService(req.body.provider, req.user)
       .create(req.body)
       .then(trelloTask => {
