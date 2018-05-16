@@ -30,7 +30,7 @@ class TrelloConnector {
         'Content-Type': 'application/json'
       }
     };
-    return await fetch(url, options).json();
+    return (await fetch(url, options)).json();
   }
 
   /**
@@ -39,7 +39,7 @@ class TrelloConnector {
   async getTask(id) {
     let params = {'members': 'true', 'board': 'true', 'list': 'true', 'stickers': 'true'};
     const url = this.buildURL(`/cards/${id}`, params);
-    return await fetch(url).json();
+    return (await fetch(url)).json();
   }
 
   /**
@@ -55,7 +55,7 @@ class TrelloConnector {
         'Content-Type': 'application/json'
       }
     };
-    return await fetch(url, options).json();
+    return (await fetch(url, options)).json();
   }
 
   /**
@@ -63,7 +63,7 @@ class TrelloConnector {
    */
   async deleteTask(id) {
     const url = this.buildURL(`/cards/${id}`, '');
-    return await fetch(url, {method: 'DELETE'}).json();
+    return (await fetch(url, {method: 'DELETE'})).json();
   }
 
   /**
@@ -72,7 +72,7 @@ class TrelloConnector {
    */
   async searchTasks(params) {
     const url = this.buildURL('/search', params);
-    return await fetch(url).json();
+    return (await fetch(url)).json();
   }
 
 
