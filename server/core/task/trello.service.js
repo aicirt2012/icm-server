@@ -71,23 +71,64 @@ class TrelloService extends TaskService {
 
   async get(provider_id) {
     const response = await this._connector.getTask(provider_id);
-    const task = new Task();
-    // TODO map from trello response to task object
+    const task = {};
+    task.provider = Constants.taskProviders.trello;
+    task.providerId = response.id;
+    task.parameters = [
+      {name: 'name', value: response.name},
+      {name: 'desc', value: response.desc},
+      {name: 'due', value: response.due},
+      {name: 'closed', value: response.closed},
+      {name: 'idBoard', value: response.idBoard},
+      {name: 'idList', value: response.idList},
+      {name: 'idMembers', value: response.idMembers},
+      {name: 'shortUrl', value: response.shortUrl}
+    ];
     return task;
   }
 
   async update(provider_id, task) {
-    const trelloTask = {};  // TODO map from task object to trello
+    const trelloTask = {};
+    task.parameters.forEach(function (parameter) {
+      if (parameter.value) {
+        trelloTask[parameter.name] = parameter.value;
+      } else if (parameter.defaultValues && parameter.defaultValues.length > 0) {
+        trelloTask[parameter.name] = parameter.defaultValues[0];
+      }
+    });
     const response = await this._connector.updateTask(provider_id, trelloTask);
-    const resultingTask = new Task();
-    // TODO map from trello response to task object
+    const resultingTask = {};
+    resultingTask.provider = Constants.taskProviders.trello;
+    resultingTask.providerId = response.id;
+    resultingTask.parameters = [
+      {name: 'name', value: response.name},
+      {name: 'desc', value: response.desc},
+      {name: 'due', value: response.due},
+      {name: 'closed', value: response.closed},
+      {name: 'idBoard', value: response.idBoard},
+      {name: 'idList', value: response.idList},
+      {name: 'idMembers', value: response.idMembers},
+      {name: 'shortUrl', value: response.shortUrl}
+    ];
     return resultingTask;
   }
 
   async delete(provider_id) {
     const response = await this._connector.deleteTask(provider_id);
-    // TODO map from trello response to task object
-    return response;
+    const task = {};
+    task.provider = Constants.taskProviders.trello;
+    task.providerId = response.id;
+    task.parameters = [
+      {name: 'name', value: response.name},
+      {name: 'desc', value: response.desc},
+      {name: 'due', value: response.due},
+      {name: 'closed', value: response.closed},
+      {name: 'idBoard', value: response.idBoard},
+      {name: 'idList', value: response.idList},
+      {name: 'idMembers', value: response.idMembers},
+      {name: 'shortUrl', value: response.shortUrl}
+    ];
+    return task;
   }
 
 }
