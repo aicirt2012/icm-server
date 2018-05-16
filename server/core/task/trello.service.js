@@ -69,7 +69,7 @@ class TrelloService extends TaskService {
   async delete(provider_id) {
     const response = await this._connector.deleteTask(provider_id);
     // TODO map from trello response to task object
-    return resultingTask;
+    return response;
   }
 
 }
