@@ -23,87 +23,61 @@ class TrelloConnector {
    * @params {string} - idList (required).
    * @params {string} - name (desirable).
    */
-  createTask(body) {
+  async createTask(body) {
     const url = this.buildURL('/cards', '');
-    return new Promise((resolve, reject) => {
-      fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }).then((res) => res.json()).then((json) => {
-        resolve(json);
-      }).catch((err) => {
-        reject(err);
-      })
+    await response = fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
+    return response.json();
   }
 
   /**
    * get task
    */
-  getTask(id) {
+  async getTask(id) {
     let params = {'members': 'true', 'board': 'true', 'list': 'true', 'stickers': 'true'};
     const url = this.buildURL(`/cards/${id}`, params);
-    return new Promise((resolve, reject) => {
-      fetch(url).then((res) => res.json()
-      ).then((task) => {
-        resolve(task);
-      }).catch((err) => {
-        reject(err);
-      })
-    });
+    await response = fetch(url);
+    return response.json();
   }
 
   /**
    * update task
    * @params {string} - name (optional).
    */
-  updateTask(id, body) {
+  async updateTask(id, body) {
     const url = this.buildURL(`/cards/${id}`, '');
-    return new Promise((resolve, reject) => {
-      fetch(url, {
-        method: 'PUT',
-        body: JSON.stringify(body),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }).then((res) => res.json()).then((json) => {
-        resolve(json);
-      }).catch((err) => {
-        reject(err);
-      })
+    await response = fetch(url, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
+    return response.json();
   }
 
   /**
    * delete tasks
    */
-  deleteTask(id) {
+  async deleteTask(id) {
     const url = this.buildURL(`/cards/${id}`, '');
-    return new Promise((resolve, reject) => {
-      fetch(url, {method: 'DELETE'}).then((res) => res.json()).then((json) => {
-        resolve(json);
-      }).catch((err) => {
-        reject(err);
-      })
-    });
+    await response = fetch(url, {method: 'DELETE'});
+    return response.json();
   }
 
   /**
    * search tasks
    * @params {string} - query (required).
    */
-  searchTasks(params) {
+  async searchTasks(params) {
     const url = this.buildURL('/search', params);
-    return new Promise((resolve, reject) => {
-      fetch(url).then((res) => res.json()).then((json) => {
-        resolve(json);
-      }).catch((err) => {
-        reject(err);
-      })
-    });
+    await response = fetch(url);
+    return response.json();
   }
 
 
