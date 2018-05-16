@@ -2,31 +2,31 @@ import TaskService from "./task.service";
 
 class SociocortexService extends TaskService {
 
-  configure(username, password, providerSpecificData) {
+  async configure(username, password, providerSpecificData) {
     throw new Error("Not yet implemented!");
   }
 
-  setup(providerSpecificData) {
+  async setup(providerSpecificData) {
     throw new Error("Not yet implemented!");
   }
 
-  teardown(providerSpecificData) {
+  async teardown(providerSpecificData) {
     throw new Error("Not yet implemented!");
   }
 
-  create(task) {
+  async create(task) {
     throw new Error("Not yet implemented!");
   }
 
-  get(provider_id) {
+  async get(provider_id) {
     throw new Error("Not yet implemented!");
   }
 
-  update(provider_id, task) {
+  async update(provider_id, task) {
     throw new Error("Not yet implemented!");
   }
 
-  delete(provider_id) {
+  async delete(provider_id) {
     throw new Error("Not yet implemented!");
   }
 
