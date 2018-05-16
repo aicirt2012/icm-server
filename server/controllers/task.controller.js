@@ -96,7 +96,7 @@ exports.deleteTask = (req, res) => {
       getTaskService(task.provider, req.user)
         .delete(task.providerId)
         .then(() => {
-          Task.delete(req.params.id)
+          Task.remove(req.params.id)
             .then(data => {
               res.status(200).send(data);
             });
