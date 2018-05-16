@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "9baa95aa-46e1-45ec-bd21-b556f633794b",
+		"_postman_id": "e2bfbbb4-4d56-4b8f-9377-e149dff02f87",
 		"name": "ICM Tasks",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -49,6 +49,53 @@
 			"response": []
 		},
 		{
+			"name": "-- Update Trello token variable",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4ea3409d-80f3-46a5-a06d-949dcdf75a66",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Extract Trello token from response\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"trello_token\", jsonData.taskProviders.trello.trelloAccessToken);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\":\"Simon\",\n\t\"password\":\"test123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/users/me",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "/tasks-ng/providers/trello/configure",
 			"request": {
 				"method": "POST",
@@ -64,7 +111,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{}"
+					"raw": "{\n\t\"email\": \"sebisng2@gmail.com\"\n}"
 				},
 				"url": {
 					"raw": "{{baseurl}}/tasks-ng/providers/trello/configure",
@@ -97,7 +144,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{}"
+					"raw": "{\n\t\"token\": \"{{trello_token}}\"\n}"
 				},
 				"url": {
 					"raw": "{{baseurl}}/tasks-ng/providers/trello/setup",
@@ -247,6 +294,37 @@
 			"response": []
 		},
 		{
+			"name": "/tasks-ng/query",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks-ng/query",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks-ng",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "/tasks-ng",
 			"request": {
 				"method": "POST",
@@ -262,7 +340,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"provider\": \"sociocortex\"\n}"
+					"raw": "{\n\t\"provider\": \"trello\",\n\t\"email\": \"{{email_id}}\",\n\t\"parameters\": [\n\t\t{\n\t\t\t\"name\": \"name\",\n\t\t\t\"value\": \"API Test-Card\"\n\t\t},\n\t\t{\n\t\t\t\"name\": \"idList\",\n\t\t\t\"value\": \"5afc6018311f3b5cbaf9ee8b\"\n\t\t}\n\t\t]\n}"
 				},
 				"url": {
 					"raw": "{{baseurl}}/tasks-ng",
@@ -286,7 +364,10 @@
 						"value": "JWT {{token}}"
 					}
 				],
-				"body": {},
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
 				"url": {
 					"raw": "{{baseurl}}/tasks-ng/{{task_id}}",
 					"host": [
@@ -341,7 +422,10 @@
 						"value": "JWT {{token}}"
 					}
 				],
-				"body": {},
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
 				"url": {
 					"raw": "{{baseurl}}/tasks-ng/{{task_id}}",
 					"host": [
