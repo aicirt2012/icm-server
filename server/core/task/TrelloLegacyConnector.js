@@ -2,7 +2,7 @@ import config from '../../../config/env';
 import TaskConnector from './TaskConnector';
 import fetch from 'node-fetch';
 
-class TrelloConnector extends TaskConnector {
+class TrelloLegacyConnector extends TaskConnector {
 
   trello = {
     baseURL: 'https://api.trello.com/1',
@@ -270,4 +270,4 @@ class TrelloConnector extends TaskConnector {
 
 }
 
-export default TrelloConnector;
+export default TrelloLegacyConnector;

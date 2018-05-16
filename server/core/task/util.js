@@ -1,4 +1,4 @@
-import TrelloConnector from './TrelloConnector';
+import TrelloLegacyConnector from './TrelloLegacyConnector';
 import SociocortexConnector from './SociocortexConnector';
 import Constants from '../../../config/constants';
 
@@ -7,12 +7,10 @@ import Constants from '../../../config/constants';
 export function createTaskConnector(provider, user) {
   switch (provider) {
     case Constants.taskProviders.trello:
-      return new TrelloConnector(user.trello);
-      break;
+      return new TrelloLegacyConnector(user.trello);
     case Constants.taskProviders.sociocortex:
       return new SociocortexConnector(user.sociocortex);
-      break;
     default:
-      return new TrelloConnector(user.trello);
+      return new TrelloLegacyConnector(user.trello);
   }
 }
