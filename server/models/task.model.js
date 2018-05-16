@@ -32,5 +32,16 @@ TaskSchema.statics.removeByUserId = (userId) => {
   return Task.find({user: userId}).remove().exec();
 };
 
+TaskSchema.statics.fromTrello = (trelloTask, user) => {
+  const task = new Task();
+  task.provider = trelloTask.provider;
+  task.providerId = trelloTask.providerId;
+  task.parameters = trelloTask.parameters;
+  task.user = user;
+  task.email = email;
+  task.threadId = email.thrid;
+  return task;
+};
+
 let Task = mongoose.model('Task', TaskSchema);
 export default Task;
