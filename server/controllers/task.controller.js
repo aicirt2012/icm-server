@@ -36,8 +36,13 @@ exports.teardown = (req, res) => {
 exports.createTask = (req, res) => {
   getTaskService(req.body.provider, req.user)
     .create(req.body)
-    .then(task => {
+    .then(trelloTask => {
+      const task = new Task();
+      task.provider = trelloTask.provider;
+      task.providerId = trelloTask.providerId;
       task.save().then(task => {
+        task = task.toObject();
+        task.parameters = trelloTask.parameters;
         res.status(200).send(task);
       })
     }).catch(err => {

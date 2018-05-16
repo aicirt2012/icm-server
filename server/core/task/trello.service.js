@@ -53,8 +53,19 @@ class TrelloService extends TaskService {
       }
     });
     const response = await this._connector.createTask(trelloTask);
-    const resultingTask = new Task();
-    // TODO map from trello response to task object
+    const resultingTask = {};
+    resultingTask.provider = Constants.taskProviders.trello;
+    resultingTask.providerId = response.id;
+    resultingTask.parameters = [
+      {name: 'name', value: response.name},
+      {name: 'desc', value: response.desc},
+      {name: 'due', value: response.due},
+      {name: 'closed', value: response.closed},
+      {name: 'idBoard', value: response.idBoard},
+      {name: 'idList', value: response.idList},
+      {name: 'idMembers', value: response.idMembers},
+      {name: 'shortUrl', value: response.shortUrl}
+    ];
     return resultingTask;
   }
 
