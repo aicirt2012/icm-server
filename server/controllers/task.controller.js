@@ -5,7 +5,7 @@ import Task from "../models/task.model";
 
 exports.configure = (req, res) => {
   getTaskService(req.params.id, req.user)
-    .configure(req.body.username, req.body.password, req.body)
+    .configure(req.body.email, "", {})
     .then((data) => {
       res.status(200).send(data);
     }).catch((err) => {
@@ -15,7 +15,7 @@ exports.configure = (req, res) => {
 
 exports.setup = (req, res) => {
   getTaskService(req.params.id, req.user)
-    .setup(req.body)
+    .setup(req.body.token)
     .then((data) => {
       res.status(200).send(data);
     }).catch((err) => {

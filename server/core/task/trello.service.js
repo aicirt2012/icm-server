@@ -11,24 +11,24 @@ class TrelloService extends TaskService {
     this._connector = new TrelloConnector(this._user.taskProviders.trello.trelloAccessToken);
   }
 
-  async configure(username, password, providerSpecificData) {
-    let emailAlreadyInUse = await User.findOne({
+  async configure(email, password, providerSpecificData) {
+    const emailAlreadyInUse = await User.findOne({
       'taskProviders.trello.isEnabled': false,
-      'taskProviders.trello.registrationEmail': username,
+      'taskProviders.trello.registrationEmail': email,
       'taskProviders.trello.registrationStarted': {$gt: new Date(Date.now() - 60000)},  // start date is less than 60 seconds ago
     });
     if (emailAlreadyInUse) {
       throw new Error("Specified e-mail address currently in use for another registration process. Please wait 60 seconds and try again.");
     } else {
-      this._user.taskProviders.trello.registrationEmail = username;
+      this._user.taskProviders.trello.registrationEmail = email;
       this._user.taskProviders.trello.registrationStarted = new Date();
       return await this._user.save();
     }
   }
 
-  async setup(providerSpecificData) {
+  async setup(trelloToken) {
     this._user.taskProviders.trello.isEnabled = true;
-    this._user.taskProviders.trello.trelloAccessToken = providerSpecificData;
+    this._user.taskProviders.trello.trelloAccessToken = trelloToken;
     return await this._user.save();
   }
 
@@ -44,7 +44,14 @@ class TrelloService extends TaskService {
   }
 
   async create(task) {
-    const trelloTask = {};  // TODO map from task object to trello
+    const trelloTask = {};
+    task.parameters.forEach(function (parameter) {
+      if (parameter.value) {
+        trelloTask[parameter.name] = parameter.value;
+      } else if (parameter.defaultValues && parameter.defaultValues.length > 0) {
+        trelloTask[parameter.name] = parameter.defaultValues[0];
+      }
+    });
     const response = await this._connector.createTask(trelloTask);
     const resultingTask = new Task();
     // TODO map from trello response to task object
