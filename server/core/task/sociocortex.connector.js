@@ -47,6 +47,34 @@ class SociocortexConnector {
     return (await fetch(url, options)).json();
   }
 
+  async getAllCases() {
+    const url = this._buildURL('/cases', {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
+  async getAllHumanTasks(caseId) {
+    return this.getAllTasks(caseId, 'humantasks');
+  }
+
+  async getAllAutomatedTasks(caseId) {
+    return this.getAllTasks(caseId, 'automatedtasks');
+  }
+
+  async getAllTasks(caseId, taskType) {
+    const url = this._buildURL('/cases/' + caseId + "/" + taskType + "/all", {}); // TODO check wether /all suffix is needed
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
+  async activateHumanTask(taskId) {
+    return this.activateTask(taskId, 'humantasks');
+  }
+
+  async activateDualTask(taskId) {
+    return this.activateTask(taskId, 'dualtasks');
+  }
+
   async activateTask(id, taskType) {
     const url = this._buildURL('/' + taskType + '/' + id + '/activate', '');
     const options = this._buildOptions({method: 'POST'});
