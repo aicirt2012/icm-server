@@ -13,31 +13,25 @@ class SociocortexConnector {
     this.config.email = email;
   }
 
-  /**
-   * get task
-   */
   async getTask(id) {
-    const options = this.buildOptions({});
-    const url = this.buildURL(`/tasks/${id}`, '');
+    const options = this._buildOptions({});
+    const url = this._buildURL(`/tasks/${id}`, '');
     return (await fetch(url, options)).json();
   }
 
-  /**
-   * update task
-   */
   async updateTask(id, sociocortexTask) {
     let url;
     switch (sociocortexTask.resourceType) {
       case Constants.sociocortexTaskTypes.dual:
-        url = this.buildURL(`/dualtasks/${id}`, '');
+        url = this._buildURL(`/dualtasks/${id}`, '');
         break;
       case Constants.sociocortexTaskTypes.human:
-        url = this.buildURL(`/humantasks/${id}`, '');
+        url = this._buildURL(`/humantasks/${id}`, '');
         break;
       default:
         throw new Error("No such sociocortex task type: " + sociocortexTask.resourceType);
     }
-    const options = this.buildOptions({
+    const options = this._buildOptions({
       method: 'PUT',
       body: JSON.stringify(sociocortexTask),
       headers: {
@@ -47,20 +41,25 @@ class SociocortexConnector {
     return (await fetch(url, options)).json();
   }
 
-  /**
-   * search tasks
-   */
   async searchTasks(params) {
-    const url = this.buildURL('/search', params);
-    const options = this.buildOptions({});
+    const url = this._buildURL('/search', params);
+    const options = this._buildOptions({});
     return (await fetch(url, options)).json();
   }
 
-  buildURL(path, params) {
-    return `${this.config.baseURL}${path}` + `${this.addQueries(params)}`;
+  async activateTask(id, taskType) {
+    const url = this._buildURL('/' + taskType + '/' + id + '/activate', '');
+    const options = this._buildOptions({method: 'POST'});
+    return (await fetch(url, options)).json();
   }
 
-  addQueries(queries) {
+  // --- HELPER FUNCTIONS ---
+
+  _buildURL(path, params) {
+    return `${this.config.baseURL}${path}` + `${this._addQueries(params)}`;
+  }
+
+  _addQueries(queries) {
     let queryString = '?';
     Object.keys(queries).forEach((key) => {
       queryString += `${key}=${queries[key]}&`;
@@ -68,7 +67,7 @@ class SociocortexConnector {
     return queryString.length > 1 ? queryString.slice(0, -1) : "";
   }
 
-  buildOptions(options) {
+  _buildOptions(options) {
     options = options ? options : {};
     options.headers = options.headers ? options.headers : {};
     options.headers.simulateuser = this.config.email;

@@ -46,6 +46,7 @@ class SociocortexService extends TaskService {
   }
 
   async update(provider_id, task) {
+
     throw new Error("Not yet implemented!");
   }
 
@@ -65,7 +66,6 @@ class SociocortexService extends TaskService {
   async list() {
     throw new Error("Not yet implemented: Method 'list' is not yet implemented for Sociocortex service.");
   }
-
 
 }
 
