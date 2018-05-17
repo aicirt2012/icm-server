@@ -1,5 +1,6 @@
 import SociocortexConnector from "./sociocortex.connector";
 import TaskService from "./task.service";
+import Constants from "../../../config/constants";
 
 class SociocortexService extends TaskService {
 
@@ -27,7 +28,21 @@ class SociocortexService extends TaskService {
   }
 
   async get(provider_id) {
-    throw new Error("Not yet implemented!");
+    const response = await this._connector.getTask(provider_id);
+    const task = {};
+    task.provider = Constants.taskProviders.trello;
+    task.providerId = response.id;
+    task.parameters = [
+      {name: 'name', value: response.name},
+      {name: 'description', value: response.description},
+      {name: 'due', value: response.scheduledDate},
+      {name: 'case', value: response.case},
+      {name: 'ownerId', value: response.owner ? response.owner.id : ""},
+      {name: 'ownerEmail', value: response.owner ? response.owner.email : ""},
+      {name: 'state', value: response.state},
+    ];
+    // TODO parse and append the actual, dynamic parameters from sociocortex
+    return task;
   }
 
   async update(provider_id, task) {
