@@ -34,7 +34,7 @@ exports.teardown = (req, res) => {
   });
 };
 
-exports.createTask = (req, res) => {
+exports.createNewTask = (req, res) => {
   Email.findOne({_id: req.body.email, user: req.user._id})
     .then(email => {
       getTaskService(req.body.provider, req.user)
@@ -50,6 +50,26 @@ exports.createTask = (req, res) => {
         }).catch(err => {
         res.status(400).send(err);
       });
+    }).catch(err => {
+    res.status(400).send(err);
+  });
+};
+
+exports.createLinkedTask = (req, res) => {
+  Email.findOne({_id: req.body.email, user: req.user._id})
+    .then(email => {
+      getTaskService(req.body.provider, req.user)
+        .link(req.body.providerId, req.body.frontendUrl)
+        .then(providerTask => {
+          Task.fromProvider(providerTask, email, req.user).save()
+            .then(task => {
+              task = task.toObject();
+              task.parameters = providerTask.parameters;
+              res.status(200).send(task);
+            }).catch(err => {
+            res.status(400).send(err);
+          })
+        })
     }).catch(err => {
     res.status(400).send(err);
   });
@@ -95,6 +115,24 @@ exports.deleteTask = (req, res) => {
     .then(task => {
       getTaskService(task.provider, req.user)
         .delete(task.providerId)
+        .then(() => {
+          Task.remove(req.params.id)
+            .then(data => {
+              res.status(200).send(data);
+            });
+        }).catch(err => {
+        res.status(400).send(err);
+      });
+    }).catch(err => {
+    res.status(400).send(err);
+  });
+};
+
+exports.unlinkTask = (req, res) => {
+  Task.findOne({_id: req.params.id, user: req.user._id})
+    .then(task => {
+      getTaskService(req.body.provider, req.user)
+        .unlink(task.providerId)
         .then(() => {
           Task.remove(req.params.id)
             .then(data => {

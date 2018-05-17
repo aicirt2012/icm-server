@@ -132,6 +132,14 @@ class TrelloService extends TaskService {
     return task;
   }
 
+  async link(provider_id, frontend_url) {
+    throw new Error("Not yet implemented: Method 'link' is not yet implemented for Trello service.");
+  }
+
+  async unlink(provider_id) {
+    throw new Error("Not yet implemented: Method 'unlink' is not yet implemented for Trello service.");
+  }
+
 }
 
 export default TrelloService;

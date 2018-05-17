@@ -23,7 +23,7 @@ class SociocortexService extends TaskService {
 
   async create(task) {
     // TODO think about using more specific/custom error class
-    throw new Error("Task creation is not supported by this service!");
+    throw new Error("Task creation is not supported by the Sociocortex service!");
   }
 
   async get(provider_id) {
@@ -36,7 +36,15 @@ class SociocortexService extends TaskService {
 
   async delete(provider_id) {
     // TODO think about using more specific/custom error class
-    throw new Error("Task deletion is not supported by this service!");
+    throw new Error("Task deletion is not supported by the Sociocortex service!");
+  }
+  
+  async link(provider_id, frontend_url) {
+    throw new Error("Not yet implemented: Method 'link' is not yet implemented for Sociocortex service.");
+  }
+
+  async unlink(provider_id) {
+    throw new Error("Not yet implemented: Method 'unlink' is not yet implemented for Sociocortex service.");
   }
 
 }

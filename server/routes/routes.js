@@ -90,10 +90,12 @@ function routeProvider(passport) {
     r.route('/tasks-ng/providers/:id/setup').post(taskCtrl.setup);
     r.route('/tasks-ng/providers/:id/teardown').post(taskCtrl.teardown);
     r.route('/tasks-ng/query').post(taskCtrl.searchTasks);
-    r.route('/tasks-ng').post(taskCtrl.createTask);
+    r.route('/tasks-ng').post(taskCtrl.createNewTask);
+    r.route('/tasks-ng/link').post(taskCtrl.createLinkedTask);
     r.route('/tasks-ng/:id').get(taskCtrl.readTask);
     r.route('/tasks-ng/:id').put(taskCtrl.updateTask);
     r.route('/tasks-ng/:id').delete(taskCtrl.deleteTask);
+    r.route('/tasks-ng/:id/unlink').post(taskCtrl.unlinkTask);
 
     /** SocioCortex Test Routes */
     r.route('/sc-test/cases').get(taskLegacyCtrl.testGetCases);
