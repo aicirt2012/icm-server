@@ -12,8 +12,8 @@ const LINKED = 'linked';
 const BODY = 'BODY';
 const SUBJECT = 'SUBJECT';
 
-const HUMAN_TASK = 'human';
-const DUAL_TASK = 'dual';
+const HUMAN_TASK = 'HumanTask';
+const DUAL_TASK = 'DualTask';
 
 export default {
   taskProviders: {

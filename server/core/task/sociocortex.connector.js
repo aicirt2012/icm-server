@@ -27,7 +27,7 @@ class SociocortexConnector {
    */
   async updateTask(id, sociocortexTask) {
     let url;
-    switch (sociocortexTask.entityType) { // TODO check name and value of this field
+    switch (sociocortexTask.resourceType) {
       case Constants.sociocortexTaskTypes.dual:
         url = this.buildURL(`/dualtasks/${id}`, '');
         break;
@@ -35,7 +35,7 @@ class SociocortexConnector {
         url = this.buildURL(`/humantasks/${id}`, '');
         break;
       default:
-        throw new Error("No such sociocortex task type: " + sociocortexTask.entityType);
+        throw new Error("No such sociocortex task type: " + sociocortexTask.resourceType);
     }
     const options = this.buildOptions({
       method: 'PUT',
