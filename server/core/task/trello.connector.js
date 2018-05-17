@@ -4,16 +4,12 @@ class TrelloConnector {
 
   config = {
     baseURL: 'https://api.trello.com/1',
-    appName: 'Email Client with Contextual Task Support',
     key: '734feed8b99a158d3a9cd9af87e096f3',
-    secret: '498ac521e9ecb0f32467f7dffae04054efc6f13318ad20538cd75195e8d4eb54',
-    accessToken: '6d22bcbdb0dcfc8126e8e692624b8fd1198c73fcdc7f115171b6694ee27f4f8f',
-    oauthVersion: '1.0',
-    oauthSHA: 'HMAC-SHA1'
+    accessToken: '',
   };
 
   constructor(trelloAccessToken) {
-    this.accessToken = trelloAccessToken;
+    this.config.accessToken = trelloAccessToken;
   }
 
   /**
@@ -77,7 +73,7 @@ class TrelloConnector {
 
 
   buildURL(path, params) {
-    return `${this.config.baseURL}${path}?` + `key=${this.config.key}&` + `token=${this.accessToken}` + `${this.addQueries(params)}`;
+    return `${this.config.baseURL}${path}?` + `key=${this.config.key}&` + `token=${this.config.accessToken}` + `${this.addQueries(params)}`;
   }
 
   addQueries(queries) {
