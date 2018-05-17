@@ -68,7 +68,7 @@ function routeProvider(passport) {
     r.route('/boxes/:id/move').post(boxCtrl.moveBox);
     r.route('/boxes/syncAll').get(boxCtrl.syncIMAP);
 
-    /** Task Routes */
+    /** Legacy Task Routes */
     r.route('/tasks/search/members').get(taskLegacyCtrl.searchMembers);
     r.route('/tasks/search').get(taskLegacyCtrl.searchTasks);
     r.route('/tasks/cards').post(taskLegacyCtrl.searchCardsForMembers);
@@ -85,7 +85,7 @@ function routeProvider(passport) {
     r.route('/tasks/email/:emailId/linkTask').post(taskLegacyCtrl.linkTaskToMail);
     r.route('/tasks/email/:emailId/addTask').post(taskLegacyCtrl.createTask);
 
-    /** Task Routes v2 **/
+    /** Generic Task Routes **/
     r.route('/tasks-ng/providers/:id/configure').post(taskCtrl.configure);
     r.route('/tasks-ng/providers/:id/setup').post(taskCtrl.setup);
     r.route('/tasks-ng/providers/:id/teardown').post(taskCtrl.teardown);
@@ -96,7 +96,10 @@ function routeProvider(passport) {
     r.route('/tasks-ng/:id').put(taskCtrl.updateTask);
     r.route('/tasks-ng/:id').delete(taskCtrl.deleteTask);
     r.route('/tasks-ng/:id/unlink').post(taskCtrl.unlinkTask);
-    r.route('/tasks-ng/providers/:id/list').get(taskCtrl.listExternalTasks);
+    r.route('/tasks-ng/providers/:id/tasks').get(taskCtrl.listExternalTasks);
+
+    /** Provider Specific Task Routes **/
+    r.route('/tasks-ng/providers/trello/boards').get(taskCtrl.listTrelloBoards);
 
     /** SocioCortex Test Routes */
     r.route('/sc-test/cases').get(taskLegacyCtrl.testGetCases);

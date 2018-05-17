@@ -141,7 +141,34 @@ class TrelloService extends TaskService {
   }
 
   async list() {
-    throw new Error("Not yet implemented: Method 'list' is not yet implemented for Trello service.");
+    const response = await this._connector.searchTasks();
+    const tasks = [];
+    response.forEach(task => {
+      tasks.push({
+        provider: Constants.taskProviders.trello,
+        providerId: task.id,
+        parameters: [
+          {name: 'name', value: task.name},
+          {name: 'idBoard', value: task.idBoard},
+          {name: 'idList', value: task.idList},
+          {name: 'closed', value: task.closed},
+        ]
+      });
+    });
+    return tasks;
+  }
+
+  async listBoards() {
+    const response = await this._connector.searchBoards();
+    const boards = [];
+    response.forEach(board => {
+      boards.push({
+        id: board.id,
+        name: board.name,
+        closed: board.closed
+      });
+    });
+    return boards;
   }
 
 }

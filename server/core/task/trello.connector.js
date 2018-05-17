@@ -64,24 +64,24 @@ class TrelloConnector {
 
   /**
    * search tasks
-   * @params {string} - query (required).
+   * @params {string} - query (optional).
    */
   async searchTasks(query) {
     params.modelTypes = "cards";
-    params.card_fields = "id,name,idList,idBoard";
-    params.query = query ? "is:open and (" + query + ")" : "is:open";
+    params.card_fields = "id,name,idList,idBoard,closed";
+    params.query = query ? "is:open," + query : "is:open";
     const url = this.buildURL('/search', params);
     return (await fetch(url)).json();
   }
 
   /**
-   * search tasks
-   * @params {string} - query (required).
+   * search boards
+   * @params {string} - query (optional).
    */
   async searchBoards(query) {
     params.modelTypes = "boards";
-    params.board_fields = "id,name,idList,idBoard";
-    params.query = query ? "is:open and (" + query + ")" : "is:open";
+    params.board_fields = "id,name,closed";
+    params.query = query ? "is:open," + query : "is:open";
     const url = this.buildURL('/search', params);
     return (await fetch(url)).json();
   }
