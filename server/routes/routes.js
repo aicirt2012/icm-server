@@ -96,6 +96,7 @@ function routeProvider(passport) {
     r.route('/tasks-ng/:id').put(taskCtrl.updateTask);
     r.route('/tasks-ng/:id').delete(taskCtrl.deleteTask);
     r.route('/tasks-ng/:id/unlink').post(taskCtrl.unlinkTask);
+    r.route('/tasks-ng/providers/:id/list').get(taskCtrl.listExternalTasks);
 
     /** SocioCortex Test Routes */
     r.route('/sc-test/cases').get(taskLegacyCtrl.testGetCases);

@@ -38,7 +38,7 @@ class SociocortexService extends TaskService {
     // TODO think about using more specific/custom error class
     throw new Error("Task deletion is not supported by the Sociocortex service!");
   }
-  
+
   async link(provider_id, frontend_url) {
     throw new Error("Not yet implemented: Method 'link' is not yet implemented for Sociocortex service.");
   }
@@ -46,6 +46,11 @@ class SociocortexService extends TaskService {
   async unlink(provider_id) {
     throw new Error("Not yet implemented: Method 'unlink' is not yet implemented for Sociocortex service.");
   }
+
+  async list() {
+    throw new Error("Not yet implemented: Method 'list' is not yet implemented for Sociocortex service.");
+  }
+
 
 }
 

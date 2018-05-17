@@ -156,6 +156,16 @@ exports.searchTasks = (req, res) => {
   });
 };
 
+exports.listExternalTasks = (req, res) => {
+  getTaskService(req.params.id)
+    .list()
+    .then(tasks => {
+      res.status(200).send(tasks);
+    }).catch(err => {
+    res.status(400).send(err);
+  });
+};
+
 function getTaskService(providerName, user) {
   switch (providerName) {
     case Constants.taskProviders.trello:

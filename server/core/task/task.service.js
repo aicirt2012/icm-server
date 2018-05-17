@@ -40,6 +40,10 @@ class TaskService {
     throw new Error("Not yet implemented: Method 'unlink' has to be overridden by inheriting classes.");
   }
 
+  async list() {
+    throw new Error("Not yet implemented: Method 'list' has to be overridden by inheriting classes.");
+  }
+
 }
 
 export default TaskService;
