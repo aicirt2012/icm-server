@@ -1,6 +1,12 @@
+import SociocortexConnector from "./sociocortex.connector";
 import TaskService from "./task.service";
 
 class SociocortexService extends TaskService {
+
+  constructor(user) {
+    super(user);
+    this._connector = new SociocortexConnector(this._user.taskProviders.sociocortex.email);
+  }
 
   async configure(username, password, providerSpecificData) {
     throw new Error("Not yet implemented!");
