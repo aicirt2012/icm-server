@@ -12,6 +12,9 @@ const LINKED = 'linked';
 const BODY = 'BODY';
 const SUBJECT = 'SUBJECT';
 
+const HUMAN_TASK = 'human';
+const DUAL_TASK = 'dual';
+
 export default {
   taskProviders: {
     trello: TRELLO,
@@ -30,5 +33,9 @@ export default {
   textOrigins: {
     body: BODY,
     subject: SUBJECT
+  },
+  sociocortexTaskTypes: {
+    human: HUMAN_TASK,
+    dual: DUAL_TASK,
   }
 }

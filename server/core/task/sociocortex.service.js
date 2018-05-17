@@ -8,20 +8,22 @@ class SociocortexService extends TaskService {
     this._connector = new SociocortexConnector(this._user.taskProviders.sociocortex.email);
   }
 
-  async configure(username, password, providerSpecificData) {
-    throw new Error("Not yet implemented!");
+  async configure(email, password, providerSpecificData) {
+    this._user.taskProviders.sociocortex.isEnabled = false;
+    this._user.taskProviders.sociocortex.email = email;
   }
 
   async setup(providerSpecificData) {
-    throw new Error("Not yet implemented!");
+    this._user.taskProviders.sociocortex.isEnabled = true;
   }
 
   async teardown(providerSpecificData) {
-    throw new Error("Not yet implemented!");
+    this._user.taskProviders.sociocortex.isEnabled = false;
   }
 
   async create(task) {
-    throw new Error("Not yet implemented!");
+    // TODO think about using more specific/custom error class
+    throw new Error("Task creation is not supported by this service!");
   }
 
   async get(provider_id) {
@@ -33,7 +35,8 @@ class SociocortexService extends TaskService {
   }
 
   async delete(provider_id) {
-    throw new Error("Not yet implemented!");
+    // TODO think about using more specific/custom error class
+    throw new Error("Task deletion is not supported by this service!");
   }
 
 }
