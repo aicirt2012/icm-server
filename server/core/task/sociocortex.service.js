@@ -6,12 +6,13 @@ class SociocortexService extends TaskService {
 
   constructor(user) {
     super(user);
-    this._connector = new SociocortexConnector(this._user.taskProviders.sociocortex.email);
+    this._connector = new SociocortexConnector(this._user.taskProviders.sociocortex.email, this._user.taskProviders.sociocortex.password);
   }
 
   async configure(email, password, providerSpecificData) {
     this._user.taskProviders.sociocortex.isEnabled = false;
     this._user.taskProviders.sociocortex.email = email;
+    this._user.taskProviders.sociocortex.password = password;
   }
 
   async setup(providerSpecificData) {
