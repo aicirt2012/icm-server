@@ -146,7 +146,7 @@ exports.unlinkTask = (req, res) => {
   });
 };
 
-exports.listExternalTasks = (req, res) => {
+exports.listTasks = (req, res) => {
   Task.find({user: req.user._id})
     .then(tasks => {
       res.status(200).send(tasks);
