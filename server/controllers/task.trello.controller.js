@@ -11,7 +11,7 @@ exports.listBoards = (req, res) => {
 };
 
 exports.archiveTask = (req, res) => {
-  // TODO implement
+  // TODO implement (simple PUT with closed=true)
   new TrelloService(req.user)
     .listBoards()
     .then(boards => {
