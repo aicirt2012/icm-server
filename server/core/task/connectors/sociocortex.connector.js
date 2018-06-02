@@ -49,13 +49,31 @@ class SociocortexConnector {
     return (await fetch(url, options)).json();
   }
 
+  async getAllWorkspaces() {
+    const url = this._buildURL('/workspaces', {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
+  async getCases(workspaceId) {
+    const url = this._buildURL(`/workspaces/${workspaceId}/cases`, {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
+  async getMyCases(workspaceId) {
+    const url = this._buildURL(`/workspaces/${workspaceId}/cases/me`, {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
   async getAllCases() {
     const url = this._buildURL('/cases', {});
     const options = this._buildOptions({});
     return (await fetch(url, options)).json();
   }
 
-  async getMyCases() {
+  async getAllMyCases() {
     const url = this._buildURL('/cases/me', {});
     const options = this._buildOptions({});
     return (await fetch(url, options)).json();
@@ -67,16 +85,20 @@ class SociocortexConnector {
     return (await fetch(url, options)).json();
   }
 
-  async activateHumanTask(taskId) {
-    return this.activateTask(taskId, 'humantasks');
-  }
-
-  async activateDualTask(taskId) {
-    return this.activateTask(taskId, 'dualtasks');
-  }
-
   async activateTask(id, taskType) {
     const url = this._buildURL('/' + taskType + '/' + id + '/activate', '');
+    const options = this._buildOptions({method: 'POST'});
+    return (await fetch(url, options)).json();
+  }
+
+  async completeTask(id, taskType) {
+    const url = this._buildURL('/' + taskType + '/' + id + '/complete', '');
+    const options = this._buildOptions({method: 'POST'});
+    return (await fetch(url, options)).json();
+  }
+
+  async terminateTask(id, taskType) {
+    const url = this._buildURL('/' + taskType + '/' + id + '/terminate', '');
     const options = this._buildOptions({method: 'POST'});
     return (await fetch(url, options)).json();
   }
