@@ -7,7 +7,6 @@ import importCtrl from '../controllers/import.controller';
 import emailCtrl from '../controllers/email.controller';
 import boxCtrl from '../controllers/box.controller';
 import attachmentCtrl from '../controllers/attachment.controller';
-import taskLegacyCtrl from '../controllers/task.legacy.controller';
 import taskCtrl from '../controllers/task.controller'
 import taskTrelloCtrl from '../controllers/task.trello.controller'
 import taskSociocortexCtrl from '../controllers/task.sociocortex.controller'
