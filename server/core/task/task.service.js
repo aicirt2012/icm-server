@@ -12,10 +12,6 @@ class TaskService {
     throw new Error("Not yet implemented: Method 'setup' has to be overridden by inheriting classes.");
   }
 
-  async verifySetup() {
-    throw new Error("Not yet implemented: Method 'verifySetup' has to be overridden by inheriting classes.");
-  }
-
   async teardown(providerSpecificData) {
     throw new Error("Not yet implemented: Method 'teardown' has to be overridden by inheriting classes.");
   }

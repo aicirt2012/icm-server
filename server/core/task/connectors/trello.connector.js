@@ -86,6 +86,14 @@ class TrelloConnector {
     return (await fetch(url)).json();
   }
 
+  /**
+   * check configured access token
+   */
+  async checkAccessToken() {
+    const url = this.buildURL('/tokens/' + this.config.accessToken, '');
+    return (await fetch(url)).json();
+  }
+
   buildURL(path, params) {
     return `${this.config.baseURL}${path}?` + `key=${this.config.key}&` + `token=${this.config.accessToken}` + `${this.addQueries(params)}`;
   }

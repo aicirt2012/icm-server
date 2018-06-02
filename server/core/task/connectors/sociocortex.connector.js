@@ -81,6 +81,14 @@ class SociocortexConnector {
     return (await fetch(url, options)).json();
   }
 
+  /**
+   * check configured access token
+   */
+  async checkConnection() {
+    const url = this.buildURL('/users/me', '');
+    return (await fetch(url)).json();
+  }
+
   // --- HELPER FUNCTIONS ---
 
   _buildURL(path, params) {

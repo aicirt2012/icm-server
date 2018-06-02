@@ -19,12 +19,9 @@ class SociocortexService extends TaskService {
 
   async setup(providerSpecificData) {
     this._user.taskProviders.sociocortex.isEnabled = true;
-    await this._user.save();
-    return await this.verifySetup();
-  }
-
-  async verifySetup() {
-    // TODO implement
+    const response = await this._user.save();
+    await this._connector.checkConnection();
+    return response;
   }
 
   async teardown(providerSpecificData) {
