@@ -30,7 +30,12 @@ class TrelloService extends TaskService {
   async setup(requestBody) {
     this._user.taskProviders.trello.isEnabled = true;
     this._user.taskProviders.trello.trelloAccessToken = requestBody.token;
-    return await this._user.save();
+    await this._user.save();
+    return await this.verifySetup();
+  }
+
+  async verifySetup() {
+    // TODO implement
   }
 
   async teardown(providerSpecificData) {
