@@ -1,4 +1,4 @@
-import SociocortexConnector from "./sociocortex.connector";
+import SociocortexConnector from "./connectors/sociocortex.connector";
 import TaskService from "./task.service";
 import Constants from "../../../config/constants";
 import Task from "../../models/task.model";
