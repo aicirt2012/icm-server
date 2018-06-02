@@ -146,6 +146,15 @@ exports.unlinkTask = (req, res) => {
   });
 };
 
+exports.listExternalTasks = (req, res) => {
+  Task.find({user: req.user._id})
+    .then(tasks => {
+      res.status(200).send(tasks);
+    }).catch(err => {
+    res.status(400).send(err);
+  });
+};
+
 exports.searchTasks = (req, res) => {
   // FIXME do not just pass request body to mongo, potential security risk, current implementation only for development
   req.body.user = req.user._id;
@@ -157,20 +166,10 @@ exports.searchTasks = (req, res) => {
 };
 
 exports.listExternalTasks = (req, res) => {
-  getTaskService(req.params.id)
+  getTaskService(req.params.id, req.user)
     .list()
     .then(tasks => {
       res.status(200).send(tasks);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
-};
-
-exports.listTrelloBoards = (req, res) => {
-  getTaskService(Constants.taskProviders.trello)
-    .listBoards()
-    .then(boards => {
-      res.status(200).send(boards);
     }).catch(err => {
     res.status(400).send(err);
   });

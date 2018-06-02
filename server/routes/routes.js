@@ -9,6 +9,8 @@ import boxCtrl from '../controllers/box.controller';
 import attachmentCtrl from '../controllers/attachment.controller';
 import taskLegacyCtrl from '../controllers/task.legacy.controller';
 import taskCtrl from '../controllers/task.controller'
+import taskTrelloCtrl from '../controllers/task.trello.controller'
+import taskSociocortexCtrl from '../controllers/task.sociocortex.controller'
 import wikiCtrl from '../controllers/wiki.controller';
 import translationCtrl from '../controllers/translation.controller';
 import dashboardCtrl from '../controllers/dashboard.controller';
@@ -68,44 +70,30 @@ function routeProvider(passport) {
     r.route('/boxes/:id/move').post(boxCtrl.moveBox);
     r.route('/boxes/syncAll').get(boxCtrl.syncIMAP);
 
-    /** Legacy Task Routes */
-    r.route('/tasks/search/members').get(taskLegacyCtrl.searchMembers);
-    r.route('/tasks/search').get(taskLegacyCtrl.searchTasks);
-    r.route('/tasks/cards').post(taskLegacyCtrl.searchCardsForMembers);
-    r.route('/tasks/boards').get(taskLegacyCtrl.getAllBoardsForMember);
-    r.route('/tasks/boards/:boardId/lists').get(taskLegacyCtrl.getAllListsForBoard);
-    r.route('/tasks/lists/:listId/cards').get(taskLegacyCtrl.getAllCardsForList);
-    r.route('/tasks/:taskId').get(taskLegacyCtrl.getSingleTask);
-    r.route('/tasks/:taskId').put(taskLegacyCtrl.updateTask);
-    r.route('/tasks/:taskId').delete(taskLegacyCtrl.deleteTask);
-    r.route('/tasks/:taskId/unlink').put(taskLegacyCtrl.unlinkTask);
-    r.route('/tasks/').post(taskLegacyCtrl.createTask);
-    r.route('/tasks/sociocortex/register').post(taskLegacyCtrl.registerSociocortex);
-    r.route('/tasks/sociocortex/connect').get(taskLegacyCtrl.connectSociocortex);
-    r.route('/tasks/email/:emailId/linkTask').post(taskLegacyCtrl.linkTaskToMail);
-    r.route('/tasks/email/:emailId/addTask').post(taskLegacyCtrl.createTask);
-
     /** Generic Task Routes **/
-    r.route('/tasks-ng/providers/:id/configure').post(taskCtrl.configure);
-    r.route('/tasks-ng/providers/:id/setup').post(taskCtrl.setup);
-    r.route('/tasks-ng/providers/:id/teardown').post(taskCtrl.teardown);
-    r.route('/tasks-ng/query').post(taskCtrl.searchTasks);
-    r.route('/tasks-ng').post(taskCtrl.createNewTask);
-    r.route('/tasks-ng/link').post(taskCtrl.createLinkedTask);
-    r.route('/tasks-ng/:id').get(taskCtrl.readTask);
-    r.route('/tasks-ng/:id').put(taskCtrl.updateTask);
-    r.route('/tasks-ng/:id').delete(taskCtrl.deleteTask);
-    r.route('/tasks-ng/:id/unlink').post(taskCtrl.unlinkTask);
-    r.route('/tasks-ng/providers/:id/tasks').get(taskCtrl.listExternalTasks);
+    r.route('/tasks/providers/:id/configure').post(taskCtrl.configure);
+    r.route('/tasks/providers/:id/setup').post(taskCtrl.setup);
+    r.route('/tasks/providers/:id/teardown').post(taskCtrl.teardown);
+    r.route('/tasks').get(taskCtrl.listTasks);
+    r.route('/tasks').post(taskCtrl.createNewTask);
+    r.route('/tasks/:id').get(taskCtrl.readTask);
+    r.route('/tasks/:id').put(taskCtrl.updateTask);
+    r.route('/tasks/:id').delete(taskCtrl.deleteTask);
+    r.route('/tasks/link').post(taskCtrl.createLinkedTask);
+    r.route('/tasks/:id/unlink').post(taskCtrl.unlinkTask);
 
     /** Provider Specific Task Routes **/
-    r.route('/tasks-ng/providers/trello/boards').get(taskCtrl.listTrelloBoards);
+    r.route('/tasks/providers/trello/boards').get(taskTrelloCtrl.listBoards);
+    r.route('/tasks/providers/trello/boards/:id/members').get(taskTrelloCtrl.listMembers);
+    r.route('/tasks/providers/trello/archive/:id').get(taskTrelloCtrl.archiveTask);
+    r.route('/tasks/providers/sociocortex/workspaces').get(taskSociocortexCtrl.listWorkspaces);
+    r.route('/tasks/providers/sociocortex/workspaces/:id/members').get(taskSociocortexCtrl.listMembers);
+    r.route('/tasks/providers/sociocortex/complete/:id').get(taskSociocortexCtrl.completeTask);
+    r.route('/tasks/providers/sociocortex/terminate/:id').get(taskSociocortexCtrl.terminateTask);
 
-    /** SocioCortex Test Routes */
-    r.route('/sc-test/cases').get(taskLegacyCtrl.testGetCases);
-    r.route('/sc-test/tasks').get(taskLegacyCtrl.testGetTasks);
-    r.route('/sc-test/activate-human').get(taskLegacyCtrl.testActivateHumanTask);
-    r.route('/sc-test/activate-dual').get(taskLegacyCtrl.testActivateDualTask);
+    /** Task Routes (Currently unused) **/
+    r.route('/tasks/query').post(taskCtrl.searchTasks);
+    r.route('/tasks/providers/:id/tasks').get(taskCtrl.listExternalTasks);
 
     /** Wiki Routes */
     r.route('/wikis/search').get(wikiCtrl.search);
