@@ -27,17 +27,17 @@ class TrelloService extends TaskService {
     }
   }
 
-  async setup(trelloToken) {
+  async setup(requestBody) {
     this._user.taskProviders.trello.isEnabled = true;
-    this._user.taskProviders.trello.trelloAccessToken = trelloToken;
+    this._user.taskProviders.trello.trelloAccessToken = requestBody.token;
     return await this._user.save();
   }
 
   async teardown(providerSpecificData) {
+    // TODO make parallel
     const cursor = await Task.find({provider: Constants.taskProviders.trello});
     for (let task = await cursor.next(); task != null; task = await cursor.next()) {
-      // await this.delete(task.providerId);  // TODO decide whether to do anything at all or to just leave all data in external systems as it is
-      await task.delete();
+      await this.unlink(task.providerId);
     }
     this._user.taskProviders.trello.isEnabled = false;
     this._user.taskProviders.trello.trelloAccessToken = "";

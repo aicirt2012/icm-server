@@ -1,6 +1,7 @@
 import SociocortexConnector from "./sociocortex.connector";
 import TaskService from "./task.service";
 import Constants from "../../../config/constants";
+import Task from "../../models/task.model";
 
 class SociocortexService extends TaskService {
 
@@ -13,14 +14,22 @@ class SociocortexService extends TaskService {
     this._user.taskProviders.sociocortex.isEnabled = false;
     this._user.taskProviders.sociocortex.email = email;
     this._user.taskProviders.sociocortex.password = password;
+    return await this._user.save();
   }
 
   async setup(providerSpecificData) {
     this._user.taskProviders.sociocortex.isEnabled = true;
+    return await this._user.save();
   }
 
   async teardown(providerSpecificData) {
+    // TODO make parallel
+    const cursor = await Task.find({provider: Constants.taskProviders.sociocortex});
+    for (let task = await cursor.next(); task != null; task = await cursor.next()) {
+      await this.unlink(task.providerId);
+    }
     this._user.taskProviders.sociocortex.isEnabled = false;
+    return await this._user.save();
   }
 
   async create(task) {
