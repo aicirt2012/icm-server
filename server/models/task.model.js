@@ -26,7 +26,13 @@ const TaskSchema = new mongoose.Schema({
   timestamps: true
 });
 
-TaskSchema.method({});
+TaskSchema.methods().getParameter = (parameterName) => {
+  this.parameters.forEach(parameter => {
+    if (parameter.name === parameterName)
+      return parameter;
+  });
+  return undefined;
+};
 
 TaskSchema.statics.removeByUserId = (userId) => {
   return Task.find({user: userId}).remove().exec();

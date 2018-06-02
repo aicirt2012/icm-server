@@ -149,6 +149,15 @@ exports.unlinkTask = (req, res) => {
 exports.listTasks = (req, res) => {
   Task.find({user: req.user._id})
     .then(tasks => {
+      // TODO make parallel
+      tasks.forEach(task => {
+        getTaskService(task.provider, req.user)
+          .get(task.providerId)
+          .then(providerTask => {
+            task = task.toObject();
+            task.parameters = providerTask.parameters;
+          });
+      });
       res.status(200).send(tasks);
     }).catch(err => {
     res.status(400).send(err);

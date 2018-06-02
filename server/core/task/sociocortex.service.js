@@ -47,7 +47,7 @@ class SociocortexService extends TaskService {
     task.parameters = [
       {name: 'name', value: response.name},
       {name: 'description', value: response.description},
-      {name: 'due', value: response.scheduledDate},
+      {name: 'due', value: response.dueDate},
       {name: 'case', value: response.case},
       {name: 'ownerId', value: response.owner ? response.owner.id : ""},
       {name: 'ownerEmail', value: response.owner ? response.owner.email : ""},
@@ -58,8 +58,21 @@ class SociocortexService extends TaskService {
   }
 
   async update(provider_id, task) {
+    const providerTask = await this.get(provider_id);
 
-    throw new Error("Not yet implemented!");
+    const updatedDueDate = task.getParameter("dueDate");
+    if (updatedDueDate && providerTask.getParameter("dueDate") !== updatedDueDate) {
+      // TODO update due date
+    }
+
+    const updatedOwnerId = task.getParameter("ownerId");
+    if (updatedOwnerId && providerTask.getParameter("ownerId") && providerTask.getParameter("ownerId") !== updatedOwnerId) {
+      // TODO update owner
+    }
+
+    // TODO check and update dynamic params
+
+    return await this.get(provider_id);
   }
 
   async delete(provider_id) {
