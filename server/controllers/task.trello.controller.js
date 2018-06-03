@@ -22,11 +22,10 @@ exports.archiveTask = (req, res) => {
 };
 
 exports.listMembers = (req, res) => {
-  // TODO implement
   new TrelloService(req.user)
-    .listBoards()
-    .then(boards => {
-      res.status(200).send(boards);
+    .getMembers(req.params.id)
+    .then(members => {
+      res.status(200).send(members);
     }).catch(err => {
     res.status(400).send(err);
   });

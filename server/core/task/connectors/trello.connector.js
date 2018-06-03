@@ -13,6 +13,14 @@ class TrelloConnector {
   }
 
   /**
+   * check configured access token
+   */
+  async checkAccessToken() {
+    const url = this.buildURL('/tokens/' + this.config.accessToken, '');
+    return (await fetch(url)).json();
+  }
+
+  /**
    * create task
    * @params {string} - idList (required).
    * @params {string} - name (desirable).
@@ -87,10 +95,11 @@ class TrelloConnector {
   }
 
   /**
-   * check configured access token
+   * list boards and contained lists for current user
    */
-  async checkAccessToken() {
-    const url = this.buildURL('/tokens/' + this.config.accessToken, '');
+  async listMembers(boardId) {
+    params.fields = "id,fullName,username,initials,avatarUrl";
+    const url = this.buildURL(`boards/${boardId}/members`, params);
     return (await fetch(url)).json();
   }
 

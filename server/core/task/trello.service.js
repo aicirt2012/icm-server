@@ -176,6 +176,21 @@ class TrelloService extends TaskService {
     return boards;
   }
 
+  async getMembers(boardId) {
+    const response = await this._connector.getMembers(boardId);
+    const members = [];
+    response.forEach(member => {
+      members.push({
+        id: member.id,
+        fullName: member.fullName,
+        userName: member.username,
+        initials: member.username,
+        avatarUrl: member.avatarUrl
+      });
+    });
+    return members;
+  }
+
 }
 
 export default TrelloService;
