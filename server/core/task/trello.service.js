@@ -2,7 +2,7 @@ import Constants from "../../../config/constants";
 import Task from "../../models/task.model"
 import User from "../../models/user.model"
 import TaskService from "./task.service";
-import TrelloConnector from "./connectors/trello.connector";
+import TrelloConnector from "./connector/trello.connector";
 
 class TrelloService extends TaskService {
 
