@@ -81,15 +81,29 @@ class SociocortexService extends TaskService {
   }
 
   async link(provider_id, frontend_url) {
-    throw new Error("Not yet implemented: Method 'link' is not yet implemented for Sociocortex service.");
+    throw new Error("Not yet implemented: Method 'link' is not yet implemented for Sociocortex service.");  // TODO implement
   }
 
   async unlink(provider_id) {
-    throw new Error("Not yet implemented: Method 'unlink' is not yet implemented for Sociocortex service.");
+    throw new Error("Not yet implemented: Method 'unlink' is not yet implemented for Sociocortex service.");  // TODO implement
   }
 
   async list() {
-    throw new Error("Not yet implemented: Method 'list' is not yet implemented for Sociocortex service.");
+    throw new Error("Not yet implemented: Method 'list' is not yet implemented for Sociocortex service.");  // TODO implement
+  }
+
+  async listWorkspaces() {
+    const response = await this._connector.getMyWorkspaces();
+    const workspaces = [];
+    response.forEach(workspace => {
+      // TODO check if workspace with id='root' can be excluded
+      workspaces.push({
+        id: workspace.id,
+        name: workspace.name,
+        // permissions: workspace.permissions
+      });
+    });
+    return workspaces;
   }
 
 }

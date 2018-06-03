@@ -49,7 +49,8 @@ class SociocortexConnector {
     return (await fetch(url, options)).json();
   }
 
-  async getAllWorkspaces() {
+  async getMyWorkspaces() {
+    // TODO check if this really returns only MY workspaces or ALL; maybe rename method
     const url = this._buildURL('/workspaces', {});
     const options = this._buildOptions({});
     return (await fetch(url, options)).json();
