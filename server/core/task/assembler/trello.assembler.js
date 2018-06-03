@@ -37,12 +37,22 @@ class TrelloAssembler {
   }();
 
   static Board = new class extends AbstractAssembler {
-    fromExternalObject(externalObject) {
-      throw new Error("Not yet implemented: Method 'fromExternalObject' for Boards.");
+    fromExternalObject(trelloBoard) {
+      return {
+        id: trelloBoard.id,
+        name: trelloBoard.name,
+        closed: trelloBoard.closed,
+        lists: trelloBoard.lists
+      };
     }
 
-    toExternalObject(internalObject) {
-      throw new Error("Not yet implemented: Method 'toExternalObject' for Boards.");
+    toExternalObject(board) {
+      return {
+        id: board.id,
+        name: board.name,
+        closed: board.closed,
+        lists: board.lists
+      };
     }
   }();
 
@@ -57,12 +67,24 @@ class TrelloAssembler {
   }();
 
   static Member = new class extends AbstractAssembler {
-    fromExternalObject(externalObject) {
-      throw new Error("Not yet implemented: Method 'fromExternalObject' for Members.");
+    fromExternalObject(trelloMember) {
+      return {
+        id: trelloMember.id,
+        fullName: trelloMember.fullName,
+        userName: trelloMember.username,
+        initials: trelloMember.username,
+        avatarUrl: trelloMember.avatarUrl
+      };
     }
 
-    toExternalObject(internalObject) {
-      throw new Error("Not yet implemented: Method 'toExternalObject' for Members.");
+    toExternalObject(member) {
+      return {
+        id: member.id,
+        fullName: member.fullName,
+        userName: member.username,
+        initials: member.username,
+        avatarUrl: member.avatarUrl
+      };
     }
   }();
 

@@ -80,49 +80,20 @@ class TrelloService extends TaskService {
   }
 
   async list() {
-    const response = await this._connector.searchTasks();
-    const tasks = [];
-    response.forEach(task => {
-      tasks.push({
-        provider: Constants.taskProviders.trello,
-        providerId: task.id,
-        parameters: [
-          {name: 'name', value: task.name},
-          {name: 'idBoard', value: task.idBoard},
-          {name: 'idList', value: task.idList},
-          {name: 'closed', value: task.closed},
-        ]
-      });
-    });
+    const tasks = await this._connector.searchTasks();
+    tasks.forEach(trelloTask => TrelloAssembler.Task.fromExternalObject(trelloTask));
     return tasks;
   }
 
   async listBoards() {
-    const response = await this._connector.listMyBoards();
-    const boards = [];
-    response.forEach(board => {
-      boards.push({
-        id: board.id,
-        name: board.name,
-        closed: board.closed,
-        lists: board.lists
-      });
-    });
+    const boards = await this._connector.listMyBoards();
+    boards.forEach(trelloBoard => TrelloAssembler.Board.fromExternalObject(trelloBoard));
     return boards;
   }
 
   async getMembers(boardId) {
-    const response = await this._connector.getMembers(boardId);
-    const members = [];
-    response.forEach(member => {
-      members.push({
-        id: member.id,
-        fullName: member.fullName,
-        userName: member.username,
-        initials: member.username,
-        avatarUrl: member.avatarUrl
-      });
-    });
+    const members = await this._connector.getMembers(boardId);
+    members.forEach(trelloMember => TrelloAssembler.Member.fromExternalObject(trelloMember));
     return members;
   }
 
