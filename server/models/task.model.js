@@ -27,9 +27,25 @@ const TaskSchema = new mongoose.Schema({
 });
 
 TaskSchema.methods().getParameter = (parameterName) => {
-  this.parameters.forEach(parameter => {
+  return Task.getParameter(this.parameters, parameterName);
+};
+
+TaskSchema.methods().getParameterValue = (parameterName) => {
+  return Task.getParameterValue(this.parameters, parameterName);
+};
+
+TaskSchema.statics.getParameter = (parameters, parameterName) => {
+  parameters.forEach(parameter => {
     if (parameter.name === parameterName)
       return parameter;
+  });
+  return undefined;
+};
+
+TaskSchema.statics.getParameterValue = (parameters, parameterName) => {
+  parameters.forEach(parameter => {
+    if (parameter.name === parameterName)
+      return parameter.value;
   });
   return undefined;
 };
