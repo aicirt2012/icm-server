@@ -75,28 +75,28 @@ function routeProvider(passport) {
   r.route('/boxes/syncAll').get(boxCtrl.syncIMAP);
 
   /** Task Routes **/
-  r.route('/tasks/providers/:id/configure').post(taskCtrl.configure);
-  r.route('/tasks/providers/:id/setup').post(taskCtrl.setup);
-  r.route('/tasks/providers/:id/teardown').post(taskCtrl.teardown);
-  r.route('/tasks').get(taskCtrl.listTasks);
-  r.route('/tasks').post(taskCtrl.createNewTask);
-  r.route('/tasks/:id').get(taskCtrl.readTask);
-  r.route('/tasks/:id').put(taskCtrl.updateTask);
-  r.route('/tasks/:id').delete(taskCtrl.deleteTask);
-  r.route('/tasks/link').post(taskCtrl.createLinkedTask);
-  r.route('/tasks/:id/unlink').post(taskCtrl.unlinkTask);
-  /* Trello Task Routes */
-  r.route('/tasks/providers/trello/boards').get(taskTrelloCtrl.listBoards);
-  r.route('/tasks/providers/trello/boards/:id/members').get(taskTrelloCtrl.listMembers);
-  r.route('/tasks/providers/trello/archive/:id').get(taskTrelloCtrl.archiveTask);
-  /* Sociocortex Task Routes */
-  r.route('/tasks/providers/sociocortex/workspaces').get(taskSociocortexCtrl.listWorkspaces);
-  r.route('/tasks/providers/sociocortex/workspaces/:id/members').get(taskSociocortexCtrl.listMembers);
-  r.route('/tasks/providers/sociocortex/complete/:id').get(taskSociocortexCtrl.completeTask);
-  r.route('/tasks/providers/sociocortex/terminate/:id').get(taskSociocortexCtrl.terminateTask);
-  /* Unused Task Routes (only for development) */
-  r.route('/tasks/query').post(taskCtrl.searchTasks);
-  r.route('/tasks/providers/:id/tasks').get(taskCtrl.listExternalTasks);
+  r.route('/tasks/providers/:id/configure').post(taskCtrl.configure);                                            //
+  r.route('/tasks/providers/:id/setup').post(taskCtrl.setup);                                                    //
+  r.route('/tasks/providers/:id/teardown').post(taskCtrl.teardown);                                              //
+  r.route('/tasks').get(taskCtrl.listTasks);                                                                     //
+  r.route('/tasks').post(taskCtrl.createNewTask);                                                                //
+  r.route('/tasks/:id').get(taskCtrl.readTask);                                                                  //
+  r.route('/tasks/:id').put(taskCtrl.updateTask);                                                                //
+  r.route('/tasks/:id').delete(taskCtrl.deleteTask);                                                             //
+  r.route('/tasks/link').post(taskCtrl.createLinkedTask);                                                        //
+  r.route('/tasks/:id/unlink').post(taskCtrl.unlinkTask);                                                        //
+  /* Trello Task Routes */                                                                                       //
+  r.route('/tasks/providers/trello/boards').get(taskTrelloCtrl.listBoards);                                      //
+  r.route('/tasks/providers/trello/boards/:id/members').get(taskTrelloCtrl.listMembers);                         //
+  r.route('/tasks/providers/trello/archive/:id').get(taskTrelloCtrl.archiveTask);                                //
+  /* Sociocortex Task Routes */                                                                                  //
+  r.route('/tasks/providers/sociocortex/workspaces').get(taskSociocortexCtrl.listWorkspaces);                    //
+  r.route('/tasks/providers/sociocortex/workspaces/:id/members').get(taskSociocortexCtrl.listMembers);           //
+  r.route('/tasks/providers/sociocortex/complete/:id').get(taskSociocortexCtrl.completeTask);                    //
+  r.route('/tasks/providers/sociocortex/terminate/:id').get(taskSociocortexCtrl.terminateTask);                  //
+  /* Unused Task Routes (only for development) */                                                                //
+  r.route('/tasks/query').post(taskCtrl.searchTasks);                                                            //
+  r.route('/tasks/providers/:id/tasks').get(taskCtrl.listExternalTasks);                                         //
 
   /** Wiki Routes */
   r.route('/wikis/search').get(wikiCtrl.search);
