@@ -36,7 +36,7 @@ class TaskService {
     throw new Error("Not yet implemented: Method 'link' has to be overridden by inheriting classes.");
   }
 
-  async unlink(provider_id) {
+  async unlink(provider_id, frontend_url) {
     throw new Error("Not yet implemented: Method 'unlink' has to be overridden by inheriting classes.");
   }
 

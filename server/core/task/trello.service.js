@@ -74,7 +74,7 @@ class TrelloService extends TaskService {
     throw new Error("Not yet implemented: Method 'link' is not yet implemented for Trello service.");
   }
 
-  async unlink(provider_id) {
+  async unlink(provider_id, frontend_url) {
     // TODO find task object and delete link to ICM
     throw new Error("Not yet implemented: Method 'unlink' is not yet implemented for Trello service.");
   }

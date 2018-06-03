@@ -84,7 +84,7 @@ class SociocortexService extends TaskService {
     throw new Error("Not yet implemented: Method 'link' is not yet implemented for Sociocortex service.");  // TODO implement
   }
 
-  async unlink(provider_id) {
+  async unlink(provider_id, frontend_url) {
     throw new Error("Not yet implemented: Method 'unlink' is not yet implemented for Sociocortex service.");  // TODO implement
   }
 

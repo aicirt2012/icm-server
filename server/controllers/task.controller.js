@@ -125,7 +125,7 @@ exports.unlinkTask = (req, res) => {
   Task.findOne({_id: req.params.id, user: req.user._id})
     .then(task => {
       getTaskService(req.body.provider, req.user)
-        .unlink(task.providerId)
+        .unlink(task.providerId, req.body.frontendUrl)
         .then(() => {
           Task.remove(req.params.id)
             .then(data => {
