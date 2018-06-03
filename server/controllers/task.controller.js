@@ -42,11 +42,10 @@ exports.createNewTask = (req, res) => {
         .then(providerTask => {
           Task.fromProvider(providerTask, email, req.user).save()
             .then(task => {
-              // convert to plain object and re-append parameters to avoid mongo removing them before serialization
-              task = task.toObject();
-              task.parameters = providerTask.parameters;
-              res.status(200).send(task);
-            })
+              res.status(200).send(mergeTaskObjects(task, providerTask));
+            }).catch(err => {
+            res.status(400).send(err);
+          });
         }).catch(err => {
         res.status(400).send(err);
       });
@@ -63,9 +62,7 @@ exports.createLinkedTask = (req, res) => {
         .then(providerTask => {
           Task.fromProvider(providerTask, email, req.user).save()
             .then(task => {
-              task = task.toObject();
-              task.parameters = providerTask.parameters;
-              res.status(200).send(task);
+              res.status(200).send(mergeTaskObjects(task, providerTask));
             }).catch(err => {
             res.status(400).send(err);
           })
@@ -81,9 +78,7 @@ exports.readTask = (req, res) => {
       getTaskService(task.provider, req.user)
         .get(task.providerId)
         .then(providerTask => {
-          task = task.toObject();
-          task.parameters = providerTask.parameters;
-          res.status(200).send(task);
+          res.status(200).send(mergeTaskObjects(task, providerTask));
         }).catch(err => {
         res.status(400).send(err);
       });
@@ -99,9 +94,7 @@ exports.updateTask = (req, res) => {
       getTaskService(task.provider, req.user)
         .update(task.providerId, req.body)
         .then(providerTask => {
-          task = task.toObject();
-          task.parameters = providerTask.parameters;
-          res.status(200).send(task);
+          res.status(200).send(mergeTaskObjects(task, providerTask));
         }).catch(err => {
         res.status(400).send(err);
       });
@@ -154,8 +147,7 @@ exports.listTasks = (req, res) => {
         getTaskService(task.provider, req.user)
           .get(task.providerId)
           .then(providerTask => {
-            task = task.toObject();
-            task.parameters = providerTask.parameters;
+            task = mergeTaskObjects(task, providerTask);
           });
       });
       res.status(200).send(tasks);
@@ -193,4 +185,11 @@ function getTaskService(providerName, user) {
     default:
       throw new Error("No such task service: '" + providerName + "'.");
   }
+}
+
+function mergeTaskObjects(mongoTask, providerTask) {
+  // convert to plain object and re-append parameters to avoid mongo removing them before serialization
+  const task = mongoTask.toObject();
+  task.parameters = providerTask.parameters;
+  return task;
 }
