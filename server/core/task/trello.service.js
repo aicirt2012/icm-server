@@ -163,13 +163,14 @@ class TrelloService extends TaskService {
   }
 
   async listBoards() {
-    const response = await this._connector.searchBoards();
+    const response = await this._connector.listMyBoards();
     const boards = [];
     response.forEach(board => {
       boards.push({
         id: board.id,
         name: board.name,
-        closed: board.closed
+        closed: board.closed,
+        lists: board.lists
       });
     });
     return boards;

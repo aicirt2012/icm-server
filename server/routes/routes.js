@@ -74,7 +74,7 @@ function routeProvider(passport) {
   r.route('/boxes/:id/move').post(boxCtrl.moveBox);
   r.route('/boxes/syncAll').get(boxCtrl.syncIMAP);
 
-  /** Generic Task Routes **/
+  /** Task Routes **/
   r.route('/tasks/providers/:id/configure').post(taskCtrl.configure);
   r.route('/tasks/providers/:id/setup').post(taskCtrl.setup);
   r.route('/tasks/providers/:id/teardown').post(taskCtrl.teardown);
@@ -85,17 +85,16 @@ function routeProvider(passport) {
   r.route('/tasks/:id').delete(taskCtrl.deleteTask);
   r.route('/tasks/link').post(taskCtrl.createLinkedTask);
   r.route('/tasks/:id/unlink').post(taskCtrl.unlinkTask);
-
-  /** Provider Specific Task Routes **/
+  /* Trello Task Routes */
   r.route('/tasks/providers/trello/boards').get(taskTrelloCtrl.listBoards);
   r.route('/tasks/providers/trello/boards/:id/members').get(taskTrelloCtrl.listMembers);
   r.route('/tasks/providers/trello/archive/:id').get(taskTrelloCtrl.archiveTask);
+  /* Sociocortex Task Routes */
   r.route('/tasks/providers/sociocortex/workspaces').get(taskSociocortexCtrl.listWorkspaces);
   r.route('/tasks/providers/sociocortex/workspaces/:id/members').get(taskSociocortexCtrl.listMembers);
   r.route('/tasks/providers/sociocortex/complete/:id').get(taskSociocortexCtrl.completeTask);
   r.route('/tasks/providers/sociocortex/terminate/:id').get(taskSociocortexCtrl.terminateTask);
-
-  /** Task Routes (Currently unused) **/
+  /* Unused Task Routes (only for development) */
   r.route('/tasks/query').post(taskCtrl.searchTasks);
   r.route('/tasks/providers/:id/tasks').get(taskCtrl.listExternalTasks);
 

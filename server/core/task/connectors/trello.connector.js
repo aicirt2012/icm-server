@@ -75,14 +75,14 @@ class TrelloConnector {
   }
 
   /**
-   * search boards
-   * @params {string} - query (optional).
+   * list boards and contained lists for current user
    */
-  async searchBoards(query) {
-    params.modelTypes = "boards";
-    params.board_fields = "id,name,closed";
-    params.query = query ? "is:open," + query : "is:open";
-    const url = this.buildURL('/search', params);
+  async listMyBoards() {
+    params.filter = "open";
+    params.fields = "id,name,closed";
+    params.lists = "open";
+    params.memberships = "none";
+    const url = this.buildURL('/members/me/boards', params);
     return (await fetch(url)).json();
   }
 
