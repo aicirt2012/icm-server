@@ -3,6 +3,7 @@ import Task from "../../models/task.model"
 import User from "../../models/user.model"
 import TaskService from "./task.service";
 import TrelloConnector from "./connector/trello.connector";
+import TrelloAssembler from "./assembler/trello.assembler";
 
 class TrelloService extends TaskService {
 
@@ -47,100 +48,34 @@ class TrelloService extends TaskService {
   }
 
   async create(task) {
-    const trelloTask = {};
-    task.parameters.forEach(function (parameter) {
-      if (parameter.value) {
-        trelloTask[parameter.name] = parameter.value;
-      } else if (parameter.defaultValues && parameter.defaultValues.length > 0) {
-        trelloTask[parameter.name] = parameter.defaultValues[0];
-      }
-    });
-    const response = await this._connector.createTask(trelloTask);
-    const resultingTask = {};
-    resultingTask.provider = Constants.taskProviders.trello;
-    resultingTask.providerId = response.id;
-    resultingTask.parameters = [
-      {name: 'name', value: response.name},
-      {name: 'desc', value: response.desc},
-      {name: 'due', value: response.due},
-      {name: 'closed', value: response.closed},
-      {name: 'idBoard', value: response.idBoard},
-      {name: 'idList', value: response.idList},
-      {name: 'idMembers', value: response.idMembers},
-      {name: 'shortUrl', value: response.shortUrl}
-    ];
-    return resultingTask;
+    const trelloTask = TrelloAssembler.Task.toExternalObject(task);
+    const createdTask = await this._connector.createTask(trelloTask);
+    return TrelloAssembler.Task.fromExternalObject(createdTask);
   }
 
   async get(provider_id) {
-    const response = await this._connector.getTask(provider_id);
-    const task = {};
-    task.provider = Constants.taskProviders.trello;
-    task.providerId = response.id;
-    task.parameters = [
-      {name: 'name', value: response.name},
-      {name: 'desc', value: response.desc},
-      {name: 'due', value: response.due},
-      {name: 'closed', value: response.closed},
-      {name: 'idBoard', value: response.idBoard},
-      {name: 'idList', value: response.idList},
-      {name: 'idMembers', value: response.idMembers},
-      {name: 'shortUrl', value: response.shortUrl}
-    ];
-    return task;
+    const trelloTask = await this._connector.getTask(provider_id);
+    return TrelloAssembler.Task.fromExternalObject(trelloTask);
   }
 
   async update(provider_id, task) {
-    const trelloTask = {};
-    task.parameters.forEach(function (parameter) {
-      if (parameter.value) {
-        trelloTask[parameter.name] = parameter.value;
-      } else if (parameter.defaultValues && parameter.defaultValues.length > 0) {
-        trelloTask[parameter.name] = parameter.defaultValues[0];
-      }
-    });
-    const response = await this._connector.updateTask(provider_id, trelloTask);
-    const resultingTask = {};
-    resultingTask.provider = Constants.taskProviders.trello;
-    resultingTask.providerId = response.id;
-    resultingTask.parameters = [
-      {name: 'name', value: response.name},
-      {name: 'desc', value: response.desc},
-      {name: 'due', value: response.due},
-      {name: 'closed', value: response.closed},
-      {name: 'idBoard', value: response.idBoard},
-      {name: 'idList', value: response.idList},
-      {name: 'idMembers', value: response.idMembers},
-      {name: 'shortUrl', value: response.shortUrl}
-    ];
-    return resultingTask;
+    const trelloTask = TrelloAssembler.Task.toExternalObject(task);
+    const updatedTask = await this._connector.updateTask(provider_id, trelloTask);
+    return TrelloAssembler.Task.fromExternalObject(updatedTask);
   }
 
   async delete(provider_id) {
-    const response = await this._connector.deleteTask(provider_id);
-    const task = {};
-    task.provider = Constants.taskProviders.trello;
-    task.providerId = response.id;
-    task.parameters = [
-      {name: 'name', value: response.name},
-      {name: 'desc', value: response.desc},
-      {name: 'due', value: response.due},
-      {name: 'closed', value: response.closed},
-      {name: 'idBoard', value: response.idBoard},
-      {name: 'idList', value: response.idList},
-      {name: 'idMembers', value: response.idMembers},
-      {name: 'shortUrl', value: response.shortUrl}
-    ];
-    return task;
+    const deletedTask = await this._connector.deleteTask(provider_id);
+    return TrelloAssembler.Task.fromExternalObject(deletedTask);
   }
 
   async link(provider_id, frontend_url) {
-    // TODO implement GET + create and persist task object
+    // TODO implement GET + update task with link to ICM
     throw new Error("Not yet implemented: Method 'link' is not yet implemented for Trello service.");
   }
 
   async unlink(provider_id) {
-    // TODO find and delete task object
+    // TODO find task object and delete link to ICM
     throw new Error("Not yet implemented: Method 'unlink' is not yet implemented for Trello service.");
   }
 

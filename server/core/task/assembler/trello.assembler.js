@@ -67,3 +67,5 @@ class TrelloAssembler {
   }();
 
 }
+
+export default TrelloAssembler;
