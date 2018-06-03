@@ -48,9 +48,9 @@ class TrelloService extends TaskService {
   }
 
   async create(task) {
-    const trelloTask = TrelloAssembler.Task.toExternalObject(task);
-    const createdTask = await this._connector.createTask(trelloTask);
-    return TrelloAssembler.Task.fromExternalObject(createdTask);
+    const taskToCreate = TrelloAssembler.Task.toExternalObject(task);
+    const createdTrelloTask = await this._connector.createTask(taskToCreate);
+    return TrelloAssembler.Task.fromExternalObject(createdTrelloTask);
   }
 
   async get(provider_id) {
@@ -60,13 +60,13 @@ class TrelloService extends TaskService {
 
   async update(provider_id, task) {
     const trelloTask = TrelloAssembler.Task.toExternalObject(task);
-    const updatedTask = await this._connector.updateTask(provider_id, trelloTask);
-    return TrelloAssembler.Task.fromExternalObject(updatedTask);
+    const updatedTrelloTask = await this._connector.updateTask(provider_id, trelloTask);
+    return TrelloAssembler.Task.fromExternalObject(updatedTrelloTask);
   }
 
   async delete(provider_id) {
-    const deletedTask = await this._connector.deleteTask(provider_id);
-    return TrelloAssembler.Task.fromExternalObject(deletedTask);
+    const deletedTrelloTask = await this._connector.deleteTask(provider_id);
+    return TrelloAssembler.Task.fromExternalObject(deletedTrelloTask);
   }
 
   async link(provider_id, frontend_url) {
