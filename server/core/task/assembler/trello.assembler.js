@@ -1,5 +1,6 @@
 import Constants from "../../../../config/constants";
 import Task from "../../../models/task.model";
+import AbstractAssembler from "./abstract.assembler"
 
 class TrelloAssembler {
 
