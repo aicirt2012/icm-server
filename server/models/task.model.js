@@ -26,11 +26,11 @@ const TaskSchema = new mongoose.Schema({
   timestamps: true
 });
 
-TaskSchema.methods().getParameter = (parameterName) => {
+TaskSchema.methods.getParameter = (parameterName) => {
   return Task.getParameter(this.parameters, parameterName);
 };
 
-TaskSchema.methods().getParameterValue = (parameterName) => {
+TaskSchema.methods.getParameterValue = (parameterName) => {
   return Task.getParameterValue(this.parameters, parameterName);
 };
 
