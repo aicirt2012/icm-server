@@ -116,9 +116,19 @@ class SociocortexConnector {
    * updates the externalId field of any sociocortex task
    */
   async updateExternalId(taskId, value) {
-    // FIXME add support for multiple task types
-    const url = this._buildURL('/humantasks/' + taskId + '/externalId/' + encodeURI(value), {});
-    const options = this._buildOptions({});
+    // don't know if task is human or dual, so fire requests to both endpoints and check if we got a valid response
+
+    const [humantaskResponse, dualtaskResponse] = await Promise.all([async () => {
+      const url = this._buildURL('/humantasks/' + taskId + '/externalId/' + encodeURI(value), {});
+      const options = this._buildOptions({});
+      return await fetch(url, options);
+    }, async () => {
+      const url = this._buildURL('/dualtasks/' + taskId + '/externalId/' + encodeURI(value), {});
+      const options = this._buildOptions({});
+      return await fetch(url, options).json();
+    }]);
+
+    let test = 9;
     return (await fetch(url, options)).json();
   }
 
