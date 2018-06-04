@@ -111,10 +111,25 @@ class TrelloConnector {
    * adds the given URL to the task with the given taskID
    */
   async addAttachmentUrl(taskId, url) {
-    const params = {url: url};
-    const options = {method: 'POST'};
+    const params = {url: url, name: "Link to ICM"};   // TODO append email to caption to enable multi user usage
     const requestUrl = this.buildURL(`/cards/${taskId}/attachments`, params);
-    return (await fetch(requestUrl, options)).json();
+    return (await fetch(requestUrl, {method: 'POST'})).json();
+  }
+
+  /**
+   * removes the given URL from the task with the given taskID
+   */
+  async removeAttachmentUrl(taskId, url) {
+    const attachmentUrl = this.buildURL(`/cards/${taskId}/attachments`, '');
+    const attachments = (await fetch(attachmentUrl)).json();
+    let attachmentId = undefined;
+    // TODO parallelize
+    for (const attachment of attachments) {
+      if (attachment.url === url) {
+        const requestUrl = this.buildURL(`/cards/${taskId}/attachments/${attachmentId}`, '');
+        await fetch(requestUrl, {method: 'DELETE'}).json();
+      }
+    }
   }
 
   buildURL(path, params) {

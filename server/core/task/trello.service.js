@@ -70,14 +70,12 @@ class TrelloService extends TaskService {
   }
 
   async link(provider_id, frontend_url) {
-    const task = await this.get(provider_id);
-    const updatedTrelloTask = await this._connector.addAttachmentUrl(task.providerId, frontend_url);
+    const updatedTrelloTask = await this._connector.addAttachmentUrl(provider_id, frontend_url);
     return TrelloAssembler.Task.fromExternalObject(updatedTrelloTask);
   }
 
   async unlink(provider_id, frontend_url) {
-    // TODO find task object and delete link to ICM
-    throw new Error("Not yet implemented: Method 'unlink' is not yet implemented for Trello service.");
+    await this._connector.removeAttachmentUrl(provider_id, frontend_url);
   }
 
   async list() {
