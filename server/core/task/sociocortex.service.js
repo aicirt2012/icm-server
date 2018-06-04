@@ -67,11 +67,12 @@ class SociocortexService extends TaskService {
   }
 
   async link(provider_id, frontend_url) {
-    throw new Error("Not yet implemented: Method 'link' is not yet implemented for Sociocortex service.");  // TODO implement
+    const updatedSociocortexTask = await this._connector.updateExternalId(provider_id, frontend_url);
+    return SociocortexAssembler.Task.fromExternalObject(updatedSociocortexTask);
   }
 
   async unlink(provider_id, frontend_url) {
-    throw new Error("Not yet implemented: Method 'unlink' is not yet implemented for Sociocortex service.");  // TODO implement
+    await this._connector.updateExternalId(provider_id, null);
   }
 
   async list() {

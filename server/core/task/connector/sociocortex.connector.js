@@ -112,6 +112,16 @@ class SociocortexConnector {
     return (await fetch(url)).json();
   }
 
+  /**
+   * updates the externalId field of any sociocortex task
+   */
+  async updateExternalId(taskId, value) {
+    // FIXME add support for multiple task types
+    const url = this._buildURL('/humantasks/' + taskId + '/externalId/' + encodeURI(value), {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
   // --- HELPER FUNCTIONS ---
 
   _buildURL(path, params) {
