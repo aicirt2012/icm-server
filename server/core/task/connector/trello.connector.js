@@ -41,7 +41,7 @@ class TrelloConnector {
    * get task
    */
   async getTask(id) {
-    let params = {'members': 'true', 'board': 'true', 'list': 'true', 'stickers': 'true'};
+    const params = {'members': 'true', 'board': 'true', 'list': 'true', 'stickers': 'true'};
     const url = this.buildURL(`/cards/${id}`, params);
     return (await fetch(url)).json();
   }
@@ -75,9 +75,11 @@ class TrelloConnector {
    * @params {string} - query (optional).
    */
   async searchTasks(query) {
-    params.modelTypes = "cards";
-    params.card_fields = "id,name,idList,idBoard,closed";
-    params.query = query ? "is:open," + query : "is:open";
+    const params = {
+      modelTypes: "cards",
+      card_fields: "id,name,idList,idBoard,closed",
+      query: query ? "is:open," + query : "is:open"
+    };
     const url = this.buildURL('/search', params);
     return (await fetch(url)).json();
   }
@@ -86,10 +88,12 @@ class TrelloConnector {
    * list boards and contained lists for current user
    */
   async listMyBoards() {
-    params.filter = "open";
-    params.fields = "id,name,closed";
-    params.lists = "open";
-    params.memberships = "none";
+    const params = {
+      filter: "open",
+      fields: "id,name,closed",
+      lists: "open",
+      memberships: "none"
+    };
     const url = this.buildURL('/members/me/boards', params);
     return (await fetch(url)).json();
   }
@@ -98,9 +102,19 @@ class TrelloConnector {
    * list boards and contained lists for current user
    */
   async listMembers(boardId) {
-    params.fields = "id,fullName,username,initials,avatarUrl";
+    const params = {fields: "id,fullName,username,initials,avatarUrl"};
     const url = this.buildURL(`boards/${boardId}/members`, params);
     return (await fetch(url)).json();
+  }
+
+  /**
+   * adds the given URL to the task with the given taskID
+   */
+  async addAttachmentUrl(taskId, url) {
+    const params = {url: url};
+    const options = {method: 'POST'};
+    const requestUrl = this.buildURL(`/cards/${taskId}/attachments`, params);
+    return (await fetch(requestUrl, options)).json();
   }
 
   buildURL(path, params) {

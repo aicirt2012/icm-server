@@ -70,8 +70,9 @@ class TrelloService extends TaskService {
   }
 
   async link(provider_id, frontend_url) {
-    // TODO implement GET + update task with link to ICM
-    throw new Error("Not yet implemented: Method 'link' is not yet implemented for Trello service.");
+    const task = await this.get(provider_id);
+    const updatedTrelloTask = await this._connector.addAttachmentUrl(task.providerId, frontend_url);
+    return TrelloAssembler.Task.fromExternalObject(updatedTrelloTask);
   }
 
   async unlink(provider_id, frontend_url) {
