@@ -39,12 +39,18 @@ class SociocortexAssembler {
   }();
 
   static Workspace = new class extends AbstractAssembler {
-    fromExternalObject(externalObject) {
-      throw new Error("Not yet implemented: Method 'fromExternalObject' for Workspaces.");
+    fromExternalObject(sociocortexWorkspace) {
+      return {
+        id: sociocortexWorkspace.id,
+        name: sociocortexWorkspace.name,
+      }
     }
 
-    toExternalObject(internalObject) {
-      throw new Error("Not yet implemented: Method 'toExternalObject' for Workspaces.");
+    toExternalObject(workspace) {
+      return {
+        id: workspace.id,
+        name: workspace.name,
+      }
     }
   }();
 

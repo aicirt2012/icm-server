@@ -82,12 +82,9 @@ class SociocortexService extends TaskService {
     const response = await this._connector.getMyWorkspaces();
     const workspaces = [];
     response.forEach(workspace => {
-      // TODO check if workspace with id='root' can be excluded
-      workspaces.push({
-        id: workspace.id,
-        name: workspace.name,
-        // permissions: workspace.permissions
-      });
+      if (workspace.id !== 'root') {
+        workspaces.push(SociocortexAssembler.Workspace.fromExternalObject(workspace))
+      }
     });
     return workspaces;
   }
