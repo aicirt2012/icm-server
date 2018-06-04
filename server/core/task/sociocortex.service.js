@@ -1,4 +1,5 @@
 import SociocortexConnector from "./connector/sociocortex.connector";
+import SociocortexAssembler from "./assembler/sociocortex.assembler";
 import TaskService from "./task.service";
 import Constants from "../../../config/constants";
 import Task from "../../models/task.model";
@@ -35,26 +36,12 @@ class SociocortexService extends TaskService {
   }
 
   async create(task) {
-    // TODO think about using more specific/custom error class
     throw new Error("Task creation is not supported by the Sociocortex service!");
   }
 
   async get(provider_id) {
-    const response = await this._connector.getTask(provider_id);
-    const task = {};
-    task.provider = Constants.taskProviders.trello;
-    task.providerId = response.id;
-    task.parameters = [
-      {name: 'name', value: response.name},
-      {name: 'description', value: response.description},
-      {name: 'due', value: response.dueDate},
-      {name: 'case', value: response.case},
-      {name: 'ownerId', value: response.owner ? response.owner.id : ""},
-      {name: 'ownerEmail', value: response.owner ? response.owner.email : ""},
-      {name: 'state', value: response.state},
-    ];
-    // TODO parse and append the actual, dynamic parameters from sociocortex
-    return task;
+    const sociocortexTask = await this._connector.getTask(provider_id);
+    return SociocortexAssembler.Task.fromExternalObject(sociocortexTask);
   }
 
   async update(provider_id, task) {
@@ -76,7 +63,6 @@ class SociocortexService extends TaskService {
   }
 
   async delete(provider_id) {
-    // TODO think about using more specific/custom error class
     throw new Error("Task deletion is not supported by the Sociocortex service!");
   }
 
