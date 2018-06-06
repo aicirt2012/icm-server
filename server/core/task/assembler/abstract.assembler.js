@@ -9,3 +9,5 @@ class AbstractAssembler {
   }
 
 }
+
+export default AbstractAssembler;
