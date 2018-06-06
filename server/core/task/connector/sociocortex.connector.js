@@ -108,7 +108,7 @@ class SociocortexConnector {
    * check configured access token
    */
   async checkConnection() {
-    const url = this.buildURL('/users/me', '');
+    const url = this._buildURL('/users/me', '');
     return (await fetch(url)).json();
   }
 
@@ -117,16 +117,13 @@ class SociocortexConnector {
    */
   async updateExternalId(taskId, value) {
     // don't know if task is human or dual, so fire requests to both endpoints and check if we got a valid response
+    // TODO make parallel
+    const options = this._buildOptions({});
 
-    const [humantaskResponse, dualtaskResponse] = await Promise.all([async () => {
-      const url = this._buildURL('/humantasks/' + taskId + '/externalId/' + encodeURI(value), {});
-      const options = this._buildOptions({});
-      return await fetch(url, options);
-    }, async () => {
-      const url = this._buildURL('/dualtasks/' + taskId + '/externalId/' + encodeURI(value), {});
-      const options = this._buildOptions({});
-      return await fetch(url, options).json();
-    }]);
+    let url = this._buildURL('/humantasks/' + taskId + '/externalId/' + encodeURI(value), {});
+    const humantaskResponse = await fetch(url, options);
+    url = this._buildURL('/dualtasks/' + taskId + '/externalId/' + encodeURI(value), {});
+    const dualtaskRepsonse = await fetch(url, options);
 
     let test = 9;
     return (await fetch(url, options)).json();
