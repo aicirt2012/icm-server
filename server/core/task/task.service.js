@@ -20,23 +20,23 @@ class TaskService {
     throw new Error("Not yet implemented: Method 'create' has to be overridden by inheriting classes.");
   }
 
-  async get(provider_id) {
+  async get(providerId) {
     throw new Error("Not yet implemented: Method 'get' has to be overridden by inheriting classes.");
   }
 
-  async update(provider_id, task) {
+  async update(providerId, task) {
     throw new Error("Not yet implemented: Method 'update' has to be overridden by inheriting classes.");
   }
 
-  async delete(provider_id) {
+  async delete(providerId) {
     throw new Error("Not yet implemented: Method 'delete' has to be overridden by inheriting classes.");
   }
 
-  async link(provider_id, frontend_url) {
+  async link(providerId, frontendUrl) {
     throw new Error("Not yet implemented: Method 'link' has to be overridden by inheriting classes.");
   }
 
-  async unlink(provider_id, frontend_url) {
+  async unlink(providerId, frontendUrl) {
     throw new Error("Not yet implemented: Method 'unlink' has to be overridden by inheriting classes.");
   }
 
