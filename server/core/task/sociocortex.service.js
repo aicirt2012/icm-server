@@ -41,30 +41,31 @@ class SociocortexService extends TaskService {
     throw new Error("Task creation is not supported by the Sociocortex service!");
   }
 
-  async get(provider_id) {
-    const sociocortexTask = await this._connector.getTask(provider_id);
+  async get(providerId) {
+    const sociocortexTask = await this._connector.getTask(providerId);
     return SociocortexAssembler.Task.fromExternalObject(sociocortexTask);
   }
 
-  async update(provider_id, task) {
-    const providerTask = await this.get(provider_id);
+  async update(providerId, task) {
+    let sociocortexTask = await this.get(providerId);
 
+    const updatedDynamicParams = task.getParameter("dynamicParameters");
+    if (updatedDynamicParams && sociocortexTask.getParameter("dynamicParameters") !== updatedDynamicParams) {
+      const draftedSociocortexTask = SociocortexAssembler.Task.toExternalObject(task);
+      sociocortexTask = await this._connector.draftTask(providerId, draftedSociocortexTask);
+    }
     const updatedDueDate = task.getParameter("dueDate");
-    if (updatedDueDate && providerTask.getParameter("dueDate") !== updatedDueDate) {
-      // TODO update due date
+    if (updatedDueDate && sociocortexTask.getParameter("dueDate") !== updatedDueDate) {
+      sociocortexTask = await this._connector.updateDueDate(providerId, updatedDueDate);
     }
-
     const updatedOwnerId = task.getParameter("ownerId");
-    if (updatedOwnerId && providerTask.getParameter("ownerId") && providerTask.getParameter("ownerId") !== updatedOwnerId) {
-      // TODO update owner
+    if (updatedOwnerId && sociocortexTask.getParameter("ownerId") && sociocortexTask.getParameter("ownerId") !== updatedOwnerId) {
+      sociocortexTask = await this._connector.updateOwner(providerId, updatedOwnerId)
     }
-
-    // TODO check and update dynamic params
-
-    return await this.get(provider_id);
+    return SociocortexAssembler.Task.fromExternalObject(sociocortexTask);
   }
 
-  async delete(provider_id) {
+  async delete(providerId) {
     throw new Error("Task deletion is not supported by the Sociocortex service!");
   }
 

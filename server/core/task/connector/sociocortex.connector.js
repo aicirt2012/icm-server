@@ -21,20 +21,15 @@ class SociocortexConnector {
     return (await fetch(url, options)).json();
   }
 
-  async updateTask(id, sociocortexTask) {
+  async draftTask(id, sociocortexTask) {
     let url;
-    switch (sociocortexTask.resourceType) {
-      case Constants.sociocortexTaskTypes.dual:
-        url = this._buildURL(`/dualtasks/${id}`, '');
-        break;
-      case Constants.sociocortexTaskTypes.human:
-        url = this._buildURL(`/humantasks/${id}`, '');
-        break;
-      default:
-        throw new Error("No such sociocortex task type: " + sociocortexTask.resourceType);
+    if (sociocortexTask.resourceType === Constants.sociocortexTaskTypes.human) {
+      url = this._buildURL(`/humantasks/${id}/draft`, '');
+    } else {
+      url = this._buildURL(`/dualtasks/${id}/draft`, '');
     }
     const options = this._buildOptions({
-      method: 'PUT',
+      method: 'POST',
       body: JSON.stringify(sociocortexTask),
       headers: {
         'Content-Type': 'application/json'
