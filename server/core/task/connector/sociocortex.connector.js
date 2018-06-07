@@ -51,36 +51,6 @@ class SociocortexConnector {
     return (await fetch(url, options)).json();
   }
 
-  async getCases(workspaceId) {
-    const url = this._buildURL(`/workspaces/${workspaceId}/cases`, {});
-    const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
-  }
-
-  async getMyCases(workspaceId) {
-    const url = this._buildURL(`/workspaces/${workspaceId}/cases/me`, {});
-    const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
-  }
-
-  async getAllCases() {
-    const url = this._buildURL('/cases', {});
-    const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
-  }
-
-  async getAllMyCases() {
-    const url = this._buildURL('/cases/me', {});
-    const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
-  }
-
-  async getAllTasks(caseId) {
-    const url = this._buildURL('/cases/' + caseId + "/humantasks/all", {});
-    const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
-  }
-
   async activateTask(id, taskType) {
     const url = this._buildURL('/' + taskType + '/' + id + '/activate', '');
     const options = this._buildOptions({method: 'POST'});
@@ -170,6 +140,38 @@ class SociocortexConnector {
       return humantaskResponse.json();
     else
       return dualtaskRepsonse.json();
+  }
+
+  // --- UNUSED METHODS ---
+
+  async getCases(workspaceId) {
+    const url = this._buildURL(`/workspaces/${workspaceId}/cases`, {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
+  async getMyCases(workspaceId) {
+    const url = this._buildURL(`/workspaces/${workspaceId}/cases/me`, {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
+  async getAllCases() {
+    const url = this._buildURL('/cases', {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
+  async getAllMyCases() {
+    const url = this._buildURL('/cases/me', {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
+  async getAllTasks(caseId) {
+    const url = this._buildURL('/cases/' + caseId + "/humantasks/all", {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
   }
 
   // --- HELPER FUNCTIONS ---

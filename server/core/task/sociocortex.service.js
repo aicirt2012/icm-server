@@ -70,6 +70,7 @@ class SociocortexService extends TaskService {
   }
 
   async link(provider_id, frontend_url) {
+    // TODO check if task needs to be activated
     const updatedSociocortexTask = await this._connector.updateExternalId(provider_id, frontend_url);
     return SociocortexAssembler.Task.fromExternalObject(updatedSociocortexTask);
   }

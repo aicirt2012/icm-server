@@ -55,29 +55,29 @@ class TrelloService extends TaskService {
     return TrelloAssembler.Task.fromExternalObject(createdTrelloTask);
   }
 
-  async get(provider_id) {
-    const trelloTask = await this._connector.getTask(provider_id);
+  async get(trelloId) {
+    const trelloTask = await this._connector.getTask(trelloId);
     return TrelloAssembler.Task.fromExternalObject(trelloTask);
   }
 
-  async update(provider_id, task) {
+  async update(trelloId, task) {
     const trelloTask = TrelloAssembler.Task.toExternalObject(task);
-    const updatedTrelloTask = await this._connector.updateTask(provider_id, trelloTask);
+    const updatedTrelloTask = await this._connector.updateTask(trelloId, trelloTask);
     return TrelloAssembler.Task.fromExternalObject(updatedTrelloTask);
   }
 
-  async delete(provider_id) {
-    const deletedTrelloTask = await this._connector.deleteTask(provider_id);
+  async delete(trelloId) {
+    const deletedTrelloTask = await this._connector.deleteTask(trelloId);
     return TrelloAssembler.Task.fromExternalObject(deletedTrelloTask);
   }
 
-  async link(provider_id, frontend_url) {
-    const updatedTrelloTask = await this._connector.addAttachmentUrl(provider_id, frontend_url);
+  async link(trelloId, frontendUrl) {
+    const updatedTrelloTask = await this._connector.addAttachmentUrl(trelloId, frontendUrl);
     return TrelloAssembler.Task.fromExternalObject(updatedTrelloTask);
   }
 
-  async unlink(provider_id, frontend_url) {
-    await this._connector.removeAttachmentUrl(provider_id, frontend_url);
+  async unlink(trelloId, frontendUrl) {
+    await this._connector.removeAttachmentUrl(trelloId, frontendUrl);
   }
 
   async list() {
