@@ -15,6 +15,11 @@ const SUBJECT = 'SUBJECT';
 const HUMAN_TASK = 'HumanTask';
 const DUAL_TASK = 'DualTask';
 
+const ENABLED = 'ENABLED';
+const ACTIVE = 'ACTIVE';
+const COMPLETED = 'COMPLETED';
+const TERMINATED = 'TERMINATED';
+
 export default {
   taskProviders: {
     trello: TRELLO,
@@ -37,5 +42,11 @@ export default {
   sociocortexTaskTypes: {
     human: HUMAN_TASK,
     dual: DUAL_TASK,
+  },
+  sociocortexTaskStates: {
+    enabled: ENABLED,
+    active: ACTIVE,
+    completed: COMPLETED,
+    terminated: TERMINATED
   }
 }

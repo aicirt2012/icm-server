@@ -41,42 +41,45 @@ class SociocortexService extends TaskService {
     throw new Error("Task creation is not supported by the Sociocortex service!");
   }
 
-  async get(providerId) {
-    const sociocortexTask = await this._connector.getTask(providerId);
+  async get(sociocortexId) {
+    const sociocortexTask = await this._connector.getTask(sociocortexId);
     return SociocortexAssembler.Task.fromExternalObject(sociocortexTask);
   }
 
-  async update(providerId, task) {
-    let sociocortexTask = await this.get(providerId);
+  async update(sociocortexId, task) {
+    let sociocortexTask = await this.get(sociocortexId);
 
     const updatedDynamicParams = task.getParameter("dynamicParameters");
     if (updatedDynamicParams && sociocortexTask.getParameter("dynamicParameters") !== updatedDynamicParams) {
       const draftedSociocortexTask = SociocortexAssembler.Task.toExternalObject(task);
-      sociocortexTask = await this._connector.draftTask(providerId, draftedSociocortexTask);
+      sociocortexTask = await this._connector.draftTask(sociocortexId, draftedSociocortexTask);
     }
     const updatedDueDate = task.getParameter("dueDate");
     if (updatedDueDate && sociocortexTask.getParameter("dueDate") !== updatedDueDate) {
-      sociocortexTask = await this._connector.updateDueDate(providerId, updatedDueDate);
+      sociocortexTask = await this._connector.updateDueDate(sociocortexId, updatedDueDate);
     }
     const updatedOwnerId = task.getParameter("ownerId");
     if (updatedOwnerId && sociocortexTask.getParameter("ownerId") && sociocortexTask.getParameter("ownerId") !== updatedOwnerId) {
-      sociocortexTask = await this._connector.updateOwner(providerId, updatedOwnerId)
+      sociocortexTask = await this._connector.updateOwner(sociocortexId, updatedOwnerId)
     }
     return SociocortexAssembler.Task.fromExternalObject(sociocortexTask);
   }
 
-  async delete(providerId) {
+  async delete(sociocortexId) {
     throw new Error("Task deletion is not supported by the Sociocortex service!");
   }
 
-  async link(provider_id, frontend_url) {
-    // TODO check if task needs to be activated
-    const updatedSociocortexTask = await this._connector.updateExternalId(provider_id, frontend_url);
+  async link(sociocortexId, frontendUrl) {
+    const task = this.get(sociocortexId);
+    if (task.getParameter('state') === Constants.sociocortexTaskStates.enabled) {
+      this._connector.activateTask(sociocortexId, task.getParameter('resourceType'));
+    }
+    const updatedSociocortexTask = await this._connector.updateExternalId(sociocortexId, frontendUrl);
     return SociocortexAssembler.Task.fromExternalObject(updatedSociocortexTask);
   }
 
-  async unlink(provider_id, frontend_url) {
-    await this._connector.updateExternalId(provider_id, null);
+  async unlink(sociocortexId, frontendUrl) {
+    await this._connector.updateExternalId(sociocortexId, null);
   }
 
   async list() {
