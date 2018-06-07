@@ -92,6 +92,7 @@ function routeProvider(passport) {
   r.route('/tasks/providers/trello/archive/:id').get(taskTrelloCtrl.archiveTask);                                //
   /* Sociocortex Task Routes */                                                                                  //
   r.route('/tasks/providers/sociocortex/workspaces').get(taskSociocortexCtrl.listWorkspaces);                    //
+  r.route('/tasks/providers/sociocortex/workspaces/:id/cases').get(taskSociocortexCtrl.getCases);                    //
   r.route('/tasks/providers/sociocortex/workspaces/:id/members').get(taskSociocortexCtrl.listMembers);           //
   r.route('/tasks/providers/sociocortex/complete/:id').get(taskSociocortexCtrl.completeTask);                    //
   r.route('/tasks/providers/sociocortex/terminate/:id').get(taskSociocortexCtrl.terminateTask);                  //

@@ -142,13 +142,13 @@ class SociocortexConnector {
       return dualtaskRepsonse.json();
   }
 
-  // --- UNUSED METHODS ---
-
   async getCases(workspaceId) {
     const url = this._buildURL(`/workspaces/${workspaceId}/cases`, {});
     const options = this._buildOptions({});
     return (await fetch(url, options)).json();
   }
+
+  // --- UNUSED METHODS ---
 
   async getMyCases(workspaceId) {
     const url = this._buildURL(`/workspaces/${workspaceId}/cases/me`, {});

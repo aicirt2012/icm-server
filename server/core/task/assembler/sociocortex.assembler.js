@@ -56,12 +56,28 @@ class SociocortexAssembler {
   }();
 
   static Case = new class extends AbstractAssembler {
-    fromExternalObject(externalObject) {
-      throw new Error("Not yet implemented: Method 'fromExternalObject' for Cases.");
+    fromExternalObject(sociocortexCase) {
+      return {
+        id: sociocortexCase.id,
+        client: sociocortexCase.client,
+        workspace: sociocortexCase.workspace,
+        description: sociocortexCase.description,
+        name: sociocortexCase.name,
+        state: sociocortexCase.state,
+        owner: sociocortexCase.owner
+      }
     }
 
-    toExternalObject(internalObject) {
-      throw new Error("Not yet implemented: Method 'toExternalObject' for Cases.");
+    toExternalObject(caseObject) {
+      return {
+        id: caseObject.id,
+        client: caseObject.client,
+        workspace: caseObject.workspace,
+        description: caseObject.description,
+        name: caseObject.name,
+        state: caseObject.state,
+        owner: caseObject.owner
+      }
     }
   }();
 
