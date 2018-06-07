@@ -118,17 +118,19 @@ class SociocortexConnector {
    * updates the externalId field of any sociocortex task
    */
   async updateExternalId(taskId, value) {
-    // don't know if task is human or dual, so fire requests to both endpoints and check if we got a valid response
     // TODO make parallel
     const options = this._buildOptions({});
 
+    // don't know if task is human or dual, so fire requests to both endpoints and check if we got a valid response
     let url = this._buildURL('/humantasks/' + taskId + '/externalId/' + encodeURI(value), {});
     const humantaskResponse = await fetch(url, options);
     url = this._buildURL('/dualtasks/' + taskId + '/externalId/' + encodeURI(value), {});
     const dualtaskRepsonse = await fetch(url, options);
 
-    let test = 9;
-    return (await fetch(url, options)).json();
+    if (humantaskResponse.status === 200)
+      return humantaskResponse.json();
+    else
+      return dualtaskRepsonse.json();
   }
 
   // --- HELPER FUNCTIONS ---
