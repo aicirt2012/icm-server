@@ -27,8 +27,8 @@ class SociocortexService extends TaskService {
 
   async teardown(providerSpecificData) {
     // TODO make parallel
-    const cursor = await Task.find({provider: Constants.taskProviders.sociocortex});
-    for (let task = await cursor.next(); task != null; task = await cursor.next()) {
+    const tasks = await Task.find({provider: Constants.taskProviders.sociocortex});
+    for (let task of tasks) {
       await this.unlink(task.providerId);
     }
     this._user.taskProviders.sociocortex.isEnabled = false;

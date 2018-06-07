@@ -109,7 +109,9 @@ class SociocortexConnector {
    */
   async checkConnection() {
     const url = this._buildURL('/users/me', '');
-    return (await fetch(url)).json();
+    const options = this._buildOptions({});
+    const response = (await fetch(url, options));
+    return response.json();
   }
 
   /**
