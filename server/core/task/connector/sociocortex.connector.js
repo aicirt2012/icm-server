@@ -118,13 +118,57 @@ class SociocortexConnector {
    * updates the externalId field of any sociocortex task
    */
   async updateExternalId(taskId, value) {
-    // TODO make parallel
     const options = this._buildOptions({});
 
+    // TODO make parallel
     // don't know if task is human or dual, so fire requests to both endpoints and check if we got a valid response
     let url = this._buildURL('/humantasks/' + taskId + '/externalId/' + encodeURI(value), {});
     const humantaskResponse = await fetch(url, options);
     url = this._buildURL('/dualtasks/' + taskId + '/externalId/' + encodeURI(value), {});
+    const dualtaskRepsonse = await fetch(url, options);
+
+    if (humantaskResponse.status === 200)
+      return humantaskResponse.json();
+    else
+      return dualtaskRepsonse.json();
+  }
+
+  /**
+   * updates the dueDate field of any sociocortex task
+   */
+  async updateDueDate(taskId, date) {
+    const options = {
+      method: 'POST',
+      body: JSON.stringify({dueDate: date}),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+
+    // TODO make parallel
+    // don't know if task is human or dual, so fire requests to both endpoints and check if we got a valid response
+    let url = this._buildURL('/humantasks/' + taskId + '/duedate', {});
+    const humantaskResponse = await fetch(url, options);
+    url = this._buildURL('/dualtasks/' + taskId + '/duedate', {});
+    const dualtaskRepsonse = await fetch(url, options);
+
+    if (humantaskResponse.status === 200)
+      return humantaskResponse.json();
+    else
+      return dualtaskRepsonse.json();
+  }
+
+  /**
+   * updates the owner field of any sociocortex task
+   */
+  async updateOwner(taskId, ownerId) {
+    // TODO make parallel
+    const options = this._buildOptions({method: 'POST'});
+
+    // don't know if task is human or dual, so fire requests to both endpoints and check if we got a valid response
+    let url = this._buildURL('/humantasks/' + taskId + '/owner/' + ownerId, {});
+    const humantaskResponse = await fetch(url, options);
+    url = this._buildURL('/dualtasks/' + taskId + '/owner/' + ownerId, {});
     const dualtaskRepsonse = await fetch(url, options);
 
     if (humantaskResponse.status === 200)
