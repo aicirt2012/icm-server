@@ -38,12 +38,14 @@ class TrelloService extends TaskService {
 
   async teardown(providerSpecificData) {
     // TODO make parallel
-    const cursor = await Task.find({provider: Constants.taskProviders.trello});
-    for (let task = await cursor.next(); task != null; task = await cursor.next()) {
+    const tasks = await Task.find({provider: Constants.taskProviders.trello, user: this._user._id});
+    for (let task of tasks) {
       await this.unlink(task.providerId);
     }
     this._user.taskProviders.trello.isEnabled = false;
     this._user.taskProviders.trello.trelloAccessToken = "";
+    this._user.taskProviders.trello.registrationEmail = "";
+    this._user.taskProviders.trello.registrationStarted = "";
     return await this._user.save();
   }
 

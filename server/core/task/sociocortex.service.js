@@ -27,11 +27,13 @@ class SociocortexService extends TaskService {
 
   async teardown(providerSpecificData) {
     // TODO make parallel
-    const tasks = await Task.find({provider: Constants.taskProviders.sociocortex});
+    const tasks = await Task.find({provider: Constants.taskProviders.sociocortex, user: this._user._id});
     for (let task of tasks) {
       await this.unlink(task.providerId);
     }
     this._user.taskProviders.sociocortex.isEnabled = false;
+    this._user.taskProviders.sociocortex.email = "";
+    this._user.taskProviders.sociocortex.password = "";
     return await this._user.save();
   }
 
