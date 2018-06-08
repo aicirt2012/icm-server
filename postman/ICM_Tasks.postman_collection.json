@@ -96,7 +96,7 @@
 			"response": []
 		},
 		{
-			"name": "/tasks-ng/providers/trello/configure",
+			"name": "/tasks/providers/trello/configure",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -111,15 +111,15 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"email\": \"sebisng2@gmail.com\"\n}"
+					"raw": "{\n\t\"email\": \"sebisng2@gmail.com\",\n\t\"password\": \"\"\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks-ng/providers/trello/configure",
+					"raw": "{{baseurl}}/tasks/providers/trello/configure",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
-						"tasks-ng",
+						"tasks",
 						"providers",
 						"trello",
 						"configure"
@@ -129,7 +129,7 @@
 			"response": []
 		},
 		{
-			"name": "/tasks-ng/providers/trello/setup",
+			"name": "/tasks/providers/trello/setup",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -147,12 +147,12 @@
 					"raw": "{\n\t\"token\": \"{{trello_token}}\"\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks-ng/providers/trello/setup",
+					"raw": "{{baseurl}}/tasks/providers/trello/setup",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
-						"tasks-ng",
+						"tasks",
 						"providers",
 						"trello",
 						"setup"
@@ -162,7 +162,7 @@
 			"response": []
 		},
 		{
-			"name": "/tasks-ng/providers/trello/teardown",
+			"name": "/tasks/providers/trello/teardown",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -180,12 +180,12 @@
 					"raw": "{}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks-ng/providers/trello/teardown",
+					"raw": "{{baseurl}}/tasks/providers/trello/teardown",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
-						"tasks-ng",
+						"tasks",
 						"providers",
 						"trello",
 						"teardown"
@@ -195,7 +195,7 @@
 			"response": []
 		},
 		{
-			"name": "/tasks-ng/providers/sociocortex/configure",
+			"name": "/tasks/providers/sociocortex/configure",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -210,15 +210,15 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{}"
+					"raw": "{\n\t\"email\": \"mustermann@test.sc\",\n\t\"password\": \"\"\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks-ng/providers/sociocortex/configure",
+					"raw": "{{baseurl}}/tasks/providers/sociocortex/configure",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
-						"tasks-ng",
+						"tasks",
 						"providers",
 						"sociocortex",
 						"configure"
@@ -228,7 +228,7 @@
 			"response": []
 		},
 		{
-			"name": "/tasks-ng/providers/sociocortex/setup",
+			"name": "/tasks/providers/sociocortex/setup",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -246,12 +246,12 @@
 					"raw": "{}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks-ng/providers/sociocortex/setup",
+					"raw": "{{baseurl}}/tasks/providers/sociocortex/setup",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
-						"tasks-ng",
+						"tasks",
 						"providers",
 						"sociocortex",
 						"setup"
@@ -261,7 +261,7 @@
 			"response": []
 		},
 		{
-			"name": "/tasks-ng/providers/sociocortex/teardown",
+			"name": "/tasks/providers/sociocortex/teardown",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -279,12 +279,12 @@
 					"raw": "{}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks-ng/providers/sociocortex/teardown",
+					"raw": "{{baseurl}}/tasks/providers/sociocortex/teardown",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
-						"tasks-ng",
+						"tasks",
 						"providers",
 						"sociocortex",
 						"teardown"
@@ -294,38 +294,7 @@
 			"response": []
 		},
 		{
-			"name": "/tasks-ng/query",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "JWT {{token}}"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{}"
-				},
-				"url": {
-					"raw": "{{baseurl}}/tasks-ng/query",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"tasks-ng",
-						"query"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/tasks-ng",
+			"name": "/tasks",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -343,19 +312,19 @@
 					"raw": "{\n\t\"provider\": \"trello\",\n\t\"email\": \"{{email_id}}\",\n\t\"parameters\": [\n\t\t{\n\t\t\t\"name\": \"name\",\n\t\t\t\"value\": \"API Test-Card\"\n\t\t},\n\t\t{\n\t\t\t\"name\": \"idList\",\n\t\t\t\"value\": \"5afc6018311f3b5cbaf9ee8b\"\n\t\t}\n\t\t]\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks-ng",
+					"raw": "{{baseurl}}/tasks",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
-						"tasks-ng"
+						"tasks"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "/tasks-ng/:id",
+			"name": "/tasks",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -369,12 +338,38 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks-ng/{{task_id}}",
+					"raw": "{{baseurl}}/tasks",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
-						"tasks-ng",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/:id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/{{task_id}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
 						"{{task_id}}"
 					]
 				}
@@ -382,7 +377,7 @@
 			"response": []
 		},
 		{
-			"name": "/tasks-ng/:id",
+			"name": "/tasks/:id",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -400,12 +395,12 @@
 					"raw": "{\n\t\"provider\": \"sociocortex\"\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks-ng/{{task_id}}",
+					"raw": "{{baseurl}}/tasks/{{task_id}}",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
-						"tasks-ng",
+						"tasks",
 						"{{task_id}}"
 					]
 				}
@@ -413,7 +408,7 @@
 			"response": []
 		},
 		{
-			"name": "/tasks-ng/:id",
+			"name": "/tasks/:id",
 			"request": {
 				"method": "DELETE",
 				"header": [
@@ -427,13 +422,388 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks-ng/{{task_id}}",
+					"raw": "{{baseurl}}/tasks/{{task_id}}",
 					"host": [
 						"{{baseurl}}"
 					],
 					"path": [
-						"tasks-ng",
+						"tasks",
 						"{{task_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/link",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"provider\": \"sociocortex\",\n\t\"providerId\": \"sh8hbfp7zo6f\",\n\t\"email\": \"5a840e1e4a141a3ff18f295f\",\n\t\"frontendUrl\": \"manual test 1\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/link",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"link"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/:id/unlink",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"frontendUrl\": \"test123\",\n\t\"provider\": \"trello\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/{{task_id}}/unlink",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"{{task_id}}",
+						"unlink"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/providers/trello/boards",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/providers/trello/boards",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"providers",
+						"trello",
+						"boards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/providers/trello/boards/:id/members",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/providers/trello/boards/:id/members",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"providers",
+						"trello",
+						"boards",
+						":id",
+						"members"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/providers/trello/lists/:id/tasks",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/providers/trello/lists/:id/tasks",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"providers",
+						"trello",
+						"lists",
+						":id",
+						"tasks"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/providers/sociocortex/workspaces",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/providers/sociocortex/workspaces",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"providers",
+						"sociocortex",
+						"workspaces"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/providers/sociocortex/workspaces/:id/cases",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/providers/sociocortex/workspaces/2c9480885d1737ef015d74deed260006/cases",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"providers",
+						"sociocortex",
+						"workspaces",
+						"2c9480885d1737ef015d74deed260006",
+						"cases"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/providers/sociocortex/cases/:id/tasks",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/providers/sociocortex/cases/1jjpaew9v6a03/tasks",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"providers",
+						"sociocortex",
+						"cases",
+						"1jjpaew9v6a03",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/tasks/providers/sociocortex/tasks/:id/members",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/providers/sociocortex/tasks/m6g7giidk3ap/members",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"providers",
+						"sociocortex",
+						"tasks",
+						"m6g7giidk3ap",
+						"members"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DEPRECATED /tasks/providers/:id/tasks",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/{{task_provider}}/tasks",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"{{task_provider}}",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DEPRECATED /tasks/query",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/query",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"query"
 					]
 				}
 			},
