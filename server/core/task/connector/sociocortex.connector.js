@@ -154,6 +154,12 @@ class SociocortexConnector {
     return (await fetch(url, options)).json();
   }
 
+  async getPossibleOwners(taskId) {
+    const url = this._buildURL(`/processes/${taskId}/owner/autocomplete`, {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
   // --- UNUSED METHODS ---
 
   async getMyCases(workspaceId) {

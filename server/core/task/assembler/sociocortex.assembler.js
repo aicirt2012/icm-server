@@ -51,6 +51,7 @@ class SociocortexAssembler {
       return {
         id: workspace.id,
         name: workspace.name,
+        resourceType: "workspaces"
       }
     }
   }();
@@ -76,18 +77,28 @@ class SociocortexAssembler {
         description: caseObject.description,
         name: caseObject.name,
         state: caseObject.state,
-        owner: caseObject.owner
+        owner: caseObject.owner,
+        resourceType: "cases"
       }
     }
   }();
 
   static User = new class extends AbstractAssembler {
-    fromExternalObject(externalObject) {
-      throw new Error("Not yet implemented: Method 'fromExternalObject' for Users.");
+    fromExternalObject(sociocortexUser) {
+      return {
+        id: sociocortexUser.id,
+        email: sociocortexUser.email,
+        name: sociocortexUser.name
+      }
     }
 
-    toExternalObject(internalObject) {
-      throw new Error("Not yet implemented: Method 'toExternalObject' for Users.");
+    toExternalObject(user) {
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        resourceType: "users"
+      }
     }
   }();
 

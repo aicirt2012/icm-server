@@ -94,7 +94,7 @@ function routeProvider(passport) {
   /* Sociocortex Task Routes */                                                                                  //
   r.route('/tasks/providers/sociocortex/workspaces').get(taskSociocortexCtrl.listWorkspaces);                    //
   r.route('/tasks/providers/sociocortex/workspaces/:id/cases').get(taskSociocortexCtrl.getCases);                    //
-  r.route('/tasks/providers/sociocortex/workspaces/:id/members').get(taskSociocortexCtrl.listMembers);           //
+  r.route('/tasks/providers/sociocortex/tasks/:id/members').get(taskSociocortexCtrl.getPossibleOwners);           //
   r.route('/tasks/providers/sociocortex/cases/:id/tasks').get(taskSociocortexCtrl.getTasks);           //
   r.route('/tasks/providers/sociocortex/complete/:id').get(taskSociocortexCtrl.completeTask);                    //
   r.route('/tasks/providers/sociocortex/terminate/:id').get(taskSociocortexCtrl.terminateTask);                  //

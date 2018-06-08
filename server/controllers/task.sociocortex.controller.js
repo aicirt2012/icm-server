@@ -30,6 +30,16 @@ exports.getTasks = (req, res) => {
   });
 };
 
+exports.getPossibleOwners = (req, res) => {
+  new SociocortexService(req.user)
+    .getPossibleOwners(req.params.id)
+    .then(members => {
+      res.status(200).send(members);
+    }).catch(err => {
+    res.status(400).send(err);
+  });
+};
+
 exports.completeTask = (req, res) => {
   new SociocortexService(req.user)
     .completeTask(req.params.id)
