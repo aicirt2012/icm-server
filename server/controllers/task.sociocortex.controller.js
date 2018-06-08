@@ -20,12 +20,11 @@ exports.getCases = (req, res) => {
   });
 };
 
-exports.listMembers = (req, res) => {
+exports.getTasks = (req, res) => {
   new SociocortexService(req.user)
-  // TODO implement
-    .completeTask()
-    .then(workspaces => {
-      res.status(200).send(workspaces);
+    .getTasks(req.params.id)
+    .then(tasks => {
+      res.status(200).send(tasks);
     }).catch(err => {
     res.status(400).send(err);
   });
@@ -33,16 +32,25 @@ exports.listMembers = (req, res) => {
 
 exports.completeTask = (req, res) => {
   new SociocortexService(req.user)
-  // TODO implement
-    .completeTask()
-    .then(workspaces => {
-      res.status(200).send(workspaces);
+    .completeTask(req.params.id)
+    .then(task => {
+      res.status(200).send(task);
     }).catch(err => {
     res.status(400).send(err);
   });
 };
 
 exports.terminateTask = (req, res) => {
+  new SociocortexService(req.user)
+    .terminateTask(req.params.id)
+    .then(task => {
+      res.status(200).send(task);
+    }).catch(err => {
+    res.status(400).send(err);
+  });
+};
+
+exports.listMembers = (req, res) => {
   new SociocortexService(req.user)
   // TODO implement
     .completeTask()

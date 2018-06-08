@@ -106,6 +106,15 @@ class SociocortexService extends TaskService {
     return cases;
   }
 
+  async getTasks(caseId) {
+    const response = await this._connector.getTasks(caseId);
+    const tasks = [];
+    response.forEach(sociocortexTask => {
+      tasks.push(SociocortexAssembler.Task.fromExternalObject(sociocortexTask))
+    });
+    return tasks;
+  }
+
 }
 
 export default SociocortexService;

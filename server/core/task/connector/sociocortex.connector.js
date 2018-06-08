@@ -148,6 +148,12 @@ class SociocortexConnector {
     return (await fetch(url, options)).json();
   }
 
+  async getTasks(caseId) {
+    const url = this._buildURL(`/cases/${caseId}/humantasks/all`, {});
+    const options = this._buildOptions({});
+    return (await fetch(url, options)).json();
+  }
+
   // --- UNUSED METHODS ---
 
   async getMyCases(workspaceId) {
