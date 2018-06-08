@@ -35,19 +35,21 @@ TaskSchema.methods.getParameterValue = (parameterName) => {
 };
 
 TaskSchema.statics.getParameter = (parameters, parameterName) => {
+  let param = undefined;
   parameters.forEach(parameter => {
     if (parameter.name === parameterName)
-      return parameter;
+      param = parameter;
   });
-  return undefined;
+  return param;
 };
 
 TaskSchema.statics.getParameterValue = (parameters, parameterName) => {
+  let value = undefined;
   parameters.forEach(parameter => {
     if (parameter.name === parameterName)
-      return parameter.value;
+      value = parameter.value;
   });
-  return undefined;
+  return value;
 };
 
 TaskSchema.statics.removeByUserId = (userId) => {
