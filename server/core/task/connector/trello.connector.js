@@ -130,7 +130,10 @@ class TrelloConnector {
    */
   async removeAttachmentUrl(taskId, url) {
     const attachmentUrl = this.buildURL(`/cards/${taskId}/attachments`, '');
-    const attachments = (await fetch(attachmentUrl)).json();
+    const response = await fetch(attachmentUrl);
+    if (response.status === 404)
+      return; // task not found, so no attachements to remove
+    const attachments = await response.json();
     let attachmentId = undefined;
     // TODO parallelize
     for (const attachment of attachments) {

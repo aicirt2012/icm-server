@@ -109,7 +109,7 @@ exports.deleteTask = (req, res) => {
       getTaskService(task.provider, req.user)
         .delete(task.providerId)
         .then(() => {
-          Task.remove(req.params.id)
+          Task.deleteOne({_id: req.params.id})
             .then(data => {
               res.status(200).send(data);
             });
@@ -127,7 +127,7 @@ exports.unlinkTask = (req, res) => {
       getTaskService(req.body.provider, req.user)
         .unlink(task.providerId, req.body.frontendUrl)
         .then(() => {
-          Task.remove(req.params.id)
+          Task.deleteOne({_id: req.params.id})
             .then(data => {
               res.status(200).send(data);
             });
