@@ -77,7 +77,7 @@ class TrelloConnector {
   async searchTasks(query) {
     const params = {
       modelTypes: "cards",
-      card_fields: "id,name,idList,idBoard,closed",
+      card_fields: "id,name,idList,idBoard,closed,desc,due,shortUrl",
       query: query ? "is:open," + query : "is:open"
     };
     const url = this.buildURL('/search', params);
@@ -104,6 +104,15 @@ class TrelloConnector {
   async listMembers(boardId) {
     const params = {fields: "id,fullName,username,initials,avatarUrl"};
     const url = this.buildURL(`boards/${boardId}/members`, params);
+    return (await fetch(url)).json();
+  }
+
+  /**
+   * list tasks in the list with the given id
+   */
+  async getTasks(listId) {
+    const params = {fields: "id,name,idList,idBoard,closed,desc,due,shortUrl"};
+    const url = this.buildURL(`/lists/${listId}/cards`, params);
     return (await fetch(url)).json();
   }
 

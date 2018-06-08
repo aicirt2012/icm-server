@@ -98,6 +98,12 @@ class TrelloService extends TaskService {
     return members;
   }
 
+  async getTasks(listId) {
+    const tasks = await this._connector.getTasks(listId);
+    tasks.forEach(trelloTask => TrelloAssembler.Task.fromExternalObject(trelloTask));
+    return tasks;
+  }
+
 }
 
 export default TrelloService;

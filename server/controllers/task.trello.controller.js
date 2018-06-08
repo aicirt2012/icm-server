@@ -37,3 +37,13 @@ exports.listMembers = (req, res) => {
     res.status(400).send(err);
   });
 };
+
+exports.getTasks = (req, res) => {
+  new TrelloService(req.user)
+    .getTasks(req.params.id)
+    .then(members => {
+      res.status(200).send(members);
+    }).catch(err => {
+    res.status(400).send(err);
+  });
+};
