@@ -82,6 +82,18 @@ class SociocortexService extends TaskService {
     await this._connector.updateExternalId(sociocortexId, null);
   }
 
+  async completeTask(sociocortexId) {
+    const task = this.get(sociocortexId);
+    const completedTask = await this._connector.completeTask(sociocortexId, task.getParameter('resourceType'));
+    return SociocortexAssembler.Task.fromExternalObject(completedTask);
+  }
+
+  async terminateTask(sociocortexId) {
+    const task = this.get(sociocortexId);
+    const terminatedTask = await this._connector.terminateTask(sociocortexId, task.getParameter('resourceType'));
+    return SociocortexAssembler.Task.fromExternalObject(terminatedTask);
+  }
+
   async list() {
     throw new Error("Not yet implemented: Method 'list' is not yet implemented for Sociocortex service.");  // TODO implement
   }

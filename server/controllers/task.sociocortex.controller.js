@@ -59,14 +59,3 @@ exports.terminateTask = (req, res) => {
     res.status(400).send(err);
   });
 };
-
-exports.listMembers = (req, res) => {
-  new SociocortexService(req.user)
-  // TODO implement
-    .completeTask()
-    .then(workspaces => {
-      res.status(200).send(workspaces);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
-};
