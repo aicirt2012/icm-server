@@ -8,6 +8,7 @@ import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
 import Pattern from '../models/pattern.model'
 import Constants from '../../config/constants';
+import TrelloService from "../core/task/trello.service";
 
 
 exports.sendEmail = (req, res) => {
@@ -312,9 +313,32 @@ exports.getSingleMail = (req, res) => {
     .then((mail) => {
       // replace attachments
       mail = replaceInlineAttachmentsSrc(mail, req.user);
+      mail.linkedTasks = [];
+      if (req.user.taskProviders.trello.isEnabled) {
+        // TODO add linked trello tasks
+        // Task.find({
+        //   $or: [{
+        //     email: email._Id
+        //   }, {
+        //     thrid: email.thrid
+        //   }]
+        // }).then((tasks) => {
+        //         tasks.forEach((t) => {
+        //           promises.push(this.getTaskWithBoardMembers(t.taskId, t.provider, user));
+        //         });
+        //         Promise.all(promises).then((results) => {
+        //           email.linkedTasks = results.map((task) => {
+        //             task['taskType'] = Constants.taskTypes.linked;
+        //             task['board'] = TaskServiceUtil.convertBoardToMinimalEntity(task.board);
+        //             return task;
+        //           }).filter(task => !task.closed);
+        //           resolve(email);
+        //         });
+      }
+      if (req.user.taskProviders.sociocortex.isEnabled) {
+        // TODO add linked sc tasks
+      }
       return mail;
-      // TODO load and attach tasks linked to the email
-      // return (mail && (req.user.trello || req.user.sociocortex)) ? TaskServiceUtil.addLinkedTasksToEmail(mail, req.user) : mail;
     })
     .then(mail => {
       // get all patterns for current user
