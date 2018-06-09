@@ -2,6 +2,7 @@ import Promise from 'bluebird';
 import Email from '../models/email.model';
 import Box from '../models/box.model';
 import User from '../models/user.model';
+import Task from '../models/task.model'
 import Socket from '../routes/socket';
 import NERService from "../core/analysis/ner.service";
 import GmailConnector from '../core/mail/GmailConnector';
@@ -9,6 +10,8 @@ import EWSConnector from '../core/mail/EWSConnector';
 import Pattern from '../models/pattern.model'
 import Constants from '../../config/constants';
 import TrelloService from "../core/task/trello.service";
+import TaskService from "../core/task/task.service";
+import SociocortexService from "../core/task/sociocortex.service";
 
 
 exports.sendEmail = (req, res) => {
@@ -313,31 +316,8 @@ exports.getSingleMail = (req, res) => {
     .then((mail) => {
       // replace attachments
       mail = replaceInlineAttachmentsSrc(mail, req.user);
-      mail.linkedTasks = [];
-      if (req.user.taskProviders.trello.isEnabled) {
-        // TODO add linked trello tasks
-        // Task.find({
-        //   $or: [{
-        //     email: email._Id
-        //   }, {
-        //     thrid: email.thrid
-        //   }]
-        // }).then((tasks) => {
-        //         tasks.forEach((t) => {
-        //           promises.push(this.getTaskWithBoardMembers(t.taskId, t.provider, user));
-        //         });
-        //         Promise.all(promises).then((results) => {
-        //           email.linkedTasks = results.map((task) => {
-        //             task['taskType'] = Constants.taskTypes.linked;
-        //             task['board'] = TaskServiceUtil.convertBoardToMinimalEntity(task.board);
-        //             return task;
-        //           }).filter(task => !task.closed);
-        //           resolve(email);
-        //         });
-      }
-      if (req.user.taskProviders.sociocortex.isEnabled) {
-        // TODO add linked sc tasks
-      }
+      // inject linked tasks
+      mail = loadAndAppendLinkedTasks(mail, req.user);
       return mail;
     })
     .then(mail => {
@@ -452,8 +432,45 @@ function replaceInlineAttachmentsSrc(email, user) {
     if (a.contentDispositionInline) {
       email.html = email.html.replace(`cid:${a.contentId}`, `ATTACHMENT_POINT/${a._id}?token=TOKEN_POINT`);
     }
-  })
+  });
+  return email;
+}
 
+
+async function loadAndAppendLinkedTasks(email, user) {
+  email.linkedTasks = [];
+  const tasks = await Task.find({
+    $or: [{
+      email: email._id
+    }, {
+      thrid: email.thrid
+    }],
+    user: user._id
+  });
+  const promises = [];
+  if (user.taskProviders.trello.isEnabled) {
+    const trelloService = new TrelloService();
+    tasks.filter(task => task.provider === Constants.taskProviders.trello)
+      .forEach(task => {
+        promises.push(
+          trelloService.get(task.providerId)
+            .then(trelloTask => {
+              return TaskService.mergeTaskObjects(task, trelloTask)
+            }));
+      })
+  }
+  if (user.taskProviders.sociocortex.isEnabled) {
+    const sociocortexService = new SociocortexService();
+    tasks.filter(task => task.provider === Constants.taskProviders.sociocortex)
+      .forEach(task => {
+        promises.push(
+          sociocortexService.get(task.providerId)
+            .then(sociocortexTask => {
+              return TaskService.mergeTaskObjects(task, sociocortexTask)
+            }));
+      })
+  }
+  Promise.all(promises).then(updatedTasks => email.linkedTasks = updatedTasks);
   return email;
 }
 
