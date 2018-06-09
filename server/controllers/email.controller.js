@@ -3,7 +3,7 @@ import Email from '../models/email.model';
 import Box from '../models/box.model';
 import User from '../models/user.model';
 import Socket from '../routes/socket';
-import NERService from "../core/analysis/NERService";
+import NERService from "../core/analysis/ner.service";
 import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
 import Pattern from '../models/pattern.model'
