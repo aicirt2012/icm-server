@@ -52,7 +52,7 @@ exports.sendEmail = (req, res) => {
       });
 
   }
-}
+};
 
 exports.append = (req, res) => {
   const user = req.user;
@@ -96,7 +96,7 @@ exports.append = (req, res) => {
       });
 
   }
-}
+};
 
 exports.move = (req, res) => {
   const emailId = req.params.id;
@@ -148,7 +148,7 @@ exports.move = (req, res) => {
         res.status(400).send(err);
       });
   }
-}
+};
 
 exports.moveToTrash = (req, res) => {
   if (req.user.isExchangeProvider()) {
@@ -164,7 +164,7 @@ exports.moveToTrash = (req, res) => {
         exports.move(req, res);
       });
   }
-}
+};
 
 /**
  * @api {post} /email/:id/flags Add Email Flags
@@ -223,7 +223,7 @@ exports.addFlags = (req, res) => {
         res.status(400).send(err);
       });
   }
-}
+};
 
 /**
  * @api {delete} /email/:id/flags Remove Email Flags
@@ -291,7 +291,7 @@ exports.delFlags = (req, res) => {
       });
 
   }
-}
+};
 
 
 /**
@@ -315,7 +315,7 @@ exports.getSingleMail = (req, res) => {
     .lean()
     .then((mail) => {
       // replace attachments
-      mail = replaceInlineAttachmentsSrc(mail, req.user);
+      mail = replaceInlineAttachmentsSrc(mail);
       // inject linked tasks
       mail = loadAndAppendLinkedTasks(mail, req.user);
       return mail;
@@ -427,7 +427,7 @@ exports.getSingleMail = (req, res) => {
 
 // Inline attachments URL and tokens are changed in the front-end
 // they have the form AttachmentURL/attachmentId?token=JWTToken
-function replaceInlineAttachmentsSrc(email, user) {
+function replaceInlineAttachmentsSrc(email) {
   email.attachments.forEach((a) => {
     if (a.contentDispositionInline) {
       email.html = email.html.replace(`cid:${a.contentId}`, `ATTACHMENT_POINT/${a._id}?token=TOKEN_POINT`);
@@ -531,7 +531,7 @@ exports.searchEmails = (req, res) => {
     .catch(err => {
       res.status(400).send(err);
     });
-}
+};
 
 /** Creates autocomplete suggestions for email addresses */
 exports.autocomplete = (req, res) => {
@@ -542,10 +542,9 @@ exports.autocomplete = (req, res) => {
     .catch(err => {
       res.status(500).send(err);
     });
-}
+};
 
 exports.appendEnron = (req, res) => {
-
   const emailConnector = req.user.createIMAPConnector();
 
   // find enron user e.g Allen
