@@ -1,8 +1,8 @@
-import LingueeConnector from '../core/translation/LingueeConnector';
+import LingueeService from '../core/translation/linguee.service';
 
 /**
  * @api {get} /translate/ Translate
- * @apiDescription Translates a word 
+ * @apiDescription Translates a word
  * @apiName Translate
  * @apiGroup Translate
  * @apiParam {String} word word to translate
@@ -30,7 +30,7 @@ exports.translate = (req, res, next) => {
   if (word == undefined)
       res.status(400).send('Param word missing!');
   else{
-    new LingueeConnector().translate(word)
+    new LingueeService().translate(word)
       .then(translation=> {
         res.status(200).send(translation);
       })

@@ -3,7 +3,7 @@ import fs from 'fs';
 
 var cheerio = require('cheerio');
 
-class WikipediaConnector {
+class WikipediaService {
 
   constructor() {
   }
@@ -48,4 +48,4 @@ class WikipediaConnector {
 
 }
 
-export default WikipediaConnector;
+export default WikipediaService;

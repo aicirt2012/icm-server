@@ -2,7 +2,7 @@ var request = require('request');
 var cheerio = require('cheerio');
 
 
-class LingueeConnector {
+class LingueeService {
 
     lang = {
       'eng' : 'english',
@@ -52,7 +52,7 @@ class LingueeConnector {
               let sourceTerm = $(this).find('.line.lemma_desc .dictLink');
               const wordBlock = {
                 source: sourceTerm.text(),
-                sourceLanguage: LingueeConnector.extractLanguageFromHref(sourceTerm),
+                sourceLanguage: LingueeService.extractLanguageFromHref(sourceTerm),
                 target: []
               };
               $(this).find('.translation.featured .translation_desc .tag_trans .dictLink.featured').map(function () {
@@ -87,4 +87,4 @@ class LingueeConnector {
 
 }
 
-export default LingueeConnector;
+export default LingueeService;
