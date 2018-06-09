@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import express from 'express';
 import validate from 'express-validation';
 import paramValidation from '../../config/param-validation';
@@ -7,7 +8,6 @@ import importCtrl from '../controllers/import.controller';
 import emailCtrl from '../controllers/email.controller';
 import boxCtrl from '../controllers/box.controller';
 import attachmentCtrl from '../controllers/attachment.controller';
-import taskLegacyCtrl from '../controllers/task.legacy.controller';   // TODO remove this import and fix resulting compile errors
 import taskCtrl from '../controllers/task.controller'
 import taskTrelloCtrl from '../controllers/task.trello.controller'
 import taskSociocortexCtrl from '../controllers/task.sociocortex.controller'
