@@ -4,6 +4,13 @@ class TaskService {
     this._user = user;
   }
 
+  static mergeTaskObjects(mongoTask, providerTask) {
+    // convert to plain object and re-append parameters to avoid mongo removing them before serialization
+    const task = mongoTask.toObject();
+    task.parameters = providerTask.parameters;
+    return task;
+  }
+
   async configure(username, password, providerSpecificData) {
     throw new Error("Not yet implemented: Method 'configure' has to be overridden by inheriting classes.");
   }
@@ -47,3 +54,4 @@ class TaskService {
 }
 
 export default TaskService;
+

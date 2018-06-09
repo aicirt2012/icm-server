@@ -3,6 +3,7 @@ import TrelloService from "../core/task/trello.service";
 import SociocortexService from "../core/task/sociocortex.service";
 import Email from "../models/email.model";
 import Task from "../models/task.model";
+import TaskService from "../core/task/task.service";
 
 exports.configure = (req, res) => {
   getTaskService(req.params.id, req.user)
@@ -42,7 +43,7 @@ exports.createNewTask = (req, res) => {
         .then(providerTask => {
           Task.fromProvider(providerTask, email, req.user).save()
             .then(task => {
-              res.status(200).send(mergeTaskObjects(task, providerTask));
+              res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
             }).catch(err => {
             res.status(400).send(err);
           });
@@ -62,7 +63,7 @@ exports.createLinkedTask = (req, res) => {
         .then(providerTask => {
           Task.fromProvider(providerTask, email, req.user).save()
             .then(task => {
-              res.status(200).send(mergeTaskObjects(task, providerTask));
+              res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
             }).catch(err => {
             res.status(400).send(err);
           })
@@ -78,7 +79,7 @@ exports.readTask = (req, res) => {
       getTaskService(task.provider, req.user)
         .get(task.providerId)
         .then(providerTask => {
-          res.status(200).send(mergeTaskObjects(task, providerTask));
+          res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
         }).catch(err => {
         res.status(400).send(err);
       });
@@ -94,7 +95,7 @@ exports.updateTask = (req, res) => {
       getTaskService(task.provider, req.user)
         .update(task.providerId, req.body)
         .then(providerTask => {
-          res.status(200).send(mergeTaskObjects(task, providerTask));
+          res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
         }).catch(err => {
         res.status(400).send(err);
       });
@@ -147,7 +148,7 @@ exports.listTasks = (req, res) => {
         getTaskService(task.provider, req.user)
           .get(task.providerId)
           .then(providerTask => {
-            task = mergeTaskObjects(task, providerTask);
+            task = TaskService.mergeTaskObjects(task, providerTask);
           });
       });
       res.status(200).send(tasks);
@@ -185,11 +186,4 @@ function getTaskService(providerName, user) {
     default:
       throw new Error("No such task service: '" + providerName + "'.");
   }
-}
-
-function mergeTaskObjects(mongoTask, providerTask) {
-  // convert to plain object and re-append parameters to avoid mongo removing them before serialization
-  const task = mongoTask.toObject();
-  task.parameters = providerTask.parameters;
-  return task;
 }
