@@ -1,6 +1,9 @@
 class TaskService {
 
   constructor(user) {
+    if (!user)
+      throw new Error("ImplementationError! Cannot construct a task service without a user object. " +
+        "Check if user is passed as a parameter in all constructor calls.");
     this._user = user;
   }
 

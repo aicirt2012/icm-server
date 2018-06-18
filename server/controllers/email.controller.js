@@ -401,7 +401,7 @@ async function loadAndAppendLinkedTasks(email, user) {
   });
   const promises = [];
   if (user.taskProviders.trello.isEnabled) {
-    const trelloService = new TrelloService();
+    const trelloService = new TrelloService(user);
     tasks.filter(task => task.provider === Constants.taskProviders.trello)
       .forEach(task => {
         promises.push(
@@ -412,7 +412,7 @@ async function loadAndAppendLinkedTasks(email, user) {
       })
   }
   if (user.taskProviders.sociocortex.isEnabled) {
-    const sociocortexService = new SociocortexService();
+    const sociocortexService = new SociocortexService(user);
     tasks.filter(task => task.provider === Constants.taskProviders.sociocortex)
       .forEach(task => {
         promises.push(
