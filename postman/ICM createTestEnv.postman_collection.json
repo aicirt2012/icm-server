@@ -1,0 +1,321 @@
+{
+	"info": {
+		"_postman_id": "d5623d39-0f33-41d8-8c09-4b62df32bfff",
+		"name": "ICM createTestEnv",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Signup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a73fb17c-43f3-434e-ab10-9f4e6a2ab6e7",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\":\"Simon\",\n\t\"password\":\"test123\"\n}"
+				},
+				"url": {
+					"raw": "{{icm_url}}/users/signup",
+					"host": [
+						"{{icm_url}}"
+					],
+					"path": [
+						"users",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login and update token var",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2aa10b02-98d6-4f38-9982-c811d51e14d1",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Extract token from response\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.globals.set(\"icm_token\", jsonData.token);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\":\"Simon\",\n\t\"password\":\"test123\"\n}"
+				},
+				"url": {
+					"raw": "{{icm_url}}/auth/login",
+					"host": [
+						"{{icm_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Trello Configure",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "31450bdf-a17b-441f-8bc9-54c51ff42872",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{icm_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"sebisng2@gmail.com\",\n\t\"password\": \"\"\n}"
+				},
+				"url": {
+					"raw": "{{icm_url}}/tasks/providers/trello/configure",
+					"host": [
+						"{{icm_url}}"
+					],
+					"path": [
+						"tasks",
+						"providers",
+						"trello",
+						"configure"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Trello Setup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "425364b7-8fd0-4c0a-96d2-95eb6eba0cea",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{icm_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"token\": \"{{trello_token}}\"\n}"
+				},
+				"url": {
+					"raw": "{{icm_url}}/tasks/providers/trello/setup",
+					"host": [
+						"{{icm_url}}"
+					],
+					"path": [
+						"tasks",
+						"providers",
+						"trello",
+						"setup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Gmail Setup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3188f47a-796f-4c37-8cc6-8dffb787476c",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{icm_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"user\": \"sebisng2@gmail.com\",\r\n  \"password\": \"{{gmail_pw}}\",\r\n  \"host\": \"imap.gmail.com\",\r\n  \"port\": 993,\r\n  \"smtpHost\": \"smtp.gmail.com\",\r\n  \"smtpPort\": 465,\r\n  \"smtpDomains\": [\r\n    \"gmail.com\",\r\n    \"googlemail.com\"\r\n  ]\r\n}"
+				},
+				"url": {
+					"raw": "{{icm_url}}/users/me/provider/email/gmail",
+					"host": [
+						"{{icm_url}}"
+					],
+					"path": [
+						"users",
+						"me",
+						"provider",
+						"email",
+						"gmail"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sync All Mails",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "425364b7-8fd0-4c0a-96d2-95eb6eba0cea",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{icm_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"token\": \"{{trello_token}}\"\n}"
+				},
+				"url": {
+					"raw": "{{icm_url}}/boxes/syncAll",
+					"host": [
+						"{{icm_url}}"
+					],
+					"path": [
+						"boxes",
+						"syncAll"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "998d5d8c-e7a9-4101-899a-b8f68a1b24fc",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "966d3569-6d7a-428f-8c5d-37e3fe341f8c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "347050de-2887-410b-9707-eada2aa7e715",
+			"key": "icm_url",
+			"value": "http://localhost:4000/api",
+			"type": "string",
+			"description": ""
+		},
+		{
+			"id": "97d8c372-5c10-423a-be48-ddc0db0336a9",
+			"key": "trello_token",
+			"value": "ceb64d4aaa2c88e56d122f29a5f98d8814faf222339b90e5026d5adad4ff6592",
+			"type": "string",
+			"description": ""
+		},
+		{
+			"id": "04f8a57a-f5a5-404a-8279-5cbc4fe9e79c",
+			"key": "gmail_pw",
+			"value": "[enter pw here]",
+			"type": "string",
+			"description": ""
+		}
+	]
+}
