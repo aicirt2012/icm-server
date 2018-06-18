@@ -32,6 +32,7 @@ class TrelloService extends TaskService {
     this._user.taskProviders.trello.isEnabled = true;
     this._user.taskProviders.trello.trelloAccessToken = requestBody.token;
     const response = await this._user.save();
+    this._connector = new TrelloConnector(this._user.taskProviders.trello.trelloAccessToken);
     await this._connector.checkAccessToken();
     return response;
   }

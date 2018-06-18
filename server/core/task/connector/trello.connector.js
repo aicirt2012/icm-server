@@ -17,7 +17,8 @@ class TrelloConnector {
    */
   async checkAccessToken() {
     const url = this.buildURL('/tokens/' + this.config.accessToken, '');
-    return (await fetch(url)).json();
+    const response = await fetch(url);
+    return response.json();
   }
 
   /**
