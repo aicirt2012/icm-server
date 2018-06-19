@@ -10,8 +10,8 @@ class SociocortexAssembler {
       task.provider = Constants.taskProviders.sociocortex;
       task.providerId = sociocortexTask.id;
       task.parameters = [
-        {name: 'name', value: sociocortexTask.name},
-        {name: 'description', value: sociocortexTask.description},
+        {name: 'name', value: sociocortexTask.description},
+        {name: 'description', value: sociocortexTask.name},
         {name: 'due', value: sociocortexTask.dueDate},
         {name: 'case', value: sociocortexTask.case},
         {name: 'ownerId', value: sociocortexTask.owner ? sociocortexTask.owner.id : ""},
