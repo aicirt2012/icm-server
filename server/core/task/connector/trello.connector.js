@@ -113,7 +113,7 @@ class TrelloConnector {
    * list tasks in the list with the given id
    */
   async getTasks(listId) {
-    const params = {fields: "id,name,idList,idBoard,closed,desc,due,shortUrl"};
+    const params = {fields: "id,name,idList,idBoard,closed,desc,due,shortUrl", filter: "all"};
     const url = this.buildURL(`/lists/${listId}/cards`, params);
     return (await fetch(url)).json();
   }
