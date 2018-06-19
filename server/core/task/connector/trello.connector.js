@@ -44,7 +44,8 @@ class TrelloConnector {
   async getTask(id) {
     const params = {'members': 'true', 'board': 'true', 'list': 'true', 'stickers': 'true'};
     const url = this.buildURL(`/cards/${id}`, params);
-    return (await fetch(url)).json();
+    const response = await fetch(url);
+    return response.json();
   }
 
   /**
@@ -119,6 +120,7 @@ class TrelloConnector {
 
   /**
    * adds the given URL to the task with the given taskID
+   * returns the created attachment entity
    */
   async addAttachmentUrl(taskId, url) {
     const params = {url: url, name: "Link to ICM"};   // TODO append email to caption to enable multi user usage
