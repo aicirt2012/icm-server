@@ -70,7 +70,7 @@ class SociocortexService extends TaskService {
   }
 
   async link(sociocortexId, frontendUrl) {
-    const task = this.get(sociocortexId);
+    const task = await this.get(sociocortexId);
     if (task.getParameter('state') === Constants.sociocortexTaskStates.enabled) {
       this._connector.activateTask(sociocortexId, task.getParameter('resourceType'));
     }
@@ -83,13 +83,13 @@ class SociocortexService extends TaskService {
   }
 
   async completeTask(sociocortexId) {
-    const task = this.get(sociocortexId);
+    const task = await this.get(sociocortexId);
     const completedTask = await this._connector.completeTask(sociocortexId, task.getParameter('resourceType'));
     return SociocortexAssembler.Task.fromExternalObject(completedTask);
   }
 
   async terminateTask(sociocortexId) {
-    const task = this.get(sociocortexId);
+    const task = await this.get(sociocortexId);
     const terminatedTask = await this._connector.terminateTask(sociocortexId, task.getParameter('resourceType'));
     return SociocortexAssembler.Task.fromExternalObject(terminatedTask);
   }
