@@ -3,20 +3,17 @@ import Pattern from "../../models/pattern.model";
 
 class NERService {
 
-  _connector = new NERConnector();
+  constructor() {
+    this._connector = new NERConnector();
+  }
 
   async extractNamedEntities(email) {
-    console.log("Service: Loading patterns");
-    const patternDTOs = await getPatternDTOs(email.user);
-    console.log("Service: Got patterns");
     let namedEntities;
-    if (email.html) {
-      console.log("Service: Calling connector");
-      namedEntities = await this._connector.recognizeEntitiesInHtml(email._id, email.html, email.subject, patternDTOs).annotations;
-      console.log("Service: Connector call finished");
-    } else {
-      namedEntities = await this._connector.recognizeEntitiesInPlainText(email._id, email.text, email.subject, patternDTOs).annotations;
-    }
+    const patternDTOs = await getPatternDTOs(email.user);
+    if (email.html)
+      namedEntities = await this._connector.recognizeEntitiesInHtml(email._id, email.html, email.subject, patternDTOs);
+    else
+      namedEntities = await this._connector.recognizeEntitiesInPlainText(email._id, email.text, email.subject, patternDTOs);
     return namedEntities ? namedEntities.annotations : [];
   }
 
@@ -39,7 +36,6 @@ async function getPatternDTOs(userId) {
     label: pattern.pattern,
     isRegex: pattern.isRegex
   }));
-  console.log("Service Method: Returning Patterns");
   return patternDTOs;
 }
 

@@ -17,9 +17,7 @@ class NERConnector {
         'Content-Type': 'application/json'
       }
     };
-    console.log("Connector: Firing request");
     const response = await fetch(url, options);
-    console.log("Connector: Got a response");
     return response.json();
   }
 
