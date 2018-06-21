@@ -306,12 +306,14 @@ exports.delFlags = (req, res) => {
  */
 exports.getSingleMail = (req, res) => {
   const emailId = req.params.id;
+  let email;
 
   Email.findOne({_id: emailId}).populate('attachments')
     .lean()
     .then(mail => {
       // replace attachments
       mail = replaceInlineAttachmentsSrc(mail);
+      email = mail;
       // inject linked tasks
       mail = loadAndAppendLinkedTasks(mail, req.user);
       return mail;
@@ -335,13 +337,13 @@ exports.getSingleMail = (req, res) => {
       mail['suggestedData']['titles'].push(mail.subject);
       return mail;
     })
-    .then(email => {
-      res.status(200).send(email);
+    .then(mail => {
+      res.status(200).send(mail);
     })
     .catch((err) => {
-      if (mail) {
+      if (email) {
         // if at least loading of mail worked, reply with what we got
-        res.status(200).send(mail);
+        res.status(200).send(email);
         return;
       }
       res.status(400).send(err);
