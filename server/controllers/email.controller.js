@@ -7,7 +7,6 @@ import Socket from '../routes/socket';
 import NERService from "../core/analysis/ner.service";
 import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
-import Pattern from '../models/pattern.model'
 import Constants from '../../config/constants';
 import TrelloService from "../core/task/trello.service";
 import TaskService from "../core/task/task.service";
@@ -321,30 +320,14 @@ exports.getSingleMail = (req, res) => {
       return mail;
     })
     .then(mail => {
-      // get all patterns for current user
+      // run ner on current mail
       email = mail;
-      return Pattern.find({user: req.user});
+      return new NERService().extractNamedEntities(mail);
     })
-    .then(patterns => {
-      // transform patterns into the DTOs that the NER expects
-      let patternDTOs = [];
-      patterns.forEach(pattern => patternDTOs.push({
-        label: pattern.pattern,
-        isRegex: pattern.isRegex
-      }));
-      return patternDTOs;
-    })
-    .then(patternDTOs => {
-      // call the NER service
-      if (email.html)
-        return NERService.recognizeEntitiesInHtml(emailId, email.html, email.subject, patternDTOs);
-      else
-        return NERService.recognizeEntitiesInPlainText(emailId, email.text, email.subject, patternDTOs);
-    })
-    .then(resultDTO => {
-      email['annotations'] = resultDTO.annotations;
+    .then(namedEntities => {
+      email['annotations'] = namedEntities;
       let mentionedPersons = [];
-      resultDTO.annotations.filter(annotation => annotation.nerType === Constants.nerTypes.person)
+      namedEntities.filter(annotation => annotation.nerType === Constants.nerTypes.person)
         .forEach(personAnnotation =>
           mentionedPersons.push({
             fullName: personAnnotation.formattedValue,
@@ -432,16 +415,19 @@ async function loadAndAppendLinkedTasks(email, user) {
 // TODO
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
-    Email.updateAndGetOldAndUpdated(mail)
-      .spread((emailOld, boxOld, emailUpdated, boxUpdated) => {
-        // TODO new box numbers do not work properly
-        console.log('inside storeEmail...');
-        Socket.pushEmailUpdateToClient(emailOld, boxOld, emailUpdated, boxUpdated);
-        resolve(emailUpdated);
-      })
-      .catch(err => {
-        reject(err);
-      });
+    new NERService().extractNamedEntities(mail)
+      .then(namedEntities => {
+        mail.namedEntities = namedEntities;
+        Email.updateAndGetOldAndUpdated(mail)
+          .spread((emailOld, boxOld, emailUpdated, boxUpdated) => {
+            // TODO new box numbers do not work properly
+            console.log('inside storeEmail...');
+            Socket.pushEmailUpdateToClient(emailOld, boxOld, emailUpdated, boxUpdated);
+            resolve(emailUpdated);
+          })
+      }).catch(err => {
+      reject(err);
+    });
   });
 }
 

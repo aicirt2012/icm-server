@@ -1,37 +1,35 @@
-import config from '../../../config/env';
-import request from 'request-promise'
+import NERConnector from "./ner.connector";
+import Pattern from "../../models/pattern.model";
 
 class NERService {
 
-  static recognizeEntitiesInHtml(emailId, bodySource,subjectSource, patterns) {
+  nerConnector = new NERConnector();
 
-    let options = {
-      method: 'POST',
-      uri: config.analyticsConnectionUrl + '/recognize/html',
-      body: {
-        emailId: emailId,
-        bodySource: bodySource,
-        subjectSource:subjectSource,
-        patterns:patterns
-      },
-      json: true
-    };
-    return request(options);
+  async extractNamedEntities(email) {
+    // get all patterns for current user
+    const patterns = await Pattern.find({user: email.user});
+    // transform patterns into the DTOs that the NER expects
+    let patternDTOs = [];
+    patterns.forEach(pattern => patternDTOs.push({
+      label: pattern.pattern,
+      isRegex: pattern.isRegex
+    }));
+    // do the actual ner service calls and return result
+    let namedEntities;
+    if (email.html)
+      namedEntities = await this.nerConnector.recognizeEntitiesInHtml(email._id, email.html, email.subject, patternDTOs).annotations;
+    else
+      namedEntities = await this.nerConnector.recognizeEntitiesInPlainText(email._id, email.text, email.subject, patternDTOs).annotations;
+
+    return namedEntities ? namedEntities.annotations : [];
   }
 
-  static recognizeEntitiesInPlainText(emailId, bodySource,subjectSource, patterns) {
-    let options = {
-      method: 'POST',
-      uri: config.analyticsConnectionUrl + 'recognize/text',
-      body: {
-        emailId: emailId,
-        bodySource: bodySource,
-        subjectSource:subjectSource,
-        patterns:patterns
-      },
-      json: true
-    };
-    return request(options);
+  recognizeEntitiesInHtml(emailId, bodySource, subjectSource, patterns) {
+    return this.nerConnector.recognizeEntitiesInHtml(emailId, bodySource, subjectSource, patterns);
+  }
+
+  recognizeEntitiesInPlainText(emailId, bodySource, subjectSource, patterns) {
+    return this.nerConnector.recognizeEntitiesInPlainText(emailId, bodySource, subjectSource, patterns);
   }
 
 }
