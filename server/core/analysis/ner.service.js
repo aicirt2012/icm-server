@@ -3,35 +3,44 @@ import Pattern from "../../models/pattern.model";
 
 class NERService {
 
-  nerConnector = new NERConnector();
+  _connector = new NERConnector();
 
   async extractNamedEntities(email) {
-    // get all patterns for current user
-    const patterns = await Pattern.find({user: email.user});
-    // transform patterns into the DTOs that the NER expects
-    let patternDTOs = [];
-    patterns.forEach(pattern => patternDTOs.push({
-      label: pattern.pattern,
-      isRegex: pattern.isRegex
-    }));
-    // do the actual ner service calls and return result
+    console.log("Service: Loading patterns");
+    const patternDTOs = await getPatternDTOs(email.user);
+    console.log("Service: Got patterns");
     let namedEntities;
-    if (email.html)
-      namedEntities = await this.nerConnector.recognizeEntitiesInHtml(email._id, email.html, email.subject, patternDTOs).annotations;
-    else
-      namedEntities = await this.nerConnector.recognizeEntitiesInPlainText(email._id, email.text, email.subject, patternDTOs).annotations;
-
+    if (email.html) {
+      console.log("Service: Calling connector");
+      namedEntities = await this._connector.recognizeEntitiesInHtml(email._id, email.html, email.subject, patternDTOs).annotations;
+      console.log("Service: Connector call finished");
+    } else {
+      namedEntities = await this._connector.recognizeEntitiesInPlainText(email._id, email.text, email.subject, patternDTOs).annotations;
+    }
     return namedEntities ? namedEntities.annotations : [];
   }
 
   recognizeEntitiesInHtml(emailId, bodySource, subjectSource, patterns) {
-    return this.nerConnector.recognizeEntitiesInHtml(emailId, bodySource, subjectSource, patterns);
+    return this._connector.recognizeEntitiesInHtml(emailId, bodySource, subjectSource, patterns);
   }
 
   recognizeEntitiesInPlainText(emailId, bodySource, subjectSource, patterns) {
-    return this.nerConnector.recognizeEntitiesInPlainText(emailId, bodySource, subjectSource, patterns);
+    return this._connector.recognizeEntitiesInPlainText(emailId, bodySource, subjectSource, patterns);
   }
 
+}
+
+async function getPatternDTOs(userId) {
+  // get all patterns for current user
+  const patterns = await Pattern.find({user: userId});
+  // transform patterns into the DTOs that the NER expects
+  const patternDTOs = [];
+  patterns.forEach(pattern => patternDTOs.push({
+    label: pattern.pattern,
+    isRegex: pattern.isRegex
+  }));
+  console.log("Service Method: Returning Patterns");
+  return patternDTOs;
 }
 
 export default NERService;
