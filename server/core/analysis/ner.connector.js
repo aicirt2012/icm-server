@@ -22,7 +22,7 @@ class NERConnector {
   }
 
   async recognizeEntitiesInPlainText(emailId, bodySource, subjectSource, patterns) {
-    const url = config.analyticsConnectionUrl + 'recognize/text';
+    const url = config.analyticsConnectionUrl + '/recognize/text';
     const options = {
       method: 'POST',
       body: JSON.stringify({
