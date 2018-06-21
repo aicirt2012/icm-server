@@ -17,14 +17,6 @@ class NERService {
     return namedEntities ? namedEntities.annotations : [];
   }
 
-  recognizeEntitiesInHtml(emailId, bodySource, subjectSource, patterns) {
-    return this._connector.recognizeEntitiesInHtml(emailId, bodySource, subjectSource, patterns);
-  }
-
-  recognizeEntitiesInPlainText(emailId, bodySource, subjectSource, patterns) {
-    return this._connector.recognizeEntitiesInPlainText(emailId, bodySource, subjectSource, patterns);
-  }
-
 }
 
 async function getPatternDTOs(userId) {
