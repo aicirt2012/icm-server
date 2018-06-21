@@ -132,19 +132,19 @@ EmailSchema.index({
 });
 
 EmailSchema.statics.isUnseen = (email) => {
-  return email.flags.indexOf("\\Seen") == -1;
+  return email.flags.indexOf("\\Seen") === -1;
 };
 
 EmailSchema.statics.isSeenUnseenChanged = (emailOld, emailNew) => {
   return emailOld.flags != null && emailNew.flags != null
-    && Email.isUnseen(emailOld) != Email.isUnseen(emailNew);
+    && Email.isUnseen(emailOld) !== Email.isUnseen(emailNew);
 };
 
 
 /**
  * Updates or creates an email and
  * returns the old- and updated email
- * @param email
+ * @param mail
  * @return Promise resolve([oldMail, oldBox, updatedMail, , updatedBox])
  */
 EmailSchema.statics.updateAndGetOldAndUpdated = (mail) => {
@@ -219,6 +219,7 @@ EmailSchema.statics.lightEmail = (email) => {
 /**
  * Returns the searched email, this is meant to return also a simple mail list for every box
  * @param userId
+ * @param opt
  * @param opt.sort fild that will be used to sort e.g. ASC or DESC
  * @param opt.boxId
  * @param opt.search string to searchs
@@ -244,7 +245,7 @@ EmailSchema.statics.search = (userId, opt) => {
     query.boxes = {$in: [new mongoose.Types.ObjectId(boxId)]};
   }
 
-  if (search != null && search != '') {
+  if (search != null && search !== '') {
     // von:"mySubject" searchTerm
     // von: "mySubject" searchTerm
     // from:"mySubject" searchTerm
@@ -256,15 +257,15 @@ EmailSchema.statics.search = (userId, opt) => {
     const parsedSearch = search.match(/(\bfrom\b|\bvon\b|\bto\b|\ban\b): ?"([a-zA-Z\u00C0-\u017F0-9 ]*)"([a-zA-Z\u00C0-\u017F0-9 ]*)/);
 
     if (parsedSearch !== null) {
-      const from = (parsedSearch[1] == 'from' || parsedSearch[1] == 'von') ? parsedSearch[2] : null;
-      const to = (parsedSearch[1] == 'to' || parsedSearch[1] == 'an') ? parsedSearch[2] : null;
+      const from = (parsedSearch[1] === 'from' || parsedSearch[1] === 'von') ? parsedSearch[2] : null;
+      const to = (parsedSearch[1] === 'to' || parsedSearch[1] === 'an') ? parsedSearch[2] : null;
       const searchTerm = parsedSearch[3];
 
       if (from != null)
         query['from.name'] = new RegExp('.*' + from + '.*', "i");
       if (to != null)
         query['to.name'] = new RegExp('.*' + to + '.*', "i");
-      if (searchTerm != null && searchTerm != ' ' && searchTerm != '')
+      if (searchTerm != null && searchTerm !== ' ' && searchTerm !== '')
         query.$text = {$search: searchTerm};
     } else {
       query.$text = {$search: search};
@@ -282,7 +283,7 @@ EmailSchema.statics.search = (userId, opt) => {
       }
     },
     {$project: select},
-    {$sort: {date: sort == 'DESC' ? -1 : 1}},
+    {$sort: {date: sort === 'DESC' ? -1 : 1}},
     {$limit: 15}
   ]);
 
