@@ -2,9 +2,7 @@ import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate';
 import Promise from 'bluebird';
 import Box from './box.model';
-import config from '../../config/env';
 import GmailConnector from '../core/mail/GmailConnector';
-import _ from 'lodash';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const Mixed = mongoose.Schema.Types.Mixed;
@@ -69,7 +67,19 @@ const EmailSchema = new mongoose.Schema({
   labels: [String],
   attachments: [{type: ObjectId, ref: 'Attachment'}],
   inTrashbox: {type: ObjectId, ref: 'Box'},
-  nonInlineAttachments: Boolean
+  nonInlineAttachments: Boolean,
+  namedEntities: [{
+    value: String,
+    nerType: String,
+    textOrigin: String,
+    formattedValue: String,
+    ranges: [{
+      xPathStart: String,
+      xPathEnd: String,
+      offsetStart: Number,
+      offsetEnd: Number
+    }]
+  }]
 }, {
   timestamps: true
 });
@@ -123,12 +133,12 @@ EmailSchema.index({
 
 EmailSchema.statics.isUnseen = (email) => {
   return email.flags.indexOf("\\Seen") == -1;
-}
+};
 
 EmailSchema.statics.isSeenUnseenChanged = (emailOld, emailNew) => {
   return emailOld.flags != null && emailNew.flags != null
     && Email.isUnseen(emailOld) != Email.isUnseen(emailNew);
-}
+};
 
 
 /**
@@ -167,7 +177,7 @@ EmailSchema.statics.updateAndGetOldAndUpdated = (mail) => {
         reject(err);
       });
   });
-}
+};
 
 
 /**
@@ -183,7 +193,7 @@ EmailSchema.statics.autocomplete = (userId) => {
     {$project: {_id: 0, address: '$_id.address', name: '$_id.name'}},
     //{$match: {$or:[{address: /+search+/},{address: /fe/}]}} //TODO add vars
   ]);
-}
+};
 
 
 /**
@@ -204,7 +214,7 @@ EmailSchema.statics.lightEmail = (email) => {
     attachments: email.attachments,
     nonInlineAttachments: email.nonInlineAttachments
   }
-}
+};
 
 /**
  * Returns the searched email, this is meant to return also a simple mail list for every box
@@ -251,9 +261,9 @@ EmailSchema.statics.search = (userId, opt) => {
       const searchTerm = parsedSearch[3];
 
       if (from != null)
-        query['from.name'] = new RegExp('.*' + from + '.*', "i")
+        query['from.name'] = new RegExp('.*' + from + '.*', "i");
       if (to != null)
-        query['to.name'] = new RegExp('.*' + to + '.*', "i")
+        query['to.name'] = new RegExp('.*' + to + '.*', "i");
       if (searchTerm != null && searchTerm != ' ' && searchTerm != '')
         query.$text = {$search: searchTerm};
     } else {
@@ -263,12 +273,14 @@ EmailSchema.statics.search = (userId, opt) => {
 
   return Email.aggregate([
     {$match: query},
-    { $lookup: {
-      from: 'attachments',
-      localField: 'attachments',
-      foreignField: '_id',
-      as: "attachments"
-    }},
+    {
+      $lookup: {
+        from: 'attachments',
+        localField: 'attachments',
+        foreignField: '_id',
+        as: "attachments"
+      }
+    },
     {$project: select},
     {$sort: {date: sort == 'DESC' ? -1 : 1}},
     {$limit: 15}
@@ -281,7 +293,7 @@ EmailSchema.statics.search = (userId, opt) => {
       return results;
     })
   }*/
-}
+};
 
 EmailSchema.statics.filterNonTrash = (user, boxId, emails) => {
   return new Promise((resolve, reject) => {
@@ -307,11 +319,11 @@ EmailSchema.statics.filterNonTrash = (user, boxId, emails) => {
     }
 
   });
-}
+};
 
 EmailSchema.statics.removeByUserId = (userId) => {
-  return Email.find({user:userId}).remove().exec();
-}
+  return Email.find({user: userId}).remove().exec();
+};
 
 let Email = mongoose.model('Email', EmailSchema);
 export default Email;
