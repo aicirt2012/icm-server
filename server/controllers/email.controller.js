@@ -8,8 +8,8 @@ import NERService from "../core/analysis/ner.service";
 import GmailConnector from '../core/mail/GmailConnector';
 import EWSConnector from '../core/mail/EWSConnector';
 import Constants from '../../config/constants';
-import TrelloService from "../core/task/trello.service";
 import TaskService from "../core/task/task.service";
+import TrelloService from "../core/task/trello.service";
 import SociocortexService from "../core/task/sociocortex.service";
 
 
@@ -19,7 +19,7 @@ exports.sendEmail = (req, res) => {
 
     const emailConnector = req.user.createIMAPConnector();
     emailConnector.sendMail(req.body)
-      .then(result => {
+      .then(() => {
         return Box.findOne({name: EWSConnector.staticBoxNames.send, user: req.user});
       })
       .then(box => {
@@ -36,7 +36,7 @@ exports.sendEmail = (req, res) => {
   } else {
 
     req.user.createSMTPConnector().sendMail(req.body)
-      .then(result => {
+      .then(() => {
         return Box.findOne({name: GmailConnector.staticBoxNames.send, user: req.user});
       })
       .then(box => {
@@ -68,7 +68,7 @@ exports.append = (req, res) => {
       .spread((box, msgData) => {
         return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
       })
-      .spread((msgData, result) => {
+      .spread(() => {
         res.status(200).send({msgData: 'ok'});
       })
       .catch((err) => {
@@ -86,7 +86,7 @@ exports.append = (req, res) => {
       .spread((box, msgData) => {
         return [msgData, emailConnector.fetchBoxes(storeEmail, [box])]
       })
-      .spread((msgData, result) => {
+      .spread((msgData) => {
         res.status(200).send({msgData: msgData});
       })
       .catch((err) => {
@@ -114,7 +114,7 @@ exports.move = (req, res) => {
         const srcBox = email.boxes[0];
         return [srcBox, destBox, emailConnector.move(email, destBox.ewsId)]
       })
-      .spread((srcBox, destBox, msgId) => {
+      .spread((srcBox, destBox) => {
         return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
       })
       .then((messages) => {
@@ -136,7 +136,7 @@ exports.move = (req, res) => {
         const srcBox = email.boxes[0];
         return [srcBox, destBox, emailConnector.move(email.uid, srcBox.name, destBox.name)]
       })
-      .spread((srcBox, destBox, msgId) => {
+      .spread((srcBox, destBox) => {
         return emailConnector.fetchBoxes(storeEmail, [srcBox, destBox])
       })
       .then((messages) => {
@@ -182,7 +182,6 @@ exports.moveToTrash = (req, res) => {
 exports.addFlags = (req, res) => {
   const emailId = req.params.id;
   const flags = req.body.flags;
-  const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
 
@@ -241,7 +240,6 @@ exports.addFlags = (req, res) => {
 exports.delFlags = (req, res) => {
   const emailId = req.params.id;
   const flags = req.body.flags;
-  const user = req.user;
   const emailConnector = req.user.createIMAPConnector();
   let email = null;
 
@@ -494,20 +492,15 @@ exports.appendEnron = (req, res) => {
       // get all emails for this user;
       Email.find({user: user}).limit(3)
         .then((emails) => {
-
           // in which box to store these emails?
-
           // agregate boxes according to the folder names
 
           Box.findOne({name: EWSConnector.staticBoxNames.inbox, user: req.user})
             .then(box => {
-
               // filter emails without ewsItemId (exchange)
-              const emailsToAppend = emails.filter(email => !email.ewsItemId);
-              //console.log(emailsToAppend);
+              emails.filter(email => !email.ewsItemId);
 
               Promise.each(emails, (email) => {
-
                 req.body.boxId = box._id;
                 req.body.subject = email.subject;
                 req.body.msgData = email.text;
@@ -535,11 +528,7 @@ exports.appendEnron = (req, res) => {
                   console.log(err);
                   res.status(400).send(err);
                 });
-
             });
-
         });
-
     });
-
 };
