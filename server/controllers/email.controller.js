@@ -408,7 +408,8 @@ function storeEmail(mail) {
   return new Promise((resolve, reject) => {
     runEntityExtraction(mail)
       .catch(() => {
-        return mail;
+        console.warn("NER failed for email with id " + mail.messageId);   // TODO check if this works for exchange
+        return mail;  // continue with storing the email anyways
       })
       .then(mail => {
         Email.updateAndGetOldAndUpdated(mail)
