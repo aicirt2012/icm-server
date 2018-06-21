@@ -406,9 +406,11 @@ async function loadAndAppendLinkedTasks(email, user) {
 // TODO
 function storeEmail(mail) {
   return new Promise((resolve, reject) => {
-    new NERService().extractNamedEntities(mail)
-      .then(namedEntities => {
-        mail.namedEntities = namedEntities;
+    runEntityExtraction(mail)
+      .catch(() => {
+        return mail;
+      })
+      .then(mail => {
         Email.updateAndGetOldAndUpdated(mail)
           .spread((emailOld, boxOld, emailUpdated, boxUpdated) => {
             // TODO new box numbers do not work properly
@@ -420,6 +422,11 @@ function storeEmail(mail) {
       reject(err);
     });
   });
+}
+
+async function runEntityExtraction(mail) {
+  mail.namedEntities = await new NERService().extractNamedEntities(mail);
+  return mail;
 }
 
 exports.storeEmail = storeEmail;
