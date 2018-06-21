@@ -184,6 +184,102 @@
 			"response": []
 		},
 		{
+			"name": "Sociocortex Configure",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a360c5c0-b6ac-427c-9710-37a4383166e6",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"mustermann@test.sc\",\n\t\"password\": \"\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/providers/sociocortex/configure",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"providers",
+						"sociocortex",
+						"configure"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sociocortex Setup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "01e400af-0c1c-42a9-a0e7-c691a56ddefb",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/providers/sociocortex/setup",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"providers",
+						"sociocortex",
+						"setup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Gmail Setup",
 			"event": [
 				{
@@ -271,6 +367,161 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Link Trello Task 1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"provider\": \"trello\",\n\t\"providerId\": \"5afcc47a30d5afd6953c7a74\",\n\t\"email\": \"5b27a07eb57880890f16f8e4\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/link",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"link"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link Trello Task 2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"provider\": \"trello\",\n\t\"providerId\": \"5b29774184547134feab820a\",\n\t\"email\": \"5b27a07eb57880890f16f8e4\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/link",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"link"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link Trello Task 3",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"provider\": \"trello\",\n\t\"providerId\": \"5b29781514fffd48d7a0c9ee\",\n\t\"email\": \"5b27a07eb57880890f16f8e4\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/link",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"link"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link Sociocortex Task 1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"provider\": \"sociocortex\",\n\t\"providerId\": \"8llrpw1o4hde\",\n\t\"email\": \"5b27a07eb57880890f16f8e4\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/link",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"link"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Link Sociocortex Task 2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"provider\": \"sociocortex\",\n\t\"providerId\": \"dzhz4dq7d0tl\",\n\t\"email\": \"5b27a07eb57880890f16f8e4\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
+				},
+				"url": {
+					"raw": "{{baseurl}}/tasks/link",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"tasks",
+						"link"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
@@ -297,21 +548,21 @@
 	],
 	"variable": [
 		{
-			"id": "347050de-2887-410b-9707-eada2aa7e715",
+			"id": "1c19bcf5-0cd9-4997-b396-2710e88331e9",
 			"key": "icm_url",
 			"value": "http://localhost:4000/api",
 			"type": "string",
 			"description": ""
 		},
 		{
-			"id": "97d8c372-5c10-423a-be48-ddc0db0336a9",
+			"id": "35e39c7d-dce9-4157-bf05-09370cc1dc85",
 			"key": "trello_token",
 			"value": "ceb64d4aaa2c88e56d122f29a5f98d8814faf222339b90e5026d5adad4ff6592",
 			"type": "string",
 			"description": ""
 		},
 		{
-			"id": "04f8a57a-f5a5-404a-8279-5cbc4fe9e79c",
+			"id": "eab5c7b6-5ada-42a6-b1fb-06c4373e41bf",
 			"key": "gmail_pw",
 			"value": "[enter pw here]",
 			"type": "string",
