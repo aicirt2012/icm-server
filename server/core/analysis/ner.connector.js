@@ -7,12 +7,12 @@ class NERConnector {
     const url = config.analyticsConnectionUrl + '/recognize/html';
     const options = {
       method: 'POST',
-      body: {
+      body: JSON.stringify({
         emailId: emailId,
         bodySource: bodySource,
         subjectSource: subjectSource,
         patterns: patterns
-      },
+      }),
       headers: {
         'Content-Type': 'application/json'
       }
@@ -27,12 +27,12 @@ class NERConnector {
     const url = config.analyticsConnectionUrl + 'recognize/text';
     const options = {
       method: 'POST',
-      body: {
+      body: JSON.stringify({
         emailId: emailId,
         bodySource: bodySource,
         subjectSource: subjectSource,
         patterns: patterns
-      },
+      }),
       headers: {
         'Content-Type': 'application/json'
       }
