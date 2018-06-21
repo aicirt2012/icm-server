@@ -306,11 +306,10 @@ exports.delFlags = (req, res) => {
  */
 exports.getSingleMail = (req, res) => {
   const emailId = req.params.id;
-  let email;
 
   Email.findOne({_id: emailId}).populate('attachments')
     .lean()
-    .then((mail) => {
+    .then(mail => {
       // replace attachments
       mail = replaceInlineAttachmentsSrc(mail);
       // inject linked tasks
@@ -318,39 +317,31 @@ exports.getSingleMail = (req, res) => {
       return mail;
     })
     .then(mail => {
-      // run ner on current mail
-      email = mail;
-      return new NERService().extractNamedEntities(mail);
-    })
-    .then(namedEntities => {
-      email['annotations'] = namedEntities;
-      let mentionedPersons = [];
-      namedEntities.filter(annotation => annotation.nerType === Constants.nerTypes.person)
-        .forEach(personAnnotation =>
-          mentionedPersons.push({
-            fullName: personAnnotation.formattedValue,
+      // post-process named entities
+      mail['suggestedData'] = {
+        titles: mail.namedEntities
+          .filter(entity => entity.nerType === Constants.nerTypes.taskTitle)
+          .map(entity => entity.formattedValue),
+        dates: mail.namedEntities
+          .filter(entity => entity.nerType === Constants.nerTypes.date)
+          .map(entity => entity.formattedValue)
+          .sort((firstDate, secondDate) => new Date(secondDate) - new Date(firstDate)),
+        mentionedPersons: mail.namedEntities
+          .filter(annotation => annotation.nerType === Constants.nerTypes.person)
+          .map(entity => {
+            return {fullName: entity.formattedValue}
           })
-        );
-      email['suggestedData'] = {
-        titles: resultDTO.annotations
-          .filter(x => x.nerType === Constants.nerTypes.taskTitle)
-          .map(x => x.formattedValue),
-        dates: resultDTO.annotations
-          .filter(x => x.nerType === Constants.nerTypes.date)
-          .map(x => x.formattedValue)
-          .sort((a, b) => new Date(b) - new Date(a)),
-        mentionedPersons: mentionedPersons
       };
-      email['suggestedData']['titles'].push(email.subject);
-      return email;
+      mail['suggestedData']['titles'].push(mail.subject);
+      return mail;
     })
     .then(email => {
       res.status(200).send(email);
     })
     .catch((err) => {
-      if (email) {
+      if (mail) {
         // if at least loading of mail worked, reply with what we got
-        res.status(200).send(email);
+        res.status(200).send(mail);
         return;
       }
       res.status(400).send(err);
