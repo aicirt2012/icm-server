@@ -1,17 +1,18 @@
-import {
-  Strategy as TrelloStrategy
-} from 'passport-trello';
+import {Strategy as TrelloStrategy} from 'passport-trello';
 import config from '../env';
 import User from '../../server/models/user.model';
+import TrelloService from "../../server/core/task/trello.service";
 
 function verifyTrello(req, token, tokenSecret, profile, done) {
   User.findOne({
-    'trello.userEmail': profile.emails[0].value
+    'taskProviders.trello.isEnabled': false,
+    'taskProviders.trello.registrationEmail': profile.emails[0].value
   }, (err, user) => {
     if (err) {
       return done(err);
     }
     if (!user) {
+      //TODO logic from when icm login was possible through trello, can probably be removed
       user = new User();
       user.trello = {
         trelloId: profile.id,
@@ -29,17 +30,12 @@ function verifyTrello(req, token, tokenSecret, profile, done) {
         return done(null, user)
       });
     } else {
-      user.trello = {
-        trelloId: profile.id,
-        trelloAccessToken: token,
-        trelloAccessTokenSecret: tokenSecret,
-        userEmail: ""
-      };
-      user.save((err) => {
-        if (err) {
-          return done(err);
-        }
-        return done(null, user)
+      new TrelloService(user)
+        .setup({token: token})
+        .then(user => {
+          return done(null, user);
+        }).catch(err => {
+        return done(err);
       });
     }
   });
