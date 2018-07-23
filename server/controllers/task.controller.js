@@ -10,9 +10,7 @@ exports.configure = (req, res) => {
     .configure(req.body.email, req.body.password, req.body.additionalData)
     .then(data => {
       res.status(200).send(data);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+    }).catch(err => respondWithError(res, err));
 };
 
 exports.setup = (req, res) => {
@@ -20,9 +18,7 @@ exports.setup = (req, res) => {
     .setup(req.body)
     .then(data => {
       res.status(200).send(data);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+    }).catch(err => respondWithError(res, err));
 };
 
 exports.teardown = (req, res) => {
@@ -30,9 +26,7 @@ exports.teardown = (req, res) => {
     .teardown(req.body)
     .then(data => {
       res.status(200).send(data);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+    }).catch(err => respondWithError(res, err));
 };
 
 exports.createNewTask = (req, res) => {
@@ -44,15 +38,9 @@ exports.createNewTask = (req, res) => {
           Task.fromProvider(providerTask, email, req.user).save()
             .then(task => {
               res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
-            }).catch(err => {
-            res.status(400).send(err);
-          });
-        }).catch(err => {
-        res.status(400).send(err);
-      });
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+            }).catch(err => respondWithError(res, err));
+        }).catch(err => respondWithError(res, err));
+    }).catch(err => respondWithError(res, err));
 };
 
 exports.createLinkedTask = (req, res) => {
@@ -64,13 +52,9 @@ exports.createLinkedTask = (req, res) => {
           Task.fromProvider(providerTask, email, req.user).save()
             .then(task => {
               res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
-            }).catch(err => {
-            res.status(400).send(err);
-          })
+            }).catch(err => respondWithError(res, err))
         })
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+    }).catch(err => respondWithError(res, err));
 };
 
 exports.readTask = (req, res) => {
@@ -80,12 +64,8 @@ exports.readTask = (req, res) => {
         .get(task.providerId)
         .then(providerTask => {
           res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
-        }).catch(err => {
-        res.status(400).send(err);
-      });
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+        }).catch(err => respondWithError(res, err));
+    }).catch(err => respondWithError(res, err));
 };
 
 exports.updateTask = (req, res) => {
@@ -96,12 +76,8 @@ exports.updateTask = (req, res) => {
         .update(task.providerId, req.body)
         .then(providerTask => {
           res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
-        }).catch(err => {
-        res.status(400).send(err);
-      });
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+        }).catch(err => respondWithError(res, err));
+    }).catch(err => respondWithError(res, err));
 };
 
 exports.deleteTask = (req, res) => {
@@ -114,12 +90,8 @@ exports.deleteTask = (req, res) => {
             .then(data => {
               res.status(200).send(data);
             });
-        }).catch(err => {
-        res.status(400).send(err);
-      });
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+        }).catch(err => respondWithError(res, err));
+    }).catch(err => respondWithError(res, err));
 };
 
 exports.unlinkTask = (req, res) => {
@@ -132,12 +104,8 @@ exports.unlinkTask = (req, res) => {
             .then(data => {
               res.status(200).send(data);
             });
-        }).catch(err => {
-        res.status(400).send(err);
-      });
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+        }).catch(err => respondWithError(res, err));
+    }).catch(err => respondWithError(res, err));
 };
 
 exports.listTasks = (req, res) => {
@@ -152,9 +120,7 @@ exports.listTasks = (req, res) => {
           });
       });
       res.status(200).send(tasks);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+    }).catch(err => respondWithError(res, err));
 };
 
 exports.searchTasks = (req, res) => {
@@ -162,9 +128,7 @@ exports.searchTasks = (req, res) => {
   req.body.user = req.user._id;
   Task.find(req.body).then(tasks => {
     res.status(200).send(tasks);
-  }).catch(err => {
-    res.status(400).send(err);
-  });
+  }).catch(err => respondWithError(res, err));
 };
 
 exports.listExternalTasks = (req, res) => {
@@ -172,9 +136,7 @@ exports.listExternalTasks = (req, res) => {
     .list()
     .then(tasks => {
       res.status(200).send(tasks);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+    }).catch(err => respondWithError(res, err));
 };
 
 function getTaskService(providerName, user) {
@@ -186,4 +148,11 @@ function getTaskService(providerName, user) {
     default:
       throw new Error("No such task service: '" + providerName + "'.");
   }
+}
+
+function respondWithError(res, err) {
+  if (err && err.code && err.message)
+    res.status(err.code).send(err.message);
+  else
+    res.status(400).send(err);
 }

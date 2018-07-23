@@ -19,7 +19,10 @@ class TrelloService extends TaskService {
       'taskProviders.trello.registrationStarted': {$gt: new Date(Date.now() - 60000)},  // start date is less than 60 seconds ago
     });
     if (emailAlreadyInUse) {
-      throw new Error("Specified e-mail address currently in use for another registration process. Please wait 60 seconds and try again.");
+      const error = new Error("E-Mail already in use.");
+      error.code = 409;
+      error.message = "Specified e-mail address currently in use for another registration process. Please wait 60 seconds and try again.";
+      throw error;
     } else {
       this._user.taskProviders.trello.isEnabled = false;
       this._user.taskProviders.trello.registrationEmail = email;
