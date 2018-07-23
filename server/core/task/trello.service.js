@@ -14,14 +14,15 @@ class TrelloService extends TaskService {
 
   async configure(email, password, providerSpecificData) {
     const emailAlreadyInUse = await User.findOne({
+      _id: {$ne: this._user._id},
       'taskProviders.trello.isEnabled': false,
       'taskProviders.trello.registrationEmail': email,
       'taskProviders.trello.registrationStarted': {$gt: new Date(Date.now() - 60000)},  // start date is less than 60 seconds ago
     });
     if (emailAlreadyInUse) {
-      const error = new Error("E-Mail already in use.");
+      const error = new Error("e-mail already in use");
       error.code = 409;
-      error.message = "Specified e-mail address currently in use for another registration process. Please wait 60 seconds and try again.";
+      error.message = "Specified e-mail address is currently in use for another registration process. Please wait 60 seconds and try again.";
       throw error;
     } else {
       this._user.taskProviders.trello.isEnabled = false;
