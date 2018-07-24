@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "d5623d39-0f33-41d8-8c09-4b62df32bfff",
+		"_postman_id": "8f5e479f-1c5c-4c1e-b1a4-c233aef68599",
 		"name": "ICM createTestEnv",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -205,7 +205,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "JWT {{token}}"
+						"value": "JWT {{icm_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -217,9 +217,9 @@
 					"raw": "{\n\t\"email\": \"mustermann@test.sc\",\n\t\"password\": \"\"\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks/providers/sociocortex/configure",
+					"raw": "{{icm_url}}/tasks/providers/sociocortex/configure",
 					"host": [
-						"{{baseurl}}"
+						"{{icm_url}}"
 					],
 					"path": [
 						"tasks",
@@ -253,7 +253,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "JWT {{token}}"
+						"value": "JWT {{icm_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -265,9 +265,9 @@
 					"raw": "{}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks/providers/sociocortex/setup",
+					"raw": "{{icm_url}}/tasks/providers/sociocortex/setup",
 					"host": [
-						"{{baseurl}}"
+						"{{icm_url}}"
 					],
 					"path": [
 						"tasks",
@@ -369,13 +369,124 @@
 			"response": []
 		},
 		{
+			"name": "Update mail box ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "cc68652c-18e3-49d8-a7a4-8ec152354167",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Extract box id from response\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.globals.set(\"temp_box_id\", jsonData[0]._id);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{icm_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"token\": \"{{trello_token}}\"\n}"
+				},
+				"url": {
+					"raw": "{{icm_url}}/boxes",
+					"host": [
+						"{{icm_url}}"
+					],
+					"path": [
+						"boxes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update mail ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "84a95a14-8e4f-4d38-8f16-cac0baa2ce71",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Extract box id from response\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.globals.set(\"temp_mail_id\", jsonData[0]._id);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "JWT {{icm_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"token\": \"{{trello_token}}\"\n}"
+				},
+				"url": {
+					"raw": "{{icm_url}}/emails/search?boxId={{temp_box_id}}&sort=DESC&search=&lastEmailDate=Tue%20Jul%2024%202018%2016:50:33%20GMT+0200%20(Mitteleurop%C3%A4ische%20Sommerzeit)",
+					"host": [
+						"{{icm_url}}"
+					],
+					"path": [
+						"emails",
+						"search"
+					],
+					"query": [
+						{
+							"key": "boxId",
+							"value": "{{temp_box_id}}"
+						},
+						{
+							"key": "sort",
+							"value": "DESC"
+						},
+						{
+							"key": "search",
+							"value": ""
+						},
+						{
+							"key": "lastEmailDate",
+							"value": "Tue%20Jul%2024%202018%2016:50:33%20GMT+0200%20(Mitteleurop%C3%A4ische%20Sommerzeit)"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Link Trello Task 1",
 			"request": {
 				"method": "POST",
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "JWT {{token}}"
+						"value": "JWT {{icm_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -384,12 +495,12 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"provider\": \"trello\",\n\t\"providerId\": \"5afcc47a30d5afd6953c7a74\",\n\t\"email\": \"5b27a07eb57880890f16f8e4\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
+					"raw": "{\n\t\"provider\": \"trello\",\n\t\"providerId\": \"5afcc47a30d5afd6953c7a74\",\n\t\"email\": \"{{temp_mail_id}}\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks/link",
+					"raw": "{{icm_url}}/tasks/link",
 					"host": [
-						"{{baseurl}}"
+						"{{icm_url}}"
 					],
 					"path": [
 						"tasks",
@@ -406,7 +517,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "JWT {{token}}"
+						"value": "JWT {{icm_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -415,12 +526,12 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"provider\": \"trello\",\n\t\"providerId\": \"5b29774184547134feab820a\",\n\t\"email\": \"5b27a07eb57880890f16f8e4\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
+					"raw": "{\n\t\"provider\": \"trello\",\n\t\"providerId\": \"5b29774184547134feab820a\",\n\t\"email\": \"{{temp_mail_id}}\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks/link",
+					"raw": "{{icm_url}}/tasks/link",
 					"host": [
-						"{{baseurl}}"
+						"{{icm_url}}"
 					],
 					"path": [
 						"tasks",
@@ -437,7 +548,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "JWT {{token}}"
+						"value": "JWT {{icm_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -446,12 +557,12 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"provider\": \"trello\",\n\t\"providerId\": \"5b29781514fffd48d7a0c9ee\",\n\t\"email\": \"5b27a07eb57880890f16f8e4\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
+					"raw": "{\n\t\"provider\": \"trello\",\n\t\"providerId\": \"5b29781514fffd48d7a0c9ee\",\n\t\"email\": \"{{temp_mail_id}}\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks/link",
+					"raw": "{{icm_url}}/tasks/link",
 					"host": [
-						"{{baseurl}}"
+						"{{icm_url}}"
 					],
 					"path": [
 						"tasks",
@@ -468,7 +579,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "JWT {{token}}"
+						"value": "JWT {{icm_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -477,12 +588,12 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"provider\": \"sociocortex\",\n\t\"providerId\": \"8llrpw1o4hde\",\n\t\"email\": \"5b27a07eb57880890f16f8e4\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
+					"raw": "{\n\t\"provider\": \"sociocortex\",\n\t\"providerId\": \"8llrpw1o4hde\",\n\t\"email\": \"{{temp_mail_id}}\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks/link",
+					"raw": "{{icm_url}}/tasks/link",
 					"host": [
-						"{{baseurl}}"
+						"{{icm_url}}"
 					],
 					"path": [
 						"tasks",
@@ -499,7 +610,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "JWT {{token}}"
+						"value": "JWT {{icm_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -508,12 +619,12 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"provider\": \"sociocortex\",\n\t\"providerId\": \"dzhz4dq7d0tl\",\n\t\"email\": \"5b27a07eb57880890f16f8e4\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
+					"raw": "{\n\t\"provider\": \"sociocortex\",\n\t\"providerId\": \"dzhz4dq7d0tl\",\n\t\"email\": \"{{temp_mail_id}}\",\n\t\"frontendUrl\": \"http://localhost:3000/box/(boxId:5b27a07cb57880890f16f868//emailId:5b27a07eb57880890f16f8e4//context:context)\"\n}"
 				},
 				"url": {
-					"raw": "{{baseurl}}/tasks/link",
+					"raw": "{{icm_url}}/tasks/link",
 					"host": [
-						"{{baseurl}}"
+						"{{icm_url}}"
 					],
 					"path": [
 						"tasks",
@@ -548,21 +659,21 @@
 	],
 	"variable": [
 		{
-			"id": "1c19bcf5-0cd9-4997-b396-2710e88331e9",
+			"id": "1343f61e-54cd-46d5-8c50-cb0c5d8cfce7",
 			"key": "icm_url",
 			"value": "http://localhost:4000/api",
 			"type": "string",
 			"description": ""
 		},
 		{
-			"id": "35e39c7d-dce9-4157-bf05-09370cc1dc85",
+			"id": "e1a2e603-8c79-47e6-811f-7cfa20fd69ba",
 			"key": "trello_token",
 			"value": "ceb64d4aaa2c88e56d122f29a5f98d8814faf222339b90e5026d5adad4ff6592",
 			"type": "string",
 			"description": ""
 		},
 		{
-			"id": "eab5c7b6-5ada-42a6-b1fb-06c4373e41bf",
+			"id": "ef973ed3-de90-4889-a6a9-e59d805e3875",
 			"key": "gmail_pw",
 			"value": "[enter pw here]",
 			"type": "string",
