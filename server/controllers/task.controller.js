@@ -32,6 +32,10 @@ exports.teardown = (req, res) => {
 exports.createNewTask = (req, res) => {
   Email.findOne({_id: req.body.email, user: req.user._id})
     .then(email => {
+      if (email == null) {
+        respondWithError(res, "No such email.");
+        return;
+      }
       getTaskService(req.body.provider, req.user)
         .create(req.body)
         .then(providerTask => {
@@ -64,6 +68,10 @@ exports.createLinkedTask = (req, res) => {
 exports.readTask = (req, res) => {
   Task.findOne({_id: req.params.id, user: req.user._id})
     .then(task => {
+      if (task == null) {
+        respondWithError(res, "No such task.");
+        return;
+      }
       getTaskService(task.provider, req.user)
         .get(task.providerId)
         .then(providerTask => {
@@ -76,6 +84,10 @@ exports.updateTask = (req, res) => {
   // load task from DB to ensure correct current provider is used
   Task.findOne({_id: req.params.id, user: req.user._id})
     .then(task => {
+      if (task == null) {
+        respondWithError(res, "No such task.");
+        return;
+      }
       getTaskService(task.provider, req.user)
         .update(task.providerId, req.body)
         .then(providerTask => {
@@ -87,6 +99,10 @@ exports.updateTask = (req, res) => {
 exports.deleteTask = (req, res) => {
   Task.findOne({_id: req.params.id, user: req.user._id})
     .then(task => {
+      if (task == null) {
+        respondWithError(res, "No such task.");
+        return;
+      }
       getTaskService(task.provider, req.user)
         .delete(task.providerId)
         .then(() => {
@@ -101,6 +117,10 @@ exports.deleteTask = (req, res) => {
 exports.unlinkTask = (req, res) => {
   Task.findOne({_id: req.params.id, user: req.user._id})
     .then(task => {
+      if (task == null) {
+        respondWithError(res, "No such task.");
+        return;
+      }
       getTaskService(req.body.provider, req.user)
         .unlink(task.providerId, req.body.frontendUrl)
         .then(() => {
