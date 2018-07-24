@@ -396,8 +396,11 @@ async function loadAndAppendLinkedTasks(email, user) {
             }));
       })
   }
-  Promise.all(promises).then(updatedTasks => email.linkedTasks = updatedTasks);
-  return email;
+  return Promise.all(promises)
+    .then(updatedTasks => {
+      email.linkedTasks = updatedTasks;
+      return email;
+    });
 }
 
 
