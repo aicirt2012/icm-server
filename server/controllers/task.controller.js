@@ -46,6 +46,10 @@ exports.createNewTask = (req, res) => {
 exports.createLinkedTask = (req, res) => {
   Email.findOne({_id: req.body.email, user: req.user._id})
     .then(email => {
+      if (email == null) {
+        respondWithError(res, "No such email.");
+        return;
+      }
       getTaskService(req.body.provider, req.user)
         .link(req.body.providerId, req.body.frontendUrl)
         .then(providerTask => {
@@ -53,7 +57,7 @@ exports.createLinkedTask = (req, res) => {
             .then(task => {
               res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
             }).catch(err => respondWithError(res, err))
-        })
+        }).catch(err => respondWithError(res, err))
     }).catch(err => respondWithError(res, err));
 };
 
