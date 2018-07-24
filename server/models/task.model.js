@@ -14,12 +14,16 @@ const TaskSchema = new mongoose.Schema({
   thrid: String, // deprecated thread id, TODO fade-out this field
 
   // --- fields that are used but commented out on purpose so they don't get persisted to DB (mongoDB strict mode)
+  // name: String,
+  // due: String,
+  // isOpen: Boolean,
+  // assignees: String[],
   // parameters: [{
   //   name: String,
   //   type: String,
   //   constraints: String,
   //   value: Object,
-  //   defaultValues: [Object],
+  //   defaultValue: Object,
   //   isRequired: Boolean
   // }],
 }, {

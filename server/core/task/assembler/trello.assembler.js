@@ -9,11 +9,12 @@ class TrelloAssembler {
       const task = {};
       task.provider = Constants.taskProviders.trello;
       task.providerId = trelloTask.id;
+      task.name = trelloTask.name;
+      task.due = trelloTask.due;
+      task.isOpen = !trelloTask.closed;
+      task.assignees = trelloTask.idMembers;
       task.parameters = [
-        {name: 'name', value: trelloTask.name},
         {name: 'desc', value: trelloTask.desc},
-        {name: 'due', value: trelloTask.due},
-        {name: 'closed', value: trelloTask.closed},
         {name: 'idBoard', value: trelloTask.idBoard},
         {name: 'idList', value: trelloTask.idList},
         {name: 'idMembers', value: trelloTask.idMembers},
@@ -25,13 +26,13 @@ class TrelloAssembler {
     toExternalObject(task) {
       const trelloTask = {};
       trelloTask.id = task.providerId;
-      trelloTask.name = Task.getParameterValue(task.parameters, 'name');
+      trelloTask.name = task.name;
+      trelloTask.due = task.due;
+      trelloTask.closed = !task.isOpen;
+      trelloTask.idMembers = task.getParameterValue(task.parameters, 'idMembers');
       trelloTask.desc = Task.getParameterValue(task.parameters, 'desc');
-      trelloTask.due = Task.getParameterValue(task.parameters, 'due');
-      trelloTask.closed = Task.getParameterValue(task.parameters, 'closed');
       trelloTask.idBoard = Task.getParameterValue(task.parameters, 'idBoard');
       trelloTask.idList = Task.getParameterValue(task.parameters, 'idList');
-      trelloTask.idMembers = Task.getParameterValue(task.parameters, 'idMembers');
       trelloTask.shortUrl = Task.getParameterValue(task.parameters, 'shortUrl');
       return trelloTask;
     }

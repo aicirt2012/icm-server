@@ -9,13 +9,14 @@ class SociocortexAssembler {
       const task = {};
       task.provider = Constants.taskProviders.sociocortex;
       task.providerId = sociocortexTask.id;
+      task.name = sociocortexTask.name;
+      task.due = sociocortexTask.dueDate;
+      task.isOpen = sociocortexTask.state === Constants.sociocortexTaskStates.active;
+      task.assignees = sociocortexTask.owner ? [sociocortexTask.owner.email] : [];
       task.parameters = [
-        {name: 'name', value: sociocortexTask.description},
-        {name: 'description', value: sociocortexTask.name},
-        {name: 'due', value: sociocortexTask.dueDate},
+        {name: 'description', value: sociocortexTask.description},
         {name: 'case', value: sociocortexTask.case},
         {name: 'ownerId', value: sociocortexTask.owner ? sociocortexTask.owner.id : ""},
-        {name: 'ownerEmail', value: sociocortexTask.owner ? sociocortexTask.owner.email : ""},
         {name: 'state', value: sociocortexTask.state},
       ];
       // TODO parse and append the actual, dynamic parameters from sociocortex
@@ -25,13 +26,13 @@ class SociocortexAssembler {
     toExternalObject(task) {
       const sociocortexTask = {};
       sociocortexTask.id = task.providerId;
-      sociocortexTask.name = Task.getParameterValue(task.parameters, 'name');
+      sociocortexTask.name = task.name;
       sociocortexTask.description = Task.getParameterValue(task.parameters, 'description');
-      sociocortexTask.dueDate = Task.getParameterValue(task.parameters, 'due');
+      sociocortexTask.dueDate = task.due;
       sociocortexTask.case = Task.getParameterValue(task.parameters, 'case');
       sociocortexTask.owner = {
         id: Task.getParameterValue(task.parameters, 'ownerId'),
-        email: Task.getParameterValue(task.parameters, 'ownerEmail')
+        email: task.assignees[0]
       };
       sociocortexTask.state = Task.getParameterValue(task.parameters, 'state');
       // TODO parse and re-append the actual, dynamic parameters
