@@ -210,7 +210,8 @@ class SociocortexConnector {
   _checkResponse(response) {
     if (response.status >= 400) {
       const error = new Error("Error communicating with Sociocortex");
-      error.response = response;
+      error.status = response.status;
+      error.statusText = "SociocortexError: " + response.statusText;
       throw error;
     }
     return response.json();
