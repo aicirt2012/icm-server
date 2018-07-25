@@ -1,0 +1,172 @@
+{
+	"info": {
+		"_postman_id": "c7a9441b-6330-46c8-a8f5-5581b9ff831e",
+		"name": "SACM TestEnv",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "import workspaces",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "simulateuser",
+						"value": "mustermann@test.sc"
+					},
+					{
+						"key": "simulateuser",
+						"value": "sacm.admin@connecare.eu",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {}
+				},
+				"url": {
+					"raw": "{{SACMURL}}/import/workspaces?file=studyrelease.workspaces.test.xml",
+					"host": [
+						"{{SACMURL}}"
+					],
+					"path": [
+						"import",
+						"workspaces"
+					],
+					"query": [
+						{
+							"key": "file",
+							"value": "studyrelease.workspaces.test.xml"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "import casedefinition",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a4de5950-df66-4472-811b-adada45dccc3",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Extract case definition id from response\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.globals.set(\"temp_casedef_id\", jsonData.caseDefinition);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "simulateuser",
+						"value": "mustermann@test.sc"
+					},
+					{
+						"key": "executionuser",
+						"value": "charles.miller@professionals.assuta.org",
+						"disabled": true
+					},
+					{
+						"key": "executionuser",
+						"value": "sophie.werner@professionals.irbll.org",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {}
+				},
+				"url": {
+					"raw": "{{SACMURL}}/import/casedefinition?file=studyrelease.case.groningen.cs2.xml&version=1&isExecute=true&isDebug=false",
+					"host": [
+						"{{SACMURL}}"
+					],
+					"path": [
+						"import",
+						"casedefinition"
+					],
+					"query": [
+						{
+							"key": "file",
+							"value": "studyrelease.case.groningen.cs2.xml"
+						},
+						{
+							"key": "version",
+							"value": "1"
+						},
+						{
+							"key": "isExecute",
+							"value": "true"
+						},
+						{
+							"key": "isDebug",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create new case",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e6d3ab63-e8b9-43c6-8f78-000629662c43",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Extract case id from response\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.globals.set(\"temp_case_id\", jsonData.id);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "simulateuser",
+						"value": "mustermann@test.sc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"caseDefinition\":\"{{temp_casedef_id}}\"}"
+				},
+				"url": {
+					"raw": "{{SACMURL}}/cases",
+					"host": [
+						"{{SACMURL}}"
+					],
+					"path": [
+						"cases"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
