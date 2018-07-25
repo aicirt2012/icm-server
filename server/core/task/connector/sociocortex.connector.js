@@ -18,7 +18,7 @@ class SociocortexConnector {
   async getTask(id) {
     const options = this._buildOptions({});
     const url = this._buildURL(`/tasks/${id}`, '');
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   async draftTask(id, sociocortexTask) {
@@ -35,38 +35,38 @@ class SociocortexConnector {
         'Content-Type': 'application/json'
       }
     });
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   async searchTasks(params) {
     const url = this._buildURL('/search', params);
     const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   async getMyWorkspaces() {
     // TODO check if this really returns only MY workspaces or ALL; maybe rename method
     const url = this._buildURL('/workspaces', {});
     const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   async activateTask(id, taskType) {
     const url = this._buildURL('/' + taskType + '/' + id + '/activate', '');
     const options = this._buildOptions({method: 'POST'});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   async completeTask(id, taskType) {
     const url = this._buildURL('/' + taskType + '/' + id + '/complete', '');
     const options = this._buildOptions({method: 'POST'});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   async terminateTask(id, taskType) {
     const url = this._buildURL('/' + taskType + '/' + id + '/terminate', '');
     const options = this._buildOptions({method: 'POST'});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   /**
@@ -75,8 +75,7 @@ class SociocortexConnector {
   async checkConnection() {
     const url = this._buildURL('/users/me', '');
     const options = this._buildOptions({});
-    const response = (await fetch(url, options));
-    return response.json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   /**
@@ -93,9 +92,9 @@ class SociocortexConnector {
     const dualtaskRepsonse = await fetch(url, options);
 
     if (humantaskResponse.status === 200)
-      return humantaskResponse.json();
+      return this._checkResponse(humantaskResponse);
     else
-      return dualtaskRepsonse.json();
+      return this._checkResponse(dualtaskRepsonse);
   }
 
   /**
@@ -118,9 +117,9 @@ class SociocortexConnector {
     const dualtaskRepsonse = await fetch(url, options);
 
     if (humantaskResponse.status === 200)
-      return humantaskResponse.json();
+      return this._checkResponse(humantaskResponse);
     else
-      return dualtaskRepsonse.json();
+      return this._checkResponse(dualtaskRepsonse);
   }
 
   /**
@@ -137,27 +136,27 @@ class SociocortexConnector {
     const dualtaskRepsonse = await fetch(url, options);
 
     if (humantaskResponse.status === 200)
-      return humantaskResponse.json();
+      return this._checkResponse(humantaskResponse);
     else
-      return dualtaskRepsonse.json();
+      return this._checkResponse(dualtaskRepsonse);
   }
 
   async getCases(workspaceId) {
     const url = this._buildURL(`/workspaces/${workspaceId}/cases`, {});
     const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   async getTasks(caseId) {
     const url = this._buildURL(`/cases/${caseId}/humantasks/all`, {});
     const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   async getPossibleOwners(taskId) {
     const url = this._buildURL(`/processes/${taskId}/owner/autocomplete`, {});
     const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   // --- UNUSED METHODS ---
@@ -165,25 +164,25 @@ class SociocortexConnector {
   async getMyCases(workspaceId) {
     const url = this._buildURL(`/workspaces/${workspaceId}/cases/me`, {});
     const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   async getAllCases() {
     const url = this._buildURL('/cases', {});
     const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   async getAllMyCases() {
     const url = this._buildURL('/cases/me', {});
     const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   async getAllTasks(caseId) {
     const url = this._buildURL('/cases/' + caseId + "/humantasks/all", {});
     const options = this._buildOptions({});
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   // --- HELPER FUNCTIONS ---
@@ -206,6 +205,15 @@ class SociocortexConnector {
     options.headers.simulateuser = this.config.email;
     // TODO check if content type needed for empty bodies as well (test with get tasks)
     return options;
+  }
+
+  _checkResponse(response) {
+    if (response.status >= 400) {
+      const error = new Error("Error communicating with Sociocortex");
+      error.response = response;
+      throw error;
+    }
+    return response.json();
   }
 
 }

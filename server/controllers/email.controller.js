@@ -313,9 +313,6 @@ exports.getSingleMail = (req, res) => {
     .then(mail => {
       // replace attachments
       mail = replaceInlineAttachmentsSrc(mail);
-      email = mail;
-      // inject linked tasks
-      mail = loadAndAppendLinkedTasks(mail, req.user);
       return mail;
     })
     .then(mail => {
@@ -336,6 +333,11 @@ exports.getSingleMail = (req, res) => {
       };
       mail['suggestedData']['titles'].push(mail.subject);
       return mail;
+    })
+    .then(mail => {
+      email = mail;
+      // inject linked tasks
+      return loadAndAppendLinkedTasks(mail, req.user);
     })
     .then(mail => {
       res.status(200).send(mail);
@@ -382,7 +384,9 @@ async function loadAndAppendLinkedTasks(email, user) {
           trelloService.get(task.providerId)
             .then(trelloTask => {
               return TaskService.mergeTaskObjects(task, trelloTask)
-            }));
+            }).catch(() => {
+            // ignore errors
+          }));
       })
   }
   if (user.taskProviders.sociocortex.isEnabled) {
@@ -393,12 +397,14 @@ async function loadAndAppendLinkedTasks(email, user) {
           sociocortexService.get(task.providerId)
             .then(sociocortexTask => {
               return TaskService.mergeTaskObjects(task, sociocortexTask)
-            }));
+            }).catch(() => {
+            // ignore errors
+          }));
       })
   }
   return Promise.all(promises)
     .then(updatedTasks => {
-      email.linkedTasks = updatedTasks;
+      email.linkedTasks = updatedTasks.filter(task => task != null);
       return email;
     });
 }

@@ -16,9 +16,9 @@ class TrelloConnector {
    * check configured access token
    */
   async checkAccessToken() {
-    const url = this.buildURL('/tokens/' + this.config.accessToken, '');
+    const url = this._buildURL('/tokens/' + this.config.accessToken, '');
     const response = await fetch(url);
-    return response.json();
+    return this._checkResponse(response);
   }
 
   /**
@@ -27,7 +27,7 @@ class TrelloConnector {
    * @params {string} - name (desirable).
    */
   async createTask(trelloTask) {
-    const url = this.buildURL('/cards', '');
+    const url = this._buildURL('/cards', '');
     const options = {
       method: 'POST',
       body: JSON.stringify(trelloTask),
@@ -35,7 +35,7 @@ class TrelloConnector {
         'Content-Type': 'application/json'
       }
     };
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   /**
@@ -43,9 +43,9 @@ class TrelloConnector {
    */
   async getTask(id) {
     const params = {'members': 'true', 'board': 'true', 'list': 'true', 'stickers': 'true'};
-    const url = this.buildURL(`/cards/${id}`, params);
+    const url = this._buildURL(`/cards/${id}`, params);
     const response = await fetch(url);
-    return response.json();
+    return this._checkResponse(response);
   }
 
   /**
@@ -53,7 +53,7 @@ class TrelloConnector {
    * @params {string} - name (optional).
    */
   async updateTask(id, trelloTask) {
-    const url = this.buildURL(`/cards/${id}`, '');
+    const url = this._buildURL(`/cards/${id}`, '');
     const options = {
       method: 'PUT',
       body: JSON.stringify(trelloTask),
@@ -61,15 +61,15 @@ class TrelloConnector {
         'Content-Type': 'application/json'
       }
     };
-    return (await fetch(url, options)).json();
+    return this._checkResponse(await fetch(url, options));
   }
 
   /**
    * delete tasks
    */
   async deleteTask(id) {
-    const url = this.buildURL(`/cards/${id}`, '');
-    return (await fetch(url, {method: 'DELETE'})).json();
+    const url = this._buildURL(`/cards/${id}`, '');
+    return this._checkResponse(await fetch(url, {method: 'DELETE'}));
   }
 
   /**
@@ -82,8 +82,8 @@ class TrelloConnector {
       card_fields: "id,name,idList,idBoard,closed,desc,due,shortUrl",
       query: query ? "is:open," + query : "is:open"
     };
-    const url = this.buildURL('/search', params);
-    return (await fetch(url)).json();
+    const url = this._buildURL('/search', params);
+    return this._checkResponse(await fetch(url));
   }
 
   /**
@@ -96,8 +96,8 @@ class TrelloConnector {
       lists: "open",
       memberships: "none"
     };
-    const url = this.buildURL('/members/me/boards', params);
-    return (await fetch(url)).json();
+    const url = this._buildURL('/members/me/boards', params);
+    return this._checkResponse(await fetch(url));
   }
 
   /**
@@ -105,8 +105,8 @@ class TrelloConnector {
    */
   async listMembers(boardId) {
     const params = {fields: "id,fullName,username,initials,avatarUrl"};
-    const url = this.buildURL(`boards/${boardId}/members`, params);
-    return (await fetch(url)).json();
+    const url = this._buildURL(`boards/${boardId}/members`, params);
+    return this._checkResponse(await fetch(url));
   }
 
   /**
@@ -114,8 +114,8 @@ class TrelloConnector {
    */
   async getTasks(listId) {
     const params = {fields: "id,name,idList,idBoard,closed,desc,due,shortUrl", filter: "all"};
-    const url = this.buildURL(`/lists/${listId}/cards`, params);
-    return (await fetch(url)).json();
+    const url = this._buildURL(`/lists/${listId}/cards`, params);
+    return this._checkResponse(await fetch(url));
   }
 
   /**
@@ -124,15 +124,15 @@ class TrelloConnector {
    */
   async addAttachmentUrl(taskId, url) {
     const params = {url: url, name: "Link to ICM"};   // TODO append email to caption to enable multi user usage
-    const requestUrl = this.buildURL(`/cards/${taskId}/attachments`, params);
-    return (await fetch(requestUrl, {method: 'POST'})).json();
+    const requestUrl = this._buildURL(`/cards/${taskId}/attachments`, params);
+    return this._checkResponse(await fetch(requestUrl, {method: 'POST'}));
   }
 
   /**
    * removes the given URL from the task with the given taskID
    */
   async removeAttachmentUrl(taskId, url) {
-    const attachmentUrl = this.buildURL(`/cards/${taskId}/attachments`, '');
+    const attachmentUrl = this._buildURL(`/cards/${taskId}/attachments`, '');
     const response = await fetch(attachmentUrl);
     if (response.status === 404)
       return; // task not found, so no attachements to remove
@@ -141,22 +141,33 @@ class TrelloConnector {
     // TODO parallelize
     for (const attachment of attachments) {
       if (attachment.url === url) {
-        const requestUrl = this.buildURL(`/cards/${taskId}/attachments/${attachmentId}`, '');
-        await fetch(requestUrl, {method: 'DELETE'}).json();
+        const requestUrl = this._buildURL(`/cards/${taskId}/attachments/${attachmentId}`, '');
+        await this._checkResponse(fetch(requestUrl, {method: 'DELETE'}));
       }
     }
   }
 
-  buildURL(path, params) {
-    return `${this.config.baseURL}${path}?` + `key=${this.config.key}&` + `token=${this.config.accessToken}` + `${this.addQueries(params)}`;
+  // --- HELPER FUNCTIONS ---
+
+  _buildURL(path, params) {
+    return `${this.config.baseURL}${path}?` + `key=${this.config.key}&` + `token=${this.config.accessToken}` + `${this._addQueries(params)}`;
   }
 
-  addQueries(queries) {
+  _addQueries(queries) {
     let queryString = '&';
     Object.keys(queries).forEach((key) => {
       queryString += `${key}=${queries[key]}&`;
     });
     return queryString.slice(0, -1);
+  }
+
+  _checkResponse(response) {
+    if (response.status >= 400) {
+      const error = new Error("Error communicating with Trello");
+      error.response = response;
+      throw error;
+    }
+    return response.json();
   }
 
 }
