@@ -9,12 +9,12 @@ class SociocortexAssembler {
       const task = {};
       task.provider = Constants.taskProviders.sociocortex;
       task.providerId = sociocortexTask.id;
-      task.name = sociocortexTask.name;
+      task.name = sociocortexTask.description;
       task.due = sociocortexTask.dueDate;
       task.isOpen = sociocortexTask.state === Constants.sociocortexTaskStates.active;
       task.assignees = sociocortexTask.owner ? [sociocortexTask.owner.email] : [];
       task.parameters = [
-        {name: 'description', value: sociocortexTask.description},
+        {name: 'description', value: sociocortexTask.name},
         {name: 'case', value: sociocortexTask.case},
         {name: 'ownerId', value: sociocortexTask.owner ? sociocortexTask.owner.id : ""},
         {name: 'state', value: sociocortexTask.state},
