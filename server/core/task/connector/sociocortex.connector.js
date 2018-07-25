@@ -83,13 +83,13 @@ class SociocortexConnector {
    * updates the externalId field of any sociocortex task
    */
   async updateExternalId(taskId, value) {
-    const options = this._buildOptions({});
+    const options = this._buildOptions({method: 'POST'});
 
     // TODO make parallel
     // don't know if task is human or dual, so fire requests to both endpoints and check if we got a valid response
-    let url = this._buildURL('/humantasks/' + taskId + '/externalId/' + encodeURI(value), {});
+    let url = this._buildURL('/humantasks/' + taskId + '/externalId/' + encodeURIComponent(value), {});
     const humantaskResponse = await fetch(url, options);
-    url = this._buildURL('/dualtasks/' + taskId + '/externalId/' + encodeURI(value), {});
+    url = this._buildURL('/dualtasks/' + taskId + '/externalId/' + encodeURIComponent(value), {});
     const dualtaskRepsonse = await fetch(url, options);
 
     if (humantaskResponse.status === 200)
@@ -204,7 +204,6 @@ class SociocortexConnector {
     options = options ? options : {};
     options.headers = options.headers ? options.headers : {};
     options.headers.simulateuser = this.config.email;
-    // TODO check if content type needed for empty bodies as well (test with get tasks)
     return options;
   }
 
@@ -212,7 +211,7 @@ class SociocortexConnector {
     if (response.status >= 400) {
       const error = new Error("Error communicating with Sociocortex");
       error.status = response.status;
-      error.statusText = "SociocortexError: " + response.statusText;
+      error.statusText = response.statusText;
       throw error;
     }
     return response.json();

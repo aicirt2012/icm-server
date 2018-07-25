@@ -384,8 +384,11 @@ async function loadAndAppendLinkedTasks(email, user) {
           trelloService.get(task.providerId)
             .then(trelloTask => {
               return TaskService.mergeTaskObjects(task, trelloTask)
-            }).catch(() => {
-            // ignore errors
+            }).catch((err) => {
+            const errorOutput =
+              "Error while loading task " + task._id + " (trelloId: " + task.providerId + ") from Trello: "
+              + ((err.statusText && err.status) ? (err.statusText + " (" + err.status + ")") : err.message);
+            console.log(errorOutput);
           }));
       })
   }
@@ -397,8 +400,11 @@ async function loadAndAppendLinkedTasks(email, user) {
           sociocortexService.get(task.providerId)
             .then(sociocortexTask => {
               return TaskService.mergeTaskObjects(task, sociocortexTask)
-            }).catch(() => {
-            // ignore errors
+            }).catch((err) => {
+            const errorOutput =
+              "Error while loading task " + task._id + " (scId: " + task.providerId + ") from Sociocortex: "
+              + ((err.statusText && err.status) ? (err.statusText + " (" + err.status + ")") : err.message);
+            console.log(errorOutput);
           }));
       })
   }

@@ -165,7 +165,7 @@ class TrelloConnector {
     if (response.status >= 400) {
       const error = new Error("Error communicating with Trello");
       error.status = response.status;
-      error.statusText = "TrelloError: " + response.statusText;
+      error.statusText = response.statusText;
       throw error;
     }
     return response.json();
