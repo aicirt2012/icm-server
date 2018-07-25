@@ -11,6 +11,10 @@ class TaskService {
     // convert to plain object and re-append parameters to avoid mongo removing them before serialization
     const task = mongoTask.toObject();
     task.parameters = providerTask.parameters;
+    task.name = providerTask.name;
+    task.due = providerTask.due;
+    task.isOpen = providerTask.isOpen;
+    task.assignees = providerTask.assignees;
     return task;
   }
 
