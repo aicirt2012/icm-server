@@ -11,8 +11,9 @@ class SociocortexConnector {
   };
 
   constructor(email, password) {
-    this.config.email = email;
-    this.config.password = password;
+    // TODO enable usage of actual user credentials as soon as development is done
+    // this.config.email = email;
+    // this.config.password = password;
   }
 
   async getTask(id) {
