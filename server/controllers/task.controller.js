@@ -164,7 +164,7 @@ exports.listExternalTasks = (req, res) => {
 };
 
 function getTaskService(providerName, user) {
-  switch (providerName) {
+  switch (providerName.toLowerCase()) {
     case Constants.taskProviders.trello:
       return new TrelloService(user);
     case Constants.taskProviders.sociocortex:
