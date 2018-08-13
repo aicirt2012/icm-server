@@ -105,7 +105,7 @@ class TrelloConnector {
    */
   async listMembers(boardId) {
     const params = {fields: "id,fullName,username,initials,avatarUrl"};
-    const url = this._buildURL(`boards/${boardId}/members`, params);
+    const url = this._buildURL(`/boards/${boardId}/members`, params);
     return this._checkResponse(await fetch(url));
   }
 

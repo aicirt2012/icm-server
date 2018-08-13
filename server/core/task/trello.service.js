@@ -99,7 +99,7 @@ class TrelloService extends TaskService {
   }
 
   async getMembers(boardId) {
-    const members = await this._connector.getMembers(boardId);
+    const members = await this._connector.listMembers(boardId);
     members.forEach(trelloMember => TrelloAssembler.Member.fromExternalObject(trelloMember));
     return members;
   }
