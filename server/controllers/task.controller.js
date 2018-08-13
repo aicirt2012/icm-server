@@ -29,6 +29,18 @@ exports.teardown = (req, res) => {
     }).catch(err => respondWithError(res, err));
 };
 
+exports.readExternalTask = (req, res) => {
+  getTaskService(req.params.provider, req.user)
+    .get(req.params.providerId)
+    .then(providerTask => {
+      const task = new Task();
+      task.provider = req.params.provider;
+      task.providerId = req.params.providerId;
+      task.user = req.user;
+      res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
+    }).catch(err => respondWithError(res, err));
+};
+
 exports.createNewTask = (req, res) => {
   Email.findOne({_id: req.body.email, user: req.user._id})
     .then(email => {

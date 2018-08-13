@@ -79,6 +79,7 @@ function routeProvider(passport) {
   r.route('/tasks/providers/:id/configure').post(taskCtrl.configure);                                            //
   r.route('/tasks/providers/:id/setup').post(taskCtrl.setup);                                                    //
   r.route('/tasks/providers/:id/teardown').post(taskCtrl.teardown);                                              //
+  r.route('/tasks/providers/:provider/tasks/:providerId').get(taskCtrl.readExternalTask);                                              //
   r.route('/tasks').get(taskCtrl.listTasks);                                                                     //
   r.route('/tasks').post(taskCtrl.createNewTask);                                                                //
   r.route('/tasks/:id').get(taskCtrl.readTask);                                                                  //
