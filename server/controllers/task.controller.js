@@ -175,8 +175,10 @@ function getTaskService(providerName, user) {
 }
 
 function respondWithError(res, err) {
-  if (err && err.code && err.message)
+  if (err && err.code >= 100 && err.code < 600 && err.message)
     res.status(err.code).send(err.message);
+  else if (err && err.code === 'ETIMEDOUT')
+    res.status(503).send(err.message);
   else
     res.status(400).send(err);
 }
