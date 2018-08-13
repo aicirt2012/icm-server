@@ -17,7 +17,6 @@ class TrelloAssembler {
         {name: 'desc', value: trelloTask.desc},
         {name: 'idBoard', value: trelloTask.idBoard},
         {name: 'idList', value: trelloTask.idList},
-        {name: 'idMembers', value: trelloTask.idMembers},
         {name: 'shortUrl', value: trelloTask.shortUrl}
       ];
       return task;
@@ -29,7 +28,7 @@ class TrelloAssembler {
       trelloTask.name = task.name;
       trelloTask.due = task.due;
       trelloTask.closed = !task.isOpen;
-      trelloTask.idMembers = task.getParameterValue(task.parameters, 'idMembers');
+      trelloTask.idMembers = task.assignees;
       trelloTask.desc = Task.getParameterValue(task.parameters, 'desc');
       trelloTask.idBoard = Task.getParameterValue(task.parameters, 'idBoard');
       trelloTask.idList = Task.getParameterValue(task.parameters, 'idList');
@@ -55,16 +54,6 @@ class TrelloAssembler {
         closed: board.closed,
         lists: board.lists
       };
-    }
-  }();
-
-  static List = new class extends AbstractAssembler {
-    fromExternalObject(externalObject) {
-      throw new Error("Not yet implemented: Method 'fromExternalObject' for Lists.");
-    }
-
-    toExternalObject(internalObject) {
-      throw new Error("Not yet implemented: Method 'toExternalObject' for Lists.");
     }
   }();
 
