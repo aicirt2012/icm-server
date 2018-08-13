@@ -30,15 +30,15 @@ const TaskSchema = new mongoose.Schema({
   timestamps: true
 });
 
-TaskSchema.methods.getParameter = (parameterName) => {
+TaskSchema.methods.getParameter = function(parameterName) {
   return Task.getParameter(this.parameters, parameterName);
 };
 
-TaskSchema.methods.getParameterValue = (parameterName) => {
+TaskSchema.methods.getParameterValue = function(parameterName) {
   return Task.getParameterValue(this.parameters, parameterName);
 };
 
-TaskSchema.statics.getParameter = (parameters, parameterName) => {
+TaskSchema.statics.getParameter = function(parameters, parameterName) {
   let param = undefined;
   parameters.forEach(parameter => {
     if (parameter.name === parameterName)
@@ -47,7 +47,7 @@ TaskSchema.statics.getParameter = (parameters, parameterName) => {
   return param;
 };
 
-TaskSchema.statics.getParameterValue = (parameters, parameterName) => {
+TaskSchema.statics.getParameterValue = function(parameters, parameterName) {
   let value = undefined;
   parameters.forEach(parameter => {
     if (parameter.name === parameterName)
@@ -56,11 +56,11 @@ TaskSchema.statics.getParameterValue = (parameters, parameterName) => {
   return value;
 };
 
-TaskSchema.statics.removeByUserId = (userId) => {
+TaskSchema.statics.removeByUserId = function(userId) {
   return Task.find({user: userId}).remove().exec();
 };
 
-TaskSchema.statics.fromProvider = (providerTask, email, user) => {
+TaskSchema.statics.fromProvider = function(providerTask, email, user) {
   const task = new Task();
   task.provider = providerTask.provider;
   task.providerId = providerTask.providerId;
