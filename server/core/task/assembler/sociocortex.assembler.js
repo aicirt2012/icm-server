@@ -12,14 +12,13 @@ class SociocortexAssembler {
       task.name = sociocortexTask.description;
       task.due = sociocortexTask.dueDate;
       task.isOpen = sociocortexTask.state === Constants.sociocortexTaskStates.active;
-      task.assignees = sociocortexTask.owner ? [sociocortexTask.owner.email] : [];
+      task.assignees = sociocortexTask.owner ? [sociocortexTask.owner] : [];
       task.parameters = [
         {name: 'description', value: sociocortexTask.name},
         {name: 'case', value: sociocortexTask.case},
-        {name: 'ownerId', value: sociocortexTask.owner ? sociocortexTask.owner.id : ""},
         {name: 'state', value: sociocortexTask.state},
+        {name: 'contentParams', value: this.TaskParameters.fromExternalObject(sociocortexTask)}
       ];
-      // TODO parse and append the actual, dynamic parameters from sociocortex
       return task;
     }
 
@@ -30,13 +29,53 @@ class SociocortexAssembler {
       sociocortexTask.description = Task.getParameterValue(task.parameters, 'description');
       sociocortexTask.dueDate = task.due;
       sociocortexTask.case = Task.getParameterValue(task.parameters, 'case');
-      sociocortexTask.owner = {
-        id: Task.getParameterValue(task.parameters, 'ownerId'),
-        email: task.assignees[0]
-      };
+      sociocortexTask.owner = task.assignees.length > 0 ? task.assignees[0] : undefined;
       sociocortexTask.state = Task.getParameterValue(task.parameters, 'state');
-      // TODO parse and re-append the actual, dynamic parameters
+      sociocortexTask.taskParams = this.TaskParameters.toExternalObject(task);
       return sociocortexTask;
+    }
+
+    TaskParameters = new class extends AbstractAssembler {
+      fromExternalObject(task) {
+        if (!task.taskParams)
+          return [];
+        const dynamicParams = [];
+        task.taskParams.forEach(parameter => {
+          const parsedParam = {
+            id: parameter.id,
+            name: parameter.description,
+            description: parameter.additionalDescription,
+            values: parameter.values,
+            defaultValues: parameter.defaultValues,
+            multiplicity: parameter.multiplicity,
+            required: parameter.isMandatory,
+            readOnly: parameter.isReadOnly,
+          };
+          dynamicParams.push(parsedParam);
+        });
+        return dynamicParams;
+      }
+
+      toExternalObject(task) {
+        if (!Task.getParameterValue(task.parameters, 'contentParams'))
+          return [];
+        const taskParameters = [];
+        Task.getParameterValue(task.parameters, 'contentParams').forEach(parameter => {
+          const providerParameter = {
+            task: task.providerId,
+            id: parameter.id,
+            description: parameter.name,
+            additionalDescription: parameter.description,
+            values: parameter.values,
+            defaultValues: parameter.defaultValues,
+            multiplicity: parameter.multiplicity,
+            isMandatory: parameter.required,
+            isReadOnly: parameter.readOnly,
+          };
+          taskParameters.push(providerParameter);
+        });
+        return taskParameters;
+      }
     }
   }();
 
