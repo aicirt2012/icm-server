@@ -189,7 +189,7 @@ function getTaskService(providerName, user) {
 function respondWithError(res, err) {
   if (err && err.code >= 100 && err.code < 600 && err.message)
     res.status(err.code).send(err.message);
-  else if (err && (err.code === 'ETIMEDOUT' || err.code === 'EHOSTUNREACH' || err.code === 'ENOENT'))
+  else if (err && (err.code === 'ETIMEDOUT' || err.code === 'EHOSTUNREACH' || err.code === 'ENOENT' || err.code === 'ECONNREFUSED'))
   // trello or sociocortex timeout error; report gateway timeout
     res.status(504).send(err.message);
   else
