@@ -1,0 +1,1 @@
+docker exec sacm.mysql /usr/bin/mysqldump -u root --password=sc_test sociocortex | Set-Content backup.sql
