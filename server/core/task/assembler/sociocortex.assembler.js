@@ -36,6 +36,7 @@ class SociocortexAssembler {
     }
 
     TaskParameters = new class extends AbstractAssembler {
+      // noinspection JSUnusedGlobalSymbols
       fromExternalObject(task) {
         if (!task.taskParams)
           return [];
@@ -47,15 +48,19 @@ class SociocortexAssembler {
             description: parameter.additionalDescription,
             values: parameter.values,
             defaultValues: parameter.defaultValues,
-            multiplicity: parameter.multiplicity,
             required: parameter.isMandatory,
             readOnly: parameter.isReadOnly,
+            multiplicity: parameter.multiplicity,
+            type: parameter.attributeType,
+            constraints: parameter.attributeTypeConstraints,
+            uiReference: parameter.uiReference
           };
           dynamicParams.push(parsedParam);
         });
         return dynamicParams;
       }
 
+      // noinspection JSUnusedGlobalSymbols
       toExternalObject(task) {
         if (!Task.getParameterValue(task.parameters, 'contentParams'))
           return [];
@@ -68,9 +73,12 @@ class SociocortexAssembler {
             additionalDescription: parameter.description,
             values: parameter.values,
             defaultValues: parameter.defaultValues,
-            multiplicity: parameter.multiplicity,
             isMandatory: parameter.required,
             isReadOnly: parameter.readOnly,
+            multiplicity: parameter.multiplicity,
+            attributeType: parameter.type,
+            attributeTypeConstraints: parameter.constraints,
+            uiReference: parameter.uiReference,
           };
           taskParameters.push(providerParameter);
         });
