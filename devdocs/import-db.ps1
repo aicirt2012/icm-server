@@ -1,0 +1,1 @@
+cat backup.sql | docker exec -i sacm.mysql /usr/bin/mysql -u root --password=sc_test sociocortex
