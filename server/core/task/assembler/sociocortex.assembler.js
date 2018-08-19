@@ -105,15 +105,16 @@ class SociocortexAssembler {
   }();
 
   static Case = new class extends AbstractAssembler {
-    fromExternalObject(sociocortexCase) {
+    fromExternalObject(scCase) {
       return {
-        id: sociocortexCase.id,
-        client: sociocortexCase.client,
-        workspace: sociocortexCase.workspace,
-        description: sociocortexCase.description,
-        name: sociocortexCase.name,
-        state: sociocortexCase.state,
-        owner: sociocortexCase.owner
+        id: scCase.id,
+        client: scCase.client,
+        workspace: scCase.workspace,
+        description: scCase.description,
+        name: scCase.name,
+        state: scCase.state,
+        owner: scCase.owner,
+        friendlyName: scCase.description + " " + scCase.client.name + " (" + scCase.client.age + ")"
       }
     }
 
