@@ -137,7 +137,7 @@ class SociocortexAssembler {
       return {
         id: sociocortexUser.id,
         email: sociocortexUser.email,
-        name: sociocortexUser.name,
+        fullName: sociocortexUser.name,
         initials: this.getInitials(sociocortexUser.name)
       }
     }
@@ -156,7 +156,7 @@ class SociocortexAssembler {
       return {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.fullName,
         resourceType: "users"
       }
     }
