@@ -148,8 +148,8 @@ class SociocortexConnector {
     return this._checkResponse(await fetch(url, options));
   }
 
-  async getTasks(caseId) {
-    const url = this._buildURL(`/cases/${caseId}/humantasks/all`, {});
+  async getCaseTree(caseId) {
+    const url = this._buildURL(`/cases/${caseId}/tree?lean=true`, {});
     const options = this._buildOptions({});
     return this._checkResponse(await fetch(url, options));
   }

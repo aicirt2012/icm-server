@@ -119,10 +119,12 @@ class SociocortexService extends TaskService {
   }
 
   async getTasks(caseId) {
-    const response = await this._connector.getTasks(caseId);
-    const tasks = [];
-    response.forEach(sociocortexTask => {
-      tasks.push(SociocortexAssembler.Task.fromExternalObject(sociocortexTask[0]))
+    const response = await this._connector.getCaseTree(caseId);
+    let tasks = [];
+    response.children.forEach(caseChildArray => {
+      caseChildArray.forEach(caseChild => {
+        tasks = tasks.concat(this._extractTasks(caseChild));
+      });
     });
     return tasks;
   }
@@ -136,6 +138,18 @@ class SociocortexService extends TaskService {
     return users;
   }
 
+  _extractTasks(entity) {
+    let tasks = [];
+    if (entity.resourceType === 'humantasks' || entity.resourceType === 'dualtasks')
+      tasks.push(SociocortexAssembler.Task.fromExternalObject(entity));
+    else if (entity.resourceType === 'stages')
+      entity.children.forEach(childArray => {
+        childArray.forEach(child => {
+          tasks = tasks.concat(this._extractTasks(child));
+        })
+      });
+    return tasks;
+  }
 }
 
 export default SociocortexService;
