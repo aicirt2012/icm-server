@@ -87,26 +87,30 @@ class TrelloService extends TaskService {
   }
 
   async list() {
-    const tasks = await this._connector.searchTasks();
-    tasks.forEach(trelloTask => TrelloAssembler.Task.fromExternalObject(trelloTask));
+    const trelloTasks = await this._connector.searchTasks();
+    const tasks = [];
+    trelloTasks.forEach(trelloTask => tasks.push(TrelloAssembler.Task.fromExternalObject(trelloTask)));
     return tasks;
   }
 
   async listBoards() {
-    const boards = await this._connector.listMyBoards();
-    boards.forEach(trelloBoard => TrelloAssembler.Board.fromExternalObject(trelloBoard));
+    const trelloBoards = await this._connector.listMyBoards();
+    const boards = [];
+    trelloBoards.forEach(trelloBoard => boards.push(TrelloAssembler.Board.fromExternalObject(trelloBoard)));
     return boards;
   }
 
   async getMembers(boardId) {
-    const members = await this._connector.listMembers(boardId);
-    members.forEach(trelloMember => TrelloAssembler.Member.fromExternalObject(trelloMember));
+    const trelloMembers = await this._connector.listMembers(boardId);
+    const members = [];
+    trelloMembers.forEach(trelloMember => members.push(TrelloAssembler.Member.fromExternalObject(trelloMember)));
     return members;
   }
 
   async getTasks(listId) {
-    const tasks = await this._connector.getTasks(listId);
-    tasks.forEach(trelloTask => TrelloAssembler.Task.fromExternalObject(trelloTask));
+    const trelloTasks = await this._connector.getTasks(listId);
+    const tasks = [];
+    trelloTasks.forEach(trelloTask => tasks.push(TrelloAssembler.Task.fromExternalObject(trelloTask)));
     return tasks;
   }
 
