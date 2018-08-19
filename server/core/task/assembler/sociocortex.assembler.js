@@ -12,7 +12,7 @@ class SociocortexAssembler {
       task.name = sociocortexTask.description;
       task.due = sociocortexTask.dueDate;
       task.isOpen = sociocortexTask.state === Constants.sociocortexTaskStates.active;
-      task.assignees = sociocortexTask.owner ? [sociocortexTask.owner] : [];
+      task.assignees = sociocortexTask.owner ? [SociocortexAssembler.User.fromExternalObject(sociocortexTask.owner)] : [];
       task.parameters = [
         {name: 'description', value: sociocortexTask.name},
         {name: 'case', value: sociocortexTask.case},
@@ -137,8 +137,19 @@ class SociocortexAssembler {
       return {
         id: sociocortexUser.id,
         email: sociocortexUser.email,
-        name: sociocortexUser.name
+        name: sociocortexUser.name,
+        initials: this.getInitials(sociocortexUser.name)
       }
+    }
+
+    getInitials(name) {
+      if (name.indexOf(' ') > -1) {
+        let nameParts = name.split(' ');
+        return nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0);
+      } else if (name.length > 2)
+        return name.substring(0, 2);
+      else
+        return name;
     }
 
     toExternalObject(user) {

@@ -12,11 +12,12 @@ class TrelloAssembler {
       task.name = trelloTask.name;
       task.due = trelloTask.due;
       task.isOpen = !trelloTask.closed;
-      task.assignees = trelloTask.idMembers;
+      task.assignees = trelloTask.members;
       task.parameters = [
         {name: 'desc', value: trelloTask.desc},
         {name: 'idBoard', value: trelloTask.idBoard},
         {name: 'idList', value: trelloTask.idList},
+        {name: 'idMembers', value: trelloTask.idMembers},
         {name: 'shortUrl', value: trelloTask.shortUrl}
       ];
       return task;
@@ -28,10 +29,11 @@ class TrelloAssembler {
       trelloTask.name = task.name;
       trelloTask.due = task.due;
       trelloTask.closed = !task.isOpen;
-      trelloTask.idMembers = task.assignees;
+      trelloTask.members = task.assignees;
       trelloTask.desc = Task.getParameterValue(task.parameters, 'desc');
       trelloTask.idBoard = Task.getParameterValue(task.parameters, 'idBoard');
       trelloTask.idList = Task.getParameterValue(task.parameters, 'idList');
+      trelloTask.idMembers = Task.getParameterValue(task.parameters, 'idMembers');
       trelloTask.shortUrl = Task.getParameterValue(task.parameters, 'shortUrl');
       return trelloTask;
     }
@@ -63,7 +65,7 @@ class TrelloAssembler {
         id: trelloMember.id,
         fullName: trelloMember.fullName,
         userName: trelloMember.username,
-        initials: trelloMember.username,
+        initials: trelloMember.initials,
         avatarUrl: trelloMember.avatarUrl
       };
     }
@@ -73,7 +75,7 @@ class TrelloAssembler {
         id: member.id,
         fullName: member.fullName,
         userName: member.username,
-        initials: member.username,
+        initials: member.initials,
         avatarUrl: member.avatarUrl
       };
     }
