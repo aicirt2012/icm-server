@@ -114,7 +114,7 @@ class SociocortexAssembler {
         name: scCase.name,
         state: scCase.state,
         owner: scCase.owner,
-        friendlyName: scCase.description + " " + scCase.client.name + " (" + scCase.client.age + ")"
+        friendlyName: scCase.description + " - " + scCase.client.name + " (" + scCase.client.age + ")"
       }
     }
 
