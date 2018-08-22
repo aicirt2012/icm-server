@@ -84,7 +84,7 @@ class SociocortexConnector {
    * updates the externalId field of any sociocortex task
    */
   async updateExternalId(task, value) {
-    const taskType = Task.getParameter(task.parameters, "resourceType") === 'humantasks' ? 'humantasks' : 'dualtasks';
+    const taskType = Task.getParameter(task.parameters, "resourceType").value;
     const url = this._buildURL('/' + taskType + '/' + task.providerId + '/externalId', {});
     const options = this._buildOptions({
       method: 'POST',
@@ -100,7 +100,7 @@ class SociocortexConnector {
    * updates the dueDate field of any sociocortex task
    */
   async updateDueDate(task, date) {
-    const taskType = Task.getParameter(task.parameters, "resourceType") === 'humantasks' ? 'humantasks' : 'dualtasks';
+    const taskType = Task.getParameter(task.parameters, "resourceType").value;
     const url = this._buildURL('/' + taskType + '/' + task.providerId + '/duedate', {});
     const options = {
       method: 'POST',
@@ -116,7 +116,7 @@ class SociocortexConnector {
    * updates the owner field of any sociocortex task
    */
   async updateOwner(task, ownerId) {
-    const taskType = Task.getParameter(task.parameters, "resourceType") === 'humantasks' ? 'humantasks' : 'dualtasks';
+    const taskType = Task.getParameter(task.parameters, "resourceType").value;
     const url = this._buildURL('/' + taskType + '/' + task.providerId + '/owner/' + ownerId, {});
     const options = this._buildOptions({method: 'POST'});
     return this._checkResponse(await fetch(url, options));
