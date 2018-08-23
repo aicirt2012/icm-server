@@ -18,7 +18,9 @@ class TrelloAssembler {
         {name: 'idBoard', value: trelloTask.idBoard},
         {name: 'idList', value: trelloTask.idList},
         {name: 'idMembers', value: trelloTask.idMembers},
-        {name: 'shortUrl', value: trelloTask.shortUrl}
+        {name: 'shortUrl', value: trelloTask.shortUrl},
+        {name: 'board', value: TrelloAssembler.Board.fromExternalObject(trelloTask.board)},
+        {name: 'list', value: TrelloAssembler.List.fromExternalObject(trelloTask.list)}
       ];
       return task;
     }
@@ -45,17 +47,18 @@ class TrelloAssembler {
         id: trelloBoard.id,
         name: trelloBoard.name,
         closed: trelloBoard.closed,
-        lists: trelloBoard.lists
+        lists: trelloBoard.lists ? trelloBoard.lists.forEach(list => TrelloAssembler.List.fromExternalObject(list)) : []
       };
     }
+  }();
 
-    toExternalObject(board) {
+  static List = new class extends AbstractAssembler {
+    fromExternalObject(trelloList) {
       return {
-        id: board.id,
-        name: board.name,
-        closed: board.closed,
-        lists: board.lists
-      };
+        id: trelloList.id,
+        name: trelloList.name,
+        closed: trelloList.closed
+      }
     }
   }();
 
@@ -67,16 +70,6 @@ class TrelloAssembler {
         userName: trelloMember.username,
         initials: trelloMember.initials,
         avatarUrl: trelloMember.avatarUrl
-      };
-    }
-
-    toExternalObject(member) {
-      return {
-        id: member.id,
-        fullName: member.fullName,
-        userName: member.username,
-        initials: member.initials,
-        avatarUrl: member.avatarUrl
       };
     }
   }();
