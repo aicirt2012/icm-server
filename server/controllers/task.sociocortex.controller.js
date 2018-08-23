@@ -20,6 +20,16 @@ exports.getCases = (req, res) => {
   });
 };
 
+exports.getCase = (req, res) => {
+  new SociocortexService(req.user)
+    .getCase(req.params.id)
+    .then(scCase => {
+      res.status(200).send(scCase);
+    }).catch(err => {
+    res.status(400).send(err);
+  });
+};
+
 exports.getTasks = (req, res) => {
   new SociocortexService(req.user)
     .getTasks(req.params.id)

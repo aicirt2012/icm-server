@@ -128,6 +128,12 @@ class SociocortexConnector {
     return this._checkResponse(await fetch(url, options));
   }
 
+  async getCase(caseId) {
+    const url = this._buildURL(`/cases/${caseId}`, {});
+    const options = this._buildOptions({});
+    return this._checkResponse(await fetch(url, options));
+  }
+
   async getCaseTree(caseId) {
     const url = this._buildURL(`/cases/${caseId}/tree?lean=true`, {});
     const options = this._buildOptions({});
