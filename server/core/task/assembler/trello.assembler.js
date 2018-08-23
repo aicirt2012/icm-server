@@ -47,7 +47,7 @@ class TrelloAssembler {
         id: trelloBoard.id,
         name: trelloBoard.name,
         closed: trelloBoard.closed,
-        lists: trelloBoard.lists ? trelloBoard.lists.forEach(list => TrelloAssembler.List.fromExternalObject(list)) : []
+        lists: trelloBoard.lists ? trelloBoard.lists.map(list => TrelloAssembler.List.fromExternalObject(list)) : []
       };
     }
   }();
@@ -57,7 +57,8 @@ class TrelloAssembler {
       return {
         id: trelloList.id,
         name: trelloList.name,
-        closed: trelloList.closed
+        closed: trelloList.closed,
+        idBoard: trelloList.idBoard
       }
     }
   }();
