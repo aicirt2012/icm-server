@@ -19,8 +19,11 @@ class TrelloAssembler {
         {name: 'idList', value: trelloTask.idList},
         {name: 'idMembers', value: trelloTask.idMembers},
         {name: 'shortUrl', value: trelloTask.shortUrl},
-        {name: 'board', value: TrelloAssembler.Board.fromExternalObject(trelloTask.board)},
-        {name: 'list', value: TrelloAssembler.List.fromExternalObject(trelloTask.list)}
+        {name: 'list', value: trelloTask.list ? TrelloAssembler.List.fromExternalObject(trelloTask.list) : undefined},
+        {
+          name: 'board',
+          value: trelloTask.board ? TrelloAssembler.Board.fromExternalObject(trelloTask.board) : undefined
+        }
       ];
       return task;
     }
