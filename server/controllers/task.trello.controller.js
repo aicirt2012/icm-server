@@ -1,5 +1,6 @@
 import TrelloService from "../core/task/trello.service";
 import Task from "../models/task.model";
+import TaskService from "../core/task/task.service";
 
 exports.listBoards = (req, res) => {
   new TrelloService(req.user)
@@ -12,14 +13,18 @@ exports.listBoards = (req, res) => {
 };
 
 exports.archiveTask = (req, res) => {
+  const trelloService = new TrelloService(req.user);
   Task.findOne({_id: req.params.id, user: req.user._id})
-    .then(task => {
-      new TrelloService(req.user)
-        .update(task.providerId, req.body)
-        .then(providerTask => {
-          task = task.toObject();
-          task.parameters = providerTask.parameters;
-          res.status(200).send(task);
+    .then(icmTask => {
+      trelloService.get(icmTask.providerId)
+        .then(task => {
+          task.isOpen = false;
+          trelloService.update(icmTask.providerId, task)
+            .then(providerTask => {
+              res.status(200).send(TaskService.mergeTaskObjects(icmTask, providerTask));
+            }).catch(err => {
+            res.status(400).send(err);
+          });
         }).catch(err => {
         res.status(400).send(err);
       });
