@@ -49,18 +49,24 @@ class SociocortexService extends TaskService {
   async update(sociocortexId, task) {
     let sociocortexTask = await this.get(sociocortexId);
 
-    const updatedDynamicParams = task.getParameter("dynamicParameters");
-    if (updatedDynamicParams && sociocortexTask.getParameter("dynamicParameters").value !== updatedDynamicParams) {
-      const draftedSociocortexTask = SociocortexAssembler.Task.toExternalObject(task);
-      sociocortexTask = await this._connector.draftTask(sociocortexId, draftedSociocortexTask);
+    // console.log("task, scTask", task, sociocortexTask);
+    // const updatedContentParams = Task.getParameterValue(task.parameters, 'contentParams');
+    // const oldContentParams = Task.getParameterValue(sociocortexTask.parameters, 'contentParams');
+    // // console.log("updatedContentParams, scParams", updatedContentParams, oldContentParams);
+    // if (updatedContentParams !== oldContentParams) {
+    //   const draftedSociocortexTask = SociocortexAssembler.Task.toExternalObject(task);
+    //   sociocortexTask = await this._connector.draftTask(sociocortexId, draftedSociocortexTask);
+    // }
+    // FIXME timezone conversion problems: new Date("2018-08-30") != new Date("2018-08-30 00:00:00.0")
+    const updatedDueDate = task.due ? (new Date(task.due)).toISOString() : undefined;
+    const oldDueDate = sociocortexTask.due ? (new Date(sociocortexTask.due)).toISOString() : undefined;
+    if (updatedDueDate !== oldDueDate) {
+      await this._connector.updateDueDate(sociocortexTask, updatedDueDate);
     }
-    const updatedDueDate = task.getParameter("dueDate");
-    if (updatedDueDate && sociocortexTask.getParameter("dueDate").value !== updatedDueDate) {
-      sociocortexTask = await this._connector.updateDueDate(sociocortexTask, updatedDueDate);
-    }
-    const updatedOwnerId = task.getParameter("ownerId");
-    if (updatedOwnerId && sociocortexTask.getParameter("ownerId").value && sociocortexTask.getParameter("ownerId") !== updatedOwnerId) {
-      sociocortexTask = await this._connector.updateOwner(sociocortexTask, updatedOwnerId)
+    const updatedOwnerId = task.assignees && task.assignees.length > 0 ? task.assignees[0] : undefined;
+    const oldOwnerId = sociocortexTask.assignees && sociocortexTask.assignees.length > 0 ? sociocortexTask.assignees[0].id : undefined;
+    if (updatedOwnerId !== oldOwnerId) {
+      await this._connector.updateOwner(sociocortexTask, updatedOwnerId)
     }
     return SociocortexAssembler.Task.fromExternalObject(sociocortexTask);
   }

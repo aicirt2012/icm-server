@@ -102,13 +102,13 @@ class SociocortexConnector {
   async updateDueDate(task, date) {
     const taskType = Task.getParameter(task.parameters, "resourceType").value;
     const url = this._buildURL('/' + taskType + '/' + task.providerId + '/duedate', {});
-    const options = {
+    const options = this._buildOptions({
       method: 'POST',
       body: JSON.stringify({dueDate: date}),
       headers: {
         'Content-Type': 'application/json'
       }
-    };
+    });
     return this._checkResponse(await fetch(url, options));
   }
 
