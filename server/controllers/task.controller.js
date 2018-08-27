@@ -66,14 +66,21 @@ exports.createLinkedTask = (req, res) => {
         respondWithError(res, "No such email.");
         return;
       }
-      getTaskService(req.body.provider, req.user)
-        .link(req.body.providerId, req.body.frontendUrl)
-        .then(providerTask => {
-          Task.fromProvider(providerTask, email, req.user).save()
-            .then(task => {
-              res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
+      Task.findOne({user: req.user._id, provider: req.body.provider, providerId: req.body.providerId})
+        .then(task => {
+          if (task != null) {
+            respondWithError(res, "Task is already linked for current user. Provider: " + req.body.provider + ", ProviderId: " + req.body.providerId);
+            return;
+          }
+          getTaskService(req.body.provider, req.user)
+            .link(req.body.providerId, req.body.frontendUrl)
+            .then(providerTask => {
+              Task.fromProvider(providerTask, email, req.user).save()
+                .then(task => {
+                  res.status(200).send(TaskService.mergeTaskObjects(task, providerTask));
+                }).catch(err => respondWithError(res, err))
             }).catch(err => respondWithError(res, err))
-        }).catch(err => respondWithError(res, err))
+        }).catch(err => respondWithError(res, err));
     }).catch(err => respondWithError(res, err));
 };
 
