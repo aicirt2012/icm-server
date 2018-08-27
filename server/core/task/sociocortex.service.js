@@ -47,6 +47,7 @@ class SociocortexService extends TaskService {
   }
 
   async update(sociocortexId, task) {
+    const taskType = Task.getParameterValue(task.parameters, "resourceType");
     // update content parameters
     let sociocortexTask = await this._connector.draftTask(sociocortexId, SociocortexAssembler.Task.toExternalObject(task));
     sociocortexTask = SociocortexAssembler.Task.fromExternalObject(sociocortexTask);
@@ -55,13 +56,13 @@ class SociocortexService extends TaskService {
     const updatedDueDate = task.due ? (new Date(task.due)).toISOString() : undefined;
     const oldDueDate = sociocortexTask.due ? (new Date(sociocortexTask.due)).toISOString() : undefined;
     if (updatedDueDate !== oldDueDate) {
-      await this._connector.updateDueDate(sociocortexTask, updatedDueDate);
+      await this._connector.updateDueDate(taskType, sociocortexTask.providerId, updatedDueDate);
     }
     // update owner
     const updatedOwnerId = task.assignees && task.assignees.length > 0 ? task.assignees[0] : undefined;
     const oldOwnerId = sociocortexTask.assignees && sociocortexTask.assignees.length > 0 ? sociocortexTask.assignees[0].id : undefined;
     if (updatedOwnerId !== oldOwnerId) {
-      await this._connector.updateOwner(sociocortexTask, updatedOwnerId)
+      await this._connector.updateOwner(taskType, sociocortexTask.providerId, updatedOwnerId)
     }
     return this.get(sociocortexId);
   }
@@ -72,27 +73,31 @@ class SociocortexService extends TaskService {
 
   async link(sociocortexId, frontendUrl) {
     const task = await this.get(sociocortexId);
+    const taskType = Task.getParameterValue(task.parameters, "resourceType");
     if (Task.getParameter(task.parameters, 'state').value === Constants.sociocortexTaskStates.enabled) {
-      await this._connector.activateTask(sociocortexId, Task.getParameter(task.parameters, 'resourceType').value);
+      await this._connector.activateTask(sociocortexId, taskType);
     }
-    await this._connector.updateExternalId(task, frontendUrl);
+    await this._connector.updateExternalId(taskType, task.providerId, frontendUrl);
     return task;
   }
 
   async unlink(sociocortexId, frontendUrl) {
     const task = await this.get(sociocortexId);
-    await this._connector.updateExternalId(task, null);
+    const taskType = Task.getParameterValue(task.parameters, "resourceType");
+    await this._connector.updateExternalId(taskType, task.providerId, null);
   }
 
   async completeTask(sociocortexId) {
     const task = await this.get(sociocortexId);
-    const completedTask = await this._connector.completeTask(sociocortexId, Task.getParameter(task.parameters, 'resourceType').value);
+    const taskType = Task.getParameterValue(task.parameters, 'resourceType');
+    const sociocortexTask = SociocortexAssembler.Task.toExternalObject(task);
+    const completedTask = await this._connector.completeTask(sociocortexTask, taskType, task.providerId);
     return SociocortexAssembler.Task.fromExternalObject(completedTask);
   }
 
   async terminateTask(sociocortexId) {
     const task = await this.get(sociocortexId);
-    const terminatedTask = await this._connector.terminateTask(sociocortexId, Task.getParameter(task.parameters, 'resourceType').value);
+    const terminatedTask = await this._connector.terminateTask(sociocortexId, Task.getParameterValue(task.parameters, 'resourceType'));
     return SociocortexAssembler.Task.fromExternalObject(terminatedTask);
   }
 

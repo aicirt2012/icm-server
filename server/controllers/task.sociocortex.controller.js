@@ -1,4 +1,5 @@
 import SociocortexService from "../core/task/sociocortex.service";
+import Task from "../models/task.model";
 
 exports.listWorkspaces = (req, res) => {
   new SociocortexService(req.user)
@@ -51,10 +52,16 @@ exports.getPossibleOwners = (req, res) => {
 };
 
 exports.completeTask = (req, res) => {
-  new SociocortexService(req.user)
-    .completeTask(req.params.id)
+  Task.findOne({_id: req.params.id, user: req.user._id})
     .then(task => {
-      res.status(200).send(task);
+      new SociocortexService(req.user)
+        .completeTask(task.providerId)
+        .then(task => {
+          console.log(task);
+          res.status(200).send(task);
+        }).catch(err => {
+        res.status(400).send(err);
+      });
     }).catch(err => {
     res.status(400).send(err);
   });
