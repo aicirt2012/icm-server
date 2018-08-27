@@ -69,18 +69,9 @@ class SociocortexAssembler {
         const taskParameters = [];
         Task.getParameterValue(task.parameters, 'contentParams').forEach(parameter => {
           const providerParameter = {
-            task: task.providerId,
             id: parameter.id,
             description: parameter.name,
-            additionalDescription: parameter.description,
-            values: parameter.values,
-            defaultValues: parameter.defaultValues,
-            isMandatory: parameter.required,
-            isReadOnly: parameter.readOnly,
-            multiplicity: parameter.multiplicity,
-            attributeType: parameter.type,
-            attributeTypeConstraints: parameter.constraints,
-            uiReference: parameter.uiReference,
+            values: parameter.values
           };
           taskParameters.push(providerParameter);
         });

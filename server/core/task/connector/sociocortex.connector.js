@@ -28,7 +28,7 @@ class SociocortexConnector {
     if (sociocortexTask.resourceType === Constants.sociocortexTaskTypes.human) {
       url = this._buildURL(`/humantasks/${id}/draft`, '');
     } else {
-      url = this._buildURL(`/dualtasks/${id}/draft`, '');
+      url = this._buildURL(`/dualtasks/${id}/humanpart/draft`, '');
     }
     const options = this._buildOptions({
       method: 'POST',
@@ -37,6 +37,7 @@ class SociocortexConnector {
         'Content-Type': 'application/json'
       }
     });
+    console.log(JSON.stringify(sociocortexTask));
     return this._checkResponse(await fetch(url, options));
   }
 

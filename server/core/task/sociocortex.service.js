@@ -47,28 +47,23 @@ class SociocortexService extends TaskService {
   }
 
   async update(sociocortexId, task) {
-    let sociocortexTask = await this.get(sociocortexId);
-
-    // console.log("task, scTask", task, sociocortexTask);
-    // const updatedContentParams = Task.getParameterValue(task.parameters, 'contentParams');
-    // const oldContentParams = Task.getParameterValue(sociocortexTask.parameters, 'contentParams');
-    // // console.log("updatedContentParams, scParams", updatedContentParams, oldContentParams);
-    // if (updatedContentParams !== oldContentParams) {
-    //   const draftedSociocortexTask = SociocortexAssembler.Task.toExternalObject(task);
-    //   sociocortexTask = await this._connector.draftTask(sociocortexId, draftedSociocortexTask);
-    // }
+    // update content parameters
+    let sociocortexTask = await this._connector.draftTask(sociocortexId, SociocortexAssembler.Task.toExternalObject(task));
+    sociocortexTask = SociocortexAssembler.Task.fromExternalObject(sociocortexTask);
+    // update due date
     // FIXME timezone conversion problems: new Date("2018-08-30") != new Date("2018-08-30 00:00:00.0")
     const updatedDueDate = task.due ? (new Date(task.due)).toISOString() : undefined;
     const oldDueDate = sociocortexTask.due ? (new Date(sociocortexTask.due)).toISOString() : undefined;
     if (updatedDueDate !== oldDueDate) {
       await this._connector.updateDueDate(sociocortexTask, updatedDueDate);
     }
+    // update owner
     const updatedOwnerId = task.assignees && task.assignees.length > 0 ? task.assignees[0] : undefined;
     const oldOwnerId = sociocortexTask.assignees && sociocortexTask.assignees.length > 0 ? sociocortexTask.assignees[0].id : undefined;
     if (updatedOwnerId !== oldOwnerId) {
       await this._connector.updateOwner(sociocortexTask, updatedOwnerId)
     }
-    return SociocortexAssembler.Task.fromExternalObject(sociocortexTask);
+    return this.get(sociocortexId);
   }
 
   async delete(sociocortexId) {
