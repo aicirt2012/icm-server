@@ -66,7 +66,7 @@ exports.createLinkedTask = (req, res) => {
         respondWithError(res, "No such email.");
         return;
       }
-      Task.findOne({user: req.user._id, provider: req.body.provider, providerId: req.body.providerId})
+      Task.findOne({user: req.user._id, provider: req.body.provider.toLowerCase(), providerId: req.body.providerId})
         .then(task => {
           if (task != null) {
             respondWithError(res, "Task is already linked for current user. Provider: " + req.body.provider + ", ProviderId: " + req.body.providerId);
