@@ -4,51 +4,36 @@ import Task from "../models/task.model";
 exports.listWorkspaces = (req, res) => {
   new SociocortexService(req.user)
     .listWorkspaces()
-    .then(workspaces => {
-      res.status(200).send(workspaces);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+    .then(workspaces => res.status(200).send(workspaces))
+    .catch(err => res.status(400).send(err));
 };
 
 exports.getCases = (req, res) => {
   new SociocortexService(req.user)
     .getCases(req.params.id)
-    .then(cases => {
-      res.status(200).send(cases);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+    .then(cases => res.status(200).send(cases))
+    .catch(err => res.status(400).send(err));
 };
 
 exports.getCase = (req, res) => {
   new SociocortexService(req.user)
     .getCase(req.params.id)
-    .then(scCase => {
-      res.status(200).send(scCase);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+    .then(scCase => res.status(200).send(scCase))
+    .catch(err => res.status(400).send(err));
 };
 
 exports.getTasks = (req, res) => {
   new SociocortexService(req.user)
     .getTasks(req.params.id)
-    .then(tasks => {
-      res.status(200).send(tasks);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+    .then(tasks => res.status(200).send(tasks))
+    .catch(err => res.status(400).send(err));
 };
 
 exports.getPossibleOwners = (req, res) => {
   new SociocortexService(req.user)
     .getPossibleOwners(req.params.id)
-    .then(members => {
-      res.status(200).send(members);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+    .then(members => res.status(200).send(members))
+    .catch(err => res.status(400).send(err));
 };
 
 exports.completeTask = (req, res) => {
@@ -56,23 +41,17 @@ exports.completeTask = (req, res) => {
     .then(task => {
       new SociocortexService(req.user)
         .completeTask(task.providerId)
-        .then(task => {
-          console.log(task);
-          res.status(200).send(task);
-        }).catch(err => {
-        res.status(400).send(err);
-      });
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+        .then(task => res.status(200).send(task))
+        .catch(err => res.status(400).send(err));
+    }).catch(err => res.status(400).send(err));
 };
 
 exports.terminateTask = (req, res) => {
-  new SociocortexService(req.user)
-    .terminateTask(req.params.id)
+  Task.findOne({_id: req.params.id, user: req.user._id})
     .then(task => {
-      res.status(200).send(task);
-    }).catch(err => {
-    res.status(400).send(err);
-  });
+      new SociocortexService(req.user)
+        .terminateTask(task.providerId)
+        .then(task => res.status(200).send(task))
+        .catch(err => res.status(400).send(err));
+    }).catch(err => res.status(400).send(err));
 };
