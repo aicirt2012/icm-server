@@ -76,10 +76,9 @@ class TrelloService extends TaskService {
     return TrelloAssembler.Task.fromExternalObject(deletedTrelloTask);
   }
 
-  async link(trelloId, frontendUrl) {
-    const trelloTask = await this._connector.getTask(trelloId);
-    await this._connector.addAttachmentUrl(trelloId, frontendUrl);
-    return TrelloAssembler.Task.fromExternalObject(trelloTask);
+  async link(task) {
+    await this._connector.addAttachmentUrl(task.providerId, task.frontendUrl);
+    return await this.update(task.providerId, task);
   }
 
   async unlink(trelloId, frontendUrl) {

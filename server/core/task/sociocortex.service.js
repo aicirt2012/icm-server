@@ -38,7 +38,7 @@ class SociocortexService extends TaskService {
   }
 
   async create(task) {
-    return this.link(task.providerId, task.frontendUrl);
+    return this.link(task);
   }
 
   async get(sociocortexId) {
@@ -71,14 +71,15 @@ class SociocortexService extends TaskService {
     throw new Error("Task deletion is not supported by the Sociocortex service!");
   }
 
-  async link(sociocortexId, frontendUrl) {
-    const task = await this.get(sociocortexId);
+  async link(task) {
+    console.log(task.parameters);
     const taskType = Task.getParameterValue(task.parameters, "resourceType");
     if (Task.getParameter(task.parameters, 'state').value === Constants.sociocortexTaskStates.enabled) {
-      await this._connector.activateTask(sociocortexId, taskType);
+      await this._connector.activateTask(task.providerId, taskType);
     }
-    await this._connector.updateExternalId(taskType, task.providerId, frontendUrl);
-    return task;
+    await this._connector.updateExternalId(taskType, task.providerId, task.frontendUrl);
+    await this.update(task.providerId, task);
+    return await this.get(task.providerId);
   }
 
   async unlink(sociocortexId, frontendUrl) {

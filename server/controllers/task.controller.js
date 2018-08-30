@@ -73,7 +73,7 @@ exports.createLinkedTask = (req, res) => {
             return;
           }
           getTaskService(req.body.provider, req.user)
-            .link(req.body.providerId, req.body.frontendUrl)
+            .link(req.body)
             .then(providerTask => {
               Task.fromProvider(providerTask, email, req.user).save()
                 .then(task => {
