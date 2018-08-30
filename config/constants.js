@@ -12,8 +12,8 @@ const LINKED = 'linked';
 const BODY = 'BODY';
 const SUBJECT = 'SUBJECT';
 
-const HUMAN_TASK = 'HumanTask';
-const DUAL_TASK = 'DualTask';
+const HUMAN_TASK = 'humantasks';
+const DUAL_TASK = 'dualtasks';
 
 const ENABLED = 'ENABLED';
 const ACTIVE = 'ACTIVE';
