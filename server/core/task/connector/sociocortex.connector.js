@@ -1,4 +1,4 @@
-import Constants from "../../../../config/constants"
+import Constants from "../../../../config/constants";
 import fetch from "node-fetch";
 
 class SociocortexConnector {
