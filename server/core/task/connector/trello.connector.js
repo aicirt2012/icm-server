@@ -135,14 +135,13 @@ class TrelloConnector {
     const attachmentUrl = this._buildURL(`/cards/${taskId}/attachments`, '');
     const response = await fetch(attachmentUrl);
     if (response.status === 404)
-      return; // task not found, so no attachements to remove
+      return; // task not found, so no attachments to remove
     const attachments = await response.json();
-    let attachmentId = undefined;
     // TODO parallelize
     for (const attachment of attachments) {
       if (attachment.url === url) {
-        const requestUrl = this._buildURL(`/cards/${taskId}/attachments/${attachmentId}`, '');
-        await this._checkResponse(fetch(requestUrl, {method: 'DELETE'}));
+        const requestUrl = this._buildURL(`/cards/${taskId}/attachments/${attachment.id}`, '');
+        await this._checkResponse(await fetch(requestUrl, {method: 'DELETE'}));
       }
     }
   }
