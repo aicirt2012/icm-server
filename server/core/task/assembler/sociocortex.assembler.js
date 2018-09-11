@@ -11,12 +11,14 @@ class SociocortexAssembler {
       task.providerId = sociocortexTask.id;
       task.name = sociocortexTask.description;
       task.due = sociocortexTask.dueDate;
-      task.isOpen = sociocortexTask.state === Constants.sociocortexTaskStates.active;
+      task.isOpen = sociocortexTask.stateHumanPart ?
+        sociocortexTask.stateHumanPart === Constants.sociocortexTaskStates.active :
+        sociocortexTask.state === Constants.sociocortexTaskStates.active;
       task.assignees = sociocortexTask.owner ? [SociocortexAssembler.User.fromExternalObject(sociocortexTask.owner)] : [];
       task.parameters = [
         {name: 'description', value: sociocortexTask.name},
         {name: 'case', value: sociocortexTask.case},
-        {name: 'state', value: sociocortexTask.state},
+        {name: 'state', value: sociocortexTask.stateHumanPart ? sociocortexTask.stateHumanPart : sociocortexTask.state},
         {name: 'resourceType', value: sociocortexTask.resourceType},
         {name: 'contentParams', value: this.TaskParameters.fromExternalObject(sociocortexTask)}
       ];
