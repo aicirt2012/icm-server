@@ -1,6 +1,7 @@
 import TrelloService from "../core/task/trello.service";
 import Task from "../models/task.model";
 import TaskService from "../core/task/task.service";
+import constants from "../../config/constants";
 
 exports.listBoards = (req, res) => {
   new TrelloService(req.user)
@@ -32,6 +33,14 @@ exports.listMembers = (req, res) => {
 exports.getTasks = (req, res) => {
   new TrelloService(req.user)
     .getTasks(req.params.id)
-    .then(tasks => res.status(200).send(tasks))
-    .catch(err => res.status(400).send(err));
+    .then(tasks => {
+      Task.find({provider: constants.taskProviders.trello, user: req.user._id})
+        .then(linkedTasks => {
+          if (!linkedTasks)
+            linkedTasks = [];
+          const filteredTasks = tasks
+            .filter(task => !linkedTasks.some(linkedTask => task.providerId === linkedTask.providerId));
+          res.status(200).send(filteredTasks);
+        }).catch(err => res.status(400).send(err));
+    }).catch(err => res.status(400).send(err));
 };
