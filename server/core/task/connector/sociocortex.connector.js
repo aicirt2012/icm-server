@@ -58,8 +58,13 @@ class SociocortexConnector {
     return this._checkResponse(await fetch(url, options));
   }
 
-  async completeTask(task) {
-    const url = this._buildURL('/' + task.resourceType + '/' + task.id + '/humanpart/complete', '');
+  async completeTask(task, taskType, id) {
+    let url;
+    if (taskType === Constants.sociocortexTaskTypes.human) {
+      url = this._buildURL(`/humantasks/${id}/complete`, '');
+    } else {
+      url = this._buildURL(`/dualtasks/${id}/humanpart/complete`, '');
+    }
     const options = this._buildOptions({
       method: 'POST',
       body: JSON.stringify(task),
@@ -67,7 +72,6 @@ class SociocortexConnector {
         'Content-Type': 'application/json'
       }
     });
-    console.log(url, JSON.stringify(task));
     return this._checkResponse(await fetch(url, options));
   }
 
