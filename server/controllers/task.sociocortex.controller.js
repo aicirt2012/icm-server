@@ -1,5 +1,6 @@
 import SociocortexService from "../core/task/sociocortex.service";
 import Task from "../models/task.model";
+import constants from "../../config/constants";
 
 exports.listWorkspaces = (req, res) => {
   new SociocortexService(req.user)
@@ -25,7 +26,16 @@ exports.getCase = (req, res) => {
 exports.getTasks = (req, res) => {
   new SociocortexService(req.user)
     .getTasks(req.params.id)
-    .then(tasks => res.status(200).send(tasks))
+    .then(tasks => {
+      Task.find({provider: constants.taskProviders.sociocortex, user: req.user._id})
+        .then(linkedTasks => {
+          if (!linkedTasks)
+            linkedTasks = [];
+          const filteredTasks = tasks
+            .filter(task => !linkedTasks.some(linkedTask => task.providerId === linkedTask.providerId));
+          res.status(200).send(filteredTasks);
+        }).catch(err => res.status(400).send(err));
+    })
     .catch(err => res.status(400).send(err));
 };
 
