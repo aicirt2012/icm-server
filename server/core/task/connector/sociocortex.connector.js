@@ -4,16 +4,13 @@ import fetch from "node-fetch";
 class SociocortexConnector {
 
   config = {
-    baseURL: 'http://192.168.178.20:8084/api/v1',
-    // baseURL: 'http://localhost:8084/api/v1',
-    email: 'mustermann@test.sc',
-    password: ''
+    // baseURL: 'http://192.168.178.20:8084/api/v1',
+    baseURL: 'http://test.connecare.eu:8084/api/v1',
   };
 
   constructor(email, password) {
-    // TODO enable usage of actual user credentials as soon as development is done
-    // this.config.email = email;
-    // this.config.password = password;
+    this.config.email = email;
+    this.config.password = password;
   }
 
   async getTask(id) {
