@@ -53,14 +53,14 @@ class SociocortexService extends TaskService {
     sociocortexTask = SociocortexAssembler.Task.fromExternalObject(sociocortexTask);
     // update due date
     // FIXME timezone conversion problems: new Date("2018-08-30") != new Date("2018-08-30 00:00:00.0")
-    const updatedDueDate = task.due ? (new Date(task.due)).toISOString() : undefined;
-    const oldDueDate = sociocortexTask.due ? (new Date(sociocortexTask.due)).toISOString() : undefined;
+    const updatedDueDate = task.due ? (new Date(task.due)).toISOString() : null;
+    const oldDueDate = sociocortexTask.due ? (new Date(sociocortexTask.due)).toISOString() : null;
     if (updatedDueDate !== oldDueDate) {
       await this._connector.updateDueDate(taskType, sociocortexTask.providerId, updatedDueDate);
     }
     // update owner
-    const updatedOwnerId = task.assignees && task.assignees.length > 0 ? task.assignees[0] : undefined;
-    const oldOwnerId = sociocortexTask.assignees && sociocortexTask.assignees.length > 0 ? sociocortexTask.assignees[0].id : undefined;
+    const updatedOwnerId = task.assignees && task.assignees.length > 0 ? task.assignees[0] : null;
+    const oldOwnerId = sociocortexTask.assignees && sociocortexTask.assignees.length > 0 ? sociocortexTask.assignees[0].id : null;
     if (updatedOwnerId !== oldOwnerId) {
       await this._connector.updateOwner(taskType, sociocortexTask.providerId, updatedOwnerId)
     }
