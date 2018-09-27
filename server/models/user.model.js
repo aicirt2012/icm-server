@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt-nodejs';
 import mongoosePaginate from 'mongoose-paginate';
 import GmailConnector from '../core/mail/GmailConnector';
 import SMTPConnector from '../core/mail/SMTPConnector';
@@ -15,7 +15,7 @@ import TrainingData from './trainingData.model';
 const provider = {
   GMAIL: 'Gmail',
   EXCHANGE: 'Exchange'
-}
+};
 
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, index: true, unique: true},
