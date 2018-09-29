@@ -363,55 +363,15 @@ function replaceInlineAttachmentsSrc(email) {
 
 
 async function loadAndAppendLinkedTasks(email, user) {
-  // email.linkedTasks = [];
-  const tasks = await Task.find({
+  email.linkedTasks = await Task.find({
     $or: [{
       email: email._id
     }, {
-      thrid: email.thrid
+      threadId: email.thrid
     }],
     user: user._id
   });
-  email.linkedTasks = tasks;
   return email;
-  // const promises = [];
-  // if (user.taskProviders.trello.isEnabled) {
-  //   const trelloService = new TrelloService(user);
-  //   tasks.filter(task => task.provider === Constants.taskProviders.trello)
-  //     .forEach(task => {
-  //       promises.push(
-  //         trelloService.get(task.providerId)
-  //           .then(trelloTask => {
-  //             return TaskService.mergeTaskObjects(task, trelloTask)
-  //           }).catch((err) => {
-  //           const errorOutput =
-  //             "Error while loading task " + task._id + " (trelloId: " + task.providerId + ") from Trello: "
-  //             + ((err.statusText && err.status) ? (err.statusText + " (" + err.status + ")") : err.message);
-  //           console.log(errorOutput);
-  //         }));
-  //     })
-  // }
-  // if (user.taskProviders.sociocortex.isEnabled) {
-  //   const sociocortexService = new SociocortexService(user);
-  //   tasks.filter(task => task.provider === Constants.taskProviders.sociocortex)
-  //     .forEach(task => {
-  //       promises.push(
-  //         sociocortexService.get(task.providerId)
-  //           .then(sociocortexTask => {
-  //             return TaskService.mergeTaskObjects(task, sociocortexTask)
-  //           }).catch((err) => {
-  //           const errorOutput =
-  //             "Error while loading task " + task._id + " (scId: " + task.providerId + ") from Sociocortex: "
-  //             + ((err.statusText && err.status) ? (err.statusText + " (" + err.status + ")") : err.message);
-  //           console.log(errorOutput);
-  //         }));
-  //     })
-  // }
-  // return Promise.all(promises)
-  //   .then(updatedTasks => {
-  //     email.linkedTasks = updatedTasks.filter(task => task != null);
-  //     return email;
-  //   });
 }
 
 
