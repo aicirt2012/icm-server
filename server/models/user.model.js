@@ -18,10 +18,10 @@ const provider = {
 };
 
 const UserSchema = new mongoose.Schema({
-  username: { type: String, required: true, index: true, unique: true},
+  username: {type: String, required: true, index: true, unique: true},
   email: {type: String, unique: true, sparse: true}, //TODO check if can be removed
-  password: { type: String, required: true },
-  provider: { type: String, enum: [provider.GMAIL, provider.EXCHANGE], default: provider.GMAIL},
+  password: {type: String, required: true},
+  provider: {type: String, enum: [provider.GMAIL, provider.EXCHANGE], default: provider.GMAIL},
   // TODO refactor these provider. Put them inside taskProviders
   trello: {
     trelloAccessTokenSecret: String,
@@ -37,11 +37,11 @@ const UserSchema = new mongoose.Schema({
     gmail: {
       user: String,
       password: String,
-      host: { type: String, default: 'imap.gmail.com' },
-      port: { type: Number, default: 993 },
-      smtpHost: { type: String, default: 'smtp.gmail.com' },
-      smtpPort: { type: Number, default: 465 },
-      smtpDomains: { type: [String], default: ['gmail.com', 'googlemail.com'] },
+      host: {type: String, default: 'imap.gmail.com'},
+      port: {type: Number, default: 993},
+      smtpHost: {type: String, default: 'smtp.gmail.com'},
+      smtpPort: {type: Number, default: 465},
+      smtpDomains: {type: [String], default: ['gmail.com', 'googlemail.com']},
       highestmodseq: String,
       googleId: String,
       googleAccessToken: String,
@@ -50,13 +50,13 @@ const UserSchema = new mongoose.Schema({
     exchange: {
       user: String,
       password: String,
-      host: { type: String, default: 'xmail.mwn.de' },
+      host: {type: String, default: 'xmail.mwn.de'},
     }
   },
   // TODO put providers here
   taskProviders: {
     trello: {
-      isEnabled: { type: Boolean, default: false },
+      isEnabled: {type: Boolean, default: false},
       trelloAccessTokenSecret: String,
       trelloAccessToken: String,
       trelloId: String,
@@ -64,21 +64,21 @@ const UserSchema = new mongoose.Schema({
       registrationStarted: Date
     },
     sociocortex: {
-      isEnabled: { type: Boolean, default: false },
+      isEnabled: {type: Boolean, default: false},
       email: String,
       password: String
     },
   },
   contactProvider: {
     socioCortex: {
-      isEnabled: { type: Boolean, default: false },
+      isEnabled: {type: Boolean, default: false},
       email: String,
       password: String,
       baseURL: {type: String, default: 'https://wwwmatthes.in.tum.de/api/v1'},
     }
   },
   displayName: String,
-  lastSync: { type: Date, default: null }
+  lastSync: {type: Date, default: null}
 }, {
   timestamps: true
 });
@@ -87,11 +87,11 @@ UserSchema.pre('save', function (next) {
   let user = this;
   if (!user.isModified('password')) return next();
 
-  bcrypt.genSalt(10, (err, salt) => {
+  bcrypt.genSalt(10, function (err, salt) {
     if (err) {
       return next(err);
     }
-    bcrypt.hash(user.password, salt, (err, hash) => {
+    bcrypt.hash(user.password, salt, null, function (err, hash) {
       if (err) {
         return next(err);
       }
@@ -103,7 +103,7 @@ UserSchema.pre('save', function (next) {
 
 UserSchema.method({
   comparePassword: function (password, cb) {
-    bcrypt.compare(password, this.password, (err, isMatch) => {
+    bcrypt.compare(password, this.password, function (err, isMatch) {
       if (err) {
         return cb(err);
       }
@@ -111,18 +111,18 @@ UserSchema.method({
     });
   },
   createIMAPConnector: function () {
-    if(this.isGMailProvider()){
+    if (this.isGMailProvider()) {
       return new GmailConnector(this);
-    }else if(this.isExchangeProvider()){
+    } else if (this.isExchangeProvider()) {
       return new EWSConnector(this);
-    }else{
+    } else {
       throw new Error('EMail provider not defined!');
     }
   },
   createSMTPConnector: function () {
-    if(this.isGMailProvider()){
+    if (this.isGMailProvider()) {
       return new SMTPConnector(this);
-    }else{
+    } else {
       throw new Error("SMTP provider not specified!");
     }
   },
@@ -156,7 +156,7 @@ UserSchema.statics.removeById = (userId) => {
     .then(() => {
       return Box.removeByUserId(userId);
     });
-}
+};
 
 let User = mongoose.model('User', UserSchema);
 export default User;
