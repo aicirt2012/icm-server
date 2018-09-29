@@ -32,7 +32,7 @@ class SociocortexAssembler {
       sociocortexTask.description = Task.getParameterValue(task.parameters, 'description');
       sociocortexTask.dueDate = task.due;
       sociocortexTask.case = Task.getParameterValue(task.parameters, 'case');
-      sociocortexTask.owner = task.assignees.length > 0 ? task.assignees[0] : undefined;
+      sociocortexTask.owner = task.assignees && task.assignees.length > 0 ? task.assignees[0] : undefined;
       sociocortexTask.state = Task.getParameterValue(task.parameters, 'state');
       sociocortexTask.taskParams = this.TaskParameters.toExternalObject(task);
       sociocortexTask.resourceType = Task.getParameterValue(task.parameters, 'resourceType');

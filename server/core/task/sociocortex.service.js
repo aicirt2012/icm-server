@@ -61,7 +61,7 @@ class SociocortexService extends TaskService {
     // update owner
     const updatedOwnerId = task.assignees && task.assignees.length > 0 ? task.assignees[0] : null;
     const oldOwnerId = sociocortexTask.assignees && sociocortexTask.assignees.length > 0 ? sociocortexTask.assignees[0].id : null;
-    if (updatedOwnerId !== oldOwnerId) {
+    if (updatedOwnerId !== null && updatedOwnerId !== oldOwnerId) {
       await this._connector.updateOwner(taskType, sociocortexTask.providerId, updatedOwnerId)
     }
     return this.get(sociocortexId);
