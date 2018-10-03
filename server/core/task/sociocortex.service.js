@@ -78,7 +78,8 @@ class SociocortexService extends TaskService {
       await this._connector.activateTask(task.providerId, taskType);
     }
     await this._connector.updateExternalId(taskType, task.providerId, task.frontendUrl);
-    await this.update(task.providerId, task);
+    if (task.isOpen)
+      await this.update(task.providerId, task);
     return await this.get(task.providerId);
   }
 
